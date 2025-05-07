@@ -1,0 +1,17 @@
+{
+  "name": "water_company_backend",
+  "version": "1.0.0",
+  "description": "Backend for water company",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "bcrypt": "^5.1.1",
+    "socket.io": "^4.7.5"
+  }
+}
