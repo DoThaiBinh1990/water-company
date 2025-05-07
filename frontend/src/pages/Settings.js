@@ -195,7 +195,7 @@ function Settings({ user }) {
               placeholder="Nhập tên người dùng"
               value={newUser.username}
               onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div>
@@ -205,7 +205,7 @@ function Settings({ user }) {
               placeholder="Nhập mật khẩu (để trống nếu không đổi)"
               value={newUser.password}
               onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div>
@@ -228,7 +228,7 @@ function Settings({ user }) {
                 }[role] || { add: false, edit: false, delete: false, approve: false };
                 setNewUser({ ...newUser, role, permissions: defaultPermissions });
               }}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             >
               <option value="admin">Admin</option>
               <option value="director">Tổng giám đốc</option>
@@ -251,7 +251,7 @@ function Settings({ user }) {
                 type="checkbox"
                 checked={newUser.permissions.add}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, add: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
               />
               Thêm
             </label>
@@ -260,7 +260,7 @@ function Settings({ user }) {
                 type="checkbox"
                 checked={newUser.permissions.edit}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, edit: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
               />
               Sửa
             </label>
@@ -269,7 +269,7 @@ function Settings({ user }) {
                 type="checkbox"
                 checked={newUser.permissions.delete}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, delete: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
               />
               Xóa
             </label>
@@ -278,7 +278,7 @@ function Settings({ user }) {
                 type="checkbox"
                 checked={newUser.permissions.approve}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, approve: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
               />
               Duyệt
             </label>
@@ -286,7 +286,7 @@ function Settings({ user }) {
         </div>
         <button
           onClick={saveUser}
-          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
         >
           <FaUserPlus /> {editingUserId ? 'Cập nhật' : 'Thêm'} người dùng
         </button>
@@ -296,7 +296,7 @@ function Settings({ user }) {
               setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
               setEditingUserId(null);
             }}
-            className="mt-3 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+            className="mt-3 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
           >
             Hủy
           </button>
@@ -313,13 +313,13 @@ function Settings({ user }) {
               placeholder="Nhập tên đơn vị phân bổ"
               value={newAllocatedUnit}
               onChange={(e) => setNewAllocatedUnit(e.target.value)}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveAllocatedUnit}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
             >
               <FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'} đơn vị
             </button>
@@ -329,7 +329,7 @@ function Settings({ user }) {
                   setNewAllocatedUnit('');
                   setEditAllocatedUnit(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
               >
                 Hủy
               </button>
@@ -354,14 +354,14 @@ function Settings({ user }) {
                         setNewAllocatedUnit(unit.name);
                         setEditAllocatedUnit(unit);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteAllocatedUnit(unit._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
                       title="Xóa"
                     >
                       <FaTrash />
@@ -384,13 +384,13 @@ function Settings({ user }) {
               placeholder="Nhập tên đơn vị thi công"
               value={newConstructionUnit}
               onChange={(e) => setNewConstructionUnit(e.target.value)}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveConstructionUnit}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
             >
               <FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'} đơn vị
             </button>
@@ -400,7 +400,7 @@ function Settings({ user }) {
                   setNewConstructionUnit('');
                   setEditConstructionUnit(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
               >
                 Hủy
               </button>
@@ -425,14 +425,14 @@ function Settings({ user }) {
                         setNewConstructionUnit(unit.name);
                         setEditConstructionUnit(unit);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteConstructionUnit(unit._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
                       title="Xóa"
                     >
                       <FaTrash />
@@ -455,13 +455,13 @@ function Settings({ user }) {
               placeholder="Nhập tên đợt phân bổ"
               value={newAllocationWave}
               onChange={(e) => setNewAllocationWave(e.target.value)}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveAllocationWave}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
             >
               <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt phân bổ
             </button>
@@ -471,7 +471,7 @@ function Settings({ user }) {
                   setNewAllocationWave('');
                   setEditAllocationWave(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
               >
                 Hủy
               </button>
@@ -496,14 +496,14 @@ function Settings({ user }) {
                         setNewAllocationWave(wave.name);
                         setEditAllocationWave(wave);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteAllocationWave(wave._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
                       title="Xóa"
                     >
                       <FaTrash />
@@ -542,14 +542,14 @@ function Settings({ user }) {
                   <td className="p-4 flex gap-2">
                     <button
                       onClick={() => editUser(u)}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteUser(u._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
                       disabled={u.role === 'admin'}
                       title={u.role === 'admin' ? 'Không thể xóa admin' : 'Xóa'}
                     >

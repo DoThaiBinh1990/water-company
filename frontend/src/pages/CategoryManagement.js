@@ -241,7 +241,7 @@ function CategoryManagement({ user }) {
             setNewProject({ type: 'category', name: '', allocatedUnit: '', allocationWave: '', location: '', scale: '', enteredBy: '' });
             setShowModal(true);
           }}
-          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
         >
           <FaPlus /> Thêm công trình
         </button>
@@ -262,7 +262,7 @@ function CategoryManagement({ user }) {
               placeholder="Nhập tên công trình"
               value={newProject.name}
               onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div>
@@ -270,7 +270,7 @@ function CategoryManagement({ user }) {
             <select
               value={newProject.allocatedUnit}
               onChange={(e) => setNewProject({ ...newProject, allocatedUnit: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             >
               <option value="">Chọn đơn vị phân bổ</option>
               {allocatedUnits.map(unit => (
@@ -283,7 +283,7 @@ function CategoryManagement({ user }) {
             <select
               value={newProject.allocationWave}
               onChange={(e) => setNewProject({ ...newProject, allocationWave: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             >
               <option value="">Chọn đợt phân bổ</option>
               {allocationWavesList.map(wave => (
@@ -298,7 +298,7 @@ function CategoryManagement({ user }) {
               placeholder="Nhập địa điểm"
               value={newProject.location}
               onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div>
@@ -308,7 +308,7 @@ function CategoryManagement({ user }) {
               placeholder="Nhập quy mô"
               value={newProject.scale}
               onChange={(e) => setNewProject({ ...newProject, scale: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
           <div>
@@ -318,21 +318,21 @@ function CategoryManagement({ user }) {
               placeholder="Nhập tên người nhập"
               value={newProject.enteredBy}
               onChange={(e) => setNewProject({ ...newProject, enteredBy: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
             />
           </div>
         </div>
         <div className="mt-6 flex gap-4">
           <button
             onClick={saveProject}
-            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
             disabled={!(user?.permissions?.add || (editProject && user?.permissions?.edit))}
           >
             <FaCheckCircle /> {editProject ? 'Gửi yêu cầu sửa' : 'Đăng ký'}
           </button>
           <button
             onClick={() => setShowModal(false)}
-            className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+            className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
           >
             Hủy
           </button>
@@ -342,7 +342,7 @@ function CategoryManagement({ user }) {
       {user?.permissions?.approve && (
         <button
           onClick={() => setShowNotifications(true)}
-          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
         >
           <FaBell /> Thông báo ({notifications.length})
         </button>
@@ -362,7 +362,7 @@ function CategoryManagement({ user }) {
               axios.get(`${API_URL}/api/notifications?status=pending`)
                 .then(response => setNotifications(response.data));
             }}
-            className={`p-3 rounded-lg transition-all duration-200 ${
+            className={`p-3 rounded-lg transition-all duration-200 transform hover:scale-105 ${
               notificationTab === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -374,7 +374,7 @@ function CategoryManagement({ user }) {
               axios.get(`${API_URL}/api/notifications?status=processed`)
                 .then(response => setNotifications(response.data));
             }}
-            className={`p-3 rounded-lg transition-all duration-200 ${
+            className={`p-3 rounded-lg transition-all duration-200 transform hover:scale-105 ${
               notificationTab === 'processed' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -391,13 +391,13 @@ function CategoryManagement({ user }) {
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => notification.type === 'edit' ? approveEdit(notification.projectId) : approveDelete(notification.projectId)}
-                      className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg"
+                      className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg transform hover:scale-105"
                     >
                       <FaCheckCircle /> Duyệt
                     </button>
                     <button
                       onClick={() => notification.type === 'edit' ? rejectEdit(notification.projectId) : rejectDelete(notification.projectId)}
-                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg"
+                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg transform hover:scale-105"
                     >
                       <FaTimesCircle /> Từ chối
                     </button>
@@ -411,7 +411,7 @@ function CategoryManagement({ user }) {
         </div>
         <button
           onClick={() => setShowNotifications(false)}
-          className="mt-6 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 w-full"
+          className="mt-6 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 w-full transform hover:scale-105"
         >
           Đóng
         </button>
@@ -422,7 +422,7 @@ function CategoryManagement({ user }) {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 w-full md:w-1/3"
+          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 w-full md:w-1/3 transform hover:scale-105"
         >
           <option value="">Tất cả trạng thái</option>
           <option value="Chờ duyệt">Chờ duyệt</option>
@@ -474,14 +474,14 @@ function CategoryManagement({ user }) {
                     <>
                       <button
                         onClick={() => approveProject(project._id)}
-                        className="text-green-600 hover:text-green-800 transition-all duration-200"
+                        className="text-green-600 hover:text-green-800 transition-all duration-200 transform hover:scale-110"
                         title="Duyệt"
                       >
                         <FaCheckCircle />
                       </button>
                       <button
                         onClick={() => rejectProject(project._id)}
-                        className="text-red-600 hover:text-red-800 transition-all duration-200"
+                        className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
                         title="Từ chối"
                       >
                         <FaTimesCircle />
@@ -491,7 +491,7 @@ function CategoryManagement({ user }) {
                   {(project.status !== 'Đã duyệt' || user?.permissions?.edit) && (
                     <button
                       onClick={() => openEditModal(project)}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
                       disabled={!user?.permissions?.edit}
                       title="Sửa"
                     >
@@ -501,7 +501,7 @@ function CategoryManagement({ user }) {
                   {(project.status !== 'Đã duyệt' || user?.permissions?.delete) && (
                     <button
                       onClick={() => deleteProject(project._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
                       disabled={!user?.permissions?.delete}
                       title="Xóa"
                     >
@@ -511,7 +511,7 @@ function CategoryManagement({ user }) {
                   <select
                     value={allocateWaves[project._id] || ''}
                     onChange={(e) => setAllocateWaves(prev => ({ ...prev, [project._id]: e.target.value }))}
-                    className="border border-gray-300 p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                    className="border border-gray-300 p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
                     disabled={!user?.permissions?.edit}
                   >
                     <option value="">Chọn đợt</option>
@@ -521,7 +521,7 @@ function CategoryManagement({ user }) {
                   </select>
                   <button
                     onClick={() => allocateProject(project._id)}
-                    className="text-blue-600 hover:text-blue-800 transition-all duration-200"
+                    className="text-blue-600 hover:text-blue-800 transition-all duration-200 transform hover:scale-110"
                     disabled={!user?.permissions?.edit || !allocateWaves[project._id]}
                     title="Phân bổ"
                   >
@@ -532,12 +532,12 @@ function CategoryManagement({ user }) {
                     placeholder="Người phụ trách"
                     value={assignPersons[project._id] || ''}
                     onChange={(e) => setAssignPersons(prev => ({ ...prev, [project._id]: e.target.value }))}
-                    className="border border-gray-300 p-2 rounded-lg text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                    className="border border-gray-300 p-2 rounded-lg text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
                     disabled={!user?.permissions?.edit}
                   />
                   <button
                     onClick={() => assignProject(project._id)}
-                    className="text-blue-600 hover:text-blue-800 transition-all duration-200"
+                    className="text-blue-600 hover:text-blue-800 transition-all duration-200 transform hover:scale-110"
                     disabled={!user?.permissions?.edit || !assignPersons[project._id]}
                     title="Phân công"
                   >
