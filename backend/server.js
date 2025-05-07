@@ -2,17 +2,18 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const bcrypt = require('bcryptjs'); // Thay bcrypt bằng bcryptjs
+const bcrypt = require('bcryptjs');
 const http = require('http');
 const socketIo = require('socket.io');
 
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, { cors: { origin: '*' } });
+const io = socketIo(server, { cors: { origin: 'https://water-company-frontend.vercel.app' } });
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+// Cấu hình CORS để cho phép domain Vercel
+app.use(cors({ origin: 'https://water-company-frontend.vercel.app' }));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI, {
@@ -362,7 +363,7 @@ app.patch('/api/projects/:id', async (req, res) => {
         type: 'edit',
         projectId: project._id,
       });
-    await notification.save();
+      await notification.save();
       io.emit('notification', notification);
     } else {
       Object.assign(project, req.body);
