@@ -182,11 +182,11 @@ function Settings({ user }) {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-8">Thiết lập</h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Thiết lập</h1>
       <ToastContainer position="top-center" autoClose={3000} />
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng'}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng'}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
             <label className="block text-gray-700 mb-2">Tên người dùng</label>
@@ -195,7 +195,7 @@ function Settings({ user }) {
               placeholder="Nhập tên người dùng"
               value={newUser.username}
               onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <div>
@@ -205,7 +205,7 @@ function Settings({ user }) {
               placeholder="Nhập mật khẩu (để trống nếu không đổi)"
               value={newUser.password}
               onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <div>
@@ -228,7 +228,7 @@ function Settings({ user }) {
                 }[role] || { add: false, edit: false, delete: false, approve: false };
                 setNewUser({ ...newUser, role, permissions: defaultPermissions });
               }}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             >
               <option value="admin">Admin</option>
               <option value="director">Tổng giám đốc</option>
@@ -244,14 +244,14 @@ function Settings({ user }) {
           </div>
         </div>
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Phân quyền</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-2">Phân quyền</h3>
           <div className="flex gap-4">
             <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={newUser.permissions.add}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, add: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
               />
               Thêm
             </label>
@@ -260,7 +260,7 @@ function Settings({ user }) {
                 type="checkbox"
                 checked={newUser.permissions.edit}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, edit: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
               />
               Sửa
             </label>
@@ -269,7 +269,7 @@ function Settings({ user }) {
                 type="checkbox"
                 checked={newUser.permissions.delete}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, delete: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
               />
               Xóa
             </label>
@@ -278,7 +278,7 @@ function Settings({ user }) {
                 type="checkbox"
                 checked={newUser.permissions.approve}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, approve: e.target.checked } })}
-                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transform hover:scale-110 transition-all duration-200"
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
               />
               Duyệt
             </label>
@@ -286,7 +286,7 @@ function Settings({ user }) {
         </div>
         <button
           onClick={saveUser}
-          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaUserPlus /> {editingUserId ? 'Cập nhật' : 'Thêm'} người dùng
         </button>
@@ -296,7 +296,7 @@ function Settings({ user }) {
               setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
               setEditingUserId(null);
             }}
-            className="mt-3 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
+            className="mt-3 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
           >
             Hủy
           </button>
@@ -304,7 +304,7 @@ function Settings({ user }) {
       </div>
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Quản lý đơn vị phân bổ</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị phân bổ</h2>
         <div className="flex gap-4 mb-6">
           <div className="flex-1">
             <label className="block text-gray-700 mb-2">Tên đơn vị phân bổ</label>
@@ -313,13 +313,13 @@ function Settings({ user }) {
               placeholder="Nhập tên đơn vị phân bổ"
               value={newAllocatedUnit}
               onChange={(e) => setNewAllocatedUnit(e.target.value)}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveAllocatedUnit}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
             >
               <FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'} đơn vị
             </button>
@@ -329,7 +329,7 @@ function Settings({ user }) {
                   setNewAllocatedUnit('');
                   setEditAllocatedUnit(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
+                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
               >
                 Hủy
               </button>
@@ -340,8 +340,8 @@ function Settings({ user }) {
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-blue-50">
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Tên đơn vị</th>
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Hành động</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -354,14 +354,14 @@ function Settings({ user }) {
                         setNewAllocatedUnit(unit.name);
                         setEditAllocatedUnit(unit);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteAllocatedUnit(unit._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200"
                       title="Xóa"
                     >
                       <FaTrash />
@@ -375,7 +375,7 @@ function Settings({ user }) {
       </div>
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Quản lý đơn vị thi công</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị thi công</h2>
         <div className="flex gap-4 mb-6">
           <div className="flex-1">
             <label className="block text-gray-700 mb-2">Tên đơn vị thi công</label>
@@ -384,13 +384,13 @@ function Settings({ user }) {
               placeholder="Nhập tên đơn vị thi công"
               value={newConstructionUnit}
               onChange={(e) => setNewConstructionUnit(e.target.value)}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveConstructionUnit}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
             >
               <FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'} đơn vị
             </button>
@@ -400,7 +400,7 @@ function Settings({ user }) {
                   setNewConstructionUnit('');
                   setEditConstructionUnit(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
+                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
               >
                 Hủy
               </button>
@@ -411,8 +411,8 @@ function Settings({ user }) {
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-blue-50">
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Tên đơn vị</th>
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Hành động</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -425,14 +425,14 @@ function Settings({ user }) {
                         setNewConstructionUnit(unit.name);
                         setEditConstructionUnit(unit);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteConstructionUnit(unit._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200"
                       title="Xóa"
                     >
                       <FaTrash />
@@ -446,7 +446,7 @@ function Settings({ user }) {
       </div>
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Quản lý đợt phân bổ</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2>
         <div className="flex gap-4 mb-6">
           <div className="flex-1">
             <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label>
@@ -455,13 +455,13 @@ function Settings({ user }) {
               placeholder="Nhập tên đợt phân bổ"
               value={newAllocationWave}
               onChange={(e) => setNewAllocationWave(e.target.value)}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveAllocationWave}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
             >
               <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt phân bổ
             </button>
@@ -471,7 +471,7 @@ function Settings({ user }) {
                   setNewAllocationWave('');
                   setEditAllocationWave(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
+                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
               >
                 Hủy
               </button>
@@ -482,8 +482,8 @@ function Settings({ user }) {
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-blue-50">
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Tên đợt phân bổ</th>
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Hành động</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -496,14 +496,14 @@ function Settings({ user }) {
                         setNewAllocationWave(wave.name);
                         setEditAllocationWave(wave);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteAllocationWave(wave._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200"
                       title="Xóa"
                     >
                       <FaTrash />
@@ -517,15 +517,15 @@ function Settings({ user }) {
       </div>
 
       <div className="bg-white p-8 rounded-2xl shadow-md">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Danh sách người dùng</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách người dùng</h2>
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-blue-50">
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Tên người dùng</th>
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Vai trò</th>
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Quyền</th>
-                <th className="p-4 text-left text-gray-700 font-semibold border-b">Hành động</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Tên người dùng</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Vai trò</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Quyền</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -542,14 +542,14 @@ function Settings({ user }) {
                   <td className="p-4 flex gap-2">
                     <button
                       onClick={() => editUser(u)}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteUser(u._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200"
                       disabled={u.role === 'admin'}
                       title={u.role === 'admin' ? 'Không thể xóa admin' : 'Xóa'}
                     >

@@ -229,7 +229,7 @@ function MinorRepairManagement({ user }) {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-8">Quản lý công trình sửa chữa nhỏ</h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Quản lý công trình sửa chữa nhỏ</h1>
       <ToastContainer position="top-center" autoClose={3000} />
 
       {user?.permissions?.add && (
@@ -239,7 +239,7 @@ function MinorRepairManagement({ user }) {
             setNewProject({ type: 'minor_repair', name: '', allocatedUnit: '', allocationWave: '', location: '', enteredBy: '' });
             setShowModal(true);
           }}
-          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaPlus /> Thêm công trình
         </button>
@@ -249,9 +249,9 @@ function MinorRepairManagement({ user }) {
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
         style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.6)', zIndex: 1000 } }}
-        className="bg-white rounded-2xl p-8 max-w-2xl mx-auto mt-24 shadow-2xl transform transition-all duration-300 animate-fadeIn"
+        className="bg-white rounded-2xl p-8 max-w-2xl mx-auto mt-24 shadow-2xl"
       >
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">{editProject ? 'Sửa công trình' : 'Đăng ký công trình'}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">{editProject ? 'Sửa công trình' : 'Đăng ký công trình'}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 mb-2">Tên công trình</label>
@@ -260,7 +260,7 @@ function MinorRepairManagement({ user }) {
               placeholder="Nhập tên công trình"
               value={newProject.name}
               onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <div>
@@ -268,7 +268,7 @@ function MinorRepairManagement({ user }) {
             <select
               value={newProject.allocatedUnit}
               onChange={(e) => setNewProject({ ...newProject, allocatedUnit: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             >
               <option value="">Chọn đơn vị phân bổ</option>
               {allocatedUnits.map(unit => (
@@ -281,7 +281,7 @@ function MinorRepairManagement({ user }) {
             <select
               value={newProject.allocationWave}
               onChange={(e) => setNewProject({ ...newProject, allocationWave: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             >
               <option value="">Chọn đợt phân bổ</option>
               {allocationWavesList.map(wave => (
@@ -296,7 +296,7 @@ function MinorRepairManagement({ user }) {
               placeholder="Nhập địa điểm"
               value={newProject.location}
               onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
           <div>
@@ -306,21 +306,21 @@ function MinorRepairManagement({ user }) {
               placeholder="Nhập tên người nhập"
               value={newProject.enteredBy}
               onChange={(e) => setNewProject({ ...newProject, enteredBy: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
         </div>
         <div className="mt-6 flex gap-4">
           <button
             onClick={saveProject}
-            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
             disabled={!(user?.permissions?.add || (editProject && user?.permissions?.edit))}
           >
             <FaCheckCircle /> {editProject ? 'Gửi yêu cầu sửa' : 'Đăng ký'}
           </button>
           <button
             onClick={() => setShowModal(false)}
-            className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 transform hover:scale-105"
+            className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
           >
             Hủy
           </button>
@@ -330,7 +330,7 @@ function MinorRepairManagement({ user }) {
       {user?.permissions?.approve && (
         <button
           onClick={() => setShowNotifications(true)}
-          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaBell /> Thông báo ({notifications.length})
         </button>
@@ -340,9 +340,9 @@ function MinorRepairManagement({ user }) {
         isOpen={showNotifications}
         onRequestClose={() => setShowNotifications(false)}
         style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.6)', zIndex: 1000 } }}
-        className="bg-white rounded-2xl p-8 max-w-2xl mx-auto mt-24 shadow-2xl transform transition-all duration-300 animate-fadeIn"
+        className="bg-white rounded-2xl p-8 max-w-2xl mx-auto mt-24 shadow-2xl"
       >
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Thông báo</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Thông báo</h2>
         <div className="flex gap-4 mb-6">
           <button
             onClick={() => {
@@ -350,7 +350,7 @@ function MinorRepairManagement({ user }) {
               axios.get(`${API_URL}/api/notifications?status=pending`)
                 .then(response => setNotifications(response.data));
             }}
-            className={`p-3 rounded-lg transition-all duration-200 transform hover:scale-105 ${
+            className={`p-3 rounded-lg transition-all duration-200 ${
               notificationTab === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -362,7 +362,7 @@ function MinorRepairManagement({ user }) {
               axios.get(`${API_URL}/api/notifications?status=processed`)
                 .then(response => setNotifications(response.data));
             }}
-            className={`p-3 rounded-lg transition-all duration-200 transform hover:scale-105 ${
+            className={`p-3 rounded-lg transition-all duration-200 ${
               notificationTab === 'processed' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -379,13 +379,13 @@ function MinorRepairManagement({ user }) {
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => notification.type === 'edit' ? approveEdit(notification.projectId) : approveDelete(notification.projectId)}
-                      className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg transform hover:scale-105"
+                      className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg"
                     >
                       <FaCheckCircle /> Duyệt
                     </button>
                     <button
                       onClick={() => notification.type === 'edit' ? rejectEdit(notification.projectId) : rejectDelete(notification.projectId)}
-                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg transform hover:scale-105"
+                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg"
                     >
                       <FaTimesCircle /> Từ chối
                     </button>
@@ -399,18 +399,18 @@ function MinorRepairManagement({ user }) {
         </div>
         <button
           onClick={() => setShowNotifications(false)}
-          className="mt-6 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 w-full transform hover:scale-105"
+          className="mt-6 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 w-full"
         >
           Đóng
         </button>
       </Modal>
 
       <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Lọc công trình</h3>
+        <h3 className="text-xl font-bold text-gray-800 mb-4">Lọc công trình</h3>
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 w-full md:w-1/3 transform hover:scale-105"
+          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 w-full md:w-1/3"
         >
           <option value="">Tất cả trạng thái</option>
           <option value="Chờ duyệt">Chờ duyệt</option>
@@ -423,15 +423,15 @@ function MinorRepairManagement({ user }) {
         <table className="w-full table-auto border-collapse">
           <thead className="sticky top-0 bg-blue-50">
             <tr>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">STT</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Tên công trình</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Đơn vị phân bổ</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Đợt phân bổ</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Địa điểm</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Người nhập</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Trạng thái</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Người phụ trách</th>
-              <th className="p-4 text-left text-gray-700 font-semibold border-b">Hành động</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">STT</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Tên công trình</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Đơn vị phân bổ</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Đợt phân bổ</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Địa điểm</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Người nhập</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Trạng thái</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Người phụ trách</th>
+              <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -460,14 +460,14 @@ function MinorRepairManagement({ user }) {
                     <>
                       <button
                         onClick={() => approveProject(project._id)}
-                        className="text-green-600 hover:text-green-800 transition-all duration-200 transform hover:scale-110"
+                        className="text-green-600 hover:text-green-800 transition-all duration-200"
                         title="Duyệt"
                       >
                         <FaCheckCircle />
                       </button>
                       <button
                         onClick={() => rejectProject(project._id)}
-                        className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
+                        className="text-red-600 hover:text-red-800 transition-all duration-200"
                         title="Từ chối"
                       >
                         <FaTimesCircle />
@@ -477,7 +477,7 @@ function MinorRepairManagement({ user }) {
                   {(project.status !== 'Đã duyệt' || user?.permissions?.edit) && (
                     <button
                       onClick={() => openEditModal(project)}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                       disabled={!user?.permissions?.edit}
                       title="Sửa"
                     >
@@ -487,7 +487,7 @@ function MinorRepairManagement({ user }) {
                   {(project.status !== 'Đã duyệt' || user?.permissions?.delete) && (
                     <button
                       onClick={() => deleteProject(project._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200 transform hover:scale-110"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200"
                       disabled={!user?.permissions?.delete}
                       title="Xóa"
                     >
@@ -497,7 +497,7 @@ function MinorRepairManagement({ user }) {
                   <select
                     value={allocateWaves[project._id] || ''}
                     onChange={(e) => setAllocateWaves(prev => ({ ...prev, [project._id]: e.target.value }))}
-                    className="border border-gray-300 p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+                    className="border border-gray-300 p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                     disabled={!user?.permissions?.edit}
                   >
                     <option value="">Chọn đợt</option>
@@ -507,7 +507,7 @@ function MinorRepairManagement({ user }) {
                   </select>
                   <button
                     onClick={() => allocateProject(project._id)}
-                    className="text-blue-600 hover:text-blue-800 transition-all duration-200 transform hover:scale-110"
+                    className="text-blue-600 hover:text-blue-800 transition-all duration-200"
                     disabled={!user?.permissions?.edit || !allocateWaves[project._id]}
                     title="Phân bổ"
                   >
@@ -518,12 +518,12 @@ function MinorRepairManagement({ user }) {
                     placeholder="Người phụ trách"
                     value={assignPersons[project._id] || ''}
                     onChange={(e) => setAssignPersons(prev => ({ ...prev, [project._id]: e.target.value }))}
-                    className="border border-gray-300 p-2 rounded-lg text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105"
+                    className="border border-gray-300 p-2 rounded-lg text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                     disabled={!user?.permissions?.edit}
                   />
                   <button
                     onClick={() => assignProject(project._id)}
-                    className="text-blue-600 hover:text-blue-800 transition-all duration-200 transform hover:scale-110"
+                    className="text-blue-600 hover:text-blue-800 transition-all duration-200"
                     disabled={!user?.permissions?.edit || !assignPersons[project._id]}
                     title="Phân công"
                   >
