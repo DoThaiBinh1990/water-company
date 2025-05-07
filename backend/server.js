@@ -424,6 +424,30 @@ app.patch('/api/projects/:id/reject', async (req, res) => {
   }
 });
 
+app.patch('/api/projects/:id/allocate', async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
+    project.allocationWave = req.body.allocationWave;
+    await project.save();
+    res.json(project);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+app.patch('/api/projects/:id/assign', async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
+    project.assignedTo = req.body.assignedTo;
+    await project.save();
+    res.json(project);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 app.patch('/api/projects/:id/approve-edit', async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
