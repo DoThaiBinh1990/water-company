@@ -10,11 +10,16 @@ function Sidebar({ user, onLogout }) {
   };
 
   return (
-    <div className="w-64 bg-blue-900 text-white h-screen fixed shadow-lg">
+    <div className="w-64 bg-gradient-to-b from-blue-800 to-blue-900 text-white h-screen fixed shadow-lg">
       <div className="p-6">
-        <h2 className="text-2xl font-bold mb-8">Quản lý công trình</h2>
+        <div className="flex items-center mb-8">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
+            <span className="text-blue-800 text-2xl font-bold">WC</span>
+          </div>
+          <h2 className="text-xl font-semibold">Water Company</h2>
+        </div>
         <nav>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             <li>
               <Link
                 to="/category"

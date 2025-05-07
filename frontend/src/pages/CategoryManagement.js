@@ -39,23 +39,23 @@ function CategoryManagement({ user }) {
         setProjects(response.data);
         setFilteredProjects(response.data);
       })
-      .catch(error => toast.error('Lỗi khi tải công trình!'));
+      .catch(error => toast.error('Lỗi khi tải công trình!', { position: "top-center" }));
 
     axios.get(`${API_URL}/api/allocated-units`)
       .then(response => setAllocatedUnits(response.data))
-      .catch(error => toast.error('Lỗi khi tải đơn vị!'));
+      .catch(error => toast.error('Lỗi khi tải đơn vị!', { position: "top-center" }));
 
     axios.get(`${API_URL}/api/allocation-waves`)
       .then(response => setAllocationWavesList(response.data))
-      .catch(error => toast.error('Lỗi khi tải đợt phân bổ!'));
+      .catch(error => toast.error('Lỗi khi tải đợt phân bổ!', { position: "top-center" }));
 
     axios.get(`${API_URL}/api/notifications?status=pending`)
       .then(response => setNotifications(response.data))
-      .catch(error => toast.error('Lỗi khi tải thông báo!'));
+      .catch(error => toast.error('Lỗi khi tải thông báo!', { position: "top-center" }));
 
     socket.on('notification', (notification) => {
       setNotifications(prev => [notification, ...prev]);
-      toast.info(notification.message);
+      toast.info(notification.message, { position: "top-center" });
     });
 
     return () => socket.off('notification');
@@ -94,17 +94,17 @@ function CategoryManagement({ user }) {
         if (editProject) {
           setProjects(projects.map(p => p._id === editProject._id ? response.data : p));
           setFilteredProjects(projects.map(p => p._id === editProject._id ? response.data : p));
-          toast.success('Đã gửi yêu cầu sửa!');
+          toast.success('Đã gửi yêu cầu sửa!', { position: "top-center" });
         } else {
           setProjects([...projects, response.data]);
           setFilteredProjects([...projects, response.data]);
-          toast.success('Đã đăng ký công trình!');
+          toast.success('Đã đăng ký công trình!', { position: "top-center" });
         }
         setEditProject(null);
         setNewProject({ type: 'category', name: '', allocatedUnit: '', allocationWave: '', location: '', scale: '', enteredBy: '' });
         setShowModal(false);
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi đăng ký/sửa công trình!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi đăng ký/sửa công trình!', { position: "top-center" }));
   };
 
   const deleteProject = (id) => {
@@ -112,9 +112,9 @@ function CategoryManagement({ user }) {
       .then(response => {
         setProjects(projects.filter(p => p._id !== id));
         setFilteredProjects(projects.filter(p => p._id !== id));
-        toast.success(response.data.message);
+        toast.success(response.data.message, { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa công trình!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa công trình!', { position: "top-center" }));
   };
 
   const approveProject = (id) => {
@@ -122,9 +122,9 @@ function CategoryManagement({ user }) {
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
-        toast.success('Đã duyệt công trình!');
+        toast.success('Đã duyệt công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi duyệt!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi duyệt!', { position: "top-center" }));
   };
 
   const rejectProject = (id) => {
@@ -132,15 +132,15 @@ function CategoryManagement({ user }) {
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
-        toast.success('Đã từ chối công trình!');
+        toast.success('Đã từ chối công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi từ chối!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi từ chối!', { position: "top-center" }));
   };
 
   const allocateProject = (id) => {
     const wave = allocateWaves[id];
     if (!wave) {
-      toast.error('Vui lòng chọn đợt phân bổ!');
+      toast.error('Vui lòng chọn đợt phân bổ!', { position: "top-center" });
       return;
     }
     axios.patch(`${API_URL}/api/projects/${id}/allocate`, { allocationWave: wave })
@@ -148,15 +148,15 @@ function CategoryManagement({ user }) {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
         setAllocateWaves(prev => ({ ...prev, [id]: '' }));
-        toast.success('Đã phân bổ công trình!');
+        toast.success('Đã phân bổ công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi phân bổ!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi phân bổ!', { position: "top-center" }));
   };
 
   const assignProject = (id) => {
     const person = assignPersons[id];
     if (!person) {
-      toast.error('Vui lòng nhập người phụ trách!');
+      toast.error('Vui lòng nhập người phụ trách!', { position: "top-center" });
       return;
     }
     axios.patch(`${API_URL}/api/projects/${id}/assign`, { assignedTo: person })
@@ -164,9 +164,9 @@ function CategoryManagement({ user }) {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
         setAssignPersons(prev => ({ ...prev, [id]: '' }));
-        toast.success('Đã phân công công trình!');
+        toast.success('Đã phân công công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi phân công!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi phân công!', { position: "top-center" }));
   };
 
   const approveEdit = (id) => {
@@ -179,9 +179,9 @@ function CategoryManagement({ user }) {
           axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'edit'));
         }
-        toast.success('Đã duyệt sửa công trình!');
+        toast.success('Đã duyệt sửa công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi duyệt sửa!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi duyệt sửa!', { position: "top-center" }));
   };
 
   const rejectEdit = (id) => {
@@ -194,9 +194,9 @@ function CategoryManagement({ user }) {
           axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'edit'));
         }
-        toast.success('Đã từ chối sửa công trình!');
+        toast.success('Đã từ chối sửa công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi từ chối sửa!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi từ chối sửa!', { position: "top-center" }));
   };
 
   const approveDelete = (id) => {
@@ -209,9 +209,9 @@ function CategoryManagement({ user }) {
           axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'delete'));
         }
-        toast.success('Đã xóa công trình!');
+        toast.success('Đã xóa công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi duyệt xóa!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi duyệt xóa!', { position: "top-center" }));
   };
 
   const rejectDelete = (id) => {
@@ -224,15 +224,15 @@ function CategoryManagement({ user }) {
           axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'delete'));
         }
-        toast.success('Đã từ chối xóa công trình!');
+        toast.success('Đã từ chối xóa công trình!', { position: "top-center" });
       })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi từ chối xóa!'));
+      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi từ chối xóa!', { position: "top-center" }));
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-blue-800 mb-6">Quản lý công trình danh mục</h1>
-      <ToastContainer position="top-right" autoClose={3000} />
+    <div className="p-8 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-semibold text-gray-800 mb-8">Quản lý công trình danh mục</h1>
+      <ToastContainer position="top-center" autoClose={3000} />
 
       {user?.permissions?.add && (
         <button
@@ -241,7 +241,7 @@ function CategoryManagement({ user }) {
             setNewProject({ type: 'category', name: '', allocatedUnit: '', allocationWave: '', location: '', scale: '', enteredBy: '' });
             setShowModal(true);
           }}
-          className="mb-6 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaPlus /> Thêm công trình
         </button>
@@ -250,59 +250,77 @@ function CategoryManagement({ user }) {
       <Modal
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
-        style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' } }}
-        className="bg-white rounded-xl p-6 max-w-lg mx-auto mt-20 shadow-2xl transform transition-all duration-300"
+        style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.6)', zIndex: 1000 } }}
+        className="bg-white rounded-2xl p-8 max-w-2xl mx-auto mt-24 shadow-2xl transform transition-all duration-300 animate-fadeIn"
       >
-        <h2 className="text-2xl font-semibold text-blue-700 mb-6">{editProject ? 'Sửa công trình' : 'Đăng ký công trình'}</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">{editProject ? 'Sửa công trình' : 'Đăng ký công trình'}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="Tên công trình"
-            value={newProject.name}
-            onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          />
-          <select
-            value={newProject.allocatedUnit}
-            onChange={(e) => setNewProject({ ...newProject, allocatedUnit: e.target.value })}
-            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          >
-            <option value="">Chọn đơn vị phân bổ</option>
-            {allocatedUnits.map(unit => (
-              <option key={unit._id} value={unit.name}>{unit.name}</option>
-            ))}
-          </select>
-          <select
-            value={newProject.allocationWave}
-            onChange={(e) => setNewProject({ ...newProject, allocationWave: e.target.value })}
-            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          >
-            <option value="">Chọn đợt phân bổ</option>
-            {allocationWavesList.map(wave => (
-              <option key={wave._id} value={wave.name}>{wave.name}</option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Địa điểm"
-            value={newProject.location}
-            onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
-            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          />
-          <input
-            type="text"
-            placeholder="Quy mô"
-            value={newProject.scale}
-            onChange={(e) => setNewProject({ ...newProject, scale: e.target.value })}
-            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          />
-          <input
-            type="text"
-            placeholder="Người nhập"
-            value={newProject.enteredBy}
-            onChange={(e) => setNewProject({ ...newProject, enteredBy: e.target.value })}
-            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-          />
+          <div>
+            <label className="block text-gray-700 mb-2">Tên công trình</label>
+            <input
+              type="text"
+              placeholder="Nhập tên công trình"
+              value={newProject.name}
+              onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Đơn vị phân bổ</label>
+            <select
+              value={newProject.allocatedUnit}
+              onChange={(e) => setNewProject({ ...newProject, allocatedUnit: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <option value="">Chọn đơn vị phân bổ</option>
+              {allocatedUnits.map(unit => (
+                <option key={unit._id} value={unit.name}>{unit.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Đợt phân bổ</label>
+            <select
+              value={newProject.allocationWave}
+              onChange={(e) => setNewProject({ ...newProject, allocationWave: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <option value="">Chọn đợt phân bổ</option>
+              {allocationWavesList.map(wave => (
+                <option key={wave._id} value={wave.name}>{wave.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Địa điểm</label>
+            <input
+              type="text"
+              placeholder="Nhập địa điểm"
+              value={newProject.location}
+              onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Quy mô</label>
+            <input
+              type="text"
+              placeholder="Nhập quy mô"
+              value={newProject.scale}
+              onChange={(e) => setNewProject({ ...newProject, scale: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Người nhập</label>
+            <input
+              type="text"
+              placeholder="Nhập tên người nhập"
+              value={newProject.enteredBy}
+              onChange={(e) => setNewProject({ ...newProject, enteredBy: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+          </div>
         </div>
         <div className="mt-6 flex gap-4">
           <button
@@ -324,7 +342,7 @@ function CategoryManagement({ user }) {
       {user?.permissions?.approve && (
         <button
           onClick={() => setShowNotifications(true)}
-          className="mb-6 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          className="mb-8 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaBell /> Thông báo ({notifications.length})
         </button>
@@ -333,10 +351,10 @@ function CategoryManagement({ user }) {
       <Modal
         isOpen={showNotifications}
         onRequestClose={() => setShowNotifications(false)}
-        style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' } }}
-        className="bg-white rounded-xl p-6 max-w-lg mx-auto mt-20 shadow-2xl transform transition-all duration-300"
+        style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.6)', zIndex: 1000 } }}
+        className="bg-white rounded-2xl p-8 max-w-2xl mx-auto mt-24 shadow-2xl transform transition-all duration-300 animate-fadeIn"
       >
-        <h2 className="text-2xl font-semibold text-blue-700 mb-6">Thông báo</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Thông báo</h2>
         <div className="flex gap-4 mb-6">
           <button
             onClick={() => {
@@ -399,8 +417,8 @@ function CategoryManagement({ user }) {
         </button>
       </Modal>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h3 className="text-xl font-semibold text-blue-700 mb-4">Lọc công trình</h3>
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Lọc công trình</h3>
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
@@ -413,20 +431,20 @@ function CategoryManagement({ user }) {
         </select>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md max-h-[600px] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
         <table className="w-full table-auto border-collapse">
-          <thead className="sticky top-0 bg-blue-100">
+          <thead className="sticky top-0 bg-blue-50">
             <tr>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">STT</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Tên công trình</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Đơn vị phân bổ</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Đợt phân bổ</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Địa điểm</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Quy mô</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Người nhập</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Trạng thái</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Người phụ trách</th>
-              <th className="p-4 text-left text-blue-800 font-semibold border-b">Hành động</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">STT</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Tên công trình</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Đơn vị phân bổ</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Đợt phân bổ</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Địa điểm</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Quy mô</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Người nhập</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Trạng thái</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Người phụ trách</th>
+              <th className="p-4 text-left text-gray-700 font-semibold border-b">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -442,9 +460,9 @@ function CategoryManagement({ user }) {
                 <td className="p-4">
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      project.status === 'Chờ duyệt' ? 'bg-yellow-200 text-yellow-800' :
-                      project.status === 'Đã duyệt' ? 'bg-green-200 text-green-800' :
-                      'bg-red-200 text-red-800'
+                      project.status === 'Chờ duyệt' ? 'bg-yellow-100 text-yellow-700' :
+                      project.status === 'Đã duyệt' ? 'bg-green-100 text-green-700' :
+                      'bg-red-100 text-red-700'
                     }`}
                   >
                     {project.status}

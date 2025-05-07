@@ -2,32 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tùy chỉnh modal */
+/* Animation cho modal */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Cải thiện typography và mặc định */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Đảm bảo bảng dữ liệu responsive */
+table {
+  min-width: 100%;
+}
+
+/* Cải thiện giao diện input và select */
+input, select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Đảm bảo modal hiển thị đúng */
 .ReactModal__Overlay {
-  opacity: 0;
-  transition: opacity 200ms ease-in-out;
-}
-
-.ReactModal__Overlay--after-open {
-  opacity: 1;
-}
-
-.ReactModal__Overlay--before-close {
-  opacity: 0;
-}
-
-.ReactModal__Content {
-  transform: translate(-50%, -50%);
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  border: 1px solid #ccc;
-  background: #fff;
-  overflow: auto;
-  border-radius: 8px;
-  outline: none;
-  padding: 20px;
-  max-width: 600px;
-  width: 100%;
+  z-index: 1000 !important;
 }
