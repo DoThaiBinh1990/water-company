@@ -5,8 +5,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import Modal from 'react-modal';
 import io from 'socket.io-client';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_URL } from '../config';
 
-const socket = io('http://localhost:5000');
+const socket = io(API_URL);
 Modal.setAppElement('#root');
 
 function MinorRepairManagement({ user }) {
@@ -32,22 +33,22 @@ function MinorRepairManagement({ user }) {
   const [notificationTab, setNotificationTab] = useState('pending');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/projects?type=minor_repair')
+    axios.get(`${API_URL}/api/projects?type=minor_repair`)
       .then(response => {
         setProjects(response.data);
         setFilteredProjects(response.data);
       })
       .catch(error => toast.error('Lỗi khi tải công trình!'));
 
-    axios.get('http://localhost:5000/api/allocated-units')
+    axios.get(`${API_URL}/api/allocated-units`)
       .then(response => setAllocatedUnits(response.data))
       .catch(error => toast.error('Lỗi khi tải đơn vị!'));
 
-    axios.get('http://localhost:5000/api/allocation-waves')
+    axios.get(`${API_URL}/api/allocation-waves`)
       .then(response => setAllocationWavesList(response.data))
       .catch(error => toast.error('Lỗi khi tải đợt phân bổ!'));
 
-    axios.get('http://localhost:5000/api/notifications?status=pending')
+    axios.get(`${API_URL}/api/notifications?status=pending`)
       .then(response => setNotifications(response.data))
       .catch(error => toast.error('Lỗi khi tải thông báo!'));
 
@@ -83,8 +84,8 @@ function MinorRepairManagement({ user }) {
   const saveProject = () => {
     const projectData = { ...newProject };
     const request = editProject
-      ? axios.patch(`http://localhost:5000/api/projects/${editProject._id}`, projectData)
-      : axios.post('http://localhost:5000/api/projects', projectData);
+      ? axios.patch(`${API_URL}/api/projects/${editProject._id}`, projectData)
+      : axios.post(`${API_URL}/api/projects`, projectData);
 
     request
       .then(response => {
@@ -105,7 +106,7 @@ function MinorRepairManagement({ user }) {
   };
 
   const deleteProject = (id) => {
-    axios.delete(`http://localhost:5000/api/projects/${id}`)
+    axios.delete(`${API_URL}/api/projects/${id}`)
       .then(response => {
         setProjects(projects.filter(p => p._id !== id));
         setFilteredProjects(projects.filter(p => p._id !== id));
@@ -115,7 +116,7 @@ function MinorRepairManagement({ user }) {
   };
 
   const approveProject = (id) => {
-    axios.patch(`http://localhost:5000/api/projects/${id}/approve`)
+    axios.patch(`${API_URL}/api/projects/${id}/approve`)
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
@@ -125,7 +126,7 @@ function MinorRepairManagement({ user }) {
   };
 
   const rejectProject = (id) => {
-    axios.patch(`http://localhost:5000/api/projects/${id}/reject`)
+    axios.patch(`${API_URL}/api/projects/${id}/reject`)
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
@@ -140,7 +141,7 @@ function MinorRepairManagement({ user }) {
       toast.error('Vui lòng chọn đợt phân bổ!');
       return;
     }
-    axios.patch(`http://localhost:5000/api/projects/${id}/allocate`, { allocationWave: wave })
+    axios.patch(`${API_URL}/api/projects/${id}/allocate`, { allocationWave: wave })
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
@@ -156,7 +157,7 @@ function MinorRepairManagement({ user }) {
       toast.error('Vui lòng nhập người phụ trách!');
       return;
     }
-    axios.patch(`http://localhost:5000/api/projects/${id}/assign`, { assignedTo: person })
+    axios.patch(`${API_URL}/api/projects/${id}/assign`, { assignedTo: person })
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
@@ -167,13 +168,13 @@ function MinorRepairManagement({ user }) {
   };
 
   const approveEdit = (id) => {
-    axios.patch(`http://localhost:5000/api/projects/${id}/approve-edit`)
+    axios.patch(`${API_URL}/api/projects/${id}/approve-edit`)
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
         const notification = notifications.find(n => n.projectId === id && n.type === 'edit');
         if (notification) {
-          axios.patch(`http://localhost:5000/api/notifications/${notification._id}`, { status: 'processed' });
+          axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'edit'));
         }
         toast.success('Đã duyệt sửa công trình!');
@@ -182,13 +183,13 @@ function MinorRepairManagement({ user }) {
   };
 
   const rejectEdit = (id) => {
-    axios.patch(`http://localhost:5000/api/projects/${id}/reject-edit`)
+    axios.patch(`${API_URL}/api/projects/${id}/reject-edit`)
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
         const notification = notifications.find(n => n.projectId === id && n.type === 'edit');
         if (notification) {
-          axios.patch(`http://localhost:5000/api/notifications/${notification._id}`, { status: 'processed' });
+          axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'edit'));
         }
         toast.success('Đã từ chối sửa công trình!');
@@ -197,13 +198,13 @@ function MinorRepairManagement({ user }) {
   };
 
   const approveDelete = (id) => {
-    axios.patch(`http://localhost:5000/api/projects/${id}/approve-delete`)
+    axios.patch(`${API_URL}/api/projects/${id}/approve-delete`)
       .then(response => {
         setProjects(projects.filter(p => p._id !== id));
         setFilteredProjects(projects.filter(p => p._id !== id));
         const notification = notifications.find(n => n.projectId === id && n.type === 'delete');
         if (notification) {
-          axios.patch(`http://localhost:5000/api/notifications/${notification._id}`, { status: 'processed' });
+          axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'delete'));
         }
         toast.success('Đã xóa công trình!');
@@ -212,13 +213,13 @@ function MinorRepairManagement({ user }) {
   };
 
   const rejectDelete = (id) => {
-    axios.patch(`http://localhost:5000/api/projects/${id}/reject-delete`)
+    axios.patch(`${API_URL}/api/projects/${id}/reject-delete`)
       .then(response => {
         setProjects(projects.map(p => p._id === id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === id ? response.data : p));
         const notification = notifications.find(n => n.projectId === id && n.type === 'delete');
         if (notification) {
-          axios.patch(`http://localhost:5000/api/notifications/${notification._id}`, { status: 'processed' });
+          axios.patch(`${API_URL}/api/notifications/${notification._id}`, { status: 'processed' });
           setNotifications(notifications.filter(n => n.projectId !== id || n.type !== 'delete'));
         }
         toast.success('Đã từ chối xóa công trình!');
@@ -231,7 +232,7 @@ function MinorRepairManagement({ user }) {
       <h1 className="text-3xl font-bold text-blue-800 mb-6">Quản lý công trình sửa chữa nhỏ</h1>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {user && user.permissions && user.permissions.add && (
+      {user?.permissions?.add && (
         <button
           onClick={() => {
             setEditProject(null);
@@ -298,7 +299,7 @@ function MinorRepairManagement({ user }) {
           <button
             onClick={saveProject}
             className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
-            disabled={!(user && user.permissions && (user.permissions.add || (editProject && user.permissions.edit)))}
+            disabled={!(user?.permissions?.add || (editProject && user?.permissions?.edit))}
           >
             <FaCheckCircle /> {editProject ? 'Gửi yêu cầu sửa' : 'Đăng ký'}
           </button>
@@ -311,7 +312,7 @@ function MinorRepairManagement({ user }) {
         </div>
       </Modal>
 
-      {user && user.permissions && user.permissions.approve && (
+      {user?.permissions?.approve && (
         <button
           onClick={() => setShowNotifications(true)}
           className="mb-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
@@ -331,7 +332,7 @@ function MinorRepairManagement({ user }) {
           <button
             onClick={() => {
               setNotificationTab('pending');
-              axios.get('http://localhost:5000/api/notifications?status=pending')
+              axios.get(`${API_URL}/api/notifications?status=pending`)
                 .then(response => setNotifications(response.data));
             }}
             className={`p-2 rounded ${notificationTab === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
@@ -341,7 +342,7 @@ function MinorRepairManagement({ user }) {
           <button
             onClick={() => {
               setNotificationTab('processed');
-              axios.get('http://localhost:5000/api/notifications?status=processed')
+              axios.get(`${API_URL}/api/notifications?status=processed`)
                 .then(response => setNotifications(response.data));
             }}
             className={`p-2 rounded ${notificationTab === 'processed' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
@@ -436,7 +437,7 @@ function MinorRepairManagement({ user }) {
                 </td>
                 <td className="p-3">{project.assignedTo || 'Chưa phân công'}</td>
                 <td className="p-3 flex gap-2">
-                  {user && user.permissions && user.permissions.approve && project.status === 'Chờ duyệt' && (
+                  {user?.permissions?.approve && project.status === 'Chờ duyệt' && (
                     <>
                       <button
                         onClick={() => approveProject(project._id)}
@@ -454,21 +455,21 @@ function MinorRepairManagement({ user }) {
                       </button>
                     </>
                   )}
-                  {user && user.permissions && (project.status !== 'Đã duyệt' || user.permissions.edit) && (
+                  {(project.status !== 'Đã duyệt' || user?.permissions?.edit) && (
                     <button
                       onClick={() => openEditModal(project)}
                       className="text-yellow-600 hover:text-yellow-800"
-                      disabled={!(user.permissions.edit)}
+                      disabled={!user?.permissions?.edit}
                       title="Sửa"
                     >
                       <FaEdit />
                     </button>
                   )}
-                  {user && user.permissions && (project.status !== 'Đã duyệt' || user.permissions.delete) && (
+                  {(project.status !== 'Đã duyệt' || user?.permissions?.delete) && (
                     <button
                       onClick={() => deleteProject(project._id)}
                       className="text-red-600 hover:text-red-800"
-                      disabled={!(user.permissions.delete)}
+                      disabled={!user?.permissions?.delete}
                       title="Xóa"
                     >
                       <FaTrash />
@@ -478,7 +479,7 @@ function MinorRepairManagement({ user }) {
                     value={allocateWaves[project._id] || ''}
                     onChange={(e) => setAllocateWaves(prev => ({ ...prev, [project._id]: e.target.value }))}
                     className="border border-blue-300 p-1 rounded text-sm"
-                    disabled={!(user && user.permissions && user.permissions.edit)}
+                    disabled={!user?.permissions?.edit}
                   >
                     <option value="">Chọn đợt</option>
                     {allocationWavesList.map(wave => (
@@ -488,7 +489,7 @@ function MinorRepairManagement({ user }) {
                   <button
                     onClick={() => allocateProject(project._id)}
                     className="text-blue-600 hover:text-blue-800"
-                    disabled={!(user && user.permissions && user.permissions.edit && allocateWaves[project._id])}
+                    disabled={!user?.permissions?.edit || !allocateWaves[project._id]}
                     title="Phân bổ"
                   >
                     <FaBuilding />
@@ -499,12 +500,12 @@ function MinorRepairManagement({ user }) {
                     value={assignPersons[project._id] || ''}
                     onChange={(e) => setAssignPersons(prev => ({ ...prev, [project._id]: e.target.value }))}
                     className="border border-blue-300 p-1 rounded text-sm w-24"
-                    disabled={!(user && user.permissions && user.permissions.edit)}
+                    disabled={!user?.permissions?.edit}
                   />
                   <button
                     onClick={() => assignProject(project._id)}
                     className="text-blue-600 hover:text-blue-800"
-                    disabled={!(user && user.permissions && user.permissions.edit && assignPersons[project._id])}
+                    disabled={!user?.permissions?.edit || !assignPersons[project._id]}
                     title="Phân công"
                   >
                     <FaUser />

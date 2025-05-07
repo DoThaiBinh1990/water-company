@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_URL } from '../config';
 
 function Settings({ user }) {
   const [newUser, setNewUser] = useState({
@@ -28,19 +29,19 @@ function Settings({ user }) {
   }, []);
 
   const fetchData = () => {
-    axios.get('http://localhost:5000/api/users')
+    axios.get(`${API_URL}/api/users`)
       .then(response => setUsers(response.data))
       .catch(error => toast.error('Lỗi khi tải người dùng!'));
 
-    axios.get('http://localhost:5000/api/allocated-units')
+    axios.get(`${API_URL}/api/allocated-units`)
       .then(response => setAllocatedUnits(response.data))
       .catch(error => toast.error('Lỗi khi tải đơn vị phân bổ!'));
 
-    axios.get('http://localhost:5000/api/construction-units')
+    axios.get(`${API_URL}/api/construction-units`)
       .then(response => setConstructionUnits(response.data))
       .catch(error => toast.error('Lỗi khi tải đơn vị thi công!'));
 
-    axios.get('http://localhost:5000/api/allocation-waves')
+    axios.get(`${API_URL}/api/allocation-waves`)
       .then(response => setAllocationWaves(response.data))
       .catch(error => toast.error('Lỗi khi tải đợt phân bổ!'));
   };
@@ -49,8 +50,8 @@ function Settings({ user }) {
     const userData = { ...newUser };
     if (!userData.password) delete userData.password;
     const request = editingUserId
-      ? axios.patch(`http://localhost:5000/api/users/${editingUserId}`, userData)
-      : axios.post('http://localhost:5000/api/users', userData);
+      ? axios.patch(`${API_URL}/api/users/${editingUserId}`, userData)
+      : axios.post(`${API_URL}/api/users`, userData);
 
     request
       .then(response => {
@@ -78,7 +79,7 @@ function Settings({ user }) {
   };
 
   const deleteUser = (id) => {
-    axios.delete(`http://localhost:5000/api/users/${id}`)
+    axios.delete(`${API_URL}/api/users/${id}`)
       .then(() => {
         setUsers(users.filter(u => u._id !== id));
         toast.success('Đã xóa người dùng!');
@@ -88,8 +89,8 @@ function Settings({ user }) {
 
   const saveAllocatedUnit = () => {
     const request = editAllocatedUnit
-      ? axios.patch(`http://localhost:5000/api/allocated-units/${editAllocatedUnit._id}`, { name: newAllocatedUnit })
-      : axios.post('http://localhost:5000/api/allocated-units', { name: newAllocatedUnit });
+      ? axios.patch(`${API_URL}/api/allocated-units/${editAllocatedUnit._id}`, { name: newAllocatedUnit })
+      : axios.post(`${API_URL}/api/allocated-units`, { name: newAllocatedUnit });
 
     request
       .then(response => {
@@ -102,25 +103,25 @@ function Settings({ user }) {
         }
         setNewAllocatedUnit('');
         setEditAllocatedUnit(null);
-        fetchData(); // Refresh danh sách
+        fetchData();
       })
       .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị phân bổ!'));
   };
 
   const deleteAllocatedUnit = (id) => {
-    axios.delete(`http://localhost:5000/api/allocated-units/${id}`)
+    axios.delete(`${API_URL}/api/allocated-units/${id}`)
       .then(() => {
         setAllocatedUnits(allocatedUnits.filter(u => u._id !== id));
         toast.success('Đã xóa đơn vị phân bổ!');
-        fetchData(); // Refresh danh sách
+        fetchData();
       })
       .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị phân bổ!'));
   };
 
   const saveConstructionUnit = () => {
     const request = editConstructionUnit
-      ? axios.patch(`http://localhost:5000/api/construction-units/${editConstructionUnit._id}`, { name: newConstructionUnit })
-      : axios.post('http://localhost:5000/api/construction-units', { name: newConstructionUnit });
+      ? axios.patch(`${API_URL}/api/construction-units/${editConstructionUnit._id}`, { name: newConstructionUnit })
+      : axios.post(`${API_URL}/api/construction-units`, { name: newConstructionUnit });
 
     request
       .then(response => {
@@ -133,25 +134,25 @@ function Settings({ user }) {
         }
         setNewConstructionUnit('');
         setEditConstructionUnit(null);
-        fetchData(); // Refresh danh sách
+        fetchData();
       })
       .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị thi công!'));
   };
 
   const deleteConstructionUnit = (id) => {
-    axios.delete(`http://localhost:5000/api/construction-units/${id}`)
+    axios.delete(`${API_URL}/api/construction-units/${id}`)
       .then(() => {
         setConstructionUnits(constructionUnits.filter(u => u._id !== id));
         toast.success('Đã xóa đơn vị thi công!');
-        fetchData(); // Refresh danh sách
+        fetchData();
       })
       .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị thi công!'));
   };
 
   const saveAllocationWave = () => {
     const request = editAllocationWave
-      ? axios.patch(`http://localhost:5000/api/allocation-waves/${editAllocationWave._id}`, { name: newAllocationWave })
-      : axios.post('http://localhost:5000/api/allocation-waves', { name: newAllocationWave });
+      ? axios.patch(`${API_URL}/api/allocation-waves/${editAllocationWave._id}`, { name: newAllocationWave })
+      : axios.post(`${API_URL}/api/allocation-waves`, { name: newAllocationWave });
 
     request
       .then(response => {
@@ -164,17 +165,17 @@ function Settings({ user }) {
         }
         setNewAllocationWave('');
         setEditAllocationWave(null);
-        fetchData(); // Refresh danh sách
+        fetchData();
       })
       .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đợt phân bổ!'));
   };
 
   const deleteAllocationWave = (id) => {
-    axios.delete(`http://localhost:5000/api/allocation-waves/${id}`)
+    axios.delete(`${API_URL}/api/allocation-waves/${id}`)
       .then(() => {
         setAllocationWaves(allocationWaves.filter(w => w._id !== id));
         toast.success('Đã xóa đợt phân bổ!');
-        fetchData(); // Refresh danh sách
+        fetchData();
       })
       .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa đợt phân bổ!'));
   };
@@ -331,12 +332,14 @@ function Settings({ user }) {
                       setEditAllocatedUnit(unit);
                     }}
                     className="text-yellow-600 hover:text-yellow-800"
+                    title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => deleteAllocatedUnit(unit._id)}
                     className="text-red-600 hover:text-red-800"
+                    title="Xóa"
                   >
                     <FaTrash />
                   </button>
@@ -393,12 +396,14 @@ function Settings({ user }) {
                       setEditConstructionUnit(unit);
                     }}
                     className="text-yellow-600 hover:text-yellow-800"
+                    title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => deleteConstructionUnit(unit._id)}
                     className="text-red-600 hover:text-red-800"
+                    title="Xóa"
                   >
                     <FaTrash />
                   </button>
@@ -409,7 +414,7 @@ function Settings({ user }) {
         </table>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+      <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-blue-700 mb-4">Quản lý đợt phân bổ</h2>
         <div className="flex gap-4 mb-4">
           <input
@@ -423,7 +428,7 @@ function Settings({ user }) {
             onClick={saveAllocationWave}
             className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
           >
-            <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt
+            <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt phân bổ
           </button>
           {editAllocationWave && (
             <button
@@ -440,7 +445,7 @@ function Settings({ user }) {
         <table className="w-full">
           <thead>
             <tr className="bg-blue-200">
-              <th className="p-3 text-left text-blue-800">Tên đợt</th>
+              <th className="p-3 text-left text-blue-800">Tên đợt phân bổ</th>
               <th className="p-3 text-left text-blue-800">Hành động</th>
             </tr>
           </thead>
@@ -455,12 +460,14 @@ function Settings({ user }) {
                       setEditAllocationWave(wave);
                     }}
                     className="text-yellow-600 hover:text-yellow-800"
+                    title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => deleteAllocationWave(wave._id)}
                     className="text-red-600 hover:text-red-800"
+                    title="Xóa"
                   >
                     <FaTrash />
                   </button>
@@ -471,7 +478,7 @@ function Settings({ user }) {
         </table>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+      <div className="bg-white p-6 rounded-lg shadow-md mt-6">
         <h2 className="text-xl font-semibold text-blue-700 mb-4">Danh sách người dùng</h2>
         <table className="w-full">
           <thead>
@@ -486,18 +493,7 @@ function Settings({ user }) {
             {users.map(u => (
               <tr key={u._id} className="border-t hover:bg-blue-50">
                 <td className="p-3">{u.username}</td>
-                <td className="p-3">
-                  {u.role === 'admin' ? 'Admin' :
-                   u.role === 'director' ? 'Tổng giám đốc' :
-                   u.role === 'deputy_director' ? 'Phó tổng giám đốc' :
-                   u.role === 'manager' ? 'Trưởng phòng' :
-                   u.role === 'deputy_manager' ? 'Phó phòng' :
-                   u.role === 'staff' ? 'Nhân viên phòng' :
-                   u.role === 'branch_director' ? 'Giám đốc chi nhánh' :
-                   u.role === 'branch_deputy_director' ? 'Phó giám đốc chi nhánh' :
-                   u.role === 'branch_staff' ? 'Nhân viên chi nhánh' :
-                   'Công nhân trực tiếp'}
-                </td>
+                <td className="p-3">{u.role}</td>
                 <td className="p-3">
                   {u.permissions.add && 'Thêm, '}
                   {u.permissions.edit && 'Sửa, '}
@@ -508,17 +504,18 @@ function Settings({ user }) {
                   <button
                     onClick={() => editUser(u)}
                     className="text-yellow-600 hover:text-yellow-800"
+                    title="Sửa"
                   >
                     <FaEdit />
                   </button>
-                  {u.role !== 'admin' && (
-                    <button
-                      onClick={() => deleteUser(u._id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <FaTrash />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => deleteUser(u._id)}
+                    className="text-red-600 hover:text-red-800"
+                    disabled={u.role === 'admin'}
+                    title={u.role === 'admin' ? 'Không thể xóa admin' : 'Xóa'}
+                  >
+                    <FaTrash />
+                  </button>
                 </td>
               </tr>
             ))}
