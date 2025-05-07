@@ -5,21 +5,22 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_URL } from '../config';
 
-function Login() {
+function Login({ setUser }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    axios.post(`${API_URL}/api/login`, { username, password })
-      .then(response => {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        toast.success('Đăng nhập thành công!');
-        setTimeout(() => navigate('/category'), 1000);
-      })
-      .catch(error => {
-        toast.error(error.response?.data?.message || 'Đăng nhập thất bại!');
-      });
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(`${API_URL}/api/login`, { username, password });
+      const userData = response.data.user;
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      toast.success('Đăng nhập thành công!');
+      setTimeout(() => navigate('/category'), 1000);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Đăng nhập thất bại!');
+    }
   };
 
   return (
