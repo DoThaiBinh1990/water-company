@@ -24,31 +24,31 @@ function Login({ setUser }) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-blue-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-3xl font-bold text-blue-800 mb-6 text-center">Đăng nhập</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-blue-700">
+      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
+        <h1 className="text-4xl font-bold text-blue-800 mb-8 text-center">Đăng nhập</h1>
         <ToastContainer position="top-right" autoClose={3000} />
-        <div className="mb-4">
+        <div className="mb-6">
           <input
             type="text"
             placeholder="Tên người dùng"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
         </div>
-        <div className="mb-6">
+        <div className="mb-8">
           <input
             type="password"
             placeholder="Mật khẩu"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
         </div>
         <button
           onClick={handleLogin}
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition duration-200"
+          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
         >
           Đăng nhập
         </button>

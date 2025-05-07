@@ -181,26 +181,26 @@ function Settings({ user }) {
   };
 
   return (
-    <div className="p-6 bg-blue-50">
+    <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-blue-800 mb-6">Thiết lập</h1>
       <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng'}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-6">{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng'}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <input
             type="text"
             placeholder="Tên người dùng"
             value={newUser.username}
             onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
           <input
             type="password"
             placeholder="Mật khẩu (để trống nếu không đổi)"
             value={newUser.password}
             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
           <select
             value={newUser.role}
@@ -220,7 +220,7 @@ function Settings({ user }) {
               }[role] || { add: false, edit: false, delete: false, approve: false };
               setNewUser({ ...newUser, role, permissions: defaultPermissions });
             }}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           >
             <option value="admin">Admin</option>
             <option value="director">Tổng giám đốc</option>
@@ -234,42 +234,50 @@ function Settings({ user }) {
             <option value="worker">Công nhân trực tiếp</option>
           </select>
         </div>
-        <div className="mt-4">
+        <div className="mb-6">
           <h3 className="text-lg font-semibold text-blue-700 mb-2">Phân quyền</h3>
           <div className="flex gap-4">
-            <label>
+            <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={newUser.permissions.add}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, add: e.target.checked } })}
-              /> Thêm
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              Thêm
             </label>
-            <label>
+            <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={newUser.permissions.edit}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, edit: e.target.checked } })}
-              /> Sửa
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              Sửa
             </label>
-            <label>
+            <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={newUser.permissions.delete}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, delete: e.target.checked } })}
-              /> Xóa
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              Xóa
             </label>
-            <label>
+            <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={newUser.permissions.approve}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, approve: e.target.checked } })}
-              /> Duyệt
+                className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              Duyệt
             </label>
           </div>
         </div>
         <button
           onClick={saveUser}
-          className="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
+          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaUserPlus /> {editingUserId ? 'Cập nhật' : 'Thêm'} người dùng
         </button>
@@ -279,7 +287,7 @@ function Settings({ user }) {
               setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
               setEditingUserId(null);
             }}
-            className="mt-2 bg-gray-600 text-white p-2 rounded hover:bg-gray-700"
+            className="mt-3 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
           >
             Hủy
           </button>
@@ -287,18 +295,18 @@ function Settings({ user }) {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">Quản lý đơn vị phân bổ</h2>
-        <div className="flex gap-4 mb-4">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-6">Quản lý đơn vị phân bổ</h2>
+        <div className="flex gap-4 mb-6">
           <input
             type="text"
             placeholder="Tên đơn vị phân bổ"
             value={newAllocatedUnit}
             onChange={(e) => setNewAllocatedUnit(e.target.value)}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 flex-1"
           />
           <button
             onClick={saveAllocatedUnit}
-            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
+            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
           >
             <FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'} đơn vị
           </button>
@@ -308,37 +316,37 @@ function Settings({ user }) {
                 setNewAllocatedUnit('');
                 setEditAllocatedUnit(null);
               }}
-              className="bg-gray-600 text-white p-2 rounded hover:bg-gray-700"
+              className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
             >
               Hủy
             </button>
           )}
         </div>
-        <table className="w-full">
+        <table className="w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-blue-200">
-              <th className="p-3 text-left text-blue-800">Tên đơn vị</th>
-              <th className="p-3 text-left text-blue-800">Hành động</th>
+            <tr className="bg-blue-100">
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Tên đơn vị</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {allocatedUnits.map(unit => (
-              <tr key={unit._id} className="border-t hover:bg-blue-50">
-                <td className="p-3">{unit.name}</td>
-                <td className="p-3 flex gap-2">
+              <tr key={unit._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                <td className="p-4">{unit.name}</td>
+                <td className="p-4 flex gap-2">
                   <button
                     onClick={() => {
                       setNewAllocatedUnit(unit.name);
                       setEditAllocatedUnit(unit);
                     }}
-                    className="text-yellow-600 hover:text-yellow-800"
+                    className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                     title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => deleteAllocatedUnit(unit._id)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 transition-all duration-200"
                     title="Xóa"
                   >
                     <FaTrash />
@@ -351,18 +359,18 @@ function Settings({ user }) {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">Quản lý đơn vị thi công</h2>
-        <div className="flex gap-4 mb-4">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-6">Quản lý đơn vị thi công</h2>
+        <div className="flex gap-4 mb-6">
           <input
             type="text"
             placeholder="Tên đơn vị thi công"
             value={newConstructionUnit}
             onChange={(e) => setNewConstructionUnit(e.target.value)}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 flex-1"
           />
           <button
             onClick={saveConstructionUnit}
-            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
+            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
           >
             <FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'} đơn vị
           </button>
@@ -372,37 +380,101 @@ function Settings({ user }) {
                 setNewConstructionUnit('');
                 setEditConstructionUnit(null);
               }}
-              className="bg-gray-600 text-white p-2 rounded hover:bg-gray-700"
+              className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
             >
               Hủy
             </button>
           )}
         </div>
-        <table className="w-full">
+        <table className="w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-blue-200">
-              <th className="p-3 text-left text-blue-800">Tên đơn vị</th>
-              <th className="p-3 text-left text-blue-800">Hành động</th>
+            <tr className="bg-blue-100">
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Tên đơn vị</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {constructionUnits.map(unit => (
-              <tr key={unit._id} className="border-t hover:bg-blue-50">
-                <td className="p-3">{unit.name}</td>
-                <td className="p-3 flex gap-2">
+              <tr key={unit._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                <td className="p-4">{unit.name}</td>
+                <td className="p-4 flex gap-2">
                   <button
                     onClick={() => {
                       setNewConstructionUnit(unit.name);
                       setEditConstructionUnit(unit);
                     }}
-                    className="text-yellow-600 hover:text-yellow-800"
+                    className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                     title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => deleteConstructionUnit(unit._id)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 transition-all duration-200"
+                    title="Xóa"
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-6">Quản lý đợt phân bổ</h2>
+        <div className="flex gap-4 mb-6">
+          <input
+            type="text"
+            placeholder="Tên đợt phân bổ"
+            value={newAllocationWave}
+            onChange={(e) => setNewAllocationWave(e.target.value)}
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 flex-1"
+          />
+          <button
+            onClick={saveAllocationWave}
+            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+          >
+            <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt phân bổ
+          </button>
+          {editAllocationWave && (
+            <button
+              onClick={() => {
+                setNewAllocationWave('');
+                setEditAllocationWave(null);
+              }}
+              className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+            >
+              Hủy
+            </button>
+          )}
+        </div>
+        <table className="w-full table-auto border-collapse">
+          <thead>
+            <tr className="bg-blue-100">
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Tên đợt phân bổ</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allocationWaves.map(wave => (
+              <tr key={wave._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                <td className="p-4">{wave.name}</td>
+                <td className="p-4 flex gap-2">
+                  <button
+                    onClick={() => {
+                      setNewAllocationWave(wave.name);
+                      setEditAllocationWave(wave);
+                    }}
+                    className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                    title="Sửa"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => deleteAllocationWave(wave._id)}
+                    className="text-red-600 hover:text-red-800 transition-all duration-200"
                     title="Xóa"
                   >
                     <FaTrash />
@@ -415,102 +487,38 @@ function Settings({ user }) {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">Quản lý đợt phân bổ</h2>
-        <div className="flex gap-4 mb-4">
-          <input
-            type="text"
-            placeholder="Tên đợt phân bổ"
-            value={newAllocationWave}
-            onChange={(e) => setNewAllocationWave(e.target.value)}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-          />
-          <button
-            onClick={saveAllocationWave}
-            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
-          >
-            <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt phân bổ
-          </button>
-          {editAllocationWave && (
-            <button
-              onClick={() => {
-                setNewAllocationWave('');
-                setEditAllocationWave(null);
-              }}
-              className="bg-gray-600 text-white p-2 rounded hover:bg-gray-700"
-            >
-              Hủy
-            </button>
-          )}
-        </div>
-        <table className="w-full">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-6">Danh sách người dùng</h2>
+        <table className="w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-blue-200">
-              <th className="p-3 text-left text-blue-800">Tên đợt phân bổ</th>
-              <th className="p-3 text-left text-blue-800">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allocationWaves.map(wave => (
-              <tr key={wave._id} className="border-t hover:bg-blue-50">
-                <td className="p-3">{wave.name}</td>
-                <td className="p-3 flex gap-2">
-                  <button
-                    onClick={() => {
-                      setNewAllocationWave(wave.name);
-                      setEditAllocationWave(wave);
-                    }}
-                    className="text-yellow-600 hover:text-yellow-800"
-                    title="Sửa"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => deleteAllocationWave(wave._id)}
-                    className="text-red-600 hover:text-red-800"
-                    title="Xóa"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">Danh sách người dùng</h2>
-        <table className="w-full">
-          <thead>
-            <tr className="bg-blue-200">
-              <th className="p-3 text-left text-blue-800">Tên người dùng</th>
-              <th className="p-3 text-left text-blue-800">Vai trò</th>
-              <th className="p-3 text-left text-blue-800">Quyền</th>
-              <th className="p-3 text-left text-blue-800">Hành động</th>
+            <tr className="bg-blue-100">
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Tên người dùng</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Vai trò</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Quyền</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {users.map(u => (
-              <tr key={u._id} className="border-t hover:bg-blue-50">
-                <td className="p-3">{u.username}</td>
-                <td className="p-3">{u.role}</td>
-                <td className="p-3">
+              <tr key={u._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                <td className="p-4">{u.username}</td>
+                <td className="p-4">{u.role}</td>
+                <td className="p-4">
                   {u.permissions.add && 'Thêm, '}
                   {u.permissions.edit && 'Sửa, '}
                   {u.permissions.delete && 'Xóa, '}
                   {u.permissions.approve && 'Duyệt'}
                 </td>
-                <td className="p-3 flex gap-2">
+                <td className="p-4 flex gap-2">
                   <button
                     onClick={() => editUser(u)}
-                    className="text-yellow-600 hover:text-yellow-800"
+                    className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                     title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => deleteUser(u._id)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 transition-all duration-200"
                     disabled={u.role === 'admin'}
                     title={u.role === 'admin' ? 'Không thể xóa admin' : 'Xóa'}
                   >

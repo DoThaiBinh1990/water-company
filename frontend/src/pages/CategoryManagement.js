@@ -230,7 +230,7 @@ function CategoryManagement({ user }) {
   };
 
   return (
-    <div className="p-6 bg-blue-50">
+    <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-blue-800 mb-6">Quản lý công trình danh mục</h1>
       <ToastContainer position="top-right" autoClose={3000} />
 
@@ -241,7 +241,7 @@ function CategoryManagement({ user }) {
             setNewProject({ type: 'category', name: '', allocatedUnit: '', allocationWave: '', location: '', scale: '', enteredBy: '' });
             setShowModal(true);
           }}
-          className="mb-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
+          className="mb-6 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaPlus /> Thêm công trình
         </button>
@@ -251,21 +251,21 @@ function CategoryManagement({ user }) {
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
         style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' } }}
-        className="bg-white rounded-lg p-6 max-w-md mx-auto mt-20"
+        className="bg-white rounded-xl p-6 max-w-lg mx-auto mt-20 shadow-2xl transform transition-all duration-300"
       >
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">{editProject ? 'Sửa công trình' : 'Đăng ký công trình'}</h2>
+        <h2 className="text-2xl font-semibold text-blue-700 mb-6">{editProject ? 'Sửa công trình' : 'Đăng ký công trình'}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
             placeholder="Tên công trình"
             value={newProject.name}
             onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
           <select
             value={newProject.allocatedUnit}
             onChange={(e) => setNewProject({ ...newProject, allocatedUnit: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           >
             <option value="">Chọn đơn vị phân bổ</option>
             {allocatedUnits.map(unit => (
@@ -275,7 +275,7 @@ function CategoryManagement({ user }) {
           <select
             value={newProject.allocationWave}
             onChange={(e) => setNewProject({ ...newProject, allocationWave: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           >
             <option value="">Chọn đợt phân bổ</option>
             {allocationWavesList.map(wave => (
@@ -287,34 +287,34 @@ function CategoryManagement({ user }) {
             placeholder="Địa điểm"
             value={newProject.location}
             onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
           <input
             type="text"
             placeholder="Quy mô"
             value={newProject.scale}
             onChange={(e) => setNewProject({ ...newProject, scale: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
           <input
             type="text"
             placeholder="Người nhập"
             value={newProject.enteredBy}
             onChange={(e) => setNewProject({ ...newProject, enteredBy: e.target.value })}
-            className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
           />
         </div>
-        <div className="mt-4 flex gap-4">
+        <div className="mt-6 flex gap-4">
           <button
             onClick={saveProject}
-            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
+            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
             disabled={!(user?.permissions?.add || (editProject && user?.permissions?.edit))}
           >
             <FaCheckCircle /> {editProject ? 'Gửi yêu cầu sửa' : 'Đăng ký'}
           </button>
           <button
             onClick={() => setShowModal(false)}
-            className="bg-gray-600 text-white p-2 rounded hover:bg-gray-700"
+            className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
           >
             Hủy
           </button>
@@ -324,7 +324,7 @@ function CategoryManagement({ user }) {
       {user?.permissions?.approve && (
         <button
           onClick={() => setShowNotifications(true)}
-          className="mb-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex items-center gap-2"
+          className="mb-6 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FaBell /> Thông báo ({notifications.length})
         </button>
@@ -334,17 +334,19 @@ function CategoryManagement({ user }) {
         isOpen={showNotifications}
         onRequestClose={() => setShowNotifications(false)}
         style={{ overlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)' } }}
-        className="bg-white rounded-lg p-6 max-w-md mx-auto mt-20"
+        className="bg-white rounded-xl p-6 max-w-lg mx-auto mt-20 shadow-2xl transform transition-all duration-300"
       >
-        <h2 className="text-xl font-semibold text-blue-700 mb-4">Thông báo</h2>
-        <div className="flex gap-4 mb-4">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-6">Thông báo</h2>
+        <div className="flex gap-4 mb-6">
           <button
             onClick={() => {
               setNotificationTab('pending');
               axios.get(`${API_URL}/api/notifications?status=pending`)
                 .then(response => setNotifications(response.data));
             }}
-            className={`p-2 rounded ${notificationTab === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            className={`p-3 rounded-lg transition-all duration-200 ${
+              notificationTab === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
           >
             Chưa xử lý
           </button>
@@ -354,7 +356,9 @@ function CategoryManagement({ user }) {
               axios.get(`${API_URL}/api/notifications?status=processed`)
                 .then(response => setNotifications(response.data));
             }}
-            className={`p-2 rounded ${notificationTab === 'processed' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            className={`p-3 rounded-lg transition-all duration-200 ${
+              notificationTab === 'processed' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
           >
             Đã xử lý
           </button>
@@ -362,20 +366,20 @@ function CategoryManagement({ user }) {
         <div className="max-h-64 overflow-y-auto">
           {notifications.length > 0 ? (
             notifications.map(notification => (
-              <div key={notification._id} className="border-b py-2">
-                <p>{notification.message}</p>
+              <div key={notification._id} className="border-b py-3">
+                <p className="text-gray-800">{notification.message}</p>
                 <p className="text-sm text-gray-500">{new Date(notification.createdAt).toLocaleString()}</p>
                 {notification.status === 'pending' && (
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => notification.type === 'edit' ? approveEdit(notification.projectId) : approveDelete(notification.projectId)}
-                      className="bg-green-600 text-white p-1 rounded hover:bg-green-700 flex items-center gap-1"
+                      className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg"
                     >
                       <FaCheckCircle /> Duyệt
                     </button>
                     <button
                       onClick={() => notification.type === 'edit' ? rejectEdit(notification.projectId) : rejectDelete(notification.projectId)}
-                      className="bg-red-600 text-white p-1 rounded hover:bg-red-700 flex items-center gap-1"
+                      className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-lg"
                     >
                       <FaTimesCircle /> Từ chối
                     </button>
@@ -384,23 +388,23 @@ function CategoryManagement({ user }) {
               </div>
             ))
           ) : (
-            <p className="text-gray-500">Không có thông báo</p>
+            <p className="text-gray-500 text-center">Không có thông báo</p>
           )}
         </div>
         <button
           onClick={() => setShowNotifications(false)}
-          className="mt-4 bg-gray-600 text-white p-2 rounded hover:bg-gray-700"
+          className="mt-6 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 w-full"
         >
           Đóng
         </button>
       </Modal>
 
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <h3 className="text-lg font-semibold text-blue-700 mb-2">Lọc công trình</h3>
+      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h3 className="text-xl font-semibold text-blue-700 mb-4">Lọc công trình</h3>
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-blue-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 w-full md:w-1/3"
         >
           <option value="">Tất cả trạng thái</option>
           <option value="Chờ duyệt">Chờ duyệt</option>
@@ -410,34 +414,34 @@ function CategoryManagement({ user }) {
       </div>
 
       <div className="bg-white rounded-lg shadow-md max-h-[600px] overflow-y-auto">
-        <table className="w-full">
-          <thead className="sticky top-0 bg-blue-200">
+        <table className="w-full table-auto border-collapse">
+          <thead className="sticky top-0 bg-blue-100">
             <tr>
-              <th className="p-3 text-left text-blue-800">STT</th>
-              <th className="p-3 text-left text-blue-800">Tên công trình</th>
-              <th className="p-3 text-left text-blue-800">Đơn vị phân bổ</th>
-              <th className="p-3 text-left text-blue-800">Đợt phân bổ</th>
-              <th className="p-3 text-left text-blue-800">Địa điểm</th>
-              <th className="p-3 text-left text-blue-800">Quy mô</th>
-              <th className="p-3 text-left text-blue-800">Người nhập</th>
-              <th className="p-3 text-left text-blue-800">Trạng thái</th>
-              <th className="p-3 text-left text-blue-800">Người phụ trách</th>
-              <th className="p-3 text-left text-blue-800">Hành động</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">STT</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Tên công trình</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Đơn vị phân bổ</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Đợt phân bổ</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Địa điểm</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Quy mô</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Người nhập</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Trạng thái</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Người phụ trách</th>
+              <th className="p-4 text-left text-blue-800 font-semibold border-b">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {filteredProjects.map(project => (
-              <tr key={project._id} className="border-t hover:bg-blue-50">
-                <td className="p-3">{project.categorySerialNumber}</td>
-                <td className="p-3">{project.name}</td>
-                <td className="p-3">{project.allocatedUnit}</td>
-                <td className="p-3">{project.allocationWave || 'Chưa phân bổ'}</td>
-                <td className="p-3">{project.location}</td>
-                <td className="p-3">{project.scale}</td>
-                <td className="p-3">{project.enteredBy}</td>
-                <td className="p-3">
+              <tr key={project._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                <td className="p-4">{project.categorySerialNumber}</td>
+                <td className="p-4">{project.name}</td>
+                <td className="p-4">{project.allocatedUnit}</td>
+                <td className="p-4">{project.allocationWave || 'Chưa phân bổ'}</td>
+                <td className="p-4">{project.location}</td>
+                <td className="p-4">{project.scale}</td>
+                <td className="p-4">{project.enteredBy}</td>
+                <td className="p-4">
                   <span
-                    className={`px-2 py-1 rounded ${
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
                       project.status === 'Chờ duyệt' ? 'bg-yellow-200 text-yellow-800' :
                       project.status === 'Đã duyệt' ? 'bg-green-200 text-green-800' :
                       'bg-red-200 text-red-800'
@@ -446,20 +450,20 @@ function CategoryManagement({ user }) {
                     {project.status}
                   </span>
                 </td>
-                <td className="p-3">{project.assignedTo || 'Chưa phân công'}</td>
-                <td className="p-3 flex gap-2">
+                <td className="p-4">{project.assignedTo || 'Chưa phân công'}</td>
+                <td className="p-4 flex gap-2">
                   {user?.permissions?.approve && project.status === 'Chờ duyệt' && (
                     <>
                       <button
                         onClick={() => approveProject(project._id)}
-                        className="text-green-600 hover:text-green-800"
+                        className="text-green-600 hover:text-green-800 transition-all duration-200"
                         title="Duyệt"
                       >
                         <FaCheckCircle />
                       </button>
                       <button
                         onClick={() => rejectProject(project._id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 transition-all duration-200"
                         title="Từ chối"
                       >
                         <FaTimesCircle />
@@ -469,7 +473,7 @@ function CategoryManagement({ user }) {
                   {(project.status !== 'Đã duyệt' || user?.permissions?.edit) && (
                     <button
                       onClick={() => openEditModal(project)}
-                      className="text-yellow-600 hover:text-yellow-800"
+                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
                       disabled={!user?.permissions?.edit}
                       title="Sửa"
                     >
@@ -479,7 +483,7 @@ function CategoryManagement({ user }) {
                   {(project.status !== 'Đã duyệt' || user?.permissions?.delete) && (
                     <button
                       onClick={() => deleteProject(project._id)}
-                      className="text-red-600 hover:text-red-800"
+                      className="text-red-600 hover:text-red-800 transition-all duration-200"
                       disabled={!user?.permissions?.delete}
                       title="Xóa"
                     >
@@ -489,7 +493,7 @@ function CategoryManagement({ user }) {
                   <select
                     value={allocateWaves[project._id] || ''}
                     onChange={(e) => setAllocateWaves(prev => ({ ...prev, [project._id]: e.target.value }))}
-                    className="border border-blue-300 p-1 rounded text-sm"
+                    className="border border-gray-300 p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                     disabled={!user?.permissions?.edit}
                   >
                     <option value="">Chọn đợt</option>
@@ -499,7 +503,7 @@ function CategoryManagement({ user }) {
                   </select>
                   <button
                     onClick={() => allocateProject(project._id)}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 transition-all duration-200"
                     disabled={!user?.permissions?.edit || !allocateWaves[project._id]}
                     title="Phân bổ"
                   >
@@ -510,12 +514,12 @@ function CategoryManagement({ user }) {
                     placeholder="Người phụ trách"
                     value={assignPersons[project._id] || ''}
                     onChange={(e) => setAssignPersons(prev => ({ ...prev, [project._id]: e.target.value }))}
-                    className="border border-blue-300 p-1 rounded text-sm w-24"
+                    className="border border-gray-300 p-2 rounded-lg text-sm w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                     disabled={!user?.permissions?.edit}
                   />
                   <button
                     onClick={() => assignProject(project._id)}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 transition-all duration-200"
                     disabled={!user?.permissions?.edit || !assignPersons[project._id]}
                     title="Phân công"
                   >
