@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // Thay bcrypt bằng bcryptjs
 const http = require('http');
 const socketIo = require('socket.io');
 
@@ -362,7 +362,7 @@ app.patch('/api/projects/:id', async (req, res) => {
         type: 'edit',
         projectId: project._id,
       });
-      await notification.save();
+    await notification.save();
       io.emit('notification', notification);
     } else {
       Object.assign(project, req.body);
