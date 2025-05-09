@@ -41,7 +41,7 @@ function Settings({ user }) {
         setConstructionUnits(constructionUnitsRes.data);
         setAllocationWaves(allocationWavesRes.data);
       } catch (error) {
-        toast.error('Lỗi khi tải dữ liệu!', { position: "top-center" });
+        toast.error(error.response?.data?.message || 'Lỗi khi tải dữ liệu!', { position: "top-center" });
       } finally {
         setIsLoading(false);
       }
@@ -49,9 +49,26 @@ function Settings({ user }) {
     fetchData();
   }, [user]);
 
+  const validateUsername = (username) => {
+    const regex = /^[a-zA-Z0-9_]{3,20}$/;
+    return regex.test(username);
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 6;
+  };
+
   const saveUser = async () => {
     if (!newUser.username || (!editingUserId && !newUser.password)) {
       toast.error('Vui lòng nhập đầy đủ tên người dùng và mật khẩu!', { position: "top-center" });
+      return;
+    }
+    if (!validateUsername(newUser.username)) {
+      toast.error('Tên người dùng phải dài 3-20 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới!', { position: "top-center" });
+      return;
+    }
+    if (!editingUserId && !validatePassword(newUser.password)) {
+      toast.error('Mật khẩu phải dài ít nhất 6 ký tự!', { position: "top-center" });
       return;
     }
     setIsLoading(true);
@@ -102,15 +119,15 @@ function Settings({ user }) {
   };
 
   const saveAllocatedUnit = async () => {
-    if (!newAllocatedUnit) {
+    if (!newAllocatedUnit.trim()) {
       toast.error('Vui lòng nhập tên đơn vị phân bổ!', { position: "top-center" });
       return;
     }
     setIsLoading(true);
     try {
       const request = editAllocatedUnit
-        ? axios.patch(`${API_URL}/api/allocated-units/${editAllocatedUnit._id}`, { name: newAllocatedUnit })
-        : axios.post(`${API_URL}/api/allocated-units`, { name: newAllocatedUnit });
+        ? axios.patch(`${API_URL}/api/allocated-units/${editAllocatedUnit._id}`, { name: newAllocatedUnit.trim() })
+        : axios.post(`${API_URL}/api/allocated-units`, { name: newAllocatedUnit.trim() });
       const response = await request;
       if (editAllocatedUnit) {
         setAllocatedUnits(allocatedUnits.map(u => u._id === editAllocatedUnit._id ? response.data : u));
@@ -142,15 +159,15 @@ function Settings({ user }) {
   };
 
   const saveConstructionUnit = async () => {
-    if (!newConstructionUnit) {
+    if (!newConstructionUnit.trim()) {
       toast.error('Vui lòng nhập tên đơn vị thi công!', { position: "top-center" });
       return;
     }
     setIsLoading(true);
     try {
       const request = editConstructionUnit
-        ? axios.patch(`${API_URL}/api/construction-units/${editConstructionUnit._id}`, { name: newConstructionUnit })
-        : axios.post(`${API_URL}/api/construction-units`, { name: newConstructionUnit });
+        ? axios.patch(`${API_URL}/api/construction-units/${editConstructionUnit._id}`, { name: newConstructionUnit.trim() })
+        : axios.post(`${API_URL}/api/construction-units`, { name: newConstructionUnit.trim() });
       const response = await request;
       if (editConstructionUnit) {
         setConstructionUnits(constructionUnits.map(u => u._id === editConstructionUnit._id ? response.data : u));
@@ -182,15 +199,15 @@ function Settings({ user }) {
   };
 
   const saveAllocationWave = async () => {
-    if (!newAllocationWave) {
+    if (!newAllocationWave.trim()) {
       toast.error('Vui lòng nhập tên đợt phân bổ!', { position: "top-center" });
       return;
     }
     setIsLoading(true);
     try {
       const request = editAllocationWave
-        ? axios.patch(`${API_URL}/api/allocation-waves/${editAllocationWave._id}`, { name: newAllocationWave })
-        : axios.post(`${API_URL}/api/allocation-waves`, { name: newAllocationWave });
+        ? axios.patch(`${API_URL}/api/allocation-waves/${editAllocationWave._id}`, { name: newAllocationWave.trim() })
+        : axios.post(`${API_URL}/api/allocation-waves`, { name: newAllocationWave.trim() });
       const response = await request;
       if (editAllocationWave) {
         setAllocationWaves(allocationWaves.map(w => w._id === editAllocationWave._id ? response.data : w));
@@ -243,22 +260,24 @@ function Settings({ user }) {
             <label className="block text-gray-700 mb-2">Tên người dùng</label>
             <input
               type="text"
-              placeholder="Nhập tên người dùng"
+              placeholder="Nhập tên người dùng (3-20 ký tự)"
               value={newUser.username}
               onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               disabled={isLoading}
+              maxLength={20}
             />
           </div>
           <div>
             <label className="block text-gray-700 mb-2">Mật khẩu</label>
             <input
               type="password"
-              placeholder="Nhập mật khẩu (để trống nếu không đổi)"
+              placeholder={editingUserId ? 'Để trống nếu không đổi' : 'Nhập mật khẩu (tối thiểu 6 ký tự)'}
               value={newUser.password}
               onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               disabled={isLoading}
+              maxLength={50}
             />
           </div>
           <div>
@@ -377,6 +396,7 @@ function Settings({ user }) {
               onChange={(e) => setNewAllocatedUnit(e.target.value)}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               disabled={isLoading}
+              maxLength={50}
             />
           </div>
           <div className="flex items-end gap-4">
@@ -453,6 +473,7 @@ function Settings({ user }) {
               onChange={(e) => setNewConstructionUnit(e.target.value)}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               disabled={isLoading}
+              maxLength={50}
             />
           </div>
           <div className="flex items-end gap-4">
@@ -529,6 +550,7 @@ function Settings({ user }) {
               onChange={(e) => setNewAllocationWave(e.target.value)}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               disabled={isLoading}
+              maxLength={50}
             />
           </div>
           <div className="flex items-end gap-4">
