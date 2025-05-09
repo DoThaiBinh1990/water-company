@@ -2,67 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Animation cho modal */
-@keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-/* Cải thiện typography và mặc định */
 body {
   font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Đảm bảo bảng dữ liệu responsive */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-@media (max-width: 768px) {
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  thead {
-    display: none;
-  }
-  tbody tr {
-    display: block;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  tbody td {
-    display: block;
-    text-align: left;
-    padding: 0.5rem;
-    position: relative;
-  }
-  tbody td:before {
-    content: attr(data-label);
-    font-weight: bold;
-    display: inline-block;
-    width: 50%;
-    padding-right: 1rem;
-  }
-}
-
-/* Cải thiện giao diện input và select */
-input, select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-/* Đảm bảo modal hiển thị đúng */
+/* Bạn có thể thêm các style global khác ở đây nếu cần */
 .ReactModal__Overlay {
   z-index: 1000 !important;
+}
+
+.animate-fadeIn { /* Giữ lại nếu bạn dùng class này trực tiếp thay vì qua config của Tailwind */
+  animation: fadeIn 0.3s ease-in-out;
 }
