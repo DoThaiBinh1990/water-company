@@ -22,7 +22,37 @@ body {
 
 /* Đảm bảo bảng dữ liệu responsive */
 table {
-  min-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  thead {
+    display: none;
+  }
+  tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  tbody td {
+    display: block;
+    text-align: left;
+    padding: 0.5rem;
+    position: relative;
+  }
+  tbody td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: inline-block;
+    width: 50%;
+    padding-right: 1rem;
+  }
 }
 
 /* Cải thiện giao diện input và select */

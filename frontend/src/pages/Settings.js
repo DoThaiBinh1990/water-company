@@ -23,49 +23,59 @@ function Settings({ user }) {
   const [constructionUnits, setConstructionUnits] = useState([]);
   const [allocationWaves, setAllocationWaves] = useState([]);
   const [editingUserId, setEditingUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (user?.role !== 'admin') return;
+    setIsLoading(true);
+    const fetchData = async () => {
+      try {
+        const [usersRes, allocatedUnitsRes, constructionUnitsRes, allocationWavesRes] = await Promise.all([
+          axios.get(`${API_URL}/api/users`),
+          axios.get(`${API_URL}/api/allocated-units`),
+          axios.get(`${API_URL}/api/construction-units`),
+          axios.get(`${API_URL}/api/allocation-waves`),
+        ]);
+        setUsers(usersRes.data);
+        setAllocatedUnits(allocatedUnitsRes.data);
+        setConstructionUnits(constructionUnitsRes.data);
+        setAllocationWaves(allocationWavesRes.data);
+      } catch (error) {
+        toast.error('Lỗi khi tải dữ liệu!', { position: "top-center" });
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchData();
-  }, []);
+  }, [user]);
 
-  const fetchData = () => {
-    axios.get(`${API_URL}/api/users`)
-      .then(response => setUsers(response.data))
-      .catch(error => toast.error('Lỗi khi tải người dùng!', { position: "top-center" }));
-
-    axios.get(`${API_URL}/api/allocated-units`)
-      .then(response => setAllocatedUnits(response.data))
-      .catch(error => toast.error('Lỗi khi tải đơn vị phân bổ!', { position: "top-center" }));
-
-    axios.get(`${API_URL}/api/construction-units`)
-      .then(response => setConstructionUnits(response.data))
-      .catch(error => toast.error('Lỗi khi tải đơn vị thi công!', { position: "top-center" }));
-
-    axios.get(`${API_URL}/api/allocation-waves`)
-      .then(response => setAllocationWaves(response.data))
-      .catch(error => toast.error('Lỗi khi tải đợt phân bổ!', { position: "top-center" }));
-  };
-
-  const saveUser = () => {
-    const userData = { ...newUser };
-    if (!userData.password) delete userData.password;
-    const request = editingUserId
-      ? axios.patch(`${API_URL}/api/users/${editingUserId}`, userData)
-      : axios.post(`${API_URL}/api/users`, userData);
-
-    request
-      .then(response => {
-        if (editingUserId) {
-          setUsers(users.map(u => u._id === editingUserId ? response.data : u));
-          toast.success('Đã cập nhật người dùng!', { position: "top-center" });
-        } else {
-          setUsers([...users, response.data]);
-          toast.success('Đã thêm người dùng!', { position: "top-center" });
-        }
-        setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
-        setEditingUserId(null);
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật người dùng!', { position: "top-center" }));
+  const saveUser = async () => {
+    if (!newUser.username || (!editingUserId && !newUser.password)) {
+      toast.error('Vui lòng nhập đầy đủ tên người dùng và mật khẩu!', { position: "top-center" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const userData = { ...newUser };
+      if (!userData.password) delete userData.password;
+      const request = editingUserId
+        ? axios.patch(`${API_URL}/api/users/${editingUserId}`, userData)
+        : axios.post(`${API_URL}/api/users`, userData);
+      const response = await request;
+      if (editingUserId) {
+        setUsers(users.map(u => u._id === editingUserId ? response.data : u));
+        toast.success('Đã cập nhật người dùng!', { position: "top-center" });
+      } else {
+        setUsers([...users, response.data]);
+        toast.success('Đã thêm người dùng!', { position: "top-center" });
+      }
+      setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
+      setEditingUserId(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật người dùng!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const editUser = (user) => {
@@ -78,112 +88,153 @@ function Settings({ user }) {
     setEditingUserId(user._id);
   };
 
-  const deleteUser = (id) => {
-    axios.delete(`${API_URL}/api/users/${id}`)
-      .then(() => {
-        setUsers(users.filter(u => u._id !== id));
-        toast.success('Đã xóa người dùng!', { position: "top-center" });
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa người dùng!', { position: "top-center" }));
+  const deleteUser = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`${API_URL}/api/users/${id}`);
+      setUsers(users.filter(u => u._id !== id));
+      toast.success('Đã xóa người dùng!', { position: "top-center" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa người dùng!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const saveAllocatedUnit = () => {
-    const request = editAllocatedUnit
-      ? axios.patch(`${API_URL}/api/allocated-units/${editAllocatedUnit._id}`, { name: newAllocatedUnit })
-      : axios.post(`${API_URL}/api/allocated-units`, { name: newAllocatedUnit });
-
-    request
-      .then(response => {
-        if (editAllocatedUnit) {
-          setAllocatedUnits(allocatedUnits.map(u => u._id === editAllocatedUnit._id ? response.data : u));
-          toast.success('Đã cập nhật đơn vị phân bổ!', { position: "top-center" });
-        } else {
-          setAllocatedUnits([...allocatedUnits, response.data]);
-          toast.success('Đã thêm đơn vị phân bổ!', { position: "top-center" });
-        }
-        setNewAllocatedUnit('');
-        setEditAllocatedUnit(null);
-        fetchData();
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị phân bổ!', { position: "top-center" }));
+  const saveAllocatedUnit = async () => {
+    if (!newAllocatedUnit) {
+      toast.error('Vui lòng nhập tên đơn vị phân bổ!', { position: "top-center" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const request = editAllocatedUnit
+        ? axios.patch(`${API_URL}/api/allocated-units/${editAllocatedUnit._id}`, { name: newAllocatedUnit })
+        : axios.post(`${API_URL}/api/allocated-units`, { name: newAllocatedUnit });
+      const response = await request;
+      if (editAllocatedUnit) {
+        setAllocatedUnits(allocatedUnits.map(u => u._id === editAllocatedUnit._id ? response.data : u));
+        toast.success('Đã cập nhật đơn vị phân bổ!', { position: "top-center" });
+      } else {
+        setAllocatedUnits([...allocatedUnits, response.data]);
+        toast.success('Đã thêm đơn vị phân bổ!', { position: "top-center" });
+      }
+      setNewAllocatedUnit('');
+      setEditAllocatedUnit(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị phân bổ!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const deleteAllocatedUnit = (id) => {
-    axios.delete(`${API_URL}/api/allocated-units/${id}`)
-      .then(() => {
-        setAllocatedUnits(allocatedUnits.filter(u => u._id !== id));
-        toast.success('Đã xóa đơn vị phân bổ!', { position: "top-center" });
-        fetchData();
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị phân bổ!', { position: "top-center" }));
+  const deleteAllocatedUnit = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`${API_URL}/api/allocated-units/${id}`);
+      setAllocatedUnits(allocatedUnits.filter(u => u._id !== id));
+      toast.success('Đã xóa đơn vị phân bổ!', { position: "top-center" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị phân bổ!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const saveConstructionUnit = () => {
-    const request = editConstructionUnit
-      ? axios.patch(`${API_URL}/api/construction-units/${editConstructionUnit._id}`, { name: newConstructionUnit })
-      : axios.post(`${API_URL}/api/construction-units`, { name: newConstructionUnit });
-
-    request
-      .then(response => {
-        if (editConstructionUnit) {
-          setConstructionUnits(constructionUnits.map(u => u._id === editConstructionUnit._id ? response.data : u));
-          toast.success('Đã cập nhật đơn vị thi công!', { position: "top-center" });
-        } else {
-          setConstructionUnits([...constructionUnits, response.data]);
-          toast.success('Đã thêm đơn vị thi công!', { position: "top-center" });
-        }
-        setNewConstructionUnit('');
-        setEditConstructionUnit(null);
-        fetchData();
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị thi công!', { position: "top-center" }));
+  const saveConstructionUnit = async () => {
+    if (!newConstructionUnit) {
+      toast.error('Vui lòng nhập tên đơn vị thi công!', { position: "top-center" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const request = editConstructionUnit
+        ? axios.patch(`${API_URL}/api/construction-units/${editConstructionUnit._id}`, { name: newConstructionUnit })
+        : axios.post(`${API_URL}/api/construction-units`, { name: newConstructionUnit });
+      const response = await request;
+      if (editConstructionUnit) {
+        setConstructionUnits(constructionUnits.map(u => u._id === editConstructionUnit._id ? response.data : u));
+        toast.success('Đã cập nhật đơn vị thi công!', { position: "top-center" });
+      } else {
+        setConstructionUnits([...constructionUnits, response.data]);
+        toast.success('Đã thêm đơn vị thi công!', { position: "top-center" });
+      }
+      setNewConstructionUnit('');
+      setEditConstructionUnit(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị thi công!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const deleteConstructionUnit = (id) => {
-    axios.delete(`${API_URL}/api/construction-units/${id}`)
-      .then(() => {
-        setConstructionUnits(constructionUnits.filter(u => u._id !== id));
-        toast.success('Đã xóa đơn vị thi công!', { position: "top-center" });
-        fetchData();
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị thi công!', { position: "top-center" }));
+  const deleteConstructionUnit = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`${API_URL}/api/construction-units/${id}`);
+      setConstructionUnits(constructionOODUnits.filter(u => u._id !== id));
+      toast.success('Đã xóa đơn vị thi công!', { position: "top-center" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị thi công!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const saveAllocationWave = () => {
-    const request = editAllocationWave
-      ? axios.patch(`${API_URL}/api/allocation-waves/${editAllocationWave._id}`, { name: newAllocationWave })
-      : axios.post(`${API_URL}/api/allocation-waves`, { name: newAllocationWave });
-
-    request
-      .then(response => {
-        if (editAllocationWave) {
-          setAllocationWaves(allocationWaves.map(w => w._id === editAllocationWave._id ? response.data : w));
-          toast.success('Đã cập nhật đợt phân bổ!', { position: "top-center" });
-        } else {
-          setAllocationWaves([...allocationWaves, response.data]);
-          toast.success('Đã thêm đợt phân bổ!', { position: "top-center" });
-        }
-        setNewAllocationWave('');
-        setEditAllocationWave(null);
-        fetchData();
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đợt phân bổ!', { position: "top-center" }));
+  const saveAllocationWave = async () => {
+    if (!newAllocationWave) {
+      toast.error('Vui lòng nhập tên đợt phân bổ!', { position: "top-center" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const request = editAllocationWave
+        ? axios.patch(`${API_URL}/api/allocation-waves/${editAllocationWave._id}`, { name: newAllocationWave })
+        : axios.post(`${API_URL}/api/allocation-waves`, { name: newAllocationWave });
+      const response = await request;
+      if (editAllocationWave) {
+        setAllocationWaves(allocationWaves.map(w => w._id === editAllocationWave._id ? response.data : w));
+        toast.success('Đã cập nhật đợt phân bổ!', { position: "top-center" });
+      } else {
+        setAllocationWaves([...allocationWaves, response.data]);
+        toast.success('Đã thêm đợt phân bổ!', { position: "top-center" });
+      }
+      setNewAllocationWave('');
+      setEditAllocationWave(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đợt phân bổ!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const deleteAllocationWave = (id) => {
-    axios.delete(`${API_URL}/api/allocation-waves/${id}`)
-      .then(() => {
-        setAllocationWaves(allocationWaves.filter(w => w._id !== id));
-        toast.success('Đã xóa đợt phân bổ!', { position: "top-center" });
-        fetchData();
-      })
-      .catch(error => toast.error(error.response?.data?.message || 'Lỗi khi xóa đợt phân bổ!', { position: "top-center" }));
+  const deleteAllocationWave = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`${API_URL}/api/allocation-waves/${id}`);
+      setAllocationWaves(allocationWaves.filter(w => w._id !== id));
+      toast.success('Đã xóa đợt phân bổ!', { position: "top-center" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa đợt phân bổ!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (user?.role !== 'admin') {
+    return <div className="p-8 text-center text-red-600">Bạn không có quyền truy cập trang này!</div>;
+  }
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Thiết lập</h1>
       <ToastContainer position="top-center" autoClose={3000} />
+
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-white text-xl">Đang tải...</div>
+        </div>
+      )}
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng'}</h2>
@@ -196,6 +247,7 @@ function Settings({ user }) {
               value={newUser.username}
               onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -206,6 +258,7 @@ function Settings({ user }) {
               value={newUser.password}
               onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -229,6 +282,7 @@ function Settings({ user }) {
                 setNewUser({ ...newUser, role, permissions: defaultPermissions });
               }}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              disabled={isLoading}
             >
               <option value="admin">Admin</option>
               <option value="director">Tổng giám đốc</option>
@@ -245,13 +299,14 @@ function Settings({ user }) {
         </div>
         <div className="mb-6">
           <h3 className="text-lg font-bold text-gray-800 mb-2">Phân quyền</h3>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={newUser.permissions.add}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, add: e.target.checked } })}
                 className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                disabled={isLoading}
               />
               Thêm
             </label>
@@ -261,6 +316,7 @@ function Settings({ user }) {
                 checked={newUser.permissions.edit}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, edit: e.target.checked } })}
                 className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                disabled={isLoading}
               />
               Sửa
             </label>
@@ -270,6 +326,7 @@ function Settings({ user }) {
                 checked={newUser.permissions.delete}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, delete: e.target.checked } })}
                 className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                disabled={isLoading}
               />
               Xóa
             </label>
@@ -279,33 +336,38 @@ function Settings({ user }) {
                 checked={newUser.permissions.approve}
                 onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, approve: e.target.checked } })}
                 className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                disabled={isLoading}
               />
               Duyệt
             </label>
           </div>
         </div>
-        <button
-          onClick={saveUser}
-          className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
-        >
-          <FaUserPlus /> {editingUserId ? 'Cập nhật' : 'Thêm'} người dùng
-        </button>
-        {editingUserId && (
+        <div className="flex gap-4">
           <button
-            onClick={() => {
-              setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
-              setEditingUserId(null);
-            }}
-            className="mt-3 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+            onClick={saveUser}
+            className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isLoading}
           >
-            Hủy
+            <FaUserPlus /> {editingUserId ? 'Cập nhật' : 'Thêm'} người dùng
           </button>
-        )}
+          {editingUserId && (
+            <button
+              onClick={() => {
+                setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
+                setEditingUserId(null);
+              }}
+              className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isLoading}
+            >
+              Hủy
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị phân bổ</h2>
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
             <label className="block text-gray-700 mb-2">Tên đơn vị phân bổ</label>
             <input
@@ -314,12 +376,14 @@ function Settings({ user }) {
               value={newAllocatedUnit}
               onChange={(e) => setNewAllocatedUnit(e.target.value)}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              disabled={isLoading}
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveAllocatedUnit}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+              className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isLoading}
             >
               <FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'} đơn vị
             </button>
@@ -329,7 +393,8 @@ function Settings({ user }) {
                   setNewAllocatedUnit('');
                   setEditAllocatedUnit(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+                className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isLoading}
               >
                 Hủy
               </button>
@@ -354,15 +419,17 @@ function Settings({ user }) {
                         setNewAllocatedUnit(unit.name);
                         setEditAllocatedUnit(unit);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title="Sửa"
+                      disabled={isLoading}
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteAllocatedUnit(unit._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title="Xóa"
+                      disabled={isLoading}
                     >
                       <FaTrash />
                     </button>
@@ -376,7 +443,7 @@ function Settings({ user }) {
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị thi công</h2>
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
             <label className="block text-gray-700 mb-2">Tên đơn vị thi công</label>
             <input
@@ -385,12 +452,14 @@ function Settings({ user }) {
               value={newConstructionUnit}
               onChange={(e) => setNewConstructionUnit(e.target.value)}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              disabled={isLoading}
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveConstructionUnit}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+              className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isLoading}
             >
               <FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'} đơn vị
             </button>
@@ -400,7 +469,8 @@ function Settings({ user }) {
                   setNewConstructionUnit('');
                   setEditConstructionUnit(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+                className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isLoading}
               >
                 Hủy
               </button>
@@ -425,15 +495,17 @@ function Settings({ user }) {
                         setNewConstructionUnit(unit.name);
                         setEditConstructionUnit(unit);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title="Sửa"
+                      disabled={isLoading}
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteConstructionUnit(unit._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title="Xóa"
+                      disabled={isLoading}
                     >
                       <FaTrash />
                     </button>
@@ -447,7 +519,7 @@ function Settings({ user }) {
 
       <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2>
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
             <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label>
             <input
@@ -456,12 +528,14 @@ function Settings({ user }) {
               value={newAllocationWave}
               onChange={(e) => setNewAllocationWave(e.target.value)}
               className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              disabled={isLoading}
             />
           </div>
           <div className="flex items-end gap-4">
             <button
               onClick={saveAllocationWave}
-              className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+              className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isLoading}
             >
               <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt phân bổ
             </button>
@@ -471,7 +545,8 @@ function Settings({ user }) {
                   setNewAllocationWave('');
                   setEditAllocationWave(null);
                 }}
-                className="bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200"
+                className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isLoading}
               >
                 Hủy
               </button>
@@ -496,15 +571,17 @@ function Settings({ user }) {
                         setNewAllocationWave(wave.name);
                         setEditAllocationWave(wave);
                       }}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title="Sửa"
+                      disabled={isLoading}
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteAllocationWave(wave._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
+                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title="Xóa"
+                      disabled={isLoading}
                     >
                       <FaTrash />
                     </button>
@@ -542,15 +619,16 @@ function Settings({ user }) {
                   <td className="p-4 flex gap-2">
                     <button
                       onClick={() => editUser(u)}
-                      className="text-yellow-600 hover:text-yellow-800 transition-all duration-200"
+                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       title="Sửa"
+                      disabled={isLoading}
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => deleteUser(u._id)}
-                      className="text-red-600 hover:text-red-800 transition-all duration-200"
-                      disabled={u.role === 'admin'}
+                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading || u.role === 'admin' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={isLoading || u.role === 'admin'}
                       title={u.role === 'admin' ? 'Không thể xóa admin' : 'Xóa'}
                     >
                       <FaTrash />

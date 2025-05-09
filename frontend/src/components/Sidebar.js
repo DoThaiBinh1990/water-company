@@ -1,67 +1,92 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaList, FaWrench, FaCog } from 'react-icons/fa';
+import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { FaSignOutAlt, FaList, FaWrench, FaCog, FaBars } from 'react-icons/fa';
 
 function Sidebar({ user, onLogout }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
     onLogout();
     navigate('/login');
   };
 
+  const isActive = (path) => location.pathname === path ? 'bg-blue-700' : '';
+
   return (
-    <div className="w-64 bg-gradient-to-b from-blue-800 to-blue-900 text-white h-screen fixed shadow-lg">
-      <div className="p-6">
-        <div className="flex items-center mb-8">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-            <span className="text-blue-800 text-2xl font-bold">WC</span>
+    <>
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 text-white bg-blue-800 p-2 rounded-lg"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <FaBars />
+      </button>
+      <div className={`w-64 bg-gradient-to-b from-blue-800 to-blue-900 text-white h-screen fixed shadow-lg transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 z-40`}>
+        <div className="p-6">
+          <div className="flex items-center mb-8">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
+              <span className="text-blue-800 text-2xl font-bold">WC</span>
+            </div>
+            <h2 className="text-xl font-semibold">Water Company</h2>
           </div>
-          <h2 className="text-xl font-semibold">Water Company</h2>
-        </div>
-        <nav>
-          <ul className="space-y-3">
-            <li>
-              <Link
-                to="/category"
-                className="flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200"
-              >
-                <FaList className="mr-3" />
-                Công trình danh mục
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/minor-repair"
-                className="flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200"
-              >
-                <FaWrench className="mr-3" />
-                Sửa chữa nhỏ
-              </Link>
-            </li>
-            {user?.role === 'admin' && (
+          <nav>
+            <ul className="space-y-3">
               <li>
                 <Link
-                  to="/settings"
-                  className="flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200"
+                  to="/category"
+                  className={`flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 ${isActive('/category')}`}
+                  onClick={() => setIsOpen(false)}
                 >
-                  <FaCog className="mr-3" />
-                  Thiết lập
+                  <FaList className="mr-3" />
+                  Công trình danh mục
                 </Link>
               </li>
-            )}
-            <li>
-              <button
-                onClick={handleLogout}
-                className="flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 w-full text-left"
-              >
-                <FaSignOutAlt className="mr-3" />
-                Đăng xuất
-              </button>
-            </li>
-          </ul>
-        </nav>
+              <li>
+                <Link
+                  to="/minor-repair"
+                  className={`flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 ${isActive('/minor-repair')}`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FaWrench className="mr-3" />
+                  Sửa chữa nhỏ
+                </Link>
+              </li>
+              {user?.role === 'admin' && (
+                <li>
+                  <Link
+                    to="/settings"
+                    className={`flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 ${isActive('/settings')}`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FaCog className="mr-3" />
+                    Thiết lập
+                  </Link>
+                </li>
+              )}
+              <li>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                  className="flex items-center p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 w-full text-left"
+                >
+                  <FaSignOutAlt className="mr-3" />
+                  Đăng xuất
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
-    </div>
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black opacity-50 z-30"
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
+    </>
   );
 }
 
