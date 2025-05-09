@@ -7,7 +7,10 @@ import io from 'socket.io-client';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_URL } from '../config';
 
-const socket = io(API_URL, { transports: ['websocket'] });
+const socket = io(API_URL, {
+  transports: ['websocket', 'polling'],
+  withCredentials: true
+});
 Modal.setAppElement('#root');
 
 function ProjectManagement({ user, type }) {
@@ -102,7 +105,7 @@ function ProjectManagement({ user, type }) {
       const request = editProject
         ? axios.patch(`${API_URL}/api/projects/${editProject._id}`, projectData)
         : axios.post(`${API_URL}/api/projects`, projectData);
-      const response = await request;
+      const response = await request; // Sử dụng response.data
       if (editProject) {
         setProjects(projects.map(p => p._id === editProject._id ? response.data : p));
         setFilteredProjects(projects.map(p => p._id === editProject._id ? response.data : p));
