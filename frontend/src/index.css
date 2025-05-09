@@ -19,3 +19,22 @@ body {
 .animate-fadeIn { /* Giữ lại nếu bạn dùng class này trực tiếp thay vì qua config của Tailwind */
   animation: fadeIn 0.3s ease-in-out;
 }
+
+/* frontend/src/index.css - Thêm nếu chưa có */
+/* ... các style hiện tại của bạn ... */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c7c7c7; /* Màu nhạt hơn */
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3; /* Đậm hơn khi hover */
+}
