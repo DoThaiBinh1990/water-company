@@ -172,7 +172,7 @@ function Settings({ user }) {
     setIsLoading(true);
     try {
       await axios.delete(`${API_URL}/api/construction-units/${id}`);
-      setConstructionUnits(constructionOODUnits.filter(u => u._id !== id));
+      setConstructionUnits(constructionUnits.filter(u => u._id !== id));
       toast.success('Đã xóa đơn vị thi công!', { position: "top-center" });
     } catch (error) {
       toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị thi công!', { position: "top-center" });
