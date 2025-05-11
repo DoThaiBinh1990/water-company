@@ -10,18 +10,16 @@ function Sidebar({ user, onLogout }) {
 
   const handleLogout = () => {
     onLogout();
-    // navigate('/login'); // App.js sẽ xử lý navigate sau khi logout
   };
 
   const isActive = (path) => location.pathname === path;
 
-  const linkClasses = "flex items-center py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-all duration-200 text-sm";
-  const activeLinkClasses = "bg-blue-700 text-white";
+  const linkClasses = "flex items-center py-2.5 px-4 rounded-lg hover:bg-blue-600 transition-all duration-200 text-sm font-medium";
+  const activeLinkClasses = "bg-blue-600 text-white";
 
   return (
     <>
-      {/* Nút Hamburger để mở sidebar trên mobile, đặt ở Header hoặc vị trí cố định khác nếu muốn */}
-      {/* Hiện tại, sẽ đặt một nút toggle ở đây, Header sẽ có không gian riêng */}
+      {/* Nút Hamburger để mở sidebar trên mobile */}
       <button
         className="md:hidden fixed top-3 left-3 z-50 text-gray-600 bg-white p-2 rounded-md shadow hover:bg-gray-100"
         onClick={() => setIsSidebarOpenMobile(!isSidebarOpenMobile)}
@@ -33,42 +31,41 @@ function Sidebar({ user, onLogout }) {
       {/* Sidebar */}
       <div
         className={`
-          fixed inset-y-0 left-0 z-40
+          sidebar fixed inset-y-0 left-0 z-40
           w-64 bg-gradient-to-b from-blue-800 to-blue-900 text-white
-          shadow-lg transition-transform duration-300 ease-in-out
+          shadow-xl transition-transform duration-300 ease-in-out
           transform ${isSidebarOpenMobile ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
-          flex flex-col pt-16 md:pt-0 {/* Thêm padding top cho mobile để không bị Header che */}
+          flex flex-col pt-16 md:pt-0
         `}
       >
         {/* Header của Sidebar */}
         <div className="hidden md:flex items-center justify-center p-5 border-b border-blue-700 h-16">
-            <Link to="/category" className="flex items-center" onClick={() => setIsSidebarOpenMobile(false)}>
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mr-2 shadow">
-                <span className="text-blue-800 text-xl font-bold">WC</span>
-              </div>
-              <h2 className="text-lg font-semibold">Water Company</h2>
-            </Link>
+          <Link to="/category" className="flex items-center" onClick={() => setIsSidebarOpenMobile(false)}>
+            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mr-2 shadow">
+              <span className="text-blue-800 text-xl font-bold">WC</span>
+            </div>
+            <h2 className="text-lg font-semibold">Water Company</h2>
+          </Link>
         </div>
 
-
-        <nav className="flex-grow p-3 space-y-1.5 overflow-y-auto">
-            <Link
-              to="/category"
-              className={`${linkClasses} ${isActive('/category') || isActive('/') ? activeLinkClasses : 'hover:text-blue-200'}`}
-              onClick={() => setIsSidebarOpenMobile(false)}
-            >
-              <FaList className="mr-3 flex-shrink-0" />
-              Công trình danh mục
-            </Link>
-            <Link
-              to="/minor-repair"
-              className={`${linkClasses} ${isActive('/minor-repair') ? activeLinkClasses : 'hover:text-blue-200'}`}
-              onClick={() => setIsSidebarOpenMobile(false)}
-            >
-              <FaWrench className="mr-3 flex-shrink-0" />
-              Sửa chữa nhỏ
-            </Link>
-          {user?.permissions?.approve && ( // Hoặc user?.role === 'admin'
+        <nav className="flex-grow p-3 space-y-2 overflow-y-auto">
+          <Link
+            to="/category"
+            className={`${linkClasses} ${isActive('/category') || isActive('/') ? activeLinkClasses : 'hover:text-blue-200'}`}
+            onClick={() => setIsSidebarOpenMobile(false)}
+          >
+            <FaList className="mr-3 flex-shrink-0" />
+            Công trình danh mục
+          </Link>
+          <Link
+            to="/minor-repair"
+            className={`${linkClasses} ${isActive('/minor-repair') ? activeLinkClasses : 'hover:text-blue-200'}`}
+            onClick={() => setIsSidebarOpenMobile(false)}
+          >
+            <FaWrench className="mr-3 flex-shrink-0" />
+            Sửa chữa nhỏ
+          </Link>
+          {user?.permissions?.approve && (
             <Link
               to="/settings"
               className={`${linkClasses} ${isActive('/settings') ? activeLinkClasses : 'hover:text-blue-200'}`}

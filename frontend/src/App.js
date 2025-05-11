@@ -28,6 +28,7 @@ function App() {
   const [currentNotificationTab, setCurrentNotificationTab] = useState('pending');
   const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
   const [isProcessingNotificationAction, setIsProcessingNotificationAction] = useState(false);
+  const [showHeader, setShowHeader] = useState(true); // Thêm state để quản lý ẩn/hiện header
 
   const fetchNotificationsByStatus = useCallback(async (status) => {
     if (!user?.permissions?.approve) {
@@ -215,11 +216,13 @@ function App() {
                 rejectDeleteAction={rejectDeleteAction}
                 isProcessingNotificationAction={isProcessingNotificationAction}
                 setIsProcessingNotificationAction={setIsProcessingNotificationAction}
+                showHeader={showHeader}
+                toggleHeader={() => setShowHeader(!showHeader)}
               />
               <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6 lg:p-8 md:ml-64">
                 <Routes>
-                  <Route path="/category" element={<ProjectManagement user={user} type="category" />} />
-                  <Route path="/minor-repair" element={<ProjectManagement user={user} type="minor_repair" />} />
+                  <Route path="/category" element={<ProjectManagement user={user} type="category" showHeader={showHeader} />} />
+                  <Route path="/minor-repair" element={<ProjectManagement user={user} type="minor_repair" showHeader={showHeader} />} />
                   <Route path="/settings" element={<Settings user={user} />} />
                   <Route path="/" element={<Navigate to="/category" replace />} />
                   <Route path="*" element={<Navigate to="/category" replace />} />

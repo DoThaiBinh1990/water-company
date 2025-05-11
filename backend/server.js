@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -52,7 +51,7 @@ io.on('connection', (socket) => {
 
 // Schema để quản lý số thứ tự
 const serialCounterSchema = new mongoose.Schema({
-  type: { type: String, required: true, unique: true }, // 'category' hoặc 'minor_repair'
+  type: { type: String, required: true, unique: true },
   currentSerial: { type: Number, default: 0 },
 });
 const SerialCounter = mongoose.model('SerialCounter', serialCounterSchema);
@@ -110,10 +109,21 @@ const categoryProjectSchema = new mongoose.Schema({
   constructionUnit: { type: String, default: '', trim: true },
   allocationWave: { type: String, default: '', trim: true },
   location: { type: String, required: true, trim: true },
-  scale: { type: String, required: true, trim: true }, // Bắt buộc cho danh mục
+  scale: { type: String, required: true, trim: true },
+  initialValue: { type: Number, default: 0 },
   enteredBy: { type: String, required: true, trim: true },
   status: { type: String, default: 'Chờ duyệt', index: true },
   assignedTo: { type: String, default: '', trim: true },
+  estimator: { type: String, default: '', trim: true },
+  supervisor: { type: String, default: '', trim: true },
+  durationDays: { type: Number, default: 0 },
+  startDate: { type: Date },
+  completionDate: { type: Date },
+  taskDescription: { type: String, default: '', trim: true },
+  contractValue: { type: Number, default: 0 },
+  progress: { type: String, default: '', trim: true },
+  feasibility: { type: String, default: '', trim: true },
+  notes: { type: String, default: '', trim: true },
   pendingEdit: { type: Object, default: null },
   pendingDelete: { type: Boolean, default: false },
 }, { timestamps: true });
@@ -145,9 +155,20 @@ const minorRepairProjectSchema = new mongoose.Schema({
   constructionUnit: { type: String, default: '', trim: true },
   allocationWave: { type: String, default: '', trim: true },
   location: { type: String, required: true, trim: true },
+  initialValue: { type: Number, default: 0 },
   enteredBy: { type: String, required: true, trim: true },
   status: { type: String, default: 'Chờ duyệt', index: true },
   assignedTo: { type: String, default: '', trim: true },
+  estimator: { type: String, default: '', trim: true },
+  supervisor: { type: String, default: '', trim: true },
+  durationDays: { type: Number, default: 0 },
+  startDate: { type: Date },
+  completionDate: { type: Date },
+  taskDescription: { type: String, default: '', trim: true },
+  contractValue: { type: Number, default: 0 },
+  progress: { type: String, default: '', trim: true },
+  feasibility: { type: String, default: '', trim: true },
+  notes: { type: String, default: '', trim: true },
   pendingEdit: { type: Object, default: null },
   pendingDelete: { type: Boolean, default: false },
 }, { timestamps: true });
@@ -215,78 +236,139 @@ async function updateSerialNumbers(type) {
 async function syncOldProjects() {
   console.log('Bắt đầu đồng bộ dữ liệu công trình từ collection projects cũ...');
   try {
-    // Kiểm tra xem collection projects có tồn tại không
     const collections = await mongoose.connection.db.listCollections().toArray();
     const projectsCollectionExists = collections.some(col => col.name === 'projects');
     if (!projectsCollectionExists) {
       throw new Error('Không tìm thấy collection projects cũ để đồng bộ.');
     }
 
-    // Xóa dữ liệu cũ trong CategoryProject và MinorRepairProject để tránh trùng lặp
-    await CategoryProject.deleteMany({});
-    await MinorRepairProject.deleteMany({});
-    console.log('Đã xóa dữ liệu cũ trong CategoryProject và MinorRepairProject.');
-
     const OldProject = mongoose.model('OldProject', new mongoose.Schema({}, { strict: false }), 'projects');
 
-    // Đồng bộ công trình danh mục
     const categoryProjects = await OldProject.find({ type: 'category' }).sort({ createdAt: 1 });
-    for (let i = 0; i < categoryProjects.length; i++) {
-      const oldProject = categoryProjects[i];
-      const newProject = new CategoryProject({
-        categorySerialNumber: oldProject.categorySerialNumber || (i + 1),
+    const categoryBulkOps = [];
+    let categorySerial = await SerialCounter.findOne({ type: 'category' });
+    if (!categorySerial) {
+      categorySerial = new SerialCounter({ type: 'category', currentSerial: 0 });
+    }
+
+    for (const oldProject of categoryProjects) {
+      const existingProject = await CategoryProject.findById(oldProject._id);
+      const projectData = {
+        categorySerialNumber: existingProject ? existingProject.categorySerialNumber : ++categorySerial.currentSerial,
         name: oldProject.name,
         allocatedUnit: oldProject.allocatedUnit,
         constructionUnit: oldProject.constructionUnit || '',
         allocationWave: oldProject.allocationWave || '',
         location: oldProject.location,
         scale: oldProject.scale || '',
+        initialValue: oldProject.initialValue || 0,
         enteredBy: oldProject.enteredBy,
         status: oldProject.status || 'Chờ duyệt',
         assignedTo: oldProject.assignedTo || '',
+        estimator: oldProject.estimator || '',
+        supervisor: oldProject.supervisor || '',
+        durationDays: oldProject.durationDays || 0,
+        startDate: oldProject.startDate || null,
+        completionDate: oldProject.completionDate || null,
+        taskDescription: oldProject.taskDescription || '',
+        contractValue: oldProject.contractValue || 0,
+        progress: oldProject.progress || '',
+        feasibility: oldProject.feasibility || '',
+        notes: oldProject.notes || '',
         pendingEdit: oldProject.pendingEdit || null,
         pendingDelete: oldProject.pendingDelete || false,
         createdAt: oldProject.createdAt,
         updatedAt: oldProject.updatedAt,
-      });
-      await newProject.save({ validateBeforeSave: false });
+      };
+
+      if (existingProject) {
+        categoryBulkOps.push({
+          updateOne: {
+            filter: { _id: oldProject._id },
+            update: { $set: projectData },
+          },
+        });
+      } else {
+        categoryBulkOps.push({
+          insertOne: {
+            document: { _id: oldProject._id, ...projectData },
+          },
+        });
+      }
+    }
+
+    if (categoryBulkOps.length > 0) {
+      await CategoryProject.bulkWrite(categoryBulkOps);
     }
     await SerialCounter.findOneAndUpdate(
       { type: 'category' },
-      { currentSerial: categoryProjects.length },
+      { currentSerial: categorySerial.currentSerial },
       { upsert: true }
     );
     console.log(`Đã đồng bộ ${categoryProjects.length} công trình danh mục.`);
 
-    // Đồng bộ công trình sửa chữa nhỏ
     const minorRepairProjects = await OldProject.find({ type: 'minor_repair' }).sort({ createdAt: 1 });
-    for (let i = 0; i < minorRepairProjects.length; i++) {
-      const oldProject = minorRepairProjects[i];
-      const newProject = new MinorRepairProject({
-        minorRepairSerialNumber: oldProject.minorRepairSerialNumber || (i + 1),
+    const minorRepairBulkOps = [];
+    let minorRepairSerial = await SerialCounter.findOne({ type: 'minor_repair' });
+    if (!minorRepairSerial) {
+      minorRepairSerial = new SerialCounter({ type: 'minor_repair', currentSerial: 0 });
+    }
+
+    for (const oldProject of minorRepairProjects) {
+      const existingProject = await MinorRepairProject.findById(oldProject._id);
+      const projectData = {
+        minorRepairSerialNumber: existingProject ? existingProject.minorRepairSerialNumber : ++minorRepairSerial.currentSerial,
         name: oldProject.name,
         allocatedUnit: oldProject.allocatedUnit,
         constructionUnit: oldProject.constructionUnit || '',
         allocationWave: oldProject.allocationWave || '',
         location: oldProject.location,
+        initialValue: oldProject.initialValue || 0,
         enteredBy: oldProject.enteredBy,
         status: oldProject.status || 'Chờ duyệt',
         assignedTo: oldProject.assignedTo || '',
+        estimator: oldProject.estimator || '',
+        supervisor: oldProject.supervisor || '',
+        durationDays: oldProject.durationDays || 0,
+        startDate: oldProject.startDate || null,
+        completionDate: oldProject.completionDate || null,
+        taskDescription: oldProject.taskDescription || '',
+        contractValue: oldProject.contractValue || 0,
+        progress: oldProject.progress || '',
+        feasibility: oldProject.feasibility || '',
+        notes: oldProject.notes || '',
         pendingEdit: oldProject.pendingEdit || null,
         pendingDelete: oldProject.pendingDelete || false,
         createdAt: oldProject.createdAt,
         updatedAt: oldProject.updatedAt,
-      });
-      await newProject.save({ validateBeforeSave: false });
+      };
+
+      if (existingProject) {
+        minorRepairBulkOps.push({
+          updateOne: {
+            filter: { _id: oldProject._id },
+            update: { $set: projectData },
+          },
+        });
+      } else {
+        minorRepairBulkOps.push({
+          insertOne: {
+            document: { _id: oldProject._id, ...projectData },
+          },
+        });
+      }
+    }
+
+    if (minorRepairBulkOps.length > 0) {
+      await MinorRepairProject.bulkWrite(minorRepairBulkOps);
     }
     await SerialCounter.findOneAndUpdate(
       { type: 'minor_repair' },
-      { currentSerial: minorRepairProjects.length },
+      { currentSerial: minorRepairSerial.currentSerial },
       { upsert: true }
     );
     console.log(`Đã đồng bộ ${minorRepairProjects.length} công trình sửa chữa nhỏ.`);
 
-    // Cập nhật notifications
     const notifications = await Notification.find();
     for (const notification of notifications) {
       const project = await OldProject.findById(notification.projectId);
@@ -510,7 +592,6 @@ const createUnitCrudEndpoints = (model, modelNameSingular, modelNamePlural) => {
 createUnitCrudEndpoints(AllocatedUnit, 'đơn vị phân bổ', 'allocated-units');
 createUnitCrudEndpoints(ConstructionUnit, 'đơn vị thi công', 'construction-units');
 createUnitCrudEndpoints(AllocationWave, 'đợt phân bổ', 'allocation-waves');
-
 app.get('/api/notifications', authenticate, async (req, res) => {
   try {
     const { status } = req.query;
@@ -544,23 +625,33 @@ app.patch('/api/notifications/:id', authenticate, async (req, res) => {
   }
 });
 
-// API lấy danh sách công trình
+// API lấy danh sách công trình (cập nhật để hỗ trợ tìm kiếm nâng cao và tối ưu hóa)
 app.get('/api/projects', authenticate, async (req, res) => {
   try {
-    const { type, page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search } = req.query;
+    const { type, page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress } = req.query;
     const Model = type === 'category' ? CategoryProject : MinorRepairProject;
     const query = {};
+
+    // Xây dựng điều kiện tìm kiếm
     if (status) query.status = status;
     if (allocatedUnit) query.allocatedUnit = allocatedUnit;
     if (constructionUnit) query.constructionUnit = constructionUnit;
     if (allocationWave) query.allocationWave = allocationWave;
     if (assignedTo) query.assignedTo = { $regex: assignedTo, $options: 'i' };
     if (search) query.name = { $regex: search, $options: 'i' };
+    if (minInitialValue || maxInitialValue) {
+      query.initialValue = {};
+      if (minInitialValue) query.initialValue.$gte = parseFloat(minInitialValue);
+      if (maxInitialValue) query.initialValue.$lte = parseFloat(maxInitialValue);
+    }
+    if (progress) query.progress = { $regex: progress, $options: 'i' };
+
     const count = await Model.countDocuments(query);
     const projects = await Model.find(query)
       .sort({ createdAt: -1 })
       .skip((parseInt(page) - 1) * parseInt(limit))
       .limit(parseInt(limit));
+
     res.json({
       projects,
       total: count,
@@ -577,7 +668,7 @@ app.get('/api/projects', authenticate, async (req, res) => {
 app.post('/api/projects', authenticate, async (req, res) => {
   if (!req.user.permissions.add) return res.status(403).json({ message: 'Không có quyền thêm công trình' });
   try {
-    const { name, allocatedUnit, location, type, scale } = req.body;
+    const { name, allocatedUnit, location, type, scale, initialValue } = req.body;
     if (!name || !allocatedUnit || !location || !type) {
       return res.status(400).json({ message: 'Tên công trình, đơn vị phân bổ, vị trí và loại công trình là bắt buộc.' });
     }
@@ -589,7 +680,7 @@ app.post('/api/projects', authenticate, async (req, res) => {
     if (type === 'minor_repair' && projectData.hasOwnProperty('scale')) {
       delete projectData.scale;
     }
-    delete projectData.type; // Không cần trường type trong dữ liệu lưu trữ
+    delete projectData.type;
     const project = new Model(projectData);
     const newProject = await project.save();
     const populatedProjectForNotification = { _id: newProject._id, name: newProject.name, type };
@@ -617,7 +708,7 @@ app.post('/api/projects', authenticate, async (req, res) => {
 // API sửa công trình
 app.patch('/api/projects/:id', authenticate, async (req, res) => {
   try {
-    const { type } = req.query; // Lấy type từ query để biết model nào
+    const { type } = req.query;
     if (!type || !['category', 'minor_repair'].includes(type)) {
       return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
     }

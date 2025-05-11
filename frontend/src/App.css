@@ -1,38 +1,105 @@
-.App {
-  text-align: center;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+/* Tùy chỉnh bổ sung */
+@layer components {
+  .form-input {
+    @apply w-full p-3 border-2 border-gray-200 rounded-lg bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-base;
+  }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+  .form-select {
+    @apply w-full p-3 border-2 border-gray-200 rounded-lg bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-base;
+  }
+
+  .form-textarea {
+    @apply w-full p-3 border-2 border-gray-200 rounded-lg bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-base resize-vertical;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-600 mb-2;
+  }
+
+  .table-fixed th,
+  .table-fixed td {
+    @apply px-6 py-4 text-left border-b border-gray-200 whitespace-normal text-gray-700;
+  }
+
+  /* Giãn rộng các cột trong bảng */
+  .table-fixed th:nth-child(2),
+  .table-fixed td:nth-child(2) {
+    @apply min-w-[1000px]; /* Tên danh mục */
+  }
+
+  .table-fixed th:nth-child(5),
+  .table-fixed td:nth-child(5) {
+    @apply min-w-[800px]; /* Quy mô (nếu có) */
+  }
+
+  .table-fixed th:nth-child(6),
+  .table-fixed td:nth-child(6) {
+    @apply min-w-[800px]; /* Địa điểm XD */
+  }
+
+  .table-fixed th:nth-child(15),
+  .table-fixed td:nth-child(15) {
+    @apply min-w-[1100px]; /* Nội dung giao việc */
+  }
+
+  .table-fixed th:nth-child(18),
+  .table-fixed td:nth-child(18) {
+    @apply min-w-[900px]; /* Tiến độ thi công */
+  }
+
+  .table-fixed th:nth-child(19),
+  .table-fixed td:nth-child(19) {
+    @apply min-w-[900px]; /* Khả năng thực hiện */
+  }
+
+  .table-fixed th:nth-child(20),
+  .table-fixed td:nth-child(20) {
+    @apply min-w-[1100px]; /* Ghi chú */
+  }
+
+  .table-fixed th {
+    @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white sticky top-0 z-10 text-xs font-semibold uppercase tracking-widest px-6 py-4 border-b-2 border-blue-800 shadow-lg;
+  }
+
+  .table-fixed th:nth-child(1),
+  .table-fixed td:nth-child(1),
+  .table-fixed th:nth-child(2),
+  .table-fixed td:nth-child(2) {
+    @apply sticky left-0 z-10;
+  }
+
+  .table-fixed th:nth-child(1),
+  .table-fixed td:nth-child(1) {
+    @apply w-[140px] bg-gradient-to-r from-blue-600 to-blue-700 text-white;
+  }
+
+  .table-fixed th:nth-child(2),
+  .table-fixed td:nth-child(2) {
+    @apply w-[1000px] bg-gradient-to-r from-blue-600 to-blue-700 text-white;
+  }
+
+  .table-fixed td:nth-child(1),
+  .table-fixed td:nth-child(2) {
+    @apply bg-white text-gray-700;
+  }
+
+  .table-fixed th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(5)):not(:nth-child(6)):not(:nth-child(15)):not(:nth-child(18)):not(:nth-child(19)):not(:nth-child(20)),
+  .table-fixed td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(5)):not(:nth-child(6)):not(:nth-child(15)):not(:nth-child(18)):not(:nth-child(19)):not(:nth-child(20)) {
+    @apply min-w-[600px];
+  }
+
+  .table-fixed tbody tr:hover {
+    @apply bg-blue-50 transition-all duration-150;
+  }
+
+  .table-container {
+    @apply scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Tùy chỉnh giao diện tổng thể */
+body {

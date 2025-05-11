@@ -1,6 +1,6 @@
 // frontend/src/components/Header.js
-import React, { useState } from 'react';
-import { FaBell, FaCheckCircle, FaTimesCircle, FaUserCircle } from 'react-icons/fa';
+import React from 'react';
+import { FaBell, FaCheckCircle, FaTimesCircle, FaUserCircle, FaBars, FaTimes } from 'react-icons/fa';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
@@ -19,9 +19,10 @@ function Header({
   approveDeleteAction,
   rejectDeleteAction,
   isProcessingNotificationAction,
-  setIsProcessingNotificationAction
+  setIsProcessingNotificationAction,
+  showHeader,
+  toggleHeader
 }) {
-
   const handleAction = async (actionCallback, projectId) => {
     if (isProcessingNotificationAction) return;
     setIsProcessingNotificationAction(true);
@@ -37,39 +38,49 @@ function Header({
   const unreadNotificationsCount = notifications.filter(n => n.status === 'pending').length;
 
   return (
-    <header className="bg-white shadow-md h-16 px-4 md:px-6 flex justify-between items-center sticky top-0 z-30 w-full">
-      <div className="flex-1">
-      </div>
-
-      <div className="flex items-center space-x-4">
-        {user && (
-          <div className="flex items-center">
-            <FaUserCircle className="text-xl text-gray-500 mr-2" />
-            <span className="text-gray-700 font-medium text-sm md:text-base">{user.username}</span>
-          </div>
-        )}
-        {user?.permissions?.approve && (
+    <>
+      <header className={`bg-white shadow-sm h-16 px-4 md:px-6 flex justify-between items-center sticky top-0 z-30 w-full transition-all duration-300 ${showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full h-0 overflow-hidden'}`}>
+        <div className="flex items-center space-x-3">
           <button
-            onClick={() => {
-              setShowNotificationsModal(true);
-              fetchNotificationsByStatus(currentNotificationTab === 'processed' ? 'processed' : 'pending');
-              if (currentNotificationTab !== 'pending') {
-                setCurrentNotificationTab('pending');
-              }
-            }}
-            className="relative text-gray-500 hover:text-blue-600 focus:outline-none p-2"
-            aria-label="Thông báo"
-            disabled={isNotificationsLoading || isProcessingNotificationAction}
+            onClick={toggleHeader}
+            className="text-gray-600 hover:text-blue-600 focus:outline-none p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200"
+            aria-label={showHeader ? "Ẩn header" : "Hiện header"}
           >
-            <FaBell size={20} />
-            {unreadNotificationsCount > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center transform translate-x-1/4 -translate-y-1/4">
-                {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
-              </span>
-            )}
+            {showHeader ? <FaTimes size={20} /> : <FaBars size={20} />}
           </button>
-        )}
-      </div>
+          <h1 className="text-lg font-semibold text-gray-800">Water Company</h1>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          {user && (
+            <div className="flex items-center space-x-2">
+              <FaUserCircle className="text-xl text-gray-500" />
+              <span className="text-gray-700 font-medium text-sm md:text-base">{user.username}</span>
+            </div>
+          )}
+          {user?.permissions?.approve && (
+            <button
+              onClick={() => {
+                setShowNotificationsModal(true);
+                fetchNotificationsByStatus(currentNotificationTab === 'processed' ? 'processed' : 'pending');
+                if (currentNotificationTab !== 'pending') {
+                  setCurrentNotificationTab('pending');
+                }
+              }}
+              className="relative text-gray-500 hover:text-blue-600 focus:outline-none p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200"
+              aria-label="Thông báo"
+              disabled={isNotificationsLoading || isProcessingNotificationAction}
+            >
+              <FaBell size={20} />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2">
+                  {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
+                </span>
+              )}
+            </button>
+          )}
+        </div>
+      </header>
 
       <Modal
         isOpen={showNotificationsModal}
@@ -142,7 +153,7 @@ function Header({
           Đóng
         </button>
       </Modal>
-    </header>
+    </>
   );
 }
 
