@@ -211,7 +211,7 @@ async function updateSerialNumbers(type) {
   }
 }
 
-// Script đồng bộ dữ liệu từ collection projects cũ
+// Hàm đồng bộ dữ liệu từ collection projects cũ
 async function syncOldProjects() {
   console.log('Bắt đầu đồng bộ dữ liệu công trình từ collection projects cũ...');
   try {
@@ -219,9 +219,13 @@ async function syncOldProjects() {
     const collections = await mongoose.connection.db.listCollections().toArray();
     const projectsCollectionExists = collections.some(col => col.name === 'projects');
     if (!projectsCollectionExists) {
-      console.log('Không tìm thấy collection projects cũ, bỏ qua đồng bộ.');
-      return;
+      throw new Error('Không tìm thấy collection projects cũ để đồng bộ.');
     }
+
+    // Xóa dữ liệu cũ trong CategoryProject và MinorRepairProject để tránh trùng lặp
+    await CategoryProject.deleteMany({});
+    await MinorRepairProject.deleteMany({});
+    console.log('Đã xóa dữ liệu cũ trong CategoryProject và MinorRepairProject.');
 
     const OldProject = mongoose.model('OldProject', new mongoose.Schema({}, { strict: false }), 'projects');
 
@@ -294,16 +298,12 @@ async function syncOldProjects() {
     console.log('Đã cập nhật projectModel cho notifications.');
 
     console.log('Đồng bộ dữ liệu hoàn tất.');
+    return { message: 'Đồng bộ dữ liệu công trình thành công.' };
   } catch (error) {
     console.error('Lỗi khi đồng bộ dữ liệu:', error);
+    throw new Error(`Lỗi khi đồng bộ dữ liệu: ${error.message}`);
   }
 }
-
-// Chạy script đồng bộ khi server khởi động
-mongoose.connection.once('open', async () => {
-  console.log('Đã kết nối MongoDB Atlas');
-  await syncOldProjects();
-});
 
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -941,6 +941,18 @@ app.patch('/api/projects/:id/reject-delete', authenticate, async (req, res) => {
   } catch (error) {
     console.error("Lỗi API từ chối xóa:", error);
     res.status(400).json({ message: 'Lỗi khi từ chối xóa: ' + error.message });
+  }
+});
+
+// API mới: Đồng bộ công trình thủ công
+app.post('/api/sync-projects', authenticate, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền đồng bộ dữ liệu công trình' });
+  try {
+    const result = await syncOldProjects();
+    res.json(result);
+  } catch (error) {
+    console.error("Lỗi API đồng bộ công trình:", error);
+    res.status(500).json({ message: error.message });
   }
 });
 

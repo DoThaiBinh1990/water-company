@@ -1,11 +1,11 @@
 // frontend/src/pages/ProjectManagement.js
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { FaCheckCircle, FaTimesCircle, FaBuilding, FaUser, FaEdit, FaTrash, FaPlus, FaHardHat } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import { FaCheckCircle, FaTimesCircle, FaBuilding, FaUser, FaEdit, FaTrash, FaPlus, FaHardHat, FaSearch } from 'react-icons/fa';
 import Modal from 'react-modal';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_URL } from '../config';
+import { toast } from 'react-toastify';
 
 Modal.setAppElement('#root');
 
@@ -31,10 +31,11 @@ function ProjectManagement({ user, type }) {
   const [assignPersons, setAssignPersons] = useState({});
 
   const [filterStatus, setFilterStatus] = useState('');
+  const [filterConstructionUnit, setFilterConstructionUnit] = useState('');
+  const [filterName, setFilterName] = useState(''); // Thêm bộ lọc theo tên
   const [allocatedUnits, setAllocatedUnits] = useState([]);
   const [constructionUnitsList, setConstructionUnitsList] = useState([]);
   const [allocationWavesList, setAllocationWavesList] = useState([]);
-  const [filterConstructionUnit, setFilterConstructionUnit] = useState('');
 
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +51,7 @@ function ProjectManagement({ user, type }) {
     const params = new URLSearchParams({ type, page: currentPage, limit: 10 });
     if (filterStatus) params.append('status', filterStatus);
     if (filterConstructionUnit) params.append('constructionUnit', filterConstructionUnit);
+    if (filterName) params.append('search', filterName); // Thêm tham số search
 
     try {
       const projectsRes = await axios.get(`${API_URL}/api/projects?${params.toString()}`);
@@ -63,7 +65,7 @@ function ProjectManagement({ user, type }) {
     } finally {
       setIsLoading(false);
     }
-  }, [type, currentPage, filterStatus, filterConstructionUnit, user]);
+  }, [type, currentPage, filterStatus, filterConstructionUnit, filterName, user]);
 
   useEffect(() => {
     if (!user) return;
@@ -93,7 +95,7 @@ function ProjectManagement({ user, type }) {
       setTotalPages(1);
       setCurrentPage(1);
     }
-  }, [user, currentPage, filterStatus, filterConstructionUnit, fetchProjects]);
+  }, [user, currentPage, filterStatus, filterConstructionUnit, filterName, fetchProjects]);
 
   const openAddNewModal = () => {
     setEditProject(null);
@@ -343,6 +345,20 @@ function ProjectManagement({ user, type }) {
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-md mb-8">
         <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Bộ lọc công trình</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tên công trình</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Tìm kiếm theo tên..."
+                value={filterName}
+                onChange={(e) => { setCurrentPage(1); setFilterName(e.target.value); }}
+                className="w-full border border-gray-300 p-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                disabled={isLoading || isSubmitting}
+              />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
             <select value={filterStatus} onChange={(e) => { setCurrentPage(1); setFilterStatus(e.target.value); }} className="w-full border border-gray-300 p-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={isLoading || isSubmitting}>

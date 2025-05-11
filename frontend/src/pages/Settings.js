@@ -1,6 +1,7 @@
+// frontend/src/pages/Settings.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_URL } from '../config';
@@ -24,6 +25,7 @@ function Settings({ user }) {
   const [allocationWaves, setAllocationWaves] = useState([]);
   const [editingUserId, setEditingUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false); // State để quản lý trạng thái đồng bộ
 
   useEffect(() => {
     if (user?.role !== 'admin') return;
@@ -238,6 +240,20 @@ function Settings({ user }) {
     }
   };
 
+  // Hàm đồng bộ thủ công
+  const syncProjects = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    try {
+      const response = await axios.post(`${API_URL}/api/sync-projects`);
+      toast.success(response.data.message, { position: "top-center" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi đồng bộ dữ liệu công trình!', { position: "top-center" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   if (user?.role !== 'admin') {
     return <div className="p-8 text-center text-red-600">Bạn không có quyền truy cập trang này!</div>;
   }
@@ -250,6 +266,12 @@ function Settings({ user }) {
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="text-white text-xl">Đang tải...</div>
+        </div>
+      )}
+
+      {isSyncing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-white text-xl">Đang đồng bộ dữ liệu công trình...</div>
         </div>
       )}
 
@@ -432,26 +454,24 @@ function Settings({ user }) {
             <tbody>
               {allocatedUnits.map(unit => (
                 <tr key={unit._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                  <td className="p-4">{unit.name}</td>
+                  <td className="p-4 text-gray-700">{unit.name}</td>
                   <td className="p-4 flex gap-2">
                     <button
                       onClick={() => {
                         setNewAllocatedUnit(unit.name);
                         setEditAllocatedUnit(unit);
                       }}
-                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Sửa"
+                      className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
                       disabled={isLoading}
                     >
-                      <FaEdit />
+                      <FaEdit size={16} />
                     </button>
                     <button
                       onClick={() => deleteAllocatedUnit(unit._id)}
-                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Xóa"
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
                       disabled={isLoading}
                     >
-                      <FaTrash />
+                      <FaTrash size={16} />
                     </button>
                   </td>
                 </tr>
@@ -509,26 +529,24 @@ function Settings({ user }) {
             <tbody>
               {constructionUnits.map(unit => (
                 <tr key={unit._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                  <td className="p-4">{unit.name}</td>
+                  <td className="p-4 text-gray-700">{unit.name}</td>
                   <td className="p-4 flex gap-2">
                     <button
                       onClick={() => {
                         setNewConstructionUnit(unit.name);
                         setEditConstructionUnit(unit);
                       }}
-                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Sửa"
+                      className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
                       disabled={isLoading}
                     >
-                      <FaEdit />
+                      <FaEdit size={16} />
                     </button>
                     <button
                       onClick={() => deleteConstructionUnit(unit._id)}
-                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Xóa"
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
                       disabled={isLoading}
                     >
-                      <FaTrash />
+                      <FaTrash size={16} />
                     </button>
                   </td>
                 </tr>
@@ -586,26 +604,24 @@ function Settings({ user }) {
             <tbody>
               {allocationWaves.map(wave => (
                 <tr key={wave._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                  <td className="p-4">{wave.name}</td>
+                  <td className="p-4 text-gray-700">{wave.name}</td>
                   <td className="p-4 flex gap-2">
                     <button
                       onClick={() => {
                         setNewAllocationWave(wave.name);
                         setEditAllocationWave(wave);
                       }}
-                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Sửa"
+                      className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
                       disabled={isLoading}
                     >
-                      <FaEdit />
+                      <FaEdit size={16} />
                     </button>
                     <button
                       onClick={() => deleteAllocationWave(wave._id)}
-                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Xóa"
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
                       disabled={isLoading}
                     >
-                      <FaTrash />
+                      <FaTrash size={16} />
                     </button>
                   </td>
                 </tr>
@@ -615,8 +631,8 @@ function Settings({ user }) {
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách người dùng</h2>
+      <div className="bg-white p-8 rounded-2xl shadow-md mb-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý người dùng</h2>
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse">
             <thead>
@@ -628,32 +644,46 @@ function Settings({ user }) {
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
-                <tr key={u._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                  <td className="p-4">{u.username}</td>
-                  <td className="p-4">{u.role}</td>
-                  <td className="p-4">
-                    {u.permissions.add && 'Thêm, '}
-                    {u.permissions.edit && 'Sửa, '}
-                    {u.permissions.delete && 'Xóa, '}
-                    {u.permissions.approve && 'Duyệt'}
+              {users.map(user => (
+                <tr key={user._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                  <td className="p-4 text-gray-700">{user.username}</td>
+                  <td className="p-4 text-gray-700">
+                    {user.role === 'admin' && 'Admin'}
+                    {user.role === 'director' && 'Tổng giám đốc'}
+                    {user.role === 'deputy_director' && 'Phó tổng giám đốc'}
+                    {user.role === 'manager' && 'Trưởng phòng'}
+                    {user.role === 'deputy_manager' && 'Phó phòng'}
+                    {user.role === 'staff' && 'Nhân viên phòng'}
+                    {user.role === 'branch_director' && 'Giám đốc chi nhánh'}
+                    {user.role === 'branch_deputy_director' && 'Phó giám đốc chi nhánh'}
+                    {user.role === 'branch_staff' && 'Nhân viên chi nhánh'}
+                    {user.role === 'worker' && 'Công nhân trực tiếp'}
+                  </td>
+                  <td className="p-4 text-gray-700">
+                    {Object.keys(user.permissions)
+                      .filter(key => user.permissions[key])
+                      .map(key => ({
+                        add: 'Thêm',
+                        edit: 'Sửa',
+                        delete: 'Xóa',
+                        approve: 'Duyệt'
+                      }[key]))
+                      .join(', ') || 'Không có quyền'}
                   </td>
                   <td className="p-4 flex gap-2">
                     <button
-                      onClick={() => editUser(u)}
-                      className={`text-yellow-600 hover:text-yellow-800 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Sửa"
+                      onClick={() => editUser(user)}
+                      className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
                       disabled={isLoading}
                     >
-                      <FaEdit />
+                      <FaEdit size={16} />
                     </button>
                     <button
-                      onClick={() => deleteUser(u._id)}
-                      className={`text-red-600 hover:text-red-800 transition-all duration-200 ${isLoading || u.role === 'admin' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={isLoading || u.role === 'admin'}
-                      title={u.role === 'admin' ? 'Không thể xóa admin' : 'Xóa'}
+                      onClick={() => deleteUser(user._id)}
+                      className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
+                      disabled={isLoading}
                     >
-                      <FaTrash />
+                      <FaTrash size={16} />
                     </button>
                   </td>
                 </tr>
@@ -661,6 +691,26 @@ function Settings({ user }) {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="bg-white p-8 rounded-2xl shadow-md">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Đồng bộ dữ liệu công trình</h2>
+        <p className="text-gray-600 mb-4">
+          Chức năng này sẽ đồng bộ dữ liệu công trình từ collection cũ (<code>projects</code>) sang các collection mới (<code>categoryprojects</code> và <code>minorrepairprojects</code>).
+          <br />
+          <strong>Lưu ý:</strong> Hành động này sẽ xóa toàn bộ dữ liệu hiện tại trong các collection mới trước khi đồng bộ. Hãy đảm bảo sao lưu dữ liệu nếu cần.
+        </p>
+        <button
+          onClick={() => {
+            if (window.confirm('Bạn có chắc chắn muốn đồng bộ dữ liệu công trình? Hành động này sẽ xóa dữ liệu hiện tại trong các collection mới.')) {
+              syncProjects();
+            }
+          }}
+          className={`bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isSyncing ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={isSyncing}
+        >
+          <FaSync /> Đồng bộ dữ liệu công trình
+        </button>
       </div>
     </div>
   );
