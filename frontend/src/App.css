@@ -1,105 +1,369 @@
+/* frontend/src/App.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Tùy chỉnh bổ sung */
 @layer components {
-  .form-input {
-    @apply w-full p-3 border-2 border-gray-200 rounded-lg bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-base;
+  /* === Form Styles === */
+  .form-label {
+    @apply block text-sm font-semibold text-gray-800 mb-2;
   }
 
-  .form-select {
-    @apply w-full p-3 border-2 border-gray-200 rounded-lg bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-base;
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm placeholder-gray-400;
   }
 
   .form-textarea {
-    @apply w-full p-3 border-2 border-gray-200 rounded-lg bg-gray-50 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-base resize-vertical;
+    @apply resize-vertical min-h-[120px];
   }
 
-  .form-label {
-    @apply block text-sm font-medium text-gray-600 mb-2;
+  .form-input[readonly],
+  .form-select[readonly],
+  .form-textarea[readonly],
+  .form-input:disabled,
+  .form-select:disabled,
+  .form-textarea:disabled {
+    @apply bg-gray-100 cursor-not-allowed text-gray-500 opacity-70;
   }
 
-  .table-fixed th,
-  .table-fixed td {
-    @apply px-6 py-4 text-left border-b border-gray-200 whitespace-normal text-gray-700;
+  /* Form validation error */
+  .form-error {
+    @apply text-red-500 text-xs mt-1;
   }
 
-  /* Giãn rộng các cột trong bảng */
-  .table-fixed th:nth-child(2),
-  .table-fixed td:nth-child(2) {
-    @apply min-w-[1000px]; /* Tên danh mục */
+  /* Icon trong input */
+  .input-with-icon {
+    @apply relative;
   }
 
-  .table-fixed th:nth-child(5),
-  .table-fixed td:nth-child(5) {
-    @apply min-w-[800px]; /* Quy mô (nếu có) */
+  .input-icon {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none; /* Thêm pointer-events-none */
+  }
+  /* Adjust padding for input with icon */
+   .form-input.pl-9, .form-input.pl-10 { /* Make sure these exist if used in HTML */
+     @apply pl-10; /* Or pl-9 depending on icon size */
+   }
+
+
+  /* Cải thiện nút trong form */
+  .form-btn {
+    @apply px-6 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 flex items-center justify-center gap-2 text-sm font-semibold shadow-md hover:shadow-lg transform active:scale-[0.98]; /* Thêm active state */
   }
 
-  .table-fixed th:nth-child(6),
-  .table-fixed td:nth-child(6) {
-    @apply min-w-[800px]; /* Địa điểm XD */
+  .form-btn:disabled {
+      @apply opacity-60 cursor-not-allowed pointer-events-none;
   }
 
-  .table-fixed th:nth-child(15),
-  .table-fixed td:nth-child(15) {
-    @apply min-w-[1100px]; /* Nội dung giao việc */
+  .form-btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
   }
 
-  .table-fixed th:nth-child(18),
-  .table-fixed td:nth-child(18) {
-    @apply min-w-[900px]; /* Tiến độ thi công */
+  .form-btn-secondary {
+    @apply bg-gray-300 text-gray-800 hover:bg-gray-400 focus:ring-gray-400;
   }
 
-  .table-fixed th:nth-child(19),
-  .table-fixed td:nth-child(19) {
-    @apply min-w-[900px]; /* Khả năng thực hiện */
+   .form-btn-danger { /* Thêm nút màu đỏ nếu cần */
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
   }
 
-  .table-fixed th:nth-child(20),
-  .table-fixed td:nth-child(20) {
-    @apply min-w-[1100px]; /* Ghi chú */
+  /* Tab trong form */
+  .form-tab {
+    @apply py-3 px-5 font-semibold text-sm transition-all duration-200 border-b-2 whitespace-nowrap; /* Thêm whitespace-nowrap */
   }
 
-  .table-fixed th {
-    @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white sticky top-0 z-10 text-xs font-semibold uppercase tracking-widest px-6 py-4 border-b-2 border-blue-800 shadow-lg;
+  .form-tab:disabled {
+     @apply opacity-60 cursor-not-allowed text-gray-400;
   }
 
-  .table-fixed th:nth-child(1),
-  .table-fixed td:nth-child(1),
-  .table-fixed th:nth-child(2),
-  .table-fixed td:nth-child(2) {
-    @apply sticky left-0 z-10;
+  .form-tab-active {
+    @apply border-blue-600 text-blue-700 bg-blue-50;
   }
 
-  .table-fixed th:nth-child(1),
-  .table-fixed td:nth-child(1) {
-    @apply w-[140px] bg-gradient-to-r from-blue-600 to-blue-700 text-white;
+  .form-tab-inactive {
+    @apply border-transparent text-gray-600 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50;
   }
 
-  .table-fixed th:nth-child(2),
-  .table-fixed td:nth-child(2) {
-    @apply w-[1000px] bg-gradient-to-r from-blue-600 to-blue-700 text-white;
-  }
-
-  .table-fixed td:nth-child(1),
-  .table-fixed td:nth-child(2) {
-    @apply bg-white text-gray-700;
-  }
-
-  .table-fixed th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(5)):not(:nth-child(6)):not(:nth-child(15)):not(:nth-child(18)):not(:nth-child(19)):not(:nth-child(20)),
-  .table-fixed td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(5)):not(:nth-child(6)):not(:nth-child(15)):not(:nth-child(18)):not(:nth-child(19)):not(:nth-child(20)) {
-    @apply min-w-[600px];
-  }
-
-  .table-fixed tbody tr:hover {
-    @apply bg-blue-50 transition-all duration-150;
+  /* === Table Styles === */
+  .card {
+    @apply bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200; /* Tăng shadow, giảm border */
   }
 
   .table-container {
-    @apply scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100;
+    @apply overflow-x-auto custom-scrollbar relative; /* Bỏ rounded-t-2xl nếu card đã có overflow-hidden */
+    max-width: 100%;
   }
+
+  .table-fixed {
+    @apply w-full border-collapse border-spacing-0;
+    /* min-width: 3000px; Bỏ đi, để min-width của các th quyết định */
+  }
+
+  .table-fixed th {
+    @apply px-4 py-4 border-b-2 border-gray-300 bg-blue-600 text-white text-left text-xs font-bold uppercase tracking-wider sticky top-0 z-20 border-r border-blue-700; /* Đổi border-r màu đậm hơn */
+  }
+   /* Loại bỏ border-r cho cột cuối cùng trong thead */
+  .table-fixed th:last-child {
+    @apply border-r-0;
+  }
+
+  .table-fixed td {
+    @apply px-4 py-3 border-b border-gray-200 text-sm text-gray-800 font-medium whitespace-normal border-r border-gray-200; /* Giảm padding y, đổi border màu nhạt hơn */
+    vertical-align: middle; /* Căn giữa theo chiều dọc */
+  }
+
+  /* Loại bỏ border-r cho cột cuối cùng trong tbody */
+  .table-fixed td:last-child {
+    @apply border-r-0;
+  }
+
+  /* Zebra striping - Tăng độ tương phản */
+  .table-fixed tbody tr:nth-child(even) {
+    @apply bg-gray-50; /* Nhạt hơn chút */
+  }
+
+  .table-fixed tbody tr.row-selected { /* Thêm class cho hàng được chọn (ví dụ khi expand) */
+     @apply bg-blue-100;
+  }
+
+  .table-fixed tbody tr:not(.row-selected):hover { /* Chỉ hover khi không phải hàng đang chọn */
+    @apply bg-blue-50 transition-colors duration-150;
+  }
+
+  /* Căn chỉnh text */
+  .table-fixed .text-right { @apply text-right; }
+  .table-fixed .text-center { @apply text-center; }
+
+  /* --- Sticky Columns Refined --- */
+  /* Cột 1: STT */
+  .table-fixed th.sticky-col-1,
+  .table-fixed td.sticky-col-1 {
+    @apply sticky left-0 z-30;
+    /* width: 70px; */ /* Có thể set width cố định nếu muốn */
+  }
+  .table-fixed th.sticky-col-1 { @apply bg-blue-600; }
+  .table-fixed td.sticky-col-1 { @apply bg-white; }
+  .table-fixed tr:nth-child(even) td.sticky-col-1 { @apply bg-gray-50; }
+  .table-fixed tr.row-selected td.sticky-col-1 { @apply bg-blue-100; }
+
+  /* Cột 2: Tên công trình */
+  .table-fixed th.sticky-col-2,
+  .table-fixed td.sticky-col-2 {
+    @apply sticky z-20;
+    left: 70px; /* Nên khớp với width của cột 1 nếu cột 1 có width cố định */
+    /* Hoặc dùng CSS var nếu cột 1 có width động */
+  }
+  .table-fixed th.sticky-col-2 { @apply bg-blue-600; }
+  .table-fixed td.sticky-col-2 { @apply bg-white; }
+  .table-fixed tr:nth-child(even) td.sticky-col-2 { @apply bg-gray-50; }
+  .table-fixed tr.row-selected td.sticky-col-2 { @apply bg-blue-100; }
+
+  /* Cột cuối: Hành động */
+  .table-fixed th.sticky-col-last,
+  .table-fixed td.sticky-col-last {
+    @apply sticky right-0 z-10; /* Giảm z-index một chút */
+     /* min-width: 300px; Bỏ nếu nội dung tự quyết định */
+  }
+  .table-fixed th.sticky-col-last { @apply bg-blue-600 z-20; } /* Đảm bảo header action luôn trên cùng */
+  .table-fixed td.sticky-col-last { @apply bg-white; }
+  .table-fixed tr:nth-child(even) td.sticky-col-last { @apply bg-gray-50; }
+  .table-fixed tr.row-selected td.sticky-col-last { @apply bg-blue-100; }
+  /* Thêm shadow nhẹ cho các cột sticky để phân biệt */
+  .table-fixed th.sticky-col-1, .table-fixed td.sticky-col-1,
+  .table-fixed th.sticky-col-2, .table-fixed td.sticky-col-2 {
+      box-shadow: 5px 0 5px -2px rgba(0, 0, 0, 0.05);
+  }
+   .table-fixed th.sticky-col-last, .table-fixed td.sticky-col-last {
+      box-shadow: -5px 0 5px -2px rgba(0, 0, 0, 0.05);
+  }
+
+
+  /* Skeleton Loading cho bảng */
+  .skeleton {
+    @apply bg-gray-200 animate-pulse rounded; /* Giảm bo tròn */
+  }
+
+  /* Icon trạng thái */
+  .status-icon {
+    @apply inline-flex items-center justify-center w-4 h-4 mr-1.5; /* Điều chỉnh kích thước */
+  }
+
+  /* Cải thiện nút hành động trong bảng */
+  .action-btn {
+    @apply p-1.5 rounded-full transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-1 focus:ring-offset-1; /* Giảm padding, thêm focus */
+  }
+  .action-btn:disabled {
+    @apply opacity-50 cursor-not-allowed scale-100; /* Reset scale khi disabled */
+  }
+  /* Thêm màu nền hover cho action buttons */
+  .action-btn.text-green-500:hover:not(:disabled) { @apply bg-green-100; }
+  .action-btn.text-orange-500:hover:not(:disabled) { @apply bg-orange-100; }
+  .action-btn.text-blue-500:hover:not(:disabled) { @apply bg-blue-100; }
+  .action-btn.text-red-500:hover:not(:disabled) { @apply bg-red-100; }
+  .action-btn.text-purple-500:hover:not(:disabled) { @apply bg-purple-100; }
+  .action-btn.text-teal-500:hover:not(:disabled) { @apply bg-teal-100; }
+
+
+  /* Tooltip cho nút hành động */
+  .action-btn-wrapper {
+    @apply relative inline-flex; /* Cho tooltip hoạt động tốt hơn */
+  }
+  .action-btn-wrapper:hover .tooltip {
+    @apply opacity-100 visible translate-y-0; /* Thay đổi hiệu ứng xuất hiện */
+  }
+  .tooltip {
+    @apply absolute z-50 bg-gray-800 text-white text-xs rounded-md py-1 px-2 whitespace-nowrap bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-200 pointer-events-none; /* Di chuyển lên trên, thêm pointer-events */
+    transform-origin: bottom center;
+  }
+
+  /* Expandable Row cho bảng trên mobile */
+  .expandable-row {
+    @apply cursor-pointer transition-all duration-200;
+  }
+  .expandable-content {
+    @apply bg-gray-50 p-4; /* Bỏ rounded, border */
+  }
+  .expandable-content table {
+    @apply w-full border-collapse;
+  }
+  .expandable-content td {
+    @apply py-2 px-3 text-sm text-gray-800 border-b border-gray-200; /* Thêm border giữa các dòng */
+  }
+   .expandable-content tr:last-child td {
+       @apply border-b-0; /* Bỏ border dòng cuối */
+   }
+  .expandable-content td:first-child {
+    @apply font-semibold w-2/5 text-gray-600; /* Tăng width, đổi màu */
+  }
+  .expandable-content td:last-child {
+    @apply w-3/5;
+  }
+
+  /* Responsive cho bảng trên mobile (<= 768px) */
+  @media (max-width: 768px) {
+    .table-container {
+       @apply overflow-x-hidden; /* Tắt scroll ngang trên mobile */
+    }
+    .table-fixed {
+      @apply block w-full;
+    }
+    .table-fixed thead {
+      @apply hidden;
+    }
+    .table-fixed tbody {
+      @apply block w-full;
+    }
+    .table-fixed tr {
+      @apply block bg-white rounded-lg shadow-md mb-4 border border-gray-200;
+    }
+     .table-fixed tr.expandable-row:not(:last-child) {
+         @apply mb-4; /* Giữ khoảng cách giữa các card */
+     }
+     .table-fixed tr.expandable-row:last-child {
+         @apply mb-0; /* Bỏ margin cho card cuối */
+     }
+
+    .table-fixed td {
+      @apply hidden; /* Ẩn tất cả td mặc định */
+    }
+
+    /* Hiển thị các cột chính dạng flex */
+    .table-fixed td.mobile-header-cell {
+        @apply flex justify-between items-center p-4 border-b border-gray-200;
+        display: flex !important; /* Đảm bảo hiển thị */
+    }
+    .table-fixed td.mobile-action-cell {
+        @apply flex justify-center items-center gap-2 p-3 bg-gray-50 rounded-b-lg; /* Nền khác biệt cho action */
+         display: flex !important; /* Đảm bảo hiển thị */
+    }
+
+    /* Nội dung chi tiết trong expandable row */
+    .table-fixed td.mobile-expand-cell {
+       display: block !important; /* Hiển thị cell chứa expandable content */
+       padding: 0 !important; /* Reset padding */
+       border: 0 !important; /* Reset border */
+    }
+
+    /* Pagination trên mobile */
+    .pagination-mobile {
+      @apply flex flex-wrap justify-center gap-2 p-4 bg-white rounded-b-xl shadow-md mt-4; /* Thêm margin top */
+    }
+    .pagination-mobile button, .pagination-mobile span {
+       @apply text-xs px-3 py-1.5; /* Giảm kích thước nút */
+    }
+  }
+
+  /* Dark mode styles */
+  .dark .form-label { @apply text-gray-300; }
+  .dark .form-input, .dark .form-select, .dark .form-textarea { @apply bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400; }
+  .dark .form-input:disabled, .dark .form-select:disabled, .dark .form-textarea:disabled { @apply bg-gray-800 text-gray-500 opacity-70; }
+  .dark .card { @apply bg-gray-800 border-gray-700; }
+  .dark .table-fixed th { @apply bg-gray-700 text-gray-200 border-b-gray-600 border-r-gray-600; }
+  .dark .table-fixed td { @apply text-gray-300 border-b-gray-700 border-r-gray-700; }
+  .dark .table-fixed tbody tr:nth-child(even) { @apply bg-gray-900; } /* Đổi màu nền đậm hơn */
+  .dark .table-fixed tbody tr.row-selected { @apply bg-blue-900 bg-opacity-50; } /* Màu chọn đậm */
+  .dark .table-fixed tbody tr:not(.row-selected):hover { @apply bg-gray-700; }
+  .dark td.sticky-col-1, .dark td.sticky-col-2, .dark td.sticky-col-last { @apply bg-gray-800; }
+  .dark tr:nth-child(even) td.sticky-col-1, .dark tr:nth-child(even) td.sticky-col-2, .dark tr:nth-child(even) td.sticky-col-last { @apply bg-gray-900; }
+  .dark tr.row-selected td.sticky-col-1, .dark tr.row-selected td.sticky-col-2, .dark tr.row-selected td.sticky-col-last { @apply bg-blue-900 bg-opacity-50; }
+  .dark .skeleton { @apply bg-gray-600; }
+  .dark .tooltip { @apply bg-gray-900 text-gray-200; }
+  .dark .expandable-content { @apply bg-gray-700; }
+  .dark .expandable-content td { @apply text-gray-300 border-gray-600; }
+  .dark .expandable-content td:first-child { @apply text-gray-400; }
+   .dark .mobile-action-cell { @apply bg-gray-700; }
+   .dark .pagination-mobile { @apply bg-gray-800 border-t border-gray-700; }
+   .dark .pagination-mobile button { @apply bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600; }
+   .dark .pagination-mobile button:disabled { @apply bg-gray-800 opacity-50; }
+   .dark .pagination-mobile button.bg-blue-600 { @apply bg-blue-700 border-blue-700; } /* Adjust active page color */
 }
 
-/* Tùy chỉnh giao diện tổng thể */
+/* === Global Styles === */
 body {
+  @apply bg-gray-100 text-gray-800;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.dark { /* Áp dụng class dark vào body khi dark mode active */
+  @apply bg-gray-900 text-gray-200;
+}
+
+/* Scrollbar đã được định nghĩa trong index.css - Đảm bảo chỉ có 1 định nghĩa */
+
+/* Thêm hiệu ứng chuyển đổi cho main và sidebar */
+main, .sidebar {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Header */
+header {
+  @apply bg-white shadow-md border-b border-gray-200;
+}
+.dark header {
+   @apply bg-gray-800 border-b-gray-700 shadow-lg;
+}
+
+
+/* React Modal Overlay */
+.ReactModal__Overlay {
+  @apply bg-black bg-opacity-60 flex items-center justify-center p-4 transition-opacity duration-300 z-[1000];
+}
+.dark .ReactModal__Overlay {
+    @apply bg-opacity-70;
+}
+
+/* Animation cho modal */
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out forwards;
+}
