@@ -25,6 +25,7 @@ function CategoryProjectForm({
 }) {
   const [activeTab, setActiveTab] = useState('basic');
   const [approvers, setApprovers] = useState([]); // Danh sách người duyệt
+  const [projectTypes, setProjectTypes] = useState([]); // Danh sách loại công trình
 
   useEffect(() => {
     const fetchApprovers = async () => {
@@ -40,8 +41,20 @@ function CategoryProjectForm({
       }
     };
 
+    const fetchProjectTypes = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/project-types`);
+        setProjectTypes(response.data.map(type => type.name));
+      } catch (error) {
+        console.error("Lỗi tải danh sách loại công trình:", error);
+        toast.error("Không thể tải danh sách loại công trình!", { position: "top-center" });
+        setProjectTypes([]);
+      }
+    };
+
     if (showModal) {
       fetchApprovers();
+      fetchProjectTypes();
     }
   }, [showModal]);
 
@@ -220,12 +233,11 @@ function CategoryProjectForm({
                 <label className="form-label" style={{ color: '#ef4444', fontWeight: '500' }}>
                   Loại công trình <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="projectType"
                   value={newProject.projectType}
                   onChange={handleInputChange}
-                  className="form-input"
+                  className="form-select"
                   required
                   disabled={isSubmitting}
                   style={{
@@ -243,7 +255,14 @@ function CategoryProjectForm({
                     e.target.style.borderColor = '#fee2e2';
                     e.target.style.boxShadow = 'none';
                   }}
-                />
+                >
+                  <option value="">Chọn loại công trình</option>
+                  {projectTypes.map((type, index) => (
+                    <option key={index} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div style={{ marginBottom: '16px' }}>
@@ -382,7 +401,7 @@ function CategoryProjectForm({
 
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  NV lập hồ sơ dự toán
+                  Người lập hồ sơ dự toán
                 </label>
                 <select
                   name="estimator"

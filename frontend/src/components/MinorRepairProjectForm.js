@@ -19,6 +19,7 @@ function MinorRepairProjectForm({
   allocatedUnits,
   initialNewProjectState,
   setNewProject,
+  usersList,
 }) {
   const [activeTab, setActiveTab] = useState('basic');
   const [approvers, setApprovers] = useState([]); // Danh sách người duyệt
@@ -215,6 +216,93 @@ function MinorRepairProjectForm({
 
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Địa điểm
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  value={newProject.location}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Quy mô
+                </label>
+                <input
+                  type="text"
+                  name="scale"
+                  value={newProject.scale}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Ngày xảy ra sự cố
+                </label>
+                <input
+                  type="date"
+                  name="reportDate"
+                  value={newProject.reportDate}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
                   Người phê duyệt
                 </label>
                 <select
@@ -254,14 +342,13 @@ function MinorRepairProjectForm({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Người giám sát
+                  Người theo dõi
                 </label>
-                <input
-                  type="text"
+                <select
                   name="supervisor"
-                  value={newProject.supervisor}
+                  value={newProject.supervisor || ''}
                   onChange={handleInputChange}
-                  className="form-input"
+                  className="form-select"
                   disabled={isSubmitting}
                   style={{
                     border: '2px solid #e5e7eb',
@@ -278,19 +365,25 @@ function MinorRepairProjectForm({
                     e.target.style.borderColor = '#e5e7eb';
                     e.target.style.boxShadow = 'none';
                   }}
-                />
+                >
+                  <option value="">Chọn người theo dõi</option>
+                  {(Array.isArray(usersList) ? usersList : []).map((user, index) => (
+                    <option key={index} value={user}>
+                      {user}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <div style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: '16px', gridColumn: 'span 2' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Ngày báo cáo
+                  Bút phê lãnh đạo
                 </label>
-                <input
-                  type="date"
-                  name="reportDate"
-                  value={newProject.reportDate}
+                <textarea
+                  name="leadershipApproval"
+                  value={newProject.leadershipApproval}
                   onChange={handleInputChange}
-                  className="form-input"
+                  className="form-textarea"
                   disabled={isSubmitting}
                   style={{
                     border: '2px solid #e5e7eb',
@@ -298,6 +391,7 @@ function MinorRepairProjectForm({
                     padding: '8px',
                     width: '100%',
                     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                    minHeight: '80px',
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#60a5fa';
@@ -309,7 +403,11 @@ function MinorRepairProjectForm({
                   }}
                 />
               </div>
+            </div>
+          )}
 
+          {activeTab === 'progress' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
                   Ngày kiểm tra
@@ -367,11 +465,7 @@ function MinorRepairProjectForm({
                   }}
                 />
               </div>
-            </div>
-          )}
 
-          {activeTab === 'progress' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
                   Giá trị thanh toán (VND)
@@ -389,35 +483,6 @@ function MinorRepairProjectForm({
                     padding: '8px',
                     width: '100%',
                     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '16px', gridColumn: 'span 2' }}>
-                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Mô tả nhiệm vụ
-                </label>
-                <textarea
-                  name="taskDescription"
-                  value={newProject.taskDescription}
-                  onChange={handleInputChange}
-                  className="form-textarea"
-                  disabled={isSubmitting}
-                  style={{
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '8px',
-                    width: '100%',
-                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                    minHeight: '80px',
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#60a5fa';

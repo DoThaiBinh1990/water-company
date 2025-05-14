@@ -38,7 +38,8 @@ function App() {
   const [currentNotificationTab, setCurrentNotificationTab] = useState('pending');
   const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
   const [isProcessingNotificationAction, setIsProcessingNotificationAction] = useState(false);
-  const [showHeader, setShowHeader] = useState(true);
+  const [showHeader, setShowHeader] = useState(true); // Trạng thái ẩn/hiện Header (chỉ trên mobile)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Trạng thái ẩn/hiện Sidebar
 
   const fetchNotificationsByStatus = useCallback(async (status) => {
     setIsNotificationsLoading(true);
@@ -111,7 +112,6 @@ function App() {
     }
 
     const handleNewNotification = (notification) => {
-      // Hiển thị thông báo cho cả tài khoản cấp thấp và cấp cao
       if (notification.status === 'pending' && user?.permissions?.approve) {
         setNotifications(prev => [notification, ...prev.filter(n => n._id !== notification._id)]);
       } else if (notification.status === 'processed' && notification.userId?.toString() === user?._id?.toString()) {
@@ -153,12 +153,10 @@ function App() {
     try {
       const response = await actionPromise();
       toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
-      // Làm mới danh sách thông báo sau khi xử lý
       fetchNotificationsByStatus(currentNotificationTab);
     } catch (error) {
       console.error("Lỗi hành động thông báo:", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
-      // Làm mới danh sách thông báo để đảm bảo dữ liệu chính xác
       fetchNotificationsByStatus(currentNotificationTab);
     } finally {
       setIsProcessingNotificationAction(false);
@@ -180,7 +178,6 @@ function App() {
 
   const approveEditAction = (projectId) => handleNotificationAction(
     async () => {
-      // Kiểm tra trạng thái công trình trước
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
         await fetchNotificationsByStatus('pending');
@@ -280,7 +277,12 @@ function App() {
       <div className={`flex min-h-screen ${user ? 'bg-[var(--background)]' : 'justify-center items-center bg-[var(--background)]'}`}>
         {user ? (
           <>
-            <Sidebar user={user} onLogout={handleLogout} />
+            <Sidebar
+              user={user}
+              onLogout={handleLogout}
+              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
+            />
             <div className="flex-1 flex flex-col overflow-hidden">
               <Header
                 user={user}
@@ -299,8 +301,9 @@ function App() {
                 setIsProcessingNotificationAction={setIsProcessingNotificationAction}
                 showHeader={showHeader}
                 toggleHeader={() => setShowHeader(!showHeader)}
+                isSidebarOpen={isSidebarOpen} // Truyền trạng thái Sidebar xuống Header
               />
-              <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] p-6 md:p-8 lg:p-10 md:ml-64 transition-all duration-300 ${showHeader ? 'pt-16 md:pt-0' : 'pt-4'}`}>
+              <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] p-6 md:p-8 lg:p-10 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-16'} ${showHeader ? 'pt-16 md:pt-12' : 'pt-0 md:pt-12'}`}>
                 <Routes>
                   <Route
                     path="/category"

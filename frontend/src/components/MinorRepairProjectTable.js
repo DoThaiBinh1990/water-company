@@ -152,145 +152,163 @@ function MinorRepairProjectTable({
   }
 
   return (
-    <div className="table-container" style={{ border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '8px', overflow: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
-      <table style={{ width: '2000px', borderCollapse: 'separate', borderSpacing: 0 }}>
-        <thead>
-          <tr>
-            <th style={{ width: '40px', position: 'sticky', top: 0, left: 0, backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 30 }}>STT</th>
-            <th style={{ width: '200px', position: 'sticky', top: 0, left: '40px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 20 }}>Tên công trình</th>
-            <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Đơn vị phân bổ</th>
-            <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người giám sát</th>
-            <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ngày báo cáo</th>
-            <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ngày kiểm tra</th>
-            <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ngày thanh toán</th>
-            <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Giá trị thanh toán</th>
-            <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Tình trạng</th>
-            <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Trạng thái</th>
-            <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người duyệt</th>
-            <th style={{ width: '100px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 8px', position: 'sticky', top: 0, right: 0, zIndex: 20 }}>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredProjects.map((project, index) => (
-            <tr
-              key={project._id}
-              className="hover:bg-blue-100 transition-colors duration-200"
-              style={{ borderBottom: '1px solid #E5E7EB' }}
-            >
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 30 }}>
-                {(currentPage - 1) * 10 + index + 1}
-              </td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', position: 'sticky', left: '40px', backgroundColor: 'white', zIndex: 20 }}>
-                {project.name}
-              </td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.allocatedUnit || 'N/A'}</td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.supervisor || 'N/A'}</td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.reportDate ? new Date(project.reportDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.inspectionDate ? new Date(project.inspectionDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.paymentDate ? new Date(project.paymentDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'right' }}>{project.paymentValue ? `${project.paymentValue.toLocaleString()} VND` : 'N/A'}</td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
-                <span className={`status-badge ${getStatusBadge(project.status).className}`}>
-                  <span className="status-icon">{getStatusBadge(project.status).icon}</span>
-                  {getStatusBadge(project.status).text}
-                </span>
-                {project.assignedTo && (
-                  <span className={`status-badge-sub ${getStatusBadge('assigned').className}`}>
-                    {project.assignedTo}
-                  </span>
-                )}
-              </td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
-                {project.pendingEdit ? 'Chờ duyệt sửa' : project.pendingDelete ? 'Chờ duyệt xóa' : 'Đã duyệt'}
-              </td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
-                {project.approvedBy ? project.approvedBy.username : 'N/A'}
-              </td>
-              <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 8px', position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 20 }}>
-                <div className="flex justify-center items-center gap-0.5">
-                  {user?.permissions?.edit && (
-                    <div className="action-btn-wrapper">
-                      <button
-                        onClick={() => openEditModal(project)}
-                        className="btn-icon btn-icon-teal"
-                        disabled={isSubmitting}
-                      >
-                        <FaEdit size={16} />
-                      </button>
-                      <span className="tooltip"></span>
-                    </div>
-                  )}
-                  {user?.permissions?.delete && (
-                    <div className="action-btn-wrapper">
-                      <button
-                        onClick={() => deleteProject(project._id)}
-                        className="btn-icon btn-icon-red"
-                        disabled={isSubmitting}
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                      <span className="tooltip"></span>
-                    </div>
-                  )}
-                  {user?.permissions?.approve && project.status === 'pending' && (
-                    <>
-                      <div className="action-btn-wrapper">
-                        <button
-                          onClick={() => approveProject(project._id)}
-                          className="btn-icon btn-icon-green"
-                          disabled={isSubmitting}
-                        >
-                          <FaCheckCircle size={16} />
-                        </button>
-                        <span className="tooltip"></span>
-                      </div>
-                      <div className="action-btn-wrapper">
-                        <button
-                          onClick={() => rejectProject(project._id)}
-                          className="btn-icon btn-icon-orange"
-                          disabled={isSubmitting}
-                        >
-                          <FaTimesCircle size={16} />
-                        </button>
-                        <span className="tooltip"></span>
-                      </div>
-                    </>
-                  )}
-                  {user?.permissions?.assign && (project.status === 'approved' || project.status === 'allocated') && (
-                    <div className="action-btn-wrapper">
-                      <input
-                        type="text"
-                        value={assignPersons[project._id] || ''}
-                        onChange={(e) =>
-                          setAssignPersons((prev) => ({
-                            ...prev,
-                            [project._id]: e.target.value,
-                          }))
-                        }
-                        placeholder="Nhập người phụ trách"
-                        className="form-input text-sm py-1 px-2 w-20"
-                        disabled={isSubmitting}
-                      />
-                      <button
-                        onClick={() => assignProject(project._id)}
-                        className="btn-icon btn-icon-purple"
-                        disabled={isSubmitting || !assignPersons[project._id]}
-                      >
-                        <FaUser size={16} />
-                      </button>
-                      <span className="tooltip"></span>
-                    </div>
-                  )}
-                </div>
-              </td>
+    <div className="flex flex-col">
+      <div className="table-container" style={{ border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '8px', overflow: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
+        <table style={{ width: '2000px', borderCollapse: 'separate', borderSpacing: 0 }}>
+          <thead>
+            <tr>
+              {/* Tab Cơ bản */}
+              <th style={{ width: '40px', position: 'sticky', top: 0, left: 0, backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 40 }}>STT</th>
+              <th style={{ width: '200px', position: 'sticky', top: 0, left: '40px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 30 }}>Tên công trình</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Đơn vị phân bổ</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Địa điểm</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Quy mô</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ngày xảy ra sự cố</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người phê duyệt</th>
+              {/* Tab Phân công */}
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người theo dõi</th>
+              {/* Tab Cập nhật tiến độ */}
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ngày kiểm tra</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ngày thanh toán</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Giá trị thanh toán</th>
+              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Tình trạng</th>
+              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Trạng thái</th>
+              {/* Các trường chuyển xuống cuối */}
+              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Bút phê lãnh đạo</th>
+              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ghi chú</th>
+              <th style={{ width: '100px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 8px', position: 'sticky', top: 0, right: 0, zIndex: 30 }}>Hành động</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="text-center text-[var(--text-secondary)] mt-4 text-sm">
-        Hiển thị {filteredProjects.length} trên tổng số {totalProjectsCount} công trình
+          </thead>
+          <tbody>
+            {filteredProjects.map((project, index) => (
+              <tr
+                key={project._id}
+                className="hover:bg-blue-100 transition-colors duration-200"
+                style={{ borderBottom: '1px solid #E5E7EB' }}
+              >
+                {/* Tab Cơ bản */}
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 30 }}>
+                  {(currentPage - 1) * 10 + index + 1}
+                </td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', position: 'sticky', left: '40px', backgroundColor: 'white', zIndex: 20 }}>
+                  {project.name}
+                </td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.allocatedUnit || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.location || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.scale || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.reportDate ? new Date(project.reportDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>{project.approvedBy ? project.approvedBy.username : 'N/A'}</td>
+                {/* Tab Phân công */}
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.supervisor || 'N/A'}</td>
+                {/* Tab Cập nhật tiến độ */}
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.inspectionDate ? new Date(project.inspectionDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.paymentDate ? new Date(project.paymentDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'right' }}>{project.paymentValue ? `${project.paymentValue.toLocaleString()} VND` : 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
+                  <span className={`status-badge ${getStatusBadge(project.status).className}`}>
+                    <span className="status-icon">{getStatusBadge(project.status).icon}</span>
+                    {getStatusBadge(project.status).text}
+                  </span>
+                  {project.assignedTo && (
+                    <span className={`status-badge-sub ${getStatusBadge('assigned').className}`}>
+                      {project.assignedTo}
+                    </span>
+                  )}
+                </td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
+                  {project.pendingEdit ? 'Chờ duyệt sửa' : project.pendingDelete ? 'Chờ duyệt xóa' : 'Đã duyệt'}
+                </td>
+                {/* Các trường chuyển xuống cuối */}
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.leadershipApproval || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.notes || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 8px', position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 20 }}>
+                  <div className="flex justify-center items-center gap-0.5">
+                    {user?.permissions?.edit && (
+                      <div className="action-btn-wrapper">
+                        <button
+                          onClick={() => openEditModal(project)}
+                          className="btn-icon btn-icon-teal"
+                          disabled={isSubmitting}
+                        >
+                          <FaEdit size={16} />
+                        </button>
+                        <span className="tooltip"></span>
+                      </div>
+                    )}
+                    {user?.permissions?.delete && (
+                      <div className="action-btn-wrapper">
+                        <button
+                          onClick={() => deleteProject(project._id)}
+                          className="btn-icon btn-icon-red"
+                          disabled={isSubmitting}
+                        >
+                          <FaTrash size={16} />
+                        </button>
+                        <span className="tooltip"></span>
+                      </div>
+                    )}
+                    {user?.permissions?.approve && project.status === 'pending' && (
+                      <>
+                        <div className="action-btn-wrapper">
+                          <button
+                            onClick={() => approveProject(project._id)}
+                            className="btn-icon btn-icon-green"
+                            disabled={isSubmitting}
+                          >
+                            <FaCheckCircle size={16} />
+                          </button>
+                          <span className="tooltip"></span>
+                        </div>
+                        <div className="action-btn-wrapper">
+                          <button
+                            onClick={() => rejectProject(project._id)}
+                            className="btn-icon btn-icon-orange"
+                            disabled={isSubmitting}
+                          >
+                            <FaTimesCircle size={16} />
+                          </button>
+                          <span className="tooltip"></span>
+                        </div>
+                      </>
+                    )}
+                    {user?.permissions?.assign && (project.status === 'approved' || project.status === 'allocated') && (
+                      <div className="action-btn-wrapper">
+                        <input
+                          type="text"
+                          value={assignPersons[project._id] || ''}
+                          onChange={(e) =>
+                            setAssignPersons((prev) => ({
+                              ...prev,
+                              [project._id]: e.target.value,
+                            }))
+                          }
+                          placeholder="Nhập người phụ trách"
+                          className="form-input text-sm py-1 px-2 w-20"
+                          disabled={isSubmitting}
+                        />
+                        <button
+                          onClick={() => assignProject(project._id)}
+                          className="btn-icon btn-icon-purple"
+                          disabled={isSubmitting || !assignPersons[project._id]}
+                        >
+                          <FaUser size={16} />
+                        </button>
+                        <span className="tooltip"></span>
+                      </div>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      {totalPages > 1 && renderPagination()}
+      <div className="flex flex-col items-center mt-4">
+        <div className="text-center text-[var(--text-secondary)] text-sm">
+          Hiển thị {filteredProjects.length} trên tổng số {totalProjectsCount} công trình
+        </div>
+        {totalPages > 1 && renderPagination()}
+      </div>
     </div>
   );
 }

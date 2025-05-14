@@ -20,7 +20,8 @@ function Header({
   isProcessingNotificationAction,
   setIsProcessingNotificationAction,
   showHeader,
-  toggleHeader
+  toggleHeader,
+  isSidebarOpen, // Trạng thái Sidebar để Header co giãn
 }) {
   const handleAction = async (actionCallback, projectId) => {
     if (isProcessingNotificationAction) return;
@@ -44,26 +45,26 @@ function Header({
 
   return (
     <>
-      <header className={`bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg h-16 px-6 flex justify-between items-center sticky top-0 z-[1000] w-full transition-all duration-300 ${showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full h-0 overflow-hidden'}`}>
-        <div className="flex items-center gap-4">
+      {/* Header chính */}
+      <header className={`bg-gradient-to-r from-blue-800 to-blue-600 shadow-lg h-12 px-4 flex justify-between items-center fixed top-0 z-[1000] transition-all duration-300 ${showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 h-0 overflow-hidden md:opacity-100 md:h-12 md:overflow-visible'} ${isSidebarOpen ? 'left-0 md:left-64 md:right-0' : 'left-0 md:left-16 md:right-0'}`}>
+        <div className="flex items-center gap-2">
           <button
+            className="md:hidden p-2 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-all duration-200 transform hover:scale-105"
             onClick={toggleHeader}
-            className="text-white hover:bg-blue-700 p-2 rounded-full bg-blue-600 transition-all duration-200 transform hover:scale-105"
             aria-label={showHeader ? "Ẩn header" : "Hiện header"}
           >
-            {showHeader ? <FaTimes size={20} /> : <FaBars size={20} />}
+            {showHeader ? <FaTimes size={16} /> : <FaBars size={16} />}
           </button>
-          <h1 className="text-xl font-bold text-white">Water Company</h1>
+          <h1 className="text-base md:text-lg font-bold text-white">Phần mềm quản lý công việc</h1>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {user && (
-            <div className="flex items-center gap-3">
-              <FaUserCircle className="text-2xl text-white opacity-80" />
-              <span className="header-username text-white font-semibold">{user.username}</span>
+            <div className="flex items-center gap-2">
+              <FaUserCircle className="text-xl text-white opacity-80" />
+              <span className="header-username text-white font-semibold text-sm md:text-base">{user.username}</span>
             </div>
           )}
-          {/* Bỏ điều kiện user?.permissions?.approve để tất cả tài khoản thấy nút chuông */}
           <button
             onClick={() => {
               setShowNotificationsModal(true);
@@ -78,9 +79,9 @@ function Header({
             aria-label="Thông báo"
             disabled={isNotificationsLoading || isProcessingNotificationAction}
           >
-            <FaBell size={22} className="text-white" />
+            <FaBell size={18} className="text-white" />
             {unreadNotificationsCount > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-semibold rounded-full h-6 w-6 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2">
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2">
                 {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
               </span>
             )}
@@ -88,6 +89,7 @@ function Header({
         </div>
       </header>
 
+      {/* Modal Thông báo - Giữ nguyên giao diện gốc */}
       <Modal
         isOpen={showNotificationsModal}
         onRequestClose={() => { if (!isProcessingNotificationAction) setShowNotificationsModal(false); }}
@@ -221,7 +223,6 @@ function Header({
                   {' - '}
                   {new Date(notification.createdAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
-                {/* Chỉ hiển thị nút "Duyệt"/"Từ chối" cho tài khoản có quyền approve */}
                 {currentNotificationTab === 'pending' && user?.permissions?.approve && notification.projectId?._id && (
                   <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                     <button

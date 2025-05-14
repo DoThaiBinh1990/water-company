@@ -22,8 +22,8 @@ const socket = io(API_URL, {
 function ProjectManagement({ user, type, showHeader, addMessage }) {
   const isCategory = type === 'category';
   const [filteredProjects, setFilteredProjects] = useState([]);
-  const [pendingProjects, setPendingProjects] = useState([]); // Công trình chờ duyệt
-  const [rejectedProjects, setRejectedProjects] = useState([]); // Công trình bị từ chối
+  const [pendingProjects, setPendingProjects] = useState([]);
+  const [rejectedProjects, setRejectedProjects] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState('serial_asc');
@@ -43,6 +43,10 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
   const [filterMinInitialValue, setFilterMinInitialValue] = useState('');
   const [filterMaxInitialValue, setFilterMaxInitialValue] = useState('');
   const [filterProgress, setFilterProgress] = useState('');
+  const [filterAllocationWave, setFilterAllocationWave] = useState('');
+  const [filterSupervisor, setFilterSupervisor] = useState('');
+  const [filterEstimator, setFilterEstimator] = useState('');
+  const [filterReportDate, setFilterReportDate] = useState('');
 
   const [allocatedUnits, setAllocatedUnits] = useState([]);
   const [constructionUnitsList, setConstructionUnitsList] = useState([]);
@@ -52,7 +56,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState('projects'); // Thêm tab pending
+  const [activeTab, setActiveTab] = useState('projects');
 
   const initialFilters = useMemo(() => ({
     status: '',
@@ -62,6 +66,10 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     minInitialValue: '',
     maxInitialValue: '',
     progress: '',
+    allocationWave: '',
+    supervisor: '',
+    estimator: '',
+    reportDate: '',
   }), []);
 
   const initialNewProjectState = useCallback(() => {
@@ -71,7 +79,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       supervisor: '',
       taskDescription: '',
       notes: '',
-      approvedBy: '', // Thêm trường approvedBy vào state mặc định
+      approvedBy: '',
+      createdBy: user?._id || '',
     };
     if (isCategory) {
       return {
@@ -100,9 +109,12 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         inspectionDate: '',
         paymentDate: '',
         paymentValue: '',
+        location: '',
+        scale: '',
+        leadershipApproval: '',
       };
     }
-  }, [isCategory]);
+  }, [isCategory, user]);
 
   useEffect(() => {
     setNewProject(initialNewProjectState());
@@ -128,7 +140,13 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         minInitialValue: isCategory ? (filters.minInitialValue ?? filterMinInitialValue) : undefined,
         maxInitialValue: isCategory ? (filters.maxInitialValue ?? filterMaxInitialValue) : undefined,
         progress: isCategory ? (filters.progress ?? filterProgress) : undefined,
+        allocationWave: isCategory ? (filters.allocationWave ?? filterAllocationWave) : undefined,
+        supervisor: filters.supervisor ?? filterSupervisor,
+        estimator: isCategory ? (filters.estimator ?? filterEstimator) : undefined,
+        reportDate: !isCategory ? (filters.reportDate ?? filterReportDate) : undefined,
       };
+
+      console.log('Fetching projects with filters:', currentFilters, 'Page:', pageToFetch);
 
       Object.entries(currentFilters).forEach(([key, value]) => {
         if (value) {
@@ -145,42 +163,30 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       }
 
       try {
-        // Thêm tham số pending để gọi API chính xác
         if (isPending) {
           params.append('pending', 'true');
         }
 
+        console.log('API URL:', `${API_URL}/api/projects?${params.toString()}`);
         const projectsRes = await axios.get(`${API_URL}/api/projects?${params.toString()}`);
+        console.log('API Response:', projectsRes.data);
 
-        // Lọc thêm ở phía client để đảm bảo logic chính xác
         const filteredData = projectsRes.data.projects || [];
         let finalProjects = filteredData;
 
         if (isPending) {
-          // Tab "Công trình chờ duyệt": Chỉ hiển thị các công trình có status "Chờ duyệt"
-          // hoặc có status "Đã duyệt" nhưng đang có pendingEdit hoặc pendingDelete
           finalProjects = filteredData.filter(project =>
             project.status === 'Chờ duyệt' ||
             (project.status === 'Đã duyệt' && (project.pendingEdit || project.pendingDelete))
           );
+          setPendingProjects(finalProjects);
         } else {
-          // Tab "Danh mục công trình": Chỉ hiển thị các công trình có status "Đã duyệt"
-          // và không có pendingEdit hoặc pendingDelete
           finalProjects = filteredData.filter(project =>
             project.status === 'Đã duyệt' && !project.pendingEdit && !project.pendingDelete
           );
-        }
-
-        if (isPending) {
-          setPendingProjects(finalProjects);
-        } else {
           setFilteredProjects(finalProjects);
-        }
-        setTotalPages(projectsRes.data.pages || 1);
-        setTotalProjectsCount(projectsRes.data.total || 0);
-
-        if (pageToFetch > projectsRes.data.pages && projectsRes.data.pages > 0) {
-          setCurrentPage(projectsRes.data.pages);
+          setTotalProjectsCount(projectsRes.data.total || 0);
+          setTotalPages(projectsRes.data.pages || 1);
         }
       } catch (error) {
         console.error("Lỗi khi tải danh sách công trình:", error.response?.data?.message || error.message);
@@ -189,14 +195,31 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
           setPendingProjects([]);
         } else {
           setFilteredProjects([]);
+          setTotalProjectsCount(0);
+          setTotalPages(1);
+          setCurrentPage(1);
         }
-        setTotalPages(1);
-        setTotalProjectsCount(0);
       } finally {
         setIsLoading(false);
       }
     },
-    [user, type, isCategory, sortOrder, filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName, filterMinInitialValue, filterMaxInitialValue, filterProgress]
+    [
+      user,
+      type,
+      isCategory,
+      sortOrder,
+      filterStatus,
+      filterAllocatedUnit,
+      filterConstructionUnit,
+      filterName,
+      filterMinInitialValue,
+      filterMaxInitialValue,
+      filterProgress,
+      filterAllocationWave,
+      filterSupervisor,
+      filterEstimator,
+      filterReportDate,
+    ]
   );
 
   const fetchRejectedProjects = useCallback(async () => {
@@ -267,8 +290,14 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     fetchAuxData();
   }, [user]);
 
-  const debouncedFetchProjects = useCallback(debounce((page, sort, filters, isPending) => fetchProjects(page, sort, filters, isPending), 500), [fetchProjects]);
+  const debouncedFetchProjects = useCallback(
+    debounce((page, sort, filters, isPending) => {
+      fetchProjects(page, sort, filters, isPending);
+    }, 500),
+    [fetchProjects]
+  );
 
+  // Gọi fetchProjects cho filteredProjects khi currentPage thay đổi
   useEffect(() => {
     if (user) {
       fetchProjects(currentPage, sortOrder, {
@@ -278,12 +307,38 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         name: filterName,
         minInitialValue: filterMinInitialValue,
         maxInitialValue: filterMaxInitialValue,
-        progress: filterProgress
+        progress: filterProgress,
+        allocationWave: filterAllocationWave,
+        supervisor: filterSupervisor,
+        estimator: filterEstimator,
+        reportDate: filterReportDate,
       }, false);
-      fetchProjects(currentPage, sortOrder, {}, true); // Lấy danh sách công trình chờ duyệt
+    }
+  }, [
+    user,
+    type,
+    currentPage,
+    sortOrder,
+    fetchProjects,
+    filterStatus,
+    filterAllocatedUnit,
+    filterConstructionUnit,
+    filterName,
+    filterMinInitialValue,
+    filterMaxInitialValue,
+    filterProgress,
+    filterAllocationWave,
+    filterSupervisor,
+    filterEstimator,
+    filterReportDate,
+  ]);
+
+  // Gọi fetchProjects cho pendingProjects và rejectedProjects khi cần
+  useEffect(() => {
+    if (user) {
+      fetchProjects(1, sortOrder, {}, true); // Lấy pendingProjects, luôn ở trang 1
       fetchRejectedProjects();
 
-      // Kết nối Socket.IO để làm mới danh sách công trình
       if (!socket.connected) {
         socket.connect();
       }
@@ -291,21 +346,21 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       socket.on('project_deleted', ({ projectId, projectType }) => {
         if (projectType === type) {
           fetchProjects(currentPage, sortOrder, {}, false);
-          fetchProjects(currentPage, sortOrder, {}, true);
+          fetchProjects(1, sortOrder, {}, true);
         }
       });
 
       socket.on('project_rejected', ({ projectId, projectType }) => {
         if (projectType === type) {
           fetchProjects(currentPage, sortOrder, {}, false);
-          fetchProjects(currentPage, sortOrder, {}, true);
+          fetchProjects(1, sortOrder, {}, true);
           fetchRejectedProjects();
         }
       });
 
       socket.on('notification_processed', () => {
         fetchProjects(currentPage, sortOrder, {}, false);
-        fetchProjects(currentPage, sortOrder, {}, true);
+        fetchProjects(1, sortOrder, {}, true);
       });
 
       return () => {
@@ -321,27 +376,48 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       setCurrentPage(1);
       setTotalProjectsCount(0);
     }
-  }, [user, type, currentPage, sortOrder, fetchProjects, fetchRejectedProjects, filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName, filterMinInitialValue, filterMaxInitialValue, filterProgress]);
+  }, [
+    user,
+    type,
+    sortOrder,
+    fetchProjects,
+    fetchRejectedProjects,
+  ]);
 
+  // Gọi debouncedFetchProjects khi các bộ lọc thay đổi
   useEffect(() => {
-    const isMounted = user !== null;
-    if (!isMounted) return;
-
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    } else {
-      debouncedFetchProjects(1, sortOrder, {
+    if (user) {
+      debouncedFetchProjects(currentPage, sortOrder, {
         status: filterStatus,
         allocatedUnit: filterAllocatedUnit,
         constructionUnit: filterConstructionUnit,
         name: filterName,
         minInitialValue: filterMinInitialValue,
         maxInitialValue: filterMaxInitialValue,
-        progress: filterProgress
+        progress: filterProgress,
+        allocationWave: filterAllocationWave,
+        supervisor: filterSupervisor,
+        estimator: filterEstimator,
+        reportDate: filterReportDate,
       }, false);
       debouncedFetchProjects(1, sortOrder, {}, true);
     }
-  }, [filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName, filterMinInitialValue, filterMaxInitialValue, filterProgress, user, sortOrder, debouncedFetchProjects, currentPage]);
+  }, [
+    filterStatus,
+    filterAllocatedUnit,
+    filterConstructionUnit,
+    filterName,
+    filterMinInitialValue,
+    filterMaxInitialValue,
+    filterProgress,
+    filterAllocationWave,
+    filterSupervisor,
+    filterEstimator,
+    filterReportDate,
+    user,
+    sortOrder,
+    debouncedFetchProjects,
+  ]);
 
   const handleSortChange = (e) => {
     const newSortOrder = e.target.value;
@@ -356,6 +432,10 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     setFilterMinInitialValue(initialFilters.minInitialValue);
     setFilterMaxInitialValue(initialFilters.maxInitialValue);
     setFilterProgress(initialFilters.progress);
+    setFilterAllocationWave(initialFilters.allocationWave);
+    setFilterSupervisor(initialFilters.supervisor);
+    setFilterEstimator(initialFilters.estimator);
+    setFilterReportDate(initialFilters.reportDate);
   }, [initialFilters]);
 
   const openAddNewModal = () => {
@@ -377,7 +457,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       supervisor: project.supervisor || '',
       taskDescription: project.taskDescription || '',
       notes: project.notes || '',
-      approvedBy: project.approvedBy?._id || '', // Populate approvedBy
+      approvedBy: project.approvedBy?._id || '',
+      createdBy: project.createdBy?._id || project.createdBy || user?._id || '',
     };
 
     if (isCategory) {
@@ -407,6 +488,9 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         inspectionDate: formatForInput(project.inspectionDate),
         paymentDate: formatForInput(project.paymentDate),
         paymentValue: project.paymentValue ?? '',
+        location: project.location || '',
+        scale: project.scale || '',
+        leadershipApproval: project.leadershipApproval || '',
       };
     }
     setNewProject(projectDataToSet);
@@ -434,10 +518,26 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
   };
 
   const saveProject = async () => {
-    // Kiểm tra các trường bắt buộc trong tab Cơ bản
-    if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location) {
-      toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, và Địa điểm XD!', { position: "top-center" });
-      return;
+    if (isCategory) {
+      if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location) {
+        toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, và Địa điểm XD!', { position: "top-center" });
+        return;
+      }
+    } else {
+      if (
+        !newProject.name ||
+        !newProject.allocatedUnit ||
+        !newProject.location ||
+        !newProject.scale ||
+        !newProject.reportDate ||
+        !newProject.approvedBy
+      ) {
+        toast.error(
+          'Vui lòng nhập đầy đủ các trường bắt buộc trong tab Cơ bản: Tên công trình, Đơn vị phân bổ, Địa điểm, Quy mô, Ngày xảy ra sự cố, và Người phê duyệt!',
+          { position: "top-center" }
+        );
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -489,14 +589,13 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
 
       toast.success(successMessage, { position: "top-center" });
 
-      // Reset newProject về trạng thái rỗng sau khi lưu thành công
       setNewProject(initialNewProjectState());
 
       if (fetchPage !== currentPage) {
         setCurrentPage(fetchPage);
       } else {
         fetchProjects(currentPage, sortOrder, {}, false);
-        fetchProjects(currentPage, sortOrder, {}, true);
+        fetchProjects(1, sortOrder, {}, true);
       }
 
       setShowModal(false);
@@ -516,7 +615,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         const response = await actionPromise();
         toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
         fetchProjects(currentPage, sortOrder, {}, false);
-        fetchProjects(currentPage, sortOrder, {}, true);
+        fetchProjects(1, sortOrder, {}, true);
       } catch (err) {
         console.error("Lỗi hành động:", err.response?.data?.message || err.message);
         toast.error(err.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
@@ -602,16 +701,16 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     );
 
   return (
-    <div className={`flex flex-col min-h-screen p-8 md:p-10 lg:p-12 ${!showHeader ? 'pt-8' : 'pt-24 md:pt-10'} bg-gradient-to-b from-gray-50 to-gray-100`}>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
-        <h1 className="text-heading bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 animate-slideIn">
+    <div className={`flex flex-col min-h-screen p-6 md:p-8 lg:p-10 ${!showHeader ? 'pt-4' : 'pt-16 md:pt-8'} bg-gradient-to-b from-gray-50 to-gray-100`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <h1 className="text-3xl font-bold text-gray-800 animate-slideIn">
           {isCategory ? 'Công trình Danh mục' : 'Công trình Sửa chữa nhỏ'}
         </h1>
         <div className="flex items-center gap-4">
           {user?.permissions?.add && (
             <button
               onClick={openAddNewModal}
-              className="btn btn-primary hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting || isLoading}
             >
               <FaPlus size={16} /> Thêm mới
@@ -699,13 +798,13 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
               allocatedUnits={allocatedUnits}
               initialNewProjectState={initialNewProjectState}
               setNewProject={setNewProject}
+              usersList={usersList}
             />
           )}
         </>
       )}
 
-      {/* Tabs Navigation */}
-      <div className="flex flex-wrap gap-4 border-b mb-6">
+      <div className="flex flex-wrap gap-4 border-b mb-4">
         <button
           onClick={() => setActiveTab('projects')}
           className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
@@ -731,27 +830,25 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
 
       {activeTab === 'projects' && (
         <>
-          <div className="mb-10">
+          <div className="mb-6">
             {isCategory ? (
               <CategoryProjectFilter
-                filterStatus={filterStatus}
-                setFilterStatus={setFilterStatus}
                 filterAllocatedUnit={filterAllocatedUnit}
                 setFilterAllocatedUnit={setFilterAllocatedUnit}
                 filterConstructionUnit={filterConstructionUnit}
                 setFilterConstructionUnit={setFilterConstructionUnit}
                 filterName={filterName}
                 setFilterName={setFilterName}
-                filterMinInitialValue={filterMinInitialValue}
-                setFilterMinInitialValue={setFilterMinInitialValue}
-                filterMaxInitialValue={filterMaxInitialValue}
-                setFilterMaxInitialValue={setFilterMaxInitialValue}
-                filterProgress={filterProgress}
-                setFilterProgress={setFilterProgress}
+                filterAllocationWave={filterAllocationWave}
+                setFilterAllocationWave={setFilterAllocationWave}
+                filterSupervisor={filterSupervisor}
+                setFilterSupervisor={setFilterSupervisor}
+                filterEstimator={filterEstimator}
+                setFilterEstimator={setFilterEstimator}
                 allocatedUnits={allocatedUnits}
                 constructionUnitsList={constructionUnitsList}
-                sortOrder={sortOrder}
-                handleSortChange={handleSortChange}
+                allocationWavesList={allocationWavesList}
+                usersList={usersList}
                 isLoading={isLoading || isSubmitting}
                 onResetFilters={handleResetFilters}
                 showFilter={showFilter}
@@ -759,15 +856,16 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
               />
             ) : (
               <MinorRepairProjectFilter
-                filterStatus={filterStatus}
-                setFilterStatus={setFilterStatus}
                 filterAllocatedUnit={filterAllocatedUnit}
                 setFilterAllocatedUnit={setFilterAllocatedUnit}
                 filterName={filterName}
                 setFilterName={setFilterName}
+                filterSupervisor={filterSupervisor}
+                setFilterSupervisor={setFilterSupervisor}
+                filterReportDate={filterReportDate}
+                setFilterReportDate={setFilterReportDate}
                 allocatedUnits={allocatedUnits}
-                sortOrder={sortOrder}
-                handleSortChange={handleSortChange}
+                usersList={usersList}
                 isLoading={isLoading || isSubmitting}
                 onResetFilters={handleResetFilters}
                 showFilter={showFilter}
@@ -797,7 +895,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
               setCurrentPage={setCurrentPage}
               allocationWavesList={allocationWavesList}
               totalProjectsCount={totalProjectsCount}
-              showStatusColumn={true} // Thêm cột trạng thái
+              showStatusColumn={true}
             />
           ) : (
             <MinorRepairProjectTable
@@ -816,15 +914,15 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               totalProjectsCount={totalProjectsCount}
-              showStatusColumn={true} // Thêm cột trạng thái
+              showStatusColumn={true}
             />
           )}
         </>
       )}
 
       {activeTab === 'pending' && (
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách công trình chờ duyệt</h2>
+        <div className="mt-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Danh sách công trình chờ duyệt</h2>
           {pendingProjects.length === 0 && !isLoading ? (
             <p className="text-gray-600 text-center">Không có công trình nào đang chờ duyệt.</p>
           ) : (
@@ -920,8 +1018,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       )}
 
       {activeTab === 'rejected' && (
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách công trình bị từ chối</h2>
+        <div className="mt-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Danh sách công trình bị từ chối</h2>
           {rejectedProjects.length === 0 && !isLoading ? (
             <p className="text-gray-600 text-center">Không có công trình nào bị từ chối.</p>
           ) : (

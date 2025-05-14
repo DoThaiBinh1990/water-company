@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList } from 'react-icons/fa';
+import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_URL } from '../config';
@@ -12,6 +12,11 @@ function Settings({ user }) {
     username: '',
     password: '',
     role: 'staff',
+    fullName: '',
+    address: '',
+    phoneNumber: '',
+    email: '',
+    unit: '',
     permissions: { add: false, edit: false, delete: false, approve: false }
   });
   const [newAllocatedUnit, setNewAllocatedUnit] = useState('');
@@ -20,29 +25,34 @@ function Settings({ user }) {
   const [editConstructionUnit, setEditConstructionUnit] = useState(null);
   const [newAllocationWave, setNewAllocationWave] = useState('');
   const [editAllocationWave, setEditAllocationWave] = useState(null);
+  const [newProjectType, setNewProjectType] = useState('');
+  const [editProjectType, setEditProjectType] = useState(null);
   const [users, setUsers] = useState([]);
   const [allocatedUnits, setAllocatedUnits] = useState([]);
   const [constructionUnits, setConstructionUnits] = useState([]);
   const [allocationWaves, setAllocationWaves] = useState([]);
+  const [projectTypes, setProjectTypes] = useState([]);
   const [editingUserId, setEditingUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false); // State để quản lý trạng thái đồng bộ
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     if (user?.role !== 'admin') return;
     setIsLoading(true);
     const fetchData = async () => {
       try {
-        const [usersRes, allocatedUnitsRes, constructionUnitsRes, allocationWavesRes] = await Promise.all([
+        const [usersRes, allocatedUnitsRes, constructionUnitsRes, allocationWavesRes, projectTypesRes] = await Promise.all([
           axios.get(`${API_URL}/api/users`),
           axios.get(`${API_URL}/api/allocated-units`),
           axios.get(`${API_URL}/api/construction-units`),
           axios.get(`${API_URL}/api/allocation-waves`),
+          axios.get(`${API_URL}/api/project-types`),
         ]);
         setUsers(usersRes.data);
         setAllocatedUnits(allocatedUnitsRes.data);
         setConstructionUnits(constructionUnitsRes.data);
         setAllocationWaves(allocationWavesRes.data);
+        setProjectTypes(projectTypesRes.data);
       } catch (error) {
         toast.error(error.response?.data?.message || 'Lỗi khi tải dữ liệu!', { position: "top-center" });
       } finally {
@@ -89,7 +99,17 @@ function Settings({ user }) {
         setUsers([...users, response.data]);
         toast.success('Đã thêm người dùng!', { position: "top-center" });
       }
-      setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
+      setNewUser({ 
+        username: '', 
+        password: '', 
+        role: 'staff', 
+        fullName: '', 
+        address: '', 
+        phoneNumber: '', 
+        email: '', 
+        unit: '', 
+        permissions: { add: false, edit: false, delete: false, approve: false } 
+      });
       setEditingUserId(null);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật người dùng!', { position: "top-center" });
@@ -103,6 +123,11 @@ function Settings({ user }) {
       username: user.username,
       password: '',
       role: user.role,
+      fullName: user.fullName,
+      address: user.address,
+      phoneNumber: user.phoneNumber,
+      email: user.email,
+      unit: user.unit,
       permissions: user.permissions
     });
     setEditingUserId(user._id);
@@ -123,7 +148,7 @@ function Settings({ user }) {
 
   const saveAllocatedUnit = async () => {
     if (!newAllocatedUnit.trim()) {
-      toast.error('Vui lòng nhập tên đơn vị phân bổ!', { position: "top-center" });
+      toast.error('Vui lòng nhập tên đơn vị!', { position: "top-center" });
       return;
     }
     setIsLoading(true);
@@ -134,15 +159,15 @@ function Settings({ user }) {
       const response = await request;
       if (editAllocatedUnit) {
         setAllocatedUnits(allocatedUnits.map(u => u._id === editAllocatedUnit._id ? response.data : u));
-        toast.success('Đã cập nhật đơn vị phân bổ!', { position: "top-center" });
+        toast.success('Đã cập nhật đơn vị!', { position: "top-center" });
       } else {
         setAllocatedUnits([...allocatedUnits, response.data]);
-        toast.success('Đã thêm đơn vị phân bổ!', { position: "top-center" });
+        toast.success('Đã thêm đơn vị!', { position: "top-center" });
       }
       setNewAllocatedUnit('');
       setEditAllocatedUnit(null);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị phân bổ!', { position: "top-center" });
+      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị!', { position: "top-center" });
     } finally {
       setIsLoading(false);
     }
@@ -153,9 +178,9 @@ function Settings({ user }) {
     try {
       await axios.delete(`${API_URL}/api/allocated-units/${id}`);
       setAllocatedUnits(allocatedUnits.filter(u => u._id !== id));
-      toast.success('Đã xóa đơn vị phân bổ!', { position: "top-center" });
+      toast.success('Đã xóa đơn vị!', { position: "top-center" });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị phân bổ!', { position: "top-center" });
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị!', { position: "top-center" });
     } finally {
       setIsLoading(false);
     }
@@ -241,6 +266,46 @@ function Settings({ user }) {
     }
   };
 
+  const saveProjectType = async () => {
+    if (!newProjectType.trim()) {
+      toast.error('Vui lòng nhập tên loại công trình!', { position: "top-center" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const request = editProjectType
+        ? axios.patch(`${API_URL}/api/project-types/${editProjectType._id}`, { name: newProjectType.trim() })
+        : axios.post(`${API_URL}/api/project-types`, { name: newProjectType.trim() });
+      const response = await request;
+      if (editProjectType) {
+        setProjectTypes(projectTypes.map(pt => pt._id === editProjectType._id ? response.data : pt));
+        toast.success('Đã cập nhật loại công trình!', { position: "top-center" });
+      } else {
+        setProjectTypes([...projectTypes, response.data]);
+        toast.success('Đã thêm loại công trình!', { position: "top-center" });
+      }
+      setNewProjectType('');
+      setEditProjectType(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật loại công trình!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteProjectType = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`${API_URL}/api/project-types/${id}`);
+      setProjectTypes(projectTypes.filter(pt => pt._id !== id));
+      toast.success('Đã xóa loại công trình!', { position: "top-center" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi xóa loại công trình!', { position: "top-center" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const syncProjects = async () => {
     if (isSyncing) return;
     setIsSyncing(true);
@@ -288,7 +353,7 @@ function Settings({ user }) {
           className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'allocatedUnits' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
           disabled={isLoading || isSyncing}
         >
-          <FaBuilding /> Quản lý đơn vị phân bổ
+          <FaBuilding /> Quản lý đơn vị
         </button>
         <button
           onClick={() => setActiveTab('constructionUnits')}
@@ -303,6 +368,13 @@ function Settings({ user }) {
           disabled={isLoading || isSyncing}
         >
           <FaList /> Quản lý đợt phân bổ
+        </button>
+        <button
+          onClick={() => setActiveTab('projectTypes')}
+          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projectTypes' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
+          disabled={isLoading || isSyncing}
+        >
+          <FaProjectDiagram /> Quản lý loại công trình
         </button>
         <button
           onClick={() => setActiveTab('syncProjects')}
@@ -341,6 +413,70 @@ function Settings({ user }) {
                 disabled={isLoading}
                 maxLength={50}
               />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Họ và tên</label>
+              <input
+                type="text"
+                placeholder="Nhập họ và tên"
+                value={newUser.fullName}
+                onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                disabled={isLoading}
+                maxLength={50}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Địa chỉ</label>
+              <input
+                type="text"
+                placeholder="Nhập địa chỉ"
+                value={newUser.address}
+                onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                disabled={isLoading}
+                maxLength={100}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Số điện thoại</label>
+              <input
+                type="text"
+                placeholder="Nhập số điện thoại"
+                value={newUser.phoneNumber}
+                onChange={(e) => setNewUser({ ...newUser, phoneNumber: e.target.value })}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                disabled={isLoading}
+                maxLength={15}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Email</label>
+              <input
+                type="email"
+                placeholder="Nhập email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                disabled={isLoading}
+                maxLength={50}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Đơn vị</label>
+              <select
+                value={newUser.unit}
+                onChange={(e) => setNewUser({ ...newUser, unit: e.target.value })}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                disabled={isLoading}
+              >
+                <option value="">Chọn đơn vị</option>
+                {allocatedUnits.map((unit, index) => (
+                  <option key={index} value={unit.name}>
+                    {unit.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-gray-700 mb-2">Vai trò</label>
@@ -434,7 +570,17 @@ function Settings({ user }) {
             {editingUserId && (
               <button
                 onClick={() => {
-                  setNewUser({ username: '', password: '', role: 'staff', permissions: { add: false, edit: false, delete: false, approve: false } });
+                  setNewUser({ 
+                    username: '', 
+                    password: '', 
+                    role: 'staff', 
+                    fullName: '', 
+                    address: '', 
+                    phoneNumber: '', 
+                    email: '', 
+                    unit: '', 
+                    permissions: { add: false, edit: false, delete: false, approve: false } 
+                  });
                   setEditingUserId(null);
                 }}
                 className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -451,6 +597,11 @@ function Settings({ user }) {
                 <thead>
                   <tr className="bg-blue-50">
                     <th className="p-4 text-left text-gray-700 font-bold border-b">Tên người dùng</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Họ và tên</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Địa chỉ</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Số điện thoại</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Email</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Đơn vị</th>
                     <th className="p-4 text-left text-gray-700 font-bold border-b">Vai trò</th>
                     <th className="p-4 text-left text-gray-700 font-bold border-b">Quyền</th>
                     <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
@@ -460,6 +611,11 @@ function Settings({ user }) {
                   {users.map(user => (
                     <tr key={user._id} className="border-t hover:bg-blue-50 transition-all duration-200">
                       <td className="p-4 text-gray-700">{user.username}</td>
+                      <td className="p-4 text-gray-700">{user.fullName || 'N/A'}</td>
+                      <td className="p-4 text-gray-700">{user.address || 'N/A'}</td>
+                      <td className="p-4 text-gray-700">{user.phoneNumber || 'N/A'}</td>
+                      <td className="p-4 text-gray-700">{user.email || 'N/A'}</td>
+                      <td className="p-4 text-gray-700">{user.unit || 'N/A'}</td>
                       <td className="p-4 text-gray-700">
                         {user.role === 'admin' && 'Admin'}
                         {user.role === 'director' && 'Tổng giám đốc'}
@@ -510,13 +666,13 @@ function Settings({ user }) {
 
       {activeTab === 'allocatedUnits' && (
         <div className="bg-white p-8 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị phân bổ</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị</h2>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
-              <label className="block text-gray-700 mb-2">Tên đơn vị phân bổ</label>
+              <label className="block text-gray-700 mb-2">Tên đơn vị</label>
               <input
                 type="text"
-                placeholder="Nhập tên đơn vị phân bổ"
+                placeholder="Nhập tên đơn vị"
                 value={newAllocatedUnit}
                 onChange={(e) => setNewAllocatedUnit(e.target.value)}
                 className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
@@ -725,6 +881,83 @@ function Settings({ user }) {
                       </button>
                       <button
                         onClick={() => deleteAllocationWave(wave._id)}
+                        className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
+                        disabled={isLoading}
+                      >
+                        <FaTrash size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'projectTypes' && (
+        <div className="bg-white p-8 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý loại công trình</h2>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <label className="block text-gray-700 mb-2">Tên loại công trình</label>
+              <input
+                type="text"
+                placeholder="Nhập tên loại công trình"
+                value={newProjectType}
+                onChange={(e) => setNewProjectType(e.target.value)}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                disabled={isLoading}
+                maxLength={50}
+              />
+            </div>
+            <div className="flex items-end gap-4">
+              <button
+                onClick={saveProjectType}
+                className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isLoading}
+              >
+                <FaPlus /> {editProjectType ? 'Cập nhật' : 'Thêm'} loại công trình
+              </button>
+              {editProjectType && (
+                <button
+                  onClick={() => {
+                    setNewProjectType('');
+                    setEditProjectType(null);
+                  }}
+                  className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={isLoading}
+                >
+                  Hủy
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto border-collapse">
+              <thead>
+                <tr className="bg-blue-50">
+                  <th className="p-4 text-left text-gray-700 font-bold border-b">Tên loại công trình</th>
+                  <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectTypes.map(type => (
+                  <tr key={type._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                    <td className="p-4 text-gray-700">{type.name}</td>
+                    <td className="p-4 flex gap-2">
+                      <button
+                        onClick={() => {
+                          setNewProjectType(type.name);
+                          setEditProjectType(type);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
+                        disabled={isLoading}
+                      >
+                        <FaEdit size={16} />
+                      </button>
+                      <button
+                        onClick={() => deleteProjectType(type._id)}
                         className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
                         disabled={isLoading}
                       >

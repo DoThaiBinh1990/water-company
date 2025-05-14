@@ -61,6 +61,11 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'director', 'deputy_director', 'manager', 'deputy_manager', 'staff', 'branch_director', 'branch_deputy_director', 'branch_staff', 'worker'], default: 'staff' },
+  fullName: { type: String, trim: true, default: '' },
+  address: { type: String, trim: true, default: '' },
+  phoneNumber: { type: String, trim: true, default: '' },
+  email: { type: String, trim: true, default: '' },
+  unit: { type: String, trim: true, default: '' },
   permissions: {
     add: { type: Boolean, default: false },
     edit: { type: Boolean, default: false },
@@ -83,7 +88,7 @@ userSchema.pre('save', function (next) {
 
 const User = mongoose.model('User', userSchema);
 
-// AllocatedUnit Schema
+// AllocatedUnit Schema (Đơn vị)
 const allocatedUnitSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true, trim: true },
 });
@@ -101,6 +106,12 @@ const allocationWaveSchema = new mongoose.Schema({
 });
 const AllocationWave = mongoose.model('AllocationWave', allocationWaveSchema);
 
+// ProjectType Schema (Loại công trình)
+const projectTypeSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true, trim: true },
+});
+const ProjectType = mongoose.model('ProjectType', projectTypeSchema);
+
 // CategoryProject Schema (Công trình danh mục)
 const categoryProjectSchema = new mongoose.Schema({
   categorySerialNumber: { type: Number, default: null, sparse: true, index: true },
@@ -113,7 +124,7 @@ const categoryProjectSchema = new mongoose.Schema({
   initialValue: { type: Number, default: 0 },
   enteredBy: { type: String, required: true, trim: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Thêm trường approvedBy
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   status: { type: String, default: 'Chờ duyệt', index: true },
   assignedTo: { type: String, default: '', trim: true },
   estimator: { type: String, default: '', trim: true },
@@ -128,6 +139,9 @@ const categoryProjectSchema = new mongoose.Schema({
   notes: { type: String, default: '', trim: true },
   pendingEdit: { type: Object, default: null },
   pendingDelete: { type: Boolean, default: false },
+  projectType: { type: String, default: '', trim: true },
+  estimatedValue: { type: Number, default: 0 },
+  leadershipApproval: { type: String, default: '', trim: true },
 }, { timestamps: true });
 
 categoryProjectSchema.pre('save', async function (next) {
@@ -160,7 +174,7 @@ const minorRepairProjectSchema = new mongoose.Schema({
   initialValue: { type: Number, default: 0 },
   enteredBy: { type: String, required: true, trim: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Thêm trường approvedBy
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   status: { type: String, default: 'Chờ duyệt', index: true },
   assignedTo: { type: String, default: '', trim: true },
   estimator: { type: String, default: '', trim: true },
@@ -295,6 +309,9 @@ async function syncOldProjects() {
         notes: oldProject.notes || '',
         pendingEdit: oldProject.pendingEdit || null,
         pendingDelete: oldProject.pendingDelete || false,
+        projectType: oldProject.projectType || '',
+        estimatedValue: oldProject.estimatedValue || 0,
+        leadershipApproval: oldProject.leadershipApproval || '',
         createdAt: oldProject.createdAt,
         updatedAt: oldProject.updatedAt,
       };
@@ -440,8 +457,28 @@ app.post('/api/login', async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: 'Mật khẩu không đúng' });
     let userPermissions = user.permissions;
     if (user.role === 'admin') { userPermissions = { add: true, edit: true, delete: true, approve: true }; }
-    const token = jwt.sign({ id: user._id, role: user.role, permissions: userPermissions, username: user.username }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, user: { id: user._id, username: user.username, role: user.role, permissions: userPermissions } });
+    const token = jwt.sign({ 
+      id: user._id, 
+      role: user.role, 
+      permissions: userPermissions, 
+      username: user.username,
+      fullName: user.fullName,
+      address: user.address,
+      phoneNumber: user.phoneNumber,
+      email: user.email,
+      unit: user.unit
+    }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    res.json({ token, user: { 
+      id: user._id, 
+      username: user.username, 
+      role: user.role, 
+      fullName: user.fullName,
+      address: user.address,
+      phoneNumber: user.phoneNumber,
+      email: user.email,
+      unit: user.unit,
+      permissions: userPermissions 
+    } });
   } catch (error) {
     console.error("Lỗi API đăng nhập:", error);
     res.status(500).json({ message: 'Lỗi máy chủ khi đăng nhập' });
@@ -451,8 +488,10 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/users', authenticate, async (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền thêm người dùng' });
   try {
-    const { username, password, role, permissions } = req.body;
-    if (!username || !password || !role) { return res.status(400).json({ message: 'Tên người dùng, mật khẩu và vai trò không được để trống' }); }
+    const { username, password, role, fullName, address, phoneNumber, email, unit, permissions } = req.body;
+    if (!username || !password || !role) { 
+      return res.status(400).json({ message: 'Tên người dùng, mật khẩu và vai trò không được để trống' }); 
+    }
     if (username.toLowerCase() === 'admin' && role === 'admin') {
       const existingAdmin = await User.findOne({ username: 'admin', role: 'admin' });
       if (existingAdmin) { return res.status(400).json({ message: 'Tài khoản admin với username "admin" đã tồn tại.' }); }
@@ -462,9 +501,20 @@ app.post('/api/users', authenticate, async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     let finalPermissions = permissions;
     if (role === 'admin') { finalPermissions = { add: true, edit: true, delete: true, approve: true }; }
-    const user = new User({ username, password: hashedPassword, role, permissions: finalPermissions });
+    const user = new User({ 
+      username, 
+      password: hashedPassword, 
+      role, 
+      fullName: fullName || '',
+      address: address || '',
+      phoneNumber: phoneNumber || '',
+      email: email || '',
+      unit: unit || '',
+      permissions: finalPermissions 
+    });
     const newUser = await user.save();
-    const userResponse = newUser.toObject(); delete userResponse.password;
+    const userResponse = newUser.toObject(); 
+    delete userResponse.password;
     res.status(201).json(userResponse);
   } catch (error) {
     console.error("Lỗi API thêm người dùng:", error);
@@ -489,7 +539,7 @@ app.patch('/api/users/:id', authenticate, async (req, res) => {
   try {
     const userToUpdate = await User.findById(req.params.id);
     if (!userToUpdate) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
-    const { username, password, role, permissions } = req.body;
+    const { username, password, role, fullName, address, phoneNumber, email, unit, permissions } = req.body;
     if (userToUpdate.role === 'admin' || userToUpdate.username.toLowerCase() === 'admin') {
       if (role && role !== 'admin') { return res.status(403).json({ message: 'Không thể thay đổi vai trò của tài khoản admin.' }); }
       if (username && username.toLowerCase() !== 'admin' && userToUpdate.username.toLowerCase() === 'admin') { return res.status(403).json({ message: 'Không thể thay đổi username của tài khoản admin chính ("admin").' }); }
@@ -501,6 +551,11 @@ app.patch('/api/users/:id', authenticate, async (req, res) => {
     } else {
       if (role) userToUpdate.role = role;
       if (permissions) userToUpdate.permissions = permissions;
+      if (fullName !== undefined) userToUpdate.fullName = fullName;
+      if (address !== undefined) userToUpdate.address = address;
+      if (phoneNumber !== undefined) userToUpdate.phoneNumber = phoneNumber;
+      if (email !== undefined) userToUpdate.email = email;
+      if (unit !== undefined) userToUpdate.unit = unit;
     }
     if (username && username !== userToUpdate.username && !(userToUpdate.role === 'admin' && userToUpdate.username.toLowerCase() === 'admin')) {
       const existingUser = await User.findOne({ username });
@@ -512,7 +567,8 @@ app.patch('/api/users/:id', authenticate, async (req, res) => {
       userToUpdate.password = await bcrypt.hash(password, 10);
     }
     const updatedUser = await userToUpdate.save();
-    const userResponse = updatedUser.toObject(); delete userResponse.password;
+    const userResponse = updatedUser.toObject(); 
+    delete userResponse.password;
     res.json(userResponse);
   } catch (error) {
     console.error("Lỗi API sửa người dùng:", error);
@@ -595,6 +651,8 @@ const createUnitCrudEndpoints = (model, modelNameSingular, modelNamePlural) => {
         projectsUsingUnit = await CategoryProject.findOne({ constructionUnit: unit.name }) || await MinorRepairProject.findOne({ constructionUnit: unit.name });
       } else if (modelNamePlural === 'allocation-waves') {
         projectsUsingUnit = await CategoryProject.findOne({ allocationWave: unit.name }) || await MinorRepairProject.findOne({ allocationWave: unit.name });
+      } else if (modelNamePlural === 'project-types') {
+        projectsUsingUnit = await CategoryProject.findOne({ projectType: unit.name });
       }
       if (projectsUsingUnit) {
         return res.status(400).json({ message: `Không thể xóa. ${modelNameSingular} "${unit.name}" đang được sử dụng trong ít nhất một công trình.` });
@@ -608,9 +666,10 @@ const createUnitCrudEndpoints = (model, modelNameSingular, modelNamePlural) => {
   });
 };
 
-createUnitCrudEndpoints(AllocatedUnit, 'đơn vị phân bổ', 'allocated-units');
+createUnitCrudEndpoints(AllocatedUnit, 'đơn vị', 'allocated-units');
 createUnitCrudEndpoints(ConstructionUnit, 'đơn vị thi công', 'construction-units');
 createUnitCrudEndpoints(AllocationWave, 'đợt phân bổ', 'allocation-waves');
+createUnitCrudEndpoints(ProjectType, 'loại công trình', 'project-types');
 
 app.get('/api/notifications', authenticate, async (req, res) => {
   try {
@@ -682,8 +741,8 @@ app.get('/api/projects', authenticate, async (req, res) => {
 
     const count = await Model.countDocuments(query);
     const projects = await Model.find(query)
-      .populate('createdBy', 'username') // Populate createdBy
-      .populate('approvedBy', 'username') // Populate approvedBy
+      .populate('createdBy', 'username')
+      .populate('approvedBy', 'username')
       .sort({ createdAt: -1 })
       .skip((parseInt(page) - 1) * parseInt(limit))
       .limit(parseInt(limit));
@@ -785,23 +844,41 @@ app.patch('/api/projects/:id', authenticate, async (req, res) => {
     const Model = type === 'category' ? CategoryProject : MinorRepairProject;
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
+
     const canEditDirectly = req.user.permissions.edit && project.status !== 'Đã duyệt';
     const canRequestEdit = req.user.permissions.edit && (project.enteredBy === req.user.username || req.user.role === 'admin');
     const isApprover = req.user.permissions.approve;
+
+    // Chuẩn bị dữ liệu cập nhật
     const updateData = { ...req.body };
+
+    // Nếu công trình không có createdBy (công trình cũ), gán createdBy từ req.user.id
+    if (!project.createdBy) {
+      project.createdBy = req.user.id;
+      await project.save();
+    }
+
+    // Loại bỏ createdBy khỏi updateData để không ghi đè giá trị hiện tại
+    delete updateData.createdBy;
+
+    // Nếu công trình đang ở trạng thái "Đã duyệt" và người dùng không có quyền duyệt
     if (project.status === 'Đã duyệt' && !isApprover) {
       delete updateData.status;
       delete updateData.categorySerialNumber;
       delete updateData.minorRepairSerialNumber;
     }
+
+    // Xử lý trường scale cho MinorRepairProject
     if (type === 'minor_repair' && updateData.hasOwnProperty('scale')) {
       delete updateData.scale;
     }
+
+    // Trường hợp người dùng có quyền duyệt và đang duyệt yêu cầu sửa
     if (isApprover && project.pendingEdit && req.body.approvedEdit === true) {
       Object.assign(project, project.pendingEdit);
       project.pendingEdit = null;
       project.status = 'Đã duyệt';
-      await project.save();
+      await project.save({ validateModifiedOnly: true }); // Chỉ validate các trường đã thay đổi
       const editNotification = await Notification.findOne({ projectId: project._id, type: 'edit', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
       if (editNotification) {
         editNotification.status = 'processed';
@@ -820,11 +897,13 @@ app.patch('/api/projects/:id', authenticate, async (req, res) => {
         io.emit('notification', approvedNotification);
       }
       return res.json(project);
-    } else if (canRequestEdit && project.status === 'Đã duyệt') {
+    } 
+    // Trường hợp người dùng yêu cầu sửa công trình đã duyệt
+    else if (canRequestEdit && project.status === 'Đã duyệt') {
       const dataToPending = { ...updateData };
       delete dataToPending.status;
       project.pendingEdit = dataToPending;
-      await project.save();
+      await project.save({ validateModifiedOnly: true }); // Chỉ validate các trường đã thay đổi
       const populatedProjectForNotification = { _id: project._id, name: project.name, type };
       const notification = new Notification({
         message: `Yêu cầu sửa công trình "${project.name}" bởi ${req.user.username}`,
@@ -837,9 +916,11 @@ app.patch('/api/projects/:id', authenticate, async (req, res) => {
       await notification.save();
       io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
       return res.json({ message: 'Yêu cầu sửa đã được gửi để chờ duyệt', project });
-    } else if (canEditDirectly) {
+    } 
+    // Trường hợp người dùng có quyền sửa trực tiếp (công trình chưa duyệt)
+    else if (canEditDirectly) {
       Object.assign(project, updateData);
-      await project.save();
+      await project.save({ validateModifiedOnly: true }); // Chỉ validate các trường đã thay đổi
       return res.json(project);
     } else {
       return res.status(403).json({ message: 'Không có quyền sửa công trình này hoặc gửi yêu cầu sửa.' });
@@ -959,7 +1040,6 @@ app.patch('/api/projects/:id/approve', authenticate, async (req, res) => {
     project.pendingDelete = false;
     project.approvedBy = req.user.id; // Lưu người duyệt
     await project.save();
-
     const newNotification = await Notification.findOne({ projectId: project._id, type: 'new', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
     if (newNotification) {
       newNotification.status = 'processed';
@@ -1095,10 +1175,16 @@ app.patch('/api/projects/:id/approve-edit', authenticate, async (req, res) => {
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
     if (!project.pendingEdit) return res.status(400).json({ message: 'Không có yêu cầu sửa nào đang chờ duyệt cho công trình này.' });
+
+    // Cập nhật dữ liệu từ pendingEdit
     Object.assign(project, project.pendingEdit);
     project.pendingEdit = null;
     project.status = 'Đã duyệt';
-    await project.save();
+    project.approvedBy = req.user.id; // Gán người duyệt là người dùng hiện tại
+
+    // Lưu công trình với validateModifiedOnly để chỉ kiểm tra các trường đã thay đổi
+    await project.save({ validateModifiedOnly: true });
+
     const notification = await Notification.findOne({ projectId: project._id, type: 'edit', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
     if (notification) {
       notification.status = 'processed';
