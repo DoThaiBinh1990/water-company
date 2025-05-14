@@ -2,39 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Định nghĩa các biến CSS toàn cục */
+:root {
+  --primary: #3b82f6; /* Tailwind blue-500 */
+  --primary-hover: #2563eb; /* Tailwind blue-600 */
+  --secondary: #6b7280; /* Tailwind gray-500 */
+  --secondary-hover: #4b5563; /* Tailwind gray-600 */
+  --background: #f9fafb; /* Tailwind gray-50 */
+  --card-bg: #ffffff; /* white */
+  --text-primary: #1f2937; /* Tailwind gray-800 */
+  --text-secondary: #6b7280; /* Tailwind gray-500 */
+  --success: #10b981; /* Tailwind green-500 */
+  --error: #ef4444; /* Tailwind red-500 */
+  --warning: #f59e0b; /* Tailwind amber-500 */
+  --border: #e5e7eb; /* Tailwind gray-200 */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Example shadow consistent with Tailwind */
+
+  --success-bg: #DCFCE7; /* green-100 */
+  --success-text: #166534; /* green-800 */
+  --error-bg: #FEE2E2;   /* red-100 */
+  --error-text: #B91C1C;   /* red-700 */
+  --info-bg: #DBEAFE;    /* blue-100 */
+  --info-text: #1E40AF;    /* blue-800 */
+  --warning-bg: #FEF3C7;  /* amber-100 */
+  --warning-text: #92400E;  /* amber-700 */
+}
+
+html {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 body {
+  @apply bg-[var(--background)] text-[var(--text-primary)];
   font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  min-height: 100%; /* Đảm bảo body chiếm ít nhất toàn bộ chiều cao của html */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Bạn có thể thêm các style global khác ở đây nếu cần */
-.ReactModal__Overlay {
-  z-index: 1000 !important;
+#root {
+  min-height: 100vh; /* Đảm bảo #root chiếm toàn bộ chiều cao khung nhìn */
+  display: flex;
+  flex-direction: column;
 }
 
-.animate-fadeIn { /* Giữ lại nếu bạn dùng class này trực tiếp thay vì qua config của Tailwind */
+.animate-fadeIn {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* frontend/src/index.css - Thêm nếu chưa có */
-/* ... các style hiện tại của bạn ... */
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #c7c7c7; /* Màu nhạt hơn */
-  border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a3a3a3; /* Đậm hơn khi hover */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

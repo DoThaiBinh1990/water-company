@@ -1,8 +1,7 @@
-// frontend/src/pages/Settings.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList } from 'react-icons/fa';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_URL } from '../config';
 
@@ -262,7 +261,6 @@ function Settings({ user }) {
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Thiết lập</h1>
-      <ToastContainer position="top-center" autoClose={3000} />
 
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

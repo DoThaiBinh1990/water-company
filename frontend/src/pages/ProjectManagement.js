@@ -1,34 +1,41 @@
-// frontend/src/pages/ProjectManagement.js
-import { useState, useEffect, useCallback, useMemo } from 'react'; // Thêm useMemo
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { FaPlus, FaEye, FaEyeSlash } from 'react-icons/fa';
-import Modal from 'react-modal';
-import { API_URL } from '../config';
+import { FaPlus, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import debounce from 'lodash/debounce'; // Đảm bảo lodash được cài đặt: npm install lodash
-import ProjectFilter from '../components/ProjectFilter';
-import ProjectTable from '../components/ProjectTable';
-import ProjectForm from '../components/ProjectForm';
+import 'react-toastify/dist/ReactToastify.css';
+import { API_URL } from '../config';
+import debounce from 'lodash/debounce';
+import CategoryProjectFilter from '../components/CategoryProjectFilter';
+import MinorRepairProjectFilter from '../components/MinorRepairProjectFilter';
+import CategoryProjectTable from '../components/CategoryProjectTable';
+import MinorRepairProjectTable from '../components/MinorRepairProjectTable';
+import CategoryProjectForm from '../components/CategoryProjectForm';
+import MinorRepairProjectForm from '../components/MinorRepairProjectForm';
+import io from 'socket.io-client';
 
-Modal.setAppElement('#root'); // Đảm bảo điều này được gọi
+const socket = io(API_URL, {
+  transports: ['websocket', 'polling'],
+  withCredentials: true,
+  autoConnect: false,
+});
 
-function ProjectManagement({ user, type, showHeader }) {
+function ProjectManagement({ user, type, showHeader, addMessage }) {
   const isCategory = type === 'category';
   const [filteredProjects, setFilteredProjects] = useState([]);
+  const [pendingProjects, setPendingProjects] = useState([]); // Công trình chờ duyệt
+  const [rejectedProjects, setRejectedProjects] = useState([]); // Công trình bị từ chối
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState('serial_asc'); // Giá trị sort mặc định
+  const [sortOrder, setSortOrder] = useState('serial_asc');
   const [showFilter, setShowFilter] = useState(true);
-  const [nextSerial, setNextSerial] = useState(1);
-  const [totalProjectsCount, setTotalProjectsCount] = useState(0); // State tổng số công trình
+  const [totalProjectsCount, setTotalProjectsCount] = useState(0);
 
-  const [newProject, setNewProject] = useState(null); // Sẽ được khởi tạo trong useEffect
+  const [newProject, setNewProject] = useState(null);
   const [editProject, setEditProject] = useState(null);
 
   const [allocateWaves, setAllocateWaves] = useState({});
   const [assignPersons, setAssignPersons] = useState({});
 
-  // --- State cho Filters ---
   const [filterStatus, setFilterStatus] = useState('');
   const [filterAllocatedUnit, setFilterAllocatedUnit] = useState('');
   const [filterConstructionUnit, setFilterConstructionUnit] = useState('');
@@ -36,19 +43,17 @@ function ProjectManagement({ user, type, showHeader }) {
   const [filterMinInitialValue, setFilterMinInitialValue] = useState('');
   const [filterMaxInitialValue, setFilterMaxInitialValue] = useState('');
   const [filterProgress, setFilterProgress] = useState('');
-  // -------------------------
 
   const [allocatedUnits, setAllocatedUnits] = useState([]);
   const [constructionUnitsList, setConstructionUnitsList] = useState([]);
   const [allocationWavesList, setAllocationWavesList] = useState([]);
+  const [usersList, setUsersList] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // State cho việc tải dữ liệu bảng
-  const [isSubmitting, setIsSubmitting] = useState(false); // State cho việc gửi form/action
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState('projects'); // Thêm tab pending
 
-  const LOADING_OVERLAY_Z_INDEX = 'z-[1050]'; // z-index cao cho loading overlay
-
-  // --- Giá trị filter ban đầu để reset ---
   const initialFilters = useMemo(() => ({
     status: '',
     allocatedUnit: '',
@@ -58,16 +63,15 @@ function ProjectManagement({ user, type, showHeader }) {
     maxInitialValue: '',
     progress: '',
   }), []);
-  // ------------------------------------
 
-  // Hàm khởi tạo state cho dự án mới
-   const initialNewProjectState = useCallback(() => {
+  const initialNewProjectState = useCallback(() => {
     const baseState = {
       name: '',
-      allocatedUnit: '', // Đặt giá trị mặc định là chuỗi rỗng thay vì null/undefined
+      allocatedUnit: '',
       supervisor: '',
       taskDescription: '',
       notes: '',
+      approvedBy: '', // Thêm trường approvedBy vào state mặc định
     };
     if (isCategory) {
       return {
@@ -76,57 +80,62 @@ function ProjectManagement({ user, type, showHeader }) {
         allocationWave: '',
         location: '',
         scale: '',
-        initialValue: '', // Để trống thay vì 0 cho dễ nhập
+        initialValue: '',
         estimator: '',
-        durationDays: '', // Để trống
+        durationDays: '',
         startDate: '',
         completionDate: '',
-        contractValue: '', // Để trống
+        contractValue: '',
         progress: '',
         feasibility: '',
+        projectType: '',
+        estimatedValue: '',
+        leadershipApproval: '',
       };
     } else {
-      // Tạo serial ở backend hoặc fetch trước khi mở modal nếu cần độ chính xác cao
-      // Hoặc để trống và backend xử lý
       return {
         ...baseState,
-        serial: '', // Để backend tự tạo hoặc fetch trước khi mở modal
+        serial: '',
         reportDate: '',
         inspectionDate: '',
         paymentDate: '',
-        paymentValue: '', // Để trống
+        paymentValue: '',
       };
     }
-  }, [isCategory]); // Không phụ thuộc nextSerial nữa nếu backend xử lý
+  }, [isCategory]);
 
-  // Khởi tạo newProject khi component mount hoặc initialNewProjectState thay đổi
   useEffect(() => {
     setNewProject(initialNewProjectState());
   }, [initialNewProjectState]);
 
-
-  // Hàm gọi API lấy danh sách công trình
   const fetchProjects = useCallback(
-    async (pageToFetch = 1, currentSortOrder = sortOrder, filters = {}) => {
+    async (pageToFetch = 1, currentSortOrder = sortOrder, filters = {}, isPending = false) => {
       if (!user) {
         setFilteredProjects([]);
+        setPendingProjects([]);
         setTotalPages(1);
         setTotalProjectsCount(0);
         return;
       }
       setIsLoading(true);
-      const params = new URLSearchParams({ type, page: pageToFetch, limit: 10 }); // Có thể tăng limit nếu muốn
+      const params = new URLSearchParams({ type, page: pageToFetch, limit: 10 });
 
-      // Append filters từ state hoặc từ tham số filters (nếu dùng cho reset)
-      if (filters.status ?? filterStatus) params.append('status', filters.status ?? filterStatus);
-      if (filters.allocatedUnit ?? filterAllocatedUnit) params.append('allocatedUnit', filters.allocatedUnit ?? filterAllocatedUnit);
-      if (isCategory && (filters.constructionUnit ?? filterConstructionUnit)) params.append('constructionUnit', filters.constructionUnit ?? filterConstructionUnit);
-      if (filters.name ?? filterName) params.append('search', filters.name ?? filterName); // Đổi tên param thành 'search' nếu backend dùng tên này
-      if (isCategory && (filters.minInitialValue ?? filterMinInitialValue)) params.append('minInitialValue', filters.minInitialValue ?? filterMinInitialValue);
-      if (isCategory && (filters.maxInitialValue ?? filterMaxInitialValue)) params.append('maxInitialValue', filters.maxInitialValue ?? filterMaxInitialValue);
-      if (isCategory && (filters.progress ?? filterProgress)) params.append('progress', filters.progress ?? filterProgress);
+      const currentFilters = {
+        status: filters.status ?? filterStatus,
+        allocatedUnit: filters.allocatedUnit ?? filterAllocatedUnit,
+        constructionUnit: isCategory ? (filters.constructionUnit ?? filterConstructionUnit) : undefined,
+        search: filters.name ?? filterName,
+        minInitialValue: isCategory ? (filters.minInitialValue ?? filterMinInitialValue) : undefined,
+        maxInitialValue: isCategory ? (filters.maxInitialValue ?? filterMaxInitialValue) : undefined,
+        progress: isCategory ? (filters.progress ?? filterProgress) : undefined,
+      };
 
-      // Append sorting
+      Object.entries(currentFilters).forEach(([key, value]) => {
+        if (value) {
+          params.append(key, value);
+        }
+      });
+
       if (currentSortOrder === 'serial_asc') {
         params.append('sort', isCategory ? 'categorySerialNumber' : 'minorRepairSerialNumber');
         params.append('order', 'asc');
@@ -134,113 +143,211 @@ function ProjectManagement({ user, type, showHeader }) {
         params.append('sort', 'createdAt');
         params.append('order', 'desc');
       }
-       // Thêm các trường hợp sort khác nếu cần
 
       try {
-        const projectsRes = await axios.get(`${API_URL}/api/projects?${params.toString()}`);
-        setFilteredProjects(projectsRes.data.projects || []);
-        setTotalPages(projectsRes.data.pages || 1);
-        setTotalProjectsCount(projectsRes.data.total || 0); // Cập nhật tổng số
-
-        // Xử lý chuyển trang nếu trang hiện tại không hợp lệ sau khi lọc/xóa
-        if (pageToFetch > projectsRes.data.pages && projectsRes.data.pages > 0) {
-          setCurrentPage(projectsRes.data.pages); // Chuyển về trang cuối nếu trang hiện tại vượt quá
-        } else if (projectsRes.data.projects.length === 0 && pageToFetch > 1) {
-          setCurrentPage(1); // Chuyển về trang 1 nếu trang hiện tại trống (trừ trang 1)
+        // Thêm tham số pending để gọi API chính xác
+        if (isPending) {
+          params.append('pending', 'true');
         }
 
-        // Cập nhật nextSerial nếu là Sửa chữa nhỏ (cách này có thể không chính xác nếu có phân trang và sort)
-        // Nên để backend trả về nextSerial hoặc không cần hiển thị STT trước khi tạo
-        // if (!isCategory) { ... }
+        const projectsRes = await axios.get(`${API_URL}/api/projects?${params.toString()}`);
 
+        // Lọc thêm ở phía client để đảm bảo logic chính xác
+        const filteredData = projectsRes.data.projects || [];
+        let finalProjects = filteredData;
+
+        if (isPending) {
+          // Tab "Công trình chờ duyệt": Chỉ hiển thị các công trình có status "Chờ duyệt"
+          // hoặc có status "Đã duyệt" nhưng đang có pendingEdit hoặc pendingDelete
+          finalProjects = filteredData.filter(project =>
+            project.status === 'Chờ duyệt' ||
+            (project.status === 'Đã duyệt' && (project.pendingEdit || project.pendingDelete))
+          );
+        } else {
+          // Tab "Danh mục công trình": Chỉ hiển thị các công trình có status "Đã duyệt"
+          // và không có pendingEdit hoặc pendingDelete
+          finalProjects = filteredData.filter(project =>
+            project.status === 'Đã duyệt' && !project.pendingEdit && !project.pendingDelete
+          );
+        }
+
+        if (isPending) {
+          setPendingProjects(finalProjects);
+        } else {
+          setFilteredProjects(finalProjects);
+        }
+        setTotalPages(projectsRes.data.pages || 1);
+        setTotalProjectsCount(projectsRes.data.total || 0);
+
+        if (pageToFetch > projectsRes.data.pages && projectsRes.data.pages > 0) {
+          setCurrentPage(projectsRes.data.pages);
+        }
       } catch (error) {
         console.error("Lỗi khi tải danh sách công trình:", error.response?.data?.message || error.message);
         toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách công trình!', { position: "top-center" });
-        setFilteredProjects([]);
+        if (isPending) {
+          setPendingProjects([]);
+        } else {
+          setFilteredProjects([]);
+        }
         setTotalPages(1);
         setTotalProjectsCount(0);
       } finally {
         setIsLoading(false);
       }
     },
-    [
-      user, type, isCategory, sortOrder, // Các state ảnh hưởng đến query API
-      filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName,
-      filterMinInitialValue, filterMaxInitialValue, filterProgress
-    ]
+    [user, type, isCategory, sortOrder, filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName, filterMinInitialValue, filterMaxInitialValue, filterProgress]
   );
 
-  // Fetch dữ liệu phụ trợ (units, waves)
+  const fetchRejectedProjects = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/rejected-projects`);
+      setRejectedProjects(res.data || []);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách công trình bị từ chối:", error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách công trình bị từ chối!', { position: "top-center" });
+      setRejectedProjects([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) return;
     const fetchAuxData = async () => {
       try {
-        const [unitsRes, wavesRes, constUnitsRes] = await Promise.all([
+        const results = await Promise.allSettled([
           axios.get(`${API_URL}/api/allocated-units`),
           axios.get(`${API_URL}/api/allocation-waves`),
           axios.get(`${API_URL}/api/construction-units`),
+          axios.get(`${API_URL}/api/users`),
         ]);
-        setAllocatedUnits(unitsRes.data || []);
-        setAllocationWavesList(wavesRes.data || []);
-        setConstructionUnitsList(constUnitsRes.data || []);
+
+        if (results[0].status === 'fulfilled') {
+          const units = results[0].value.data || [];
+          setAllocatedUnits(units.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)));
+        } else {
+          console.error("Lỗi tải Allocated Units:", results[0].reason);
+          setAllocatedUnits([]);
+        }
+
+        if (results[1].status === 'fulfilled') {
+          const waves = results[1].value.data || [];
+          setAllocationWavesList(waves.map(wave => wave.name || String(wave)));
+        } else {
+          console.error("Lỗi tải Allocation Waves:", results[1].reason);
+          setAllocationWavesList([]);
+        }
+
+        if (results[2].status === 'fulfilled') {
+          const constructionUnits = results[2].value.data || [];
+          setConstructionUnitsList(constructionUnits.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)));
+        } else {
+          console.error("Lỗi tải Construction Units:", results[2].reason);
+          setConstructionUnitsList([]);
+        }
+
+        if (results[3].status === 'fulfilled') {
+          const users = results[3].value.data || [];
+          setUsersList(users.map(user => user.username || String(user)));
+        } else {
+          console.error("Lỗi tải Users:", results[3].reason);
+          setUsersList([]);
+        }
       } catch (error) {
-        console.error("Lỗi tải dữ liệu phụ trợ:", error.response?.data?.message || error.message);
-        toast.error(error.response?.data?.message || 'Lỗi khi tải dữ liệu phụ trợ!', { position: "top-center" });
+        console.error("Lỗi không xác định khi tải dữ liệu phụ trợ:", error);
+        toast.error('Lỗi không xác định khi tải dữ liệu phụ trợ!', { position: "top-center" });
+        setAllocatedUnits([]);
+        setAllocationWavesList([]);
+        setConstructionUnitsList([]);
+        setUsersList([]);
       }
     };
     fetchAuxData();
   }, [user]);
 
-  // Debounce hàm fetch chính
-  const debouncedFetchProjects = useCallback(debounce(fetchProjects, 500), [fetchProjects]);
+  const debouncedFetchProjects = useCallback(debounce((page, sort, filters, isPending) => fetchProjects(page, sort, filters, isPending), 500), [fetchProjects]);
 
-  // Effect gọi fetch khi trang, sort thay đổi (không gọi debounced ở đây)
   useEffect(() => {
     if (user) {
-      fetchProjects(currentPage, sortOrder);
+      fetchProjects(currentPage, sortOrder, {
+        status: filterStatus,
+        allocatedUnit: filterAllocatedUnit,
+        constructionUnit: filterConstructionUnit,
+        name: filterName,
+        minInitialValue: filterMinInitialValue,
+        maxInitialValue: filterMaxInitialValue,
+        progress: filterProgress
+      }, false);
+      fetchProjects(currentPage, sortOrder, {}, true); // Lấy danh sách công trình chờ duyệt
+      fetchRejectedProjects();
+
+      // Kết nối Socket.IO để làm mới danh sách công trình
+      if (!socket.connected) {
+        socket.connect();
+      }
+
+      socket.on('project_deleted', ({ projectId, projectType }) => {
+        if (projectType === type) {
+          fetchProjects(currentPage, sortOrder, {}, false);
+          fetchProjects(currentPage, sortOrder, {}, true);
+        }
+      });
+
+      socket.on('project_rejected', ({ projectId, projectType }) => {
+        if (projectType === type) {
+          fetchProjects(currentPage, sortOrder, {}, false);
+          fetchProjects(currentPage, sortOrder, {}, true);
+          fetchRejectedProjects();
+        }
+      });
+
+      socket.on('notification_processed', () => {
+        fetchProjects(currentPage, sortOrder, {}, false);
+        fetchProjects(currentPage, sortOrder, {}, true);
+      });
+
+      return () => {
+        socket.off('project_deleted');
+        socket.off('project_rejected');
+        socket.off('notification_processed');
+      };
     } else {
-      // Clear state khi logout
       setFilteredProjects([]);
+      setPendingProjects([]);
+      setRejectedProjects([]);
       setTotalPages(1);
       setCurrentPage(1);
       setTotalProjectsCount(0);
     }
-    // Không đưa fetchProjects vào đây để tránh vòng lặp nếu fetchProjects thay đổi thường xuyên
-  }, [user, type, currentPage, sortOrder]); // Chỉ fetch lại khi các yếu tố chính này thay đổi
+  }, [user, type, currentPage, sortOrder, fetchProjects, fetchRejectedProjects, filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName, filterMinInitialValue, filterMaxInitialValue, filterProgress]);
 
-  // Effect gọi fetch (debounced) khi filter thay đổi
-   useEffect(() => {
-    if (user) {
-      // Chỉ gọi fetch nếu không phải lần render đầu tiên hoặc filter thực sự thay đổi
-      // Cần cơ chế kiểm tra thay đổi phức tạp hơn hoặc chấp nhận gọi lại khi filter thay đổi
-      // Reset về trang 1 khi filter thay đổi
-      if (currentPage !== 1) {
-        setCurrentPage(1);
-        // fetch sẽ được gọi bởi useEffect trên khi currentPage thay đổi về 1
-      } else {
-          // Nếu đang ở trang 1, gọi fetch trực tiếp (hoặc debounced)
-          debouncedFetchProjects(1, sortOrder);
-      }
+  useEffect(() => {
+    const isMounted = user !== null;
+    if (!isMounted) return;
+
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    } else {
+      debouncedFetchProjects(1, sortOrder, {
+        status: filterStatus,
+        allocatedUnit: filterAllocatedUnit,
+        constructionUnit: filterConstructionUnit,
+        name: filterName,
+        minInitialValue: filterMinInitialValue,
+        maxInitialValue: filterMaxInitialValue,
+        progress: filterProgress
+      }, false);
+      debouncedFetchProjects(1, sortOrder, {}, true);
     }
-  }, [
-    filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName,
-    filterMinInitialValue, filterMaxInitialValue, filterProgress,
-    user, debouncedFetchProjects, sortOrder, currentPage // Thêm currentPage để xử lý reset về trang 1
-  ]);
+  }, [filterStatus, filterAllocatedUnit, filterConstructionUnit, filterName, filterMinInitialValue, filterMaxInitialValue, filterProgress, user, sortOrder, debouncedFetchProjects, currentPage]);
 
-
-  // Xử lý thay đổi Sắp xếp
   const handleSortChange = (e) => {
     const newSortOrder = e.target.value;
     setSortOrder(newSortOrder);
-    if (currentPage !== 1) {
-      setCurrentPage(1); // Fetch sẽ được gọi bởi useEffect của currentPage
-    } else {
-      fetchProjects(1, newSortOrder); // Gọi fetch ngay nếu đang ở trang 1
-    }
   };
 
-  // === Hàm xử lý Reset Filters ===
   const handleResetFilters = useCallback(() => {
     setFilterStatus(initialFilters.status);
     setFilterAllocatedUnit(initialFilters.allocatedUnit);
@@ -249,60 +356,57 @@ function ProjectManagement({ user, type, showHeader }) {
     setFilterMinInitialValue(initialFilters.minInitialValue);
     setFilterMaxInitialValue(initialFilters.maxInitialValue);
     setFilterProgress(initialFilters.progress);
-    // Không reset sortOrder ở đây
-    // useEffect của filter sẽ tự động trigger việc fetch lại dữ liệu và reset trang nếu cần
   }, [initialFilters]);
-  // ==============================
 
-  // Mở modal Thêm mới
   const openAddNewModal = () => {
     setEditProject(null);
-    setNewProject(initialNewProjectState()); // Reset form về trạng thái ban đầu
-    setIsLoading(false); // Đảm bảo không có loading state nào ảnh hưởng modal
+    setNewProject(initialNewProjectState());
+    setIsLoading(false);
     setIsSubmitting(false);
     setShowModal(true);
   };
 
-  // Mở modal Chỉnh sửa
   const openEditModal = (project) => {
     setEditProject(project);
-    // Chuẩn bị dữ liệu để hiển thị trong form (chuyển đổi date nếu cần)
     const formatForInput = (dateStr) => dateStr ? new Date(dateStr).toISOString().split('T')[0] : '';
-    let projectDataToSet;
+    let projectDataToSet = {};
+
+    const baseData = {
+      name: project.name || '',
+      allocatedUnit: project.allocatedUnit || '',
+      supervisor: project.supervisor || '',
+      taskDescription: project.taskDescription || '',
+      notes: project.notes || '',
+      approvedBy: project.approvedBy?._id || '', // Populate approvedBy
+    };
 
     if (isCategory) {
       projectDataToSet = {
-        name: project.name || '',
-        allocatedUnit: project.allocatedUnit || '',
+        ...baseData,
         constructionUnit: project.constructionUnit || '',
         allocationWave: project.allocationWave || '',
         location: project.location || '',
         scale: project.scale || '',
-        initialValue: project.initialValue ?? '', // Dùng ?? '' để hiển thị input rỗng thay vì 0
+        initialValue: project.initialValue ?? '',
         estimator: project.estimator || '',
-        supervisor: project.supervisor || '',
         durationDays: project.durationDays ?? '',
         startDate: formatForInput(project.startDate),
         completionDate: formatForInput(project.completionDate),
-        taskDescription: project.taskDescription || '',
         contractValue: project.contractValue ?? '',
         progress: project.progress || '',
         feasibility: project.feasibility || '',
-        notes: project.notes || '',
-        // Không cần các trường chỉ đọc như serial, status, _id ở đây
+        projectType: project.projectType || '',
+        estimatedValue: project.estimatedValue ?? '',
+        leadershipApproval: project.leadershipApproval || '',
       };
     } else {
       projectDataToSet = {
-        serial: project.minorRepairSerialNumber || '', // Hiển thị serial hiện tại
-        name: project.name || '',
-        allocatedUnit: project.allocatedUnit || '',
-        supervisor: project.supervisor || '',
+        ...baseData,
+        serial: project.minorRepairSerialNumber || '',
         reportDate: formatForInput(project.reportDate),
         inspectionDate: formatForInput(project.inspectionDate),
-        taskDescription: project.taskDescription || '',
         paymentDate: formatForInput(project.paymentDate),
         paymentValue: project.paymentValue ?? '',
-        notes: project.notes || '',
       };
     }
     setNewProject(projectDataToSet);
@@ -311,7 +415,6 @@ function ProjectManagement({ user, type, showHeader }) {
     setShowModal(true);
   };
 
-  // Xử lý thay đổi input chung
   const handleInputChange = (e) => {
     const { name, value, type: inputType, checked } = e.target;
     setNewProject((prev) => ({
@@ -320,116 +423,114 @@ function ProjectManagement({ user, type, showHeader }) {
     }));
   };
 
-  // Xử lý thay đổi input số (cho phép rỗng)
   const handleNumericInputChange = (e) => {
     const { name, value } = e.target;
-    // Chỉ cho phép số hoặc chuỗi rỗng
     if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
-       setNewProject((prev) => ({
-         ...prev,
-         // Lưu giá trị số nếu hợp lệ, hoặc chuỗi rỗng
-         [name]: value,
-       }));
+      setNewProject((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
-
-  // Lưu công trình (Thêm mới / Cập nhật)
   const saveProject = async () => {
-    setIsSubmitting(true);
-    let projectPayload = { ...newProject, type }; // Bắt đầu với dữ liệu form hiện tại
+    // Kiểm tra các trường bắt buộc trong tab Cơ bản
+    if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location) {
+      toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, và Địa điểm XD!', { position: "top-center" });
+      return;
+    }
 
-    // Chuyển đổi các trường số từ chuỗi (có thể rỗng) sang số hoặc null/0 trước khi gửi
-    const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue'];
+    setIsSubmitting(true);
+    let projectPayload = { ...newProject, type };
+    console.log("Dữ liệu gửi đi để lưu công trình:", projectPayload);
+
+    const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue', 'estimatedValue'];
     const numericFieldsMinor = ['paymentValue'];
     const fieldsToParse = isCategory ? numericFieldsCategory : numericFieldsMinor;
 
     fieldsToParse.forEach((field) => {
       const value = projectPayload[field];
-      if (value === '' || value === null || isNaN(parseFloat(value))) {
-        projectPayload[field] = null; // Gửi null nếu rỗng hoặc không phải số
+      if (value === '' || value === null || value === undefined || isNaN(parseFloat(value))) {
+        projectPayload[field] = null;
       } else {
         projectPayload[field] = parseFloat(value);
       }
     });
 
-    // Dọn dẹp các trường không thuộc type hiện tại
-    if (isCategory) {
-        const minorRepairOnlyFields = ['serial', 'reportDate', 'inspectionDate', 'paymentDate', 'paymentValue', 'minorRepairSerialNumber'];
-        minorRepairOnlyFields.forEach(field => delete projectPayload[field]);
-    } else {
-        const categoryOnlyFields = ['constructionUnit', 'allocationWave', 'location', 'scale', 'initialValue', 'estimator', 'durationDays', 'startDate', 'completionDate', 'contractValue', 'progress', 'feasibility', 'categorySerialNumber'];
-        categoryOnlyFields.forEach(field => delete projectPayload[field]);
-        // Không gửi serial khi tạo mới SCN, backend sẽ tự tạo
-        if (!editProject) {
-            delete projectPayload.serial;
-        }
+    if (projectPayload.durationDays !== null && projectPayload.durationDays !== undefined) {
+      projectPayload.durationDays = parseInt(projectPayload.durationDays, 10) || null;
     }
 
-    // --- Logic gọi API ---
+    const fieldsToRemove = isCategory
+      ? ['serial', 'reportDate', 'inspectionDate', 'paymentDate', 'paymentValue', 'minorRepairSerialNumber']
+      : ['constructionUnit', 'allocationWave', 'location', 'scale', 'initialValue', 'estimator', 'durationDays', 'startDate', 'completionDate', 'contractValue', 'progress', 'feasibility', 'projectType', 'estimatedValue', 'leadershipApproval', 'categorySerialNumber'];
+    fieldsToRemove.forEach(field => delete projectPayload[field]);
+
+    if (!isCategory && !editProject) {
+      delete projectPayload.serial;
+    }
+
     try {
       let response;
       let successMessage = '';
+      let fetchPage = currentPage;
 
       if (editProject) {
-        // Chỉ gửi các trường có thay đổi (tùy chọn, có thể gửi toàn bộ payload đã xử lý)
-        // const changedData = {}; // Logic tìm changedData phức tạp hơn
-        // response = await axios.patch(`${API_URL}/api/projects/${editProject._id}?type=${type}`, changedData);
-
-        // Gửi toàn bộ payload đã xử lý đơn giản hơn
         response = await axios.patch(`${API_URL}/api/projects/${editProject._id}?type=${type}`, projectPayload);
         successMessage = response.data.message || 'Đã cập nhật công trình thành công!';
-        // Xử lý message cho yêu cầu sửa nếu cần dựa trên response
-        if (editProject.status === 'Đã duyệt' && user?.permissions?.edit && !user?.permissions?.approve && response.data?.pendingEdit) {
-            successMessage = 'Đã gửi yêu cầu sửa công trình!';
+        if (response.data?.pendingEdit) {
+          successMessage = 'Đã gửi yêu cầu sửa công trình!';
         }
-
       } else {
-        // Thêm mới
         response = await axios.post(`${API_URL}/api/projects`, projectPayload);
         successMessage = response.data.message || 'Đã đăng ký công trình thành công!';
+        fetchPage = 1;
       }
 
       toast.success(successMessage, { position: "top-center" });
-      // Fetch lại trang hiện tại nếu sửa, fetch trang đầu nếu thêm mới
-      fetchProjects(editProject ? currentPage : 1, sortOrder);
-      setShowModal(false);
-      // Không cần reset form ở đây vì modal đóng sẽ tự reset nếu cần
 
+      // Reset newProject về trạng thái rỗng sau khi lưu thành công
+      setNewProject(initialNewProjectState());
+
+      if (fetchPage !== currentPage) {
+        setCurrentPage(fetchPage);
+      } else {
+        fetchProjects(currentPage, sortOrder, {}, false);
+        fetchProjects(currentPage, sortOrder, {}, true);
+      }
+
+      setShowModal(false);
     } catch (err) {
-       const errorMessage = err.response?.data?.message || 'Lỗi khi lưu công trình!';
-       console.error('Lỗi khi lưu công trình:', errorMessage, err.response?.data); // Log thêm data lỗi nếu có
-       toast.error(errorMessage, { position: "top-center" });
+      const errorMessage = err.response?.data?.message || 'Lỗi khi lưu công trình!';
+      console.error('Lỗi khi lưu công trình:', errorMessage, err.response?.data);
+      toast.error(errorMessage, { position: "top-center" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleActionWithConfirm = async (actionPromise, successMessage, confirmMessage = "Bạn có chắc chắn?") => {
+    if (window.confirm(confirmMessage)) {
+      setIsSubmitting(true);
+      try {
+        const response = await actionPromise();
+        toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
+        fetchProjects(currentPage, sortOrder, {}, false);
+        fetchProjects(currentPage, sortOrder, {}, true);
+      } catch (err) {
+        console.error("Lỗi hành động:", err.response?.data?.message || err.message);
+        toast.error(err.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
 
- // Hàm chung cho các hành động cần xác nhận
- const handleActionWithConfirm = async (actionPromise, successMessage, confirmMessage = "Bạn có chắc chắn?") => {
-   if (window.confirm(confirmMessage)) {
-     setIsSubmitting(true); // Dùng submitting state để khóa các hành động khác
-     try {
-       const response = await actionPromise();
-       toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
-       // Fetch lại trang hiện tại sau khi hành động thành công
-       fetchProjects(currentPage, sortOrder);
-     } catch (err) {
-       console.error("Lỗi hành động:", err.response?.data?.message || err.message);
-       toast.error(err.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
-     } finally {
-       setIsSubmitting(false);
-     }
-   }
- };
-
-  // Các hàm gọi action cụ thể
   const deleteProject = (id) =>
     handleActionWithConfirm(
       () => axios.delete(`${API_URL}/api/projects/${id}?type=${type}`),
-      null, // Message sẽ dựa vào response hoặc message mặc định của handleActionWithConfirm
-      "Xác nhận Xóa/Yêu cầu xóa công trình này?" // Rút gọn confirm message
+      null,
+      "Xác nhận Xóa hoặc gửi Yêu cầu xóa công trình này?"
     );
 
   const approveProject = (id) =>
@@ -448,142 +549,409 @@ function ProjectManagement({ user, type, showHeader }) {
 
   const allocateProject = (id) => {
     const wave = allocateWaves[id];
-    if (!wave) return toast.error('Vui lòng chọn đợt phân bổ!', { position: "top-center" });
+    if (!wave) {
+      toast.error('Vui lòng chọn đợt phân bổ!', { position: "top-center" });
+      return;
+    }
     handleActionWithConfirm(
       () => axios.patch(`${API_URL}/api/projects/${id}/allocate?type=${type}`, { allocationWave: wave }),
       'Đã phân bổ công trình!',
       `Phân bổ công trình vào đợt "${wave}"?`
-    ).then(() => setAllocateWaves((prev) => ({ ...prev, [id]: '' }))); // Reset select sau khi thành công
+    ).then(() => setAllocateWaves((prev) => ({ ...prev, [id]: '' })));
   };
 
   const assignProject = (id) => {
     const person = assignPersons[id];
-    if (!person || person.trim() === "") return toast.error('Vui lòng nhập người phụ trách!', { position: "top-center" });
+    if (!person || person.trim() === "") {
+      toast.error('Vui lòng nhập người phụ trách!', { position: "top-center" });
+      return;
+    }
     handleActionWithConfirm(
       () => axios.patch(`${API_URL}/api/projects/${id}/assign?type=${type}`, { assignedTo: person.trim() }),
       'Đã phân công công trình!',
       `Phân công cho "${person.trim()}"?`
-    ).then(() => setAssignPersons((prev) => ({ ...prev, [id]: '' }))); // Reset input sau khi thành công
+    ).then(() => setAssignPersons((prev) => ({ ...prev, [id]: '' })));
   };
 
+  const approveEditProject = (id) =>
+    handleActionWithConfirm(
+      () => axios.patch(`${API_URL}/api/projects/${id}/approve-edit?type=${type}`),
+      'Đã duyệt yêu cầu sửa!',
+      "Xác nhận DUYỆT yêu cầu sửa công trình này?"
+    );
 
-  // --- JSX Return ---
+  const rejectEditProject = (id) =>
+    handleActionWithConfirm(
+      () => axios.patch(`${API_URL}/api/projects/${id}/reject-edit?type=${type}`),
+      'Đã từ chối yêu cầu sửa!',
+      "Xác nhận TỪ CHỐI yêu cầu sửa công trình này?"
+    );
+
+  const approveDeleteProject = (id) =>
+    handleActionWithConfirm(
+      () => axios.patch(`${API_URL}/api/projects/${id}/approve-delete?type=${type}`),
+      'Đã duyệt yêu cầu xóa!',
+      "Xác nhận DUYỆT yêu cầu xóa công trình này?"
+    );
+
+  const rejectDeleteProject = (id) =>
+    handleActionWithConfirm(
+      () => axios.patch(`${API_URL}/api/projects/${id}/reject-delete?type=${type}`),
+      'Đã từ chối yêu cầu xóa!',
+      "Xác nhận TỪ CHỐI yêu cầu xóa công trình này?"
+    );
+
   return (
-    <div className={`flex flex-col min-h-screen p-4 md:p-6 lg:p-8 ${!showHeader ? 'pt-4' : 'pt-20 md:pt-8 lg:pt-10'} dark:bg-gray-900`}>
-      {/* Header Section */}
-      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4 sm:gap-6`}>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">
+    <div className={`flex flex-col min-h-screen p-8 md:p-10 lg:p-12 ${!showHeader ? 'pt-8' : 'pt-24 md:pt-10'} bg-gradient-to-b from-gray-50 to-gray-100`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
+        <h1 className="text-heading bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 animate-slideIn">
           {isCategory ? 'Công trình Danh mục' : 'Công trình Sửa chữa nhỏ'}
         </h1>
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-4">
           {user?.permissions?.add && (
             <button
               onClick={openAddNewModal}
-              className="form-btn form-btn-primary py-2.5 px-5" // Sử dụng class từ App.css
-              disabled={isSubmitting || isLoading} // Khóa khi đang load bảng hoặc submit action khác
+              className="btn btn-primary hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              disabled={isSubmitting || isLoading}
             >
-              <FaPlus size={14} /> Thêm mới
+              <FaPlus size={16} /> Thêm mới
             </button>
           )}
-          <button
-            onClick={() => setShowFilter(!showFilter)}
-            className="form-btn bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-400 py-2.5 px-5" // Style tương tự
-            title={showFilter ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
-          >
-            {showFilter ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
-            <span className="hidden sm:inline">{showFilter ? 'Ẩn' : 'Hiện'} bộ lọc</span>
-          </button>
         </div>
       </div>
 
-      {/* Loading Overlay */}
-      {isLoading && ( // Chỉ hiện khi đang load bảng
-        <div className={`fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center ${LOADING_OVERLAY_Z_INDEX} animate-fadeIn`}>
-          <div className="text-white text-lg p-4 bg-blue-600 rounded-lg shadow-md">Đang tải dữ liệu...</div>
-        </div>
-      )}
-      {isSubmitting && ( // Hiện khi đang submit form hoặc action
-        <div className={`fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center ${LOADING_OVERLAY_Z_INDEX} animate-fadeIn`}>
-          <div className="text-white text-lg p-4 bg-green-600 rounded-lg shadow-md">Đang xử lý...</div>
+      {(isLoading || isSubmitting) && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          backdropFilter: 'blur(4px)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            padding: '24px',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            border: '1px solid #E5E7EB',
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              border: '4px solid #3B82F6',
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}></div>
+            <span style={{
+              color: '#1F2937',
+              fontSize: '18px',
+              fontWeight: '600',
+            }}>
+              {isLoading ? 'Đang tải dữ liệu...' : 'Đang xử lý...'}
+            </span>
+          </div>
         </div>
       )}
 
-      {/* Project Form Modal */}
-      {/* Chỉ render Modal khi newProject có giá trị (đã được khởi tạo) */}
       {newProject && (
-        <ProjectForm
-          key={editProject ? editProject._id : 'new'} // Thêm key để reset state khi đổi từ edit sang new
-          showModal={showModal}
-          setShowModal={setShowModal}
-          isSubmitting={isSubmitting}
-          // isLoading không cần thiết cho form, chỉ cho bảng
-          editProject={editProject}
-          newProject={newProject}
-          handleInputChange={handleInputChange}
-          handleNumericInputChange={handleNumericInputChange}
-          saveProject={saveProject}
-          user={user}
-          isCategory={isCategory}
-          allocatedUnits={allocatedUnits}
-          allocationWavesList={allocationWavesList}
-          constructionUnitsList={constructionUnitsList}
-          initialNewProjectState={initialNewProjectState} // Truyền để reset form
-          setNewProject={setNewProject} // Truyền để reset form
-        />
+        <>
+          {isCategory ? (
+            <CategoryProjectForm
+              key={editProject ? editProject._id : 'new'}
+              showModal={showModal}
+              setShowModal={setShowModal}
+              isSubmitting={isSubmitting}
+              editProject={editProject}
+              newProject={newProject}
+              handleInputChange={handleInputChange}
+              handleNumericInputChange={handleNumericInputChange}
+              saveProject={saveProject}
+              user={user}
+              allocatedUnits={allocatedUnits}
+              allocationWavesList={allocationWavesList}
+              constructionUnitsList={constructionUnitsList}
+              usersList={usersList}
+              initialNewProjectState={initialNewProjectState}
+              setNewProject={setNewProject}
+            />
+          ) : (
+            <MinorRepairProjectForm
+              key={editProject ? editProject._id : 'new'}
+              showModal={showModal}
+              setShowModal={setShowModal}
+              isSubmitting={isSubmitting}
+              editProject={editProject}
+              newProject={newProject}
+              handleInputChange={handleInputChange}
+              handleNumericInputChange={handleNumericInputChange}
+              saveProject={saveProject}
+              user={user}
+              allocatedUnits={allocatedUnits}
+              initialNewProjectState={initialNewProjectState}
+              setNewProject={setNewProject}
+            />
+          )}
+        </>
       )}
 
-      {/* Project Filter Section */}
-      {showFilter && (
-        <div className="mb-6 md:mb-8">
-          <ProjectFilter
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            filterAllocatedUnit={filterAllocatedUnit}
-            setFilterAllocatedUnit={setFilterAllocatedUnit}
-            filterConstructionUnit={filterConstructionUnit}
-            setFilterConstructionUnit={setFilterConstructionUnit}
-            filterName={filterName}
-            setFilterName={setFilterName}
-            filterMinInitialValue={filterMinInitialValue}
-            setFilterMinInitialValue={setFilterMinInitialValue}
-            filterMaxInitialValue={filterMaxInitialValue}
-            setFilterMaxInitialValue={setFilterMaxInitialValue}
-            filterProgress={filterProgress}
-            setFilterProgress={setFilterProgress}
-            allocatedUnits={allocatedUnits}
-            constructionUnitsList={constructionUnitsList}
-            isCategory={isCategory}
-            sortOrder={sortOrder}
-            handleSortChange={handleSortChange}
-            isLoading={isLoading || isSubmitting} // Disable filter khi đang loading hoặc submitting
-            onResetFilters={handleResetFilters} // Truyền hàm reset
-          />
+      {/* Tabs Navigation */}
+      <div className="flex flex-wrap gap-4 border-b mb-6">
+        <button
+          onClick={() => setActiveTab('projects')}
+          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
+          disabled={isLoading || isSubmitting}
+        >
+          Danh mục công trình
+        </button>
+        <button
+          onClick={() => setActiveTab('pending')}
+          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'pending' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
+          disabled={isLoading || isSubmitting}
+        >
+          Danh sách công trình chờ duyệt
+        </button>
+        <button
+          onClick={() => setActiveTab('rejected')}
+          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'rejected' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
+          disabled={isLoading || isSubmitting}
+        >
+          Công trình bị từ chối
+        </button>
+      </div>
+
+      {activeTab === 'projects' && (
+        <>
+          <div className="mb-10">
+            {isCategory ? (
+              <CategoryProjectFilter
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                filterAllocatedUnit={filterAllocatedUnit}
+                setFilterAllocatedUnit={setFilterAllocatedUnit}
+                filterConstructionUnit={filterConstructionUnit}
+                setFilterConstructionUnit={setFilterConstructionUnit}
+                filterName={filterName}
+                setFilterName={setFilterName}
+                filterMinInitialValue={filterMinInitialValue}
+                setFilterMinInitialValue={setFilterMinInitialValue}
+                filterMaxInitialValue={filterMaxInitialValue}
+                setFilterMaxInitialValue={setFilterMaxInitialValue}
+                filterProgress={filterProgress}
+                setFilterProgress={setFilterProgress}
+                allocatedUnits={allocatedUnits}
+                constructionUnitsList={constructionUnitsList}
+                sortOrder={sortOrder}
+                handleSortChange={handleSortChange}
+                isLoading={isLoading || isSubmitting}
+                onResetFilters={handleResetFilters}
+                showFilter={showFilter}
+                setShowFilter={setShowFilter}
+              />
+            ) : (
+              <MinorRepairProjectFilter
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                filterAllocatedUnit={filterAllocatedUnit}
+                setFilterAllocatedUnit={setFilterAllocatedUnit}
+                filterName={filterName}
+                setFilterName={setFilterName}
+                allocatedUnits={allocatedUnits}
+                sortOrder={sortOrder}
+                handleSortChange={handleSortChange}
+                isLoading={isLoading || isSubmitting}
+                onResetFilters={handleResetFilters}
+                showFilter={showFilter}
+                setShowFilter={setShowFilter}
+              />
+            )}
+          </div>
+
+          {isCategory ? (
+            <CategoryProjectTable
+              filteredProjects={filteredProjects}
+              user={user}
+              isSubmitting={isSubmitting}
+              openEditModal={openEditModal}
+              approveProject={approveProject}
+              rejectProject={rejectProject}
+              deleteProject={deleteProject}
+              allocateProject={allocateProject}
+              assignProject={assignProject}
+              allocateWaves={allocateWaves}
+              setAllocateWaves={setAllocateWaves}
+              assignPersons={assignPersons}
+              setAssignPersons={setAssignPersons}
+              isLoading={isLoading}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              allocationWavesList={allocationWavesList}
+              totalProjectsCount={totalProjectsCount}
+              showStatusColumn={true} // Thêm cột trạng thái
+            />
+          ) : (
+            <MinorRepairProjectTable
+              filteredProjects={filteredProjects}
+              user={user}
+              isSubmitting={isSubmitting}
+              openEditModal={openEditModal}
+              approveProject={approveProject}
+              rejectProject={rejectProject}
+              deleteProject={deleteProject}
+              assignProject={assignProject}
+              assignPersons={assignPersons}
+              setAssignPersons={setAssignPersons}
+              isLoading={isLoading}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalProjectsCount={totalProjectsCount}
+              showStatusColumn={true} // Thêm cột trạng thái
+            />
+          )}
+        </>
+      )}
+
+      {activeTab === 'pending' && (
+        <div className="mt-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách công trình chờ duyệt</h2>
+          {pendingProjects.length === 0 && !isLoading ? (
+            <p className="text-gray-600 text-center">Không có công trình nào đang chờ duyệt.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full table-auto border-collapse">
+                <thead>
+                  <tr className="bg-blue-50">
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Tên công trình</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Loại công trình</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Người tạo</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Thời gian tạo</th>
+                    {user?.permissions?.approve && (
+                      <th className="p-4 text-left text-gray-700 font-bold border-b">Thao tác</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingProjects.map(project => (
+                    <tr key={project._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                      <td className="p-4 text-gray-700">{project.name}</td>
+                      <td className="p-4 text-gray-700">{isCategory ? 'Danh mục' : 'Sửa chữa nhỏ'}</td>
+                      <td className="p-4 text-gray-700">
+                        {project.status === 'Chờ duyệt' ? 'Thêm mới' : project.pendingEdit ? 'Sửa' : 'Xóa'}
+                      </td>
+                      <td className="p-4 text-gray-700">{project.enteredBy || 'Không xác định'}</td>
+                      <td className="p-4 text-gray-700">{new Date(project.createdAt).toLocaleString('vi-VN')}</td>
+                      {user?.permissions?.approve && (
+                        <td className="p-4 text-gray-700">
+                          <div className="flex gap-2">
+                            {project.status === 'Chờ duyệt' ? (
+                              <>
+                                <button
+                                  onClick={() => approveProject(project._id)}
+                                  className="text-green-600 hover:text-green-800"
+                                  disabled={isSubmitting}
+                                >
+                                  <FaCheckCircle size={16} /> Duyệt
+                                </button>
+                                <button
+                                  onClick={() => rejectProject(project._id)}
+                                  className="text-red-600 hover:text-red-800"
+                                  disabled={isSubmitting}
+                                >
+                                  <FaTimesCircle size={16} /> Từ chối
+                                </button>
+                              </>
+                            ) : project.pendingEdit ? (
+                              <>
+                                <button
+                                  onClick={() => approveEditProject(project._id)}
+                                  className="text-green-600 hover:text-green-800"
+                                  disabled={isSubmitting}
+                                >
+                                  <FaCheckCircle size={16} /> Duyệt sửa
+                                </button>
+                                <button
+                                  onClick={() => rejectEditProject(project._id)}
+                                  className="text-red-600 hover:text-red-800"
+                                  disabled={isSubmitting}
+                                >
+                                  <FaTimesCircle size={16} /> Từ chối sửa
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => approveDeleteProject(project._id)}
+                                  className="text-green-600 hover:text-green-800"
+                                  disabled={isSubmitting}
+                                >
+                                  <FaCheckCircle size={16} /> Duyệt xóa
+                                </button>
+                                <button
+                                  onClick={() => rejectDeleteProject(project._id)}
+                                  className="text-red-600 hover:text-red-800"
+                                  disabled={isSubmitting}
+                                >
+                                  <FaTimesCircle size={16} /> Từ chối xóa
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Project Table Section */}
-      <ProjectTable
-        filteredProjects={filteredProjects}
-        isCategory={isCategory}
-        user={user}
-        isSubmitting={isSubmitting} // Truyền để disable nút action
-        openEditModal={openEditModal}
-        approveProject={approveProject}
-        rejectProject={rejectProject}
-        deleteProject={deleteProject}
-        allocateProject={allocateProject}
-        assignProject={assignProject}
-        allocateWaves={allocateWaves}
-        setAllocateWaves={setAllocateWaves}
-        assignPersons={assignPersons}
-        setAssignPersons={setAssignPersons}
-        isLoading={isLoading} // Truyền để table biết khi nào hiển thị skeleton
-        totalPages={totalPages}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        allocationWavesList={allocationWavesList}
-        totalProjectsCount={totalProjectsCount} // Truyền tổng số công trình
-      />
+      {activeTab === 'rejected' && (
+        <div className="mt-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách công trình bị từ chối</h2>
+          {rejectedProjects.length === 0 && !isLoading ? (
+            <p className="text-gray-600 text-center">Không có công trình nào bị từ chối.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full table-auto border-collapse">
+                <thead>
+                  <tr className="bg-blue-50">
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Tên công trình</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Loại công trình</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động bị từ chối</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Người từ chối</th>
+                    <th className="p-4 text-left text-gray-700 font-bold border-b">Thời gian từ chối</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rejectedProjects.map(project => (
+                    <tr key={project._id} className="border-t hover:bg-blue-50 transition-all duration-200">
+                      <td className="p-4 text-gray-700">{project.projectName}</td>
+                      <td className="p-4 text-gray-700">{project.projectModel === 'CategoryProject' ? 'Danh mục' : 'Sửa chữa nhỏ'}</td>
+                      <td className="p-4 text-gray-700">{project.actionType === 'edit' ? 'Sửa' : project.actionType === 'delete' ? 'Xóa' : 'Thêm mới'}</td>
+                      <td className="p-4 text-gray-700">{project.rejectedBy?.username || 'Không xác định'}</td>
+                      <td className="p-4 text-gray-700">{new Date(project.rejectedAt).toLocaleString('vi-VN')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

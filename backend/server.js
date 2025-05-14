@@ -112,6 +112,8 @@ const categoryProjectSchema = new mongoose.Schema({
   scale: { type: String, required: true, trim: true },
   initialValue: { type: Number, default: 0 },
   enteredBy: { type: String, required: true, trim: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Thêm trường approvedBy
   status: { type: String, default: 'Chờ duyệt', index: true },
   assignedTo: { type: String, default: '', trim: true },
   estimator: { type: String, default: '', trim: true },
@@ -157,6 +159,8 @@ const minorRepairProjectSchema = new mongoose.Schema({
   location: { type: String, required: true, trim: true },
   initialValue: { type: Number, default: 0 },
   enteredBy: { type: String, required: true, trim: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Thêm trường approvedBy
   status: { type: String, default: 'Chờ duyệt', index: true },
   assignedTo: { type: String, default: '', trim: true },
   estimator: { type: String, default: '', trim: true },
@@ -199,9 +203,22 @@ const notificationSchema = new mongoose.Schema({
   projectId: { type: mongoose.Schema.Types.ObjectId, refPath: 'projectModel' },
   projectModel: { type: String, required: true, enum: ['CategoryProject', 'MinorRepairProject'] },
   status: { type: String, enum: ['pending', 'processed'], default: 'pending' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now },
 });
 const Notification = mongoose.model('Notification', notificationSchema);
+
+// RejectedProject Schema (Công trình bị từ chối)
+const rejectedProjectSchema = new mongoose.Schema({
+  projectId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  projectName: { type: String, required: true },
+  projectModel: { type: String, enum: ['CategoryProject', 'MinorRepairProject'], required: true },
+  actionType: { type: String, enum: ['new', 'edit', 'delete'], required: true },
+  rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  rejectedAt: { type: Date, default: Date.now },
+  details: { type: mongoose.Schema.Types.Mixed },
+});
+const RejectedProject = mongoose.model('RejectedProject', rejectedProjectSchema);
 
 // Hàm cập nhật số thứ tự cho từng loại công trình
 async function updateSerialNumbers(type) {
@@ -263,6 +280,7 @@ async function syncOldProjects() {
         scale: oldProject.scale || '',
         initialValue: oldProject.initialValue || 0,
         enteredBy: oldProject.enteredBy,
+        createdBy: oldProject.createdBy || null,
         status: oldProject.status || 'Chờ duyệt',
         assignedTo: oldProject.assignedTo || '',
         estimator: oldProject.estimator || '',
@@ -325,6 +343,7 @@ async function syncOldProjects() {
         location: oldProject.location,
         initialValue: oldProject.initialValue || 0,
         enteredBy: oldProject.enteredBy,
+        createdBy: oldProject.createdBy || null,
         status: oldProject.status || 'Chờ duyệt',
         assignedTo: oldProject.assignedTo || '',
         estimator: oldProject.estimator || '',
@@ -406,7 +425,7 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// API endpoints không thay đổi nhiều, chỉ cần điều chỉnh để sử dụng đúng model
+// API endpoints
 app.get('/api/auth/me', authenticate, (req, res) => {
   res.json({ user: req.user });
 });
@@ -592,12 +611,16 @@ const createUnitCrudEndpoints = (model, modelNameSingular, modelNamePlural) => {
 createUnitCrudEndpoints(AllocatedUnit, 'đơn vị phân bổ', 'allocated-units');
 createUnitCrudEndpoints(ConstructionUnit, 'đơn vị thi công', 'construction-units');
 createUnitCrudEndpoints(AllocationWave, 'đợt phân bổ', 'allocation-waves');
+
 app.get('/api/notifications', authenticate, async (req, res) => {
   try {
     const { status } = req.query;
     const query = {};
     if (status) query.status = status;
-    if (!req.user.permissions.approve && status === 'pending') { return res.json([]); }
+    // Chỉ hiển thị thông báo liên quan đến người dùng
+    if (!req.user.permissions.approve) {
+      query.userId = req.user.id;
+    }
     const notifications = await Notification.find(query).sort({ createdAt: -1 }).populate('projectId', 'name');
     res.json(notifications);
   } catch (error) {
@@ -628,7 +651,7 @@ app.patch('/api/notifications/:id', authenticate, async (req, res) => {
 // API lấy danh sách công trình (cập nhật để hỗ trợ tìm kiếm nâng cao và tối ưu hóa)
 app.get('/api/projects', authenticate, async (req, res) => {
   try {
-    const { type, page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress } = req.query;
+    const { type, page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress, pending } = req.query;
     const Model = type === 'category' ? CategoryProject : MinorRepairProject;
     const query = {};
 
@@ -645,9 +668,22 @@ app.get('/api/projects', authenticate, async (req, res) => {
       if (maxInitialValue) query.initialValue.$lte = parseFloat(maxInitialValue);
     }
     if (progress) query.progress = { $regex: progress, $options: 'i' };
+    if (pending) {
+      query.$or = [
+        { status: 'Chờ duyệt' },
+        { pendingEdit: { $ne: null } },
+        { pendingDelete: true }
+      ];
+    } else {
+      query.status = 'Đã duyệt';
+      query.pendingEdit = null;
+      query.pendingDelete = false;
+    }
 
     const count = await Model.countDocuments(query);
     const projects = await Model.find(query)
+      .populate('createdBy', 'username') // Populate createdBy
+      .populate('approvedBy', 'username') // Populate approvedBy
       .sort({ createdAt: -1 })
       .skip((parseInt(page) - 1) * parseInt(limit))
       .limit(parseInt(limit));
@@ -664,11 +700,34 @@ app.get('/api/projects', authenticate, async (req, res) => {
   }
 });
 
+// API lấy trạng thái công trình
+app.get('/api/projects/:id/status', authenticate, async (req, res) => {
+  try {
+    const { type } = req.query;
+    if (!type || !['category', 'minor_repair'].includes(type)) {
+      return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
+    }
+    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
+    const project = await Model.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
+
+    const status = {
+      status: project.status,
+      pendingEdit: !!project.pendingEdit,
+      pendingDelete: project.pendingDelete
+    };
+    res.json(status);
+  } catch (error) {
+    console.error("Lỗi API lấy trạng thái công trình:", error);
+    res.status(500).json({ message: 'Lỗi máy chủ khi lấy trạng thái công trình' });
+  }
+});
+
 // API thêm công trình
 app.post('/api/projects', authenticate, async (req, res) => {
   if (!req.user.permissions.add) return res.status(403).json({ message: 'Không có quyền thêm công trình' });
   try {
-    const { name, allocatedUnit, location, type, scale, initialValue } = req.body;
+    const { name, allocatedUnit, location, type, scale, initialValue, approvedBy } = req.body;
     if (!name || !allocatedUnit || !location || !type) {
       return res.status(400).json({ message: 'Tên công trình, đơn vị phân bổ, vị trí và loại công trình là bắt buộc.' });
     }
@@ -676,23 +735,34 @@ app.post('/api/projects', authenticate, async (req, res) => {
       return res.status(400).json({ message: 'Quy mô là bắt buộc cho công trình danh mục.' });
     }
     const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const projectData = { ...req.body, enteredBy: req.user.username };
+    const projectData = { ...req.body, enteredBy: req.user.username, createdBy: req.user.id };
     if (type === 'minor_repair' && projectData.hasOwnProperty('scale')) {
       delete projectData.scale;
+    }
+    if (approvedBy) {
+      const approver = await User.findById(approvedBy);
+      if (!approver || !approver.permissions.approve) {
+        return res.status(400).json({ message: 'Người duyệt không hợp lệ hoặc không có quyền duyệt.' });
+      }
+      projectData.approvedBy = approvedBy;
     }
     delete projectData.type;
     const project = new Model(projectData);
     const newProject = await project.save();
     const populatedProjectForNotification = { _id: newProject._id, name: newProject.name, type };
+
+    // Luôn tạo thông báo "pending", kể cả khi tài khoản có quyền approve
     const notification = new Notification({
-      message: `Công trình mới "${newProject.name}" (${type === 'category' ? 'Danh mục' : 'Sửa chữa nhỏ'}) bởi ${req.user.username}`,
+      message: `Yêu cầu thêm công trình mới "${newProject.name}" đã được gửi để duyệt`,
       type: 'new',
       projectId: newProject._id,
       projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+      status: 'pending',
+      userId: req.user.id,
     });
     await notification.save();
     io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-    res.status(201).json(newProject);
+    return res.status(201).json({ message: 'Công trình đã được gửi để duyệt!', pending: true });
   } catch (error) {
     console.error("Lỗi API thêm công trình:", error);
     if (error.code === 11000 && (error.message.includes('categorySerialNumber') || error.message.includes('minorRepairSerialNumber'))) {
@@ -737,9 +807,20 @@ app.patch('/api/projects/:id', authenticate, async (req, res) => {
         editNotification.status = 'processed';
         await editNotification.save();
         io.emit('notification_processed', editNotification._id);
+        // Gửi thông báo cho người tạo yêu cầu
+        const approvedNotification = new Notification({
+          message: `Yêu cầu sửa công trình "${project.name}" đã được duyệt`,
+          type: 'edit',
+          projectId: project._id,
+          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+          status: 'processed',
+          userId: project.createdBy,
+        });
+        await approvedNotification.save();
+        io.emit('notification', approvedNotification);
       }
       return res.json(project);
-    } else if (canRequestEdit && project.status === 'Đã duyệt' && !isApprover) {
+    } else if (canRequestEdit && project.status === 'Đã duyệt') {
       const dataToPending = { ...updateData };
       delete dataToPending.status;
       project.pendingEdit = dataToPending;
@@ -750,11 +831,13 @@ app.patch('/api/projects/:id', authenticate, async (req, res) => {
         type: 'edit',
         projectId: project._id,
         projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'pending',
+        userId: req.user.id,
       });
       await notification.save();
       io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
       return res.json({ message: 'Yêu cầu sửa đã được gửi để chờ duyệt', project });
-    } else if (canEditDirectly || (isApprover && !project.pendingEdit)) {
+    } else if (canEditDirectly) {
       Object.assign(project, updateData);
       await project.save();
       return res.json(project);
@@ -782,7 +865,7 @@ app.delete('/api/projects/:id', authenticate, async (req, res) => {
     const hasDeletePermission = req.user.permissions.delete;
     const isApprover = req.user.permissions.approve;
 
-    if (isUserAdmin) {
+    if (isUserAdmin && project.status !== 'Đã duyệt') {
       const projectId = project._id;
       await Model.deleteOne({ _id: req.params.id });
       await updateSerialNumbers(type);
@@ -792,7 +875,19 @@ app.delete('/api/projects/:id', authenticate, async (req, res) => {
         anyPendingNotification.status = 'processed';
         await anyPendingNotification.save();
         io.emit('notification_processed', anyPendingNotification._id);
+        // Gửi thông báo cho người tạo yêu cầu
+        const deletedNotification = new Notification({
+          message: `Công trình "${project.name}" đã được xóa bởi admin`,
+          type: 'delete',
+          projectId: project._id,
+          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+          status: 'processed',
+          userId: project.createdBy,
+        });
+        await deletedNotification.save();
+        io.emit('notification', deletedNotification);
       }
+      io.emit('project_deleted', { projectId: project._id, projectType: type });
       return res.json({ message: 'Admin đã xóa công trình thành công.' });
     } else if (isApprover && project.pendingDelete) {
       const projectId = project._id;
@@ -804,9 +899,21 @@ app.delete('/api/projects/:id', authenticate, async (req, res) => {
         deleteNotification.status = 'processed';
         await deleteNotification.save();
         io.emit('notification_processed', deleteNotification._id);
+        // Gửi thông báo cho người tạo yêu cầu
+        const deletedNotification = new Notification({
+          message: `Yêu cầu xóa công trình "${project.name}" đã được duyệt`,
+          type: 'delete',
+          projectId: project._id,
+          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+          status: 'processed',
+          userId: project.createdBy,
+        });
+        await deletedNotification.save();
+        io.emit('notification', deletedNotification);
       }
+      io.emit('project_deleted', { projectId: project._id, projectType: type });
       return res.json({ message: 'Đã xóa công trình (sau khi duyệt yêu cầu).' });
-    } else if (hasDeletePermission && (project.enteredBy === req.user.username) && project.status === 'Đã duyệt' && !isApprover) {
+    } else if (hasDeletePermission && (project.enteredBy === req.user.username || req.user.role === 'admin') && project.status === 'Đã duyệt') {
       project.pendingDelete = true;
       await project.save();
       const populatedProjectForNotification = { _id: project._id, name: project.name, type };
@@ -815,6 +922,8 @@ app.delete('/api/projects/:id', authenticate, async (req, res) => {
         type: 'delete',
         projectId: project._id,
         projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'pending',
+        userId: req.user.id,
       });
       await notification.save();
       io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
@@ -822,6 +931,7 @@ app.delete('/api/projects/:id', authenticate, async (req, res) => {
     } else if (hasDeletePermission && project.status !== 'Đã duyệt') {
       await Model.deleteOne({ _id: req.params.id });
       await updateSerialNumbers(type);
+      io.emit('project_deleted', { projectId: project._id, projectType: type });
       return res.json({ message: 'Đã xóa công trình.' });
     } else {
       return res.status(403).json({ message: 'Không có quyền xóa công trình này hoặc gửi yêu cầu xóa.' });
@@ -847,7 +957,26 @@ app.patch('/api/projects/:id/approve', authenticate, async (req, res) => {
     project.status = 'Đã duyệt';
     project.pendingEdit = null;
     project.pendingDelete = false;
+    project.approvedBy = req.user.id; // Lưu người duyệt
     await project.save();
+
+    const newNotification = await Notification.findOne({ projectId: project._id, type: 'new', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
+    if (newNotification) {
+      newNotification.status = 'processed';
+      await newNotification.save();
+      io.emit('notification_processed', newNotification._id);
+      // Gửi thông báo cho người tạo yêu cầu
+      const approvedNotification = new Notification({
+        message: `Công trình "${project.name}" đã được duyệt`,
+        type: 'new',
+        projectId: project._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: project.createdBy,
+      });
+      await approvedNotification.save();
+      io.emit('notification', approvedNotification);
+    }
     res.json(project);
   } catch (error) {
     console.error("Lỗi API duyệt công trình:", error);
@@ -867,11 +996,41 @@ app.patch('/api/projects/:id/reject', authenticate, async (req, res) => {
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
     if (project.status !== 'Chờ duyệt') return res.status(400).json({ message: 'Công trình đã được xử lý hoặc không ở trạng thái chờ duyệt.' });
-    project.status = 'Từ chối';
-    project.pendingEdit = null;
-    project.pendingDelete = false;
-    await project.save();
-    res.json(project);
+
+    // Lưu công trình vào RejectedProjects trước khi xóa
+    const rejectedProject = new RejectedProject({
+      projectId: project._id,
+      projectName: project.name,
+      projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+      actionType: 'new',
+      rejectedBy: req.user.id,
+      details: project.toObject(),
+    });
+    await rejectedProject.save();
+
+    await Model.deleteOne({ _id: req.params.id });
+    await updateSerialNumbers(type);
+
+    const newNotification = await Notification.findOne({ projectId: project._id, type: 'new', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
+    if (newNotification) {
+      newNotification.status = 'processed';
+      await newNotification.save();
+      io.emit('notification_processed', newNotification._id);
+      // Gửi thông báo cho người tạo yêu cầu
+      const rejectedNotification = new Notification({
+        message: `Công trình "${project.name}" đã bị từ chối`,
+        type: 'new',
+        projectId: project._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: project.createdBy,
+      });
+      await rejectedNotification.save();
+      io.emit('notification', rejectedNotification);
+    }
+
+    io.emit('project_rejected', { projectId: project._id, projectType: type });
+    res.json({ message: 'Đã từ chối công trình và xóa khỏi danh sách.' });
   } catch (error) {
     console.error("Lỗi API từ chối công trình:", error);
     res.status(400).json({ message: 'Lỗi khi từ chối công trình: ' + error.message });
@@ -945,6 +1104,17 @@ app.patch('/api/projects/:id/approve-edit', authenticate, async (req, res) => {
       notification.status = 'processed';
       await notification.save();
       io.emit('notification_processed', notification._id);
+      // Gửi thông báo cho người tạo yêu cầu
+      const approvedNotification = new Notification({
+        message: `Yêu cầu sửa công trình "${project.name}" đã được duyệt`,
+        type: 'edit',
+        projectId: project._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: project.createdBy,
+      });
+      await approvedNotification.save();
+      io.emit('notification', approvedNotification);
     }
     res.json(project);
   } catch (error) {
@@ -965,15 +1135,41 @@ app.patch('/api/projects/:id/reject-edit', authenticate, async (req, res) => {
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
     if (!project.pendingEdit) return res.status(400).json({ message: 'Không có yêu cầu sửa nào đang chờ duyệt cho công trình này.' });
-    project.pendingEdit = null;
-    await project.save();
+
+    // Lưu công trình vào RejectedProjects trước khi xóa
+    const rejectedProject = new RejectedProject({
+      projectId: project._id,
+      projectName: project.name,
+      projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+      actionType: 'edit',
+      rejectedBy: req.user.id,
+      details: project.toObject(),
+    });
+    await rejectedProject.save();
+
+    await Model.deleteOne({ _id: req.params.id });
+    await updateSerialNumbers(type);
+
     const notification = await Notification.findOne({ projectId: project._id, type: 'edit', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
     if (notification) {
       notification.status = 'processed';
       await notification.save();
       io.emit('notification_processed', notification._id);
+      // Gửi thông báo cho người tạo yêu cầu
+      const rejectedNotification = new Notification({
+        message: `Yêu cầu sửa công trình "${project.name}" đã bị từ chối`,
+        type: 'edit',
+        projectId: project._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: project.createdBy,
+      });
+      await rejectedNotification.save();
+      io.emit('notification', rejectedNotification);
     }
-    res.json(project);
+
+    io.emit('project_rejected', { projectId: project._id, projectType: type });
+    res.json({ message: 'Đã từ chối yêu cầu sửa và xóa công trình.' });
   } catch (error) {
     console.error("Lỗi API từ chối sửa:", error);
     res.status(400).json({ message: 'Lỗi khi từ chối sửa: ' + error.message });
@@ -992,15 +1188,30 @@ app.patch('/api/projects/:id/approve-delete', authenticate, async (req, res) => 
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
     if (!project.pendingDelete) return res.status(400).json({ message: 'Công trình này không có yêu cầu xóa đang chờ duyệt.' });
+
     const projectId = project._id;
     await Model.deleteOne({ _id: projectId });
     await updateSerialNumbers(type);
+
     const notification = await Notification.findOne({ projectId: projectId, type: 'delete', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
     if (notification) {
       notification.status = 'processed';
       await notification.save();
       io.emit('notification_processed', notification._id);
+      // Gửi thông báo cho người tạo yêu cầu
+      const deletedNotification = new Notification({
+        message: `Yêu cầu xóa công trình "${project.name}" đã được duyệt`,
+        type: 'delete',
+        projectId: project._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: project.createdBy,
+      });
+      await deletedNotification.save();
+      io.emit('notification', deletedNotification);
     }
+
+    io.emit('project_deleted', { projectId: project._id, projectType: type });
     res.json({ message: 'Đã xóa công trình theo yêu cầu' });
   } catch (error) {
     console.error("Lỗi API duyệt xóa:", error);
@@ -1020,18 +1231,57 @@ app.patch('/api/projects/:id/reject-delete', authenticate, async (req, res) => {
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
     if (!project.pendingDelete) return res.status(400).json({ message: 'Công trình này không có yêu cầu xóa đang chờ duyệt.' });
-    project.pendingDelete = false;
-    await project.save();
+
+    // Lưu công trình vào RejectedProjects trước khi xóa
+    const rejectedProject = new RejectedProject({
+      projectId: project._id,
+      projectName: project.name,
+      projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+      actionType: 'delete',
+      rejectedBy: req.user.id,
+      details: project.toObject(),
+    });
+    await rejectedProject.save();
+
+    await Model.deleteOne({ _id: req.params.id });
+    await updateSerialNumbers(type);
+
     const notification = await Notification.findOne({ projectId: project._id, type: 'delete', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
     if (notification) {
       notification.status = 'processed';
       await notification.save();
       io.emit('notification_processed', notification._id);
+      // Gửi thông báo cho người tạo yêu cầu
+      const rejectedNotification = new Notification({
+        message: `Yêu cầu xóa công trình "${project.name}" đã bị từ chối`,
+        type: 'delete',
+        projectId: project._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: project.createdBy,
+      });
+      await rejectedNotification.save();
+      io.emit('notification', rejectedNotification);
     }
-    res.json(project);
+
+    io.emit('project_rejected', { projectId: project._id, projectType: type });
+    res.json({ message: 'Đã từ chối yêu cầu xóa và xóa công trình.' });
   } catch (error) {
     console.error("Lỗi API từ chối xóa:", error);
     res.status(400).json({ message: 'Lỗi khi từ chối xóa: ' + error.message });
+  }
+});
+
+// API lấy danh sách công trình bị từ chối
+app.get('/api/rejected-projects', authenticate, async (req, res) => {
+  try {
+    const rejectedProjects = await RejectedProject.find()
+      .populate('rejectedBy', 'username')
+      .sort({ rejectedAt: -1 });
+    res.status(200).json(rejectedProjects);
+  } catch (error) {
+    console.error("Lỗi API lấy danh sách công trình bị từ chối:", error);
+    res.status(500).json({ message: "Lỗi máy chủ: " + error.message });
   }
 });
 

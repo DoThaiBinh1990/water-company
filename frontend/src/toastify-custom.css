@@ -1,0 +1,64 @@
+/* toastify-custom.css */
+.Toastify__toast-container {
+  top: 16px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: auto !important; /* Cho phép chiều rộng tự điều chỉnh */
+  min-width: 320px; /* Đặt chiều rộng tối thiểu nếu cần */
+  max-width: min(500px, 90vw); /* Giới hạn chiều rộng tối đa, đáp ứng trên màn hình nhỏ */
+  z-index: 1000002 !important; /* Đảm bảo z-index cao, trên lớp phủ (nếu có) */
+  padding: 0 !important; /* Bỏ padding mặc định của container nếu có, để toast tự quản lý padding */
+}
+
+.Toastify__toast {
+  font-family: 'Inter', sans-serif;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 16px !important;
+  margin-bottom: 10px !important; /* Khoảng cách giữa các toast */
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  /* display, align-items, min-height, line-height sẽ do react-toastify xử lý mặc định */
+}
+
+.Toastify__toast--info {
+  background-color: var(--info-bg) !important;
+  color: var(--info-text) !important;
+  border-left: 5px solid var(--primary) !important;
+}
+
+.Toastify__toast--success {
+  background-color: var(--success-bg) !important;
+  color: var(--success-text) !important;
+  border-left: 5px solid var(--success) !important;
+}
+
+.Toastify__toast--error {
+  background-color: var(--error-bg) !important;
+  color: var(--error-text) !important;
+  border-left: 5px solid var(--error) !important;
+}
+
+.Toastify__toast--warning {
+  background-color: var(--warning-bg) !important;
+  color: var(--warning-text) !important;
+  border-left: 5px solid var(--warning) !important;
+}
+
+.Toastify__toast-body {
+  flex: 1; /* Đảm bảo nội dung chiếm không gian */
+}
+
+.Toastify__close-button {
+  color: currentColor !important; /* Kế thừa màu từ text của toast */
+  opacity: 0.7 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+.Toastify__progress-bar {
+  background: rgba(0, 0, 0, 0.2) !important; /* Làm thanh progress bar tối hơn một chút để dễ nhìn trên nền sáng */
+}

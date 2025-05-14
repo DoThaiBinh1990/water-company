@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_URL } from '../config';
 
@@ -49,7 +49,6 @@ function Login({ setUser }) {
         </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Water Company</h1>
         <p className="text-gray-600 mb-8 text-center">Hệ thống quản lý công trình</p>
-        <ToastContainer position="top-center" autoClose={3000} />
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
             {error}

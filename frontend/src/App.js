@@ -1,4 +1,3 @@
-// frontend/src/App.js
 import { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,8 +10,8 @@ import { API_URL } from './config';
 import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './toastify-custom.css';
 
-// Hàm debounce
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
@@ -32,8 +31,6 @@ const socket = io(API_URL, {
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(false); // Thêm state Dark Mode
-  const [searchQuery, setSearchQuery] = useState(''); // Thêm state cho tìm kiếm
   const navigate = useNavigate();
 
   const [notifications, setNotifications] = useState([]);
@@ -41,26 +38,22 @@ function App() {
   const [currentNotificationTab, setCurrentNotificationTab] = useState('pending');
   const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
   const [isProcessingNotificationAction, setIsProcessingNotificationAction] = useState(false);
-  const [showHeader, setShowHeader] = useState(true); // Quản lý ẩn/hiện header
+  const [showHeader, setShowHeader] = useState(true);
 
   const fetchNotificationsByStatus = useCallback(async (status) => {
-    if (!user?.permissions?.approve) {
-      setNotifications([]);
-      return;
-    }
     setIsNotificationsLoading(true);
     try {
       const res = await axios.get(`${API_URL}/api/notifications?status=${status}`);
-      setNotifications(res.data);
+      setNotifications(res.data || []);
     } catch (error) {
       console.error("Lỗi tải thông báo:", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Lỗi tải thông báo!', { position: "top-center" });
+      setNotifications([]);
     } finally {
       setIsNotificationsLoading(false);
     }
-  }, [user?.permissions?.approve]);
+  }, []);
 
-  // Debounce fetchNotificationsByStatus
   const debouncedFetchNotifications = useCallback(
     debounce((status) => fetchNotificationsByStatus(status), 300),
     [fetchNotificationsByStatus]
@@ -78,15 +71,12 @@ function App() {
         const freshUser = response.data.user;
         if (freshUser && typeof freshUser === 'object') {
           setUser(freshUser);
-          localStorage.setItem('user', JSON.stringify(freshUser));
-          if (freshUser.permissions?.approve) {
-            debouncedFetchNotifications('pending');
-          }
+          debouncedFetchNotifications('pending');
         } else {
           throw new Error("Dữ liệu người dùng không hợp lệ từ server");
         }
       } catch (error) {
-        console.error('Lỗi xác thực token hoặc lấy thông tin người dùng:', error);
+        console.error('Lỗi xác thực token:', error);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['Authorization'];
@@ -99,41 +89,42 @@ function App() {
     setLoading(false);
   }, [debouncedFetchNotifications, navigate]);
 
-    useEffect(() => {
+  useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
 
   useEffect(() => {
     if (user) {
-      socket.connect();
-      if (user.permissions?.approve) {
-        if (showNotificationsModal) {
-          debouncedFetchNotifications(currentNotificationTab);
-        } else if (!notifications.length) {
-          debouncedFetchNotifications('pending');
-        }
+      if (!socket.connected) {
+        socket.connect();
+      }
+      if (showNotificationsModal) {
+        fetchNotificationsByStatus(currentNotificationTab);
+      } else if (!notifications.length) {
+        // Initial fetch handled by initializeAuth
       }
     } else {
-      socket.disconnect();
+      if (socket.connected) {
+        socket.disconnect();
+      }
       setNotifications([]);
     }
 
     const handleNewNotification = (notification) => {
-      if (user?.permissions?.approve && notification.status === 'pending') {
+      // Hiển thị thông báo cho cả tài khoản cấp thấp và cấp cao
+      if (notification.status === 'pending' && user?.permissions?.approve) {
+        setNotifications(prev => [notification, ...prev.filter(n => n._id !== notification._id)]);
+      } else if (notification.status === 'processed' && notification.userId?.toString() === user?._id?.toString()) {
         setNotifications(prev => [notification, ...prev.filter(n => n._id !== notification._id)]);
       }
-      toast.info(`${notification.message}${notification.projectId?.name ? ` cho CT "${notification.projectId.name}"` : ''}`, { position: "bottom-right", autoClose: 7000 });
-      if (user?.permissions?.approve && showNotificationsModal && currentNotificationTab === 'pending') {
-        debouncedFetchNotifications('pending');
+      if (showNotificationsModal) {
+        fetchNotificationsByStatus(currentNotificationTab);
       }
     };
 
-    const handleNotificationProcessed = (notificationId) => {
-      if (user?.permissions?.approve) {
-        setNotifications(prev => prev.filter(n => n._id !== notificationId));
-        if (showNotificationsModal) {
-          debouncedFetchNotifications(currentNotificationTab);
-        }
+    const handleNotificationProcessed = () => {
+      if (showNotificationsModal) {
+        fetchNotificationsByStatus(currentNotificationTab);
       }
     };
 
@@ -144,7 +135,7 @@ function App() {
       socket.off('notification', handleNewNotification);
       socket.off('notification_processed', handleNotificationProcessed);
     };
-  }, [user, showNotificationsModal, currentNotificationTab, debouncedFetchNotifications]);
+  }, [user, showNotificationsModal, currentNotificationTab, fetchNotificationsByStatus]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -156,109 +147,144 @@ function App() {
     navigate('/login');
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  const handleSearch = async () => {
-    if (!searchQuery) return;
-    try {
-      const response = await axios.get(`${API_URL}/api/projects/search?q=${searchQuery}`);
-      navigate('/category', { state: { searchResults: response.data } });
-    } catch (error) {
-      toast.error('Lỗi tìm kiếm: ' + (error.response?.data?.message || error.message), { position: "top-center" });
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      await axios.patch(`${API_URL}/api/notifications/mark-all-read`);
-      setNotifications([]);
-      toast.success('Đã đánh dấu tất cả thông báo là đã đọc!', { position: "top-center" });
-    } catch (error) {
-      toast.error('Lỗi: ' + (error.response?.data?.message || error.message), { position: "top-center" });
-    }
-  };
-
   const handleNotificationAction = async (actionPromise, successMessage) => {
     if (isProcessingNotificationAction) return;
     setIsProcessingNotificationAction(true);
     try {
       const response = await actionPromise();
       toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
-      debouncedFetchNotifications(currentNotificationTab);
+      // Làm mới danh sách thông báo sau khi xử lý
+      fetchNotificationsByStatus(currentNotificationTab);
     } catch (error) {
       console.error("Lỗi hành động thông báo:", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
+      // Làm mới danh sách thông báo để đảm bảo dữ liệu chính xác
+      fetchNotificationsByStatus(currentNotificationTab);
     } finally {
       setIsProcessingNotificationAction(false);
     }
   };
 
+  const showNotification = (message, type = 'info') => {
+    toast[type](message, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+
   const approveEditAction = (projectId) => handleNotificationAction(
-    () => {
-      const notification = notifications.find(n => n.projectId._id === projectId && n.type === 'edit' && n.status === 'pending');
+    async () => {
+      // Kiểm tra trạng thái công trình trước
+      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
+      if (!notification) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
+      }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
+      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
+      if (!statusRes.data.pendingEdit) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
+      }
       return axios.patch(`${API_URL}/api/projects/${projectId}/approve-edit?type=${type}`);
     },
     'Đã duyệt yêu cầu sửa công trình!'
   );
 
   const rejectEditAction = (projectId) => handleNotificationAction(
-    () => {
-      const notification = notifications.find(n => n.projectId._id === projectId && n.type === 'edit' && n.status === 'pending');
+    async () => {
+      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
+      if (!notification) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
+      }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
+      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
+      if (!statusRes.data.pendingEdit) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
+      }
       return axios.patch(`${API_URL}/api/projects/${projectId}/reject-edit?type=${type}`);
     },
     'Đã từ chối yêu cầu sửa công trình!'
   );
 
   const approveDeleteAction = (projectId) => handleNotificationAction(
-    () => {
-      const notification = notifications.find(n => n.projectId._id === projectId && n.type === 'delete' && n.status === 'pending');
+    async () => {
+      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
+      if (!notification) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
+      }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
+      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
+      if (!statusRes.data.pendingDelete) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Công trình không có yêu cầu xóa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
+      }
       return axios.patch(`${API_URL}/api/projects/${projectId}/approve-delete?type=${type}`);
     },
     'Đã duyệt yêu cầu xóa và xóa công trình!'
   );
 
   const rejectDeleteAction = (projectId) => handleNotificationAction(
-    () => {
-      const notification = notifications.find(n => n.projectId._id === projectId && n.type === 'delete' && n.status === 'pending');
+    async () => {
+      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
+      if (!notification) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
+      }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
+      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
+      if (!statusRes.data.pendingDelete) {
+        await fetchNotificationsByStatus('pending');
+        throw new Error("Công trình không có yêu cầu xóa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
+      }
       return axios.patch(`${API_URL}/api/projects/${projectId}/reject-delete?type=${type}`);
     },
     'Đã từ chối yêu cầu xóa công trình!'
   );
 
-    if (loading) {
-    return <div className="flex items-center justify-center min-h-screen text-xl bg-gray-100">Đang tải ứng dụng...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[var(--background)]">
+        <div className="flex items-center gap-3 p-4 bg-[var(--card-bg)] rounded-lg shadow-md">
+          <div className="spinner"></div>
+          <span className="text-[var(--text-primary)] text-base">Đang tải ứng dụng...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
     <>
       <ToastContainer
-        position="top-right"
+        position="top-center"
         autoClose={5000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme={darkMode ? "dark" : "light"}
+        theme="light"
+        limit={5}
       />
-      <div className={`flex h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-100'} ${user ? '' : 'justify-center items-center'}`}>
+      <div className={`flex min-h-screen ${user ? 'bg-[var(--background)]' : 'justify-center items-center bg-[var(--background)]'}`}>
         {user ? (
           <>
-            <Sidebar user={user} onLogout={handleLogout} toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            <Sidebar user={user} onLogout={handleLogout} />
             <div className="flex-1 flex flex-col overflow-hidden">
               <Header
-                className="header"
                 user={user}
                 notifications={notifications}
-                setNotifications={setNotifications}
                 showNotificationsModal={showNotificationsModal}
                 setShowNotificationsModal={setShowNotificationsModal}
                 fetchNotificationsByStatus={fetchNotificationsByStatus}
@@ -273,16 +299,32 @@ function App() {
                 setIsProcessingNotificationAction={setIsProcessingNotificationAction}
                 showHeader={showHeader}
                 toggleHeader={() => setShowHeader(!showHeader)}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                handleSearch={handleSearch}
-                markAllAsRead={markAllAsRead}
               />
-              <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-800 p-4 md:p-6 lg:p-8 md:ml-64">
+              <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] p-6 md:p-8 lg:p-10 md:ml-64 transition-all duration-300 ${showHeader ? 'pt-16 md:pt-0' : 'pt-4'}`}>
                 <Routes>
-                  <Route path="/category" element={<ProjectManagement user={user} type="category" showHeader={showHeader} />} />
-                  <Route path="/minor-repair" element={<ProjectManagement user={user} type="minor_repair" showHeader={showHeader} />} />
-                  <Route path="/settings" element={<Settings user={user} />} />
+                  <Route
+                    path="/category"
+                    element={
+                      <ProjectManagement
+                        user={user}
+                        type="category"
+                        showHeader={showHeader}
+                        addMessage={showNotification}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/minor-repair"
+                    element={
+                      <ProjectManagement
+                        user={user}
+                        type="minor_repair"
+                        showHeader={showHeader}
+                        addMessage={showNotification}
+                      />
+                    }
+                  />
+                  <Route path="/settings" element={user.permissions?.approve ? <Settings user={user} /> : <Navigate to="/" replace />} />
                   <Route path="/" element={<Navigate to="/category" replace />} />
                   <Route path="*" element={<Navigate to="/category" replace />} />
                 </Routes>
@@ -290,7 +332,7 @@ function App() {
             </div>
           </>
         ) : (
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md bg-[var(--background)] p-6">
             <Routes>
               <Route path="/login" element={<Login setUser={setUser} initializeAuth={initializeAuth} />} />
               <Route path="*" element={<Navigate to="/login" replace />} />
