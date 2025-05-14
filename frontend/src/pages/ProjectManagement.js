@@ -701,8 +701,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     );
 
   return (
-    <div className={`flex flex-col min-h-screen p-6 md:p-8 lg:p-10 ${!showHeader ? 'pt-4' : 'pt-16 md:pt-8'} bg-gradient-to-b from-gray-50 to-gray-100`}>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+    <div className={`flex flex-col min-h-screen py-3 px-1 md:py-4 md:px-2 lg:py-5 lg:px-3 ${!showHeader ? 'pt-4' : 'pt-16 md:pt-8'} bg-gradient-to-b from-gray-50 to-gray-100`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
         <h1 className="text-3xl font-bold text-gray-800 animate-slideIn">
           {isCategory ? 'Công trình Danh mục' : 'Công trình Sửa chữa nhỏ'}
         </h1>
@@ -804,7 +804,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         </>
       )}
 
-      <div className="flex flex-wrap gap-4 border-b mb-4">
+      <div className="flex flex-wrap gap-4 border-b mb-2">
         <button
           onClick={() => setActiveTab('projects')}
           className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
@@ -830,7 +830,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
 
       {activeTab === 'projects' && (
         <>
-          <div className="mb-6">
+          <div className="mb-3">
             {isCategory ? (
               <CategoryProjectFilter
                 filterAllocatedUnit={filterAllocatedUnit}
@@ -921,8 +921,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       )}
 
       {activeTab === 'pending' && (
-        <div className="mt-4">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Danh sách công trình chờ duyệt</h2>
+        <div className="mt-2 mb-2">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Danh sách công trình chờ duyệt</h2>
           {pendingProjects.length === 0 && !isLoading ? (
             <p className="text-gray-600 text-center">Không có công trình nào đang chờ duyệt.</p>
           ) : (
@@ -1018,8 +1018,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       )}
 
       {activeTab === 'rejected' && (
-        <div className="mt-4">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Danh sách công trình bị từ chối</h2>
+        <div className="mt-2 mb-2">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Danh sách công trình bị từ chối</h2>
           {rejectedProjects.length === 0 && !isLoading ? (
             <p className="text-gray-600 text-center">Không có công trình nào bị từ chối.</p>
           ) : (
