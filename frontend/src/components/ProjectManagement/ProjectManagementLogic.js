@@ -1,17 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { FaPlus, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { API_URL } from '../config';
-import debounce from 'lodash/debounce';
-import CategoryProjectFilter from '../components/CategoryProjectFilter';
-import MinorRepairProjectFilter from '../components/MinorRepairProjectFilter';
-import CategoryProjectTable from '../components/CategoryProjectTable';
-import MinorRepairProjectTable from '../components/MinorRepairProjectTable';
-import CategoryProjectForm from '../components/CategoryProjectForm';
-import MinorRepairProjectForm from '../components/MinorRepairProjectForm';
 import io from 'socket.io-client';
+import debounce from 'lodash/debounce';
+import { toast } from 'react-toastify';
+import { API_URL } from 'config';
 
 const socket = io(API_URL, {
   transports: ['websocket', 'polling'],
@@ -19,7 +11,7 @@ const socket = io(API_URL, {
   autoConnect: false,
 });
 
-function ProjectManagement({ user, type, showHeader, addMessage }) {
+function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const isCategory = type === 'category';
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [pendingProjects, setPendingProjects] = useState([]);
@@ -297,7 +289,6 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     [fetchProjects]
   );
 
-  // Gọi fetchProjects cho filteredProjects khi currentPage thay đổi
   useEffect(() => {
     if (user) {
       fetchProjects(currentPage, sortOrder, {
@@ -333,10 +324,9 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     filterReportDate,
   ]);
 
-  // Gọi fetchProjects cho pendingProjects và rejectedProjects khi cần
   useEffect(() => {
     if (user) {
-      fetchProjects(1, sortOrder, {}, true); // Lấy pendingProjects, luôn ở trang 1
+      fetchProjects(1, sortOrder, {}, true);
       fetchRejectedProjects();
 
       if (!socket.connected) {
@@ -382,9 +372,9 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     sortOrder,
     fetchProjects,
     fetchRejectedProjects,
+    currentPage,
   ]);
 
-  // Gọi debouncedFetchProjects khi các bộ lọc thay đổi
   useEffect(() => {
     if (user) {
       debouncedFetchProjects(currentPage, sortOrder, {
@@ -417,6 +407,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     user,
     sortOrder,
     debouncedFetchProjects,
+    currentPage,
   ]);
 
   const handleSortChange = (e) => {
@@ -518,15 +509,12 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
   };
 
   const saveProject = async () => {
-    // Kiểm tra các trường bắt buộc riêng biệt cho từng loại công trình
     if (isCategory) {
-      // Công trình danh mục: các trường bắt buộc
       if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location) {
         toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, và Địa điểm XD!', { position: "top-center" });
         return;
       }
     } else {
-      // Công trình sửa chữa nhỏ: các trường bắt buộc
       if (!newProject.name || !newProject.allocatedUnit || !newProject.location || !newProject.scale || !newProject.reportDate || !newProject.approvedBy) {
         toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên công trình, Đơn vị phân bổ, Địa điểm, Quy mô, Ngày xảy ra sự cố, và Người phê duyệt!', { position: "top-center" });
         return;
@@ -537,7 +525,6 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     let projectPayload = { ...newProject, type };
     console.log("Dữ liệu gửi đi để lưu công trình:", projectPayload);
 
-    // Xử lý các trường số
     const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue', 'estimatedValue'];
     const numericFieldsMinor = ['paymentValue'];
     const fieldsToParse = isCategory ? numericFieldsCategory : numericFieldsMinor;
@@ -555,7 +542,6 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       projectPayload.durationDays = parseInt(projectPayload.durationDays, 10) || null;
     }
 
-    // Loại bỏ các trường không cần thiết cho từng loại công trình
     const fieldsToRemove = isCategory
       ? ['serial', 'reportDate', 'inspectionDate', 'paymentDate', 'paymentValue', 'minorRepairSerialNumber']
       : ['constructionUnit', 'allocationWave', 'estimator', 'durationDays', 'startDate', 'completionDate', 'contractValue', 'progress', 'feasibility', 'projectType', 'estimatedValue', 'categorySerialNumber'];
@@ -695,358 +681,79 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       "Xác nhận TỪ CHỐI yêu cầu xóa công trình này?"
     );
 
-  return (
-    <div className={`flex flex-col min-h-screen py-3 px-1 md:py-4 md:px-2 lg:py-5 lg:px-3 ${!showHeader ? 'pt-4' : 'pt-16 md:pt-8'} bg-gradient-to-b from-gray-50 to-gray-100`}>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
-        <h1 className="text-3xl font-bold text-gray-800 animate-slideIn">
-          {isCategory ? 'Công trình Danh mục' : 'Công trình Sửa chữa nhỏ'}
-        </h1>
-        <div className="flex items-center gap-4">
-          {user?.permissions?.add && (
-            <button
-              onClick={openAddNewModal}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSubmitting || isLoading}
-            >
-              <FaPlus size={16} /> Thêm mới
-            </button>
-          )}
-        </div>
-      </div>
-
-      {(isLoading || isSubmitting) && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10000,
-          backdropFilter: 'blur(4px)',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            padding: '24px',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #E5E7EB',
-          }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '4px solid #3B82F6',
-              borderTopColor: 'transparent',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-            }}></div>
-            <span style={{
-              color: '#1F2937',
-              fontSize: '18px',
-              fontWeight: '600',
-            }}>
-              {isLoading ? 'Đang tải dữ liệu...' : 'Đang xử lý...'}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {newProject && (
-        <>
-          {isCategory ? (
-            <CategoryProjectForm
-              key={editProject ? editProject._id : 'new'}
-              showModal={showModal}
-              setShowModal={setShowModal}
-              isSubmitting={isSubmitting}
-              editProject={editProject}
-              newProject={newProject}
-              handleInputChange={handleInputChange}
-              handleNumericInputChange={handleNumericInputChange}
-              saveProject={saveProject}
-              user={user}
-              allocatedUnits={allocatedUnits}
-              allocationWavesList={allocationWavesList}
-              constructionUnitsList={constructionUnitsList}
-              usersList={usersList}
-              initialNewProjectState={initialNewProjectState}
-              setNewProject={setNewProject}
-            />
-          ) : (
-            <MinorRepairProjectForm
-              key={editProject ? editProject._id : 'new'}
-              showModal={showModal}
-              setShowModal={setShowModal}
-              isSubmitting={isSubmitting}
-              editProject={editProject}
-              newProject={newProject}
-              handleInputChange={handleInputChange}
-              handleNumericInputChange={handleNumericInputChange}
-              saveProject={saveProject}
-              user={user}
-              allocatedUnits={allocatedUnits}
-              initialNewProjectState={initialNewProjectState}
-              setNewProject={setNewProject}
-              usersList={usersList}
-            />
-          )}
-        </>
-      )}
-
-      <div className="flex flex-wrap gap-4 border-b mb-2">
-        <button
-          onClick={() => setActiveTab('projects')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSubmitting}
-        >
-          Danh mục công trình
-        </button>
-        <button
-          onClick={() => setActiveTab('pending')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'pending' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSubmitting}
-        >
-          Danh sách công trình chờ duyệt
-        </button>
-        <button
-          onClick={() => setActiveTab('rejected')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'rejected' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSubmitting}
-        >
-          Công trình bị từ chối
-        </button>
-      </div>
-
-      {activeTab === 'projects' && (
-        <>
-          <div className="mb-3">
-            {isCategory ? (
-              <CategoryProjectFilter
-                filterAllocatedUnit={filterAllocatedUnit}
-                setFilterAllocatedUnit={setFilterAllocatedUnit}
-                filterConstructionUnit={filterConstructionUnit}
-                setFilterConstructionUnit={setFilterConstructionUnit}
-                filterName={filterName}
-                setFilterName={setFilterName}
-                filterAllocationWave={filterAllocationWave}
-                setFilterAllocationWave={setFilterAllocationWave}
-                filterSupervisor={filterSupervisor}
-                setFilterSupervisor={setFilterSupervisor}
-                filterEstimator={filterEstimator}
-                setFilterEstimator={setFilterEstimator}
-                allocatedUnits={allocatedUnits}
-                constructionUnitsList={constructionUnitsList}
-                allocationWavesList={allocationWavesList}
-                usersList={usersList}
-                isLoading={isLoading || isSubmitting}
-                onResetFilters={handleResetFilters}
-                showFilter={showFilter}
-                setShowFilter={setShowFilter}
-              />
-            ) : (
-              <MinorRepairProjectFilter
-                filterAllocatedUnit={filterAllocatedUnit}
-                setFilterAllocatedUnit={setFilterAllocatedUnit}
-                filterName={filterName}
-                setFilterName={setFilterName}
-                filterSupervisor={filterSupervisor}
-                setFilterSupervisor={setFilterSupervisor}
-                filterReportDate={filterReportDate}
-                setFilterReportDate={setFilterReportDate}
-                allocatedUnits={allocatedUnits}
-                usersList={usersList}
-                isLoading={isLoading || isSubmitting}
-                onResetFilters={handleResetFilters}
-                showFilter={showFilter}
-                setShowFilter={setShowFilter}
-              />
-            )}
-          </div>
-
-          {isCategory ? (
-            <CategoryProjectTable
-              filteredProjects={filteredProjects}
-              user={user}
-              isSubmitting={isSubmitting}
-              openEditModal={openEditModal}
-              approveProject={approveProject}
-              rejectProject={rejectProject}
-              deleteProject={deleteProject}
-              allocateProject={allocateProject}
-              assignProject={assignProject}
-              allocateWaves={allocateWaves}
-              setAllocateWaves={setAllocateWaves}
-              assignPersons={assignPersons}
-              setAssignPersons={setAssignPersons}
-              isLoading={isLoading}
-              totalPages={totalPages}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              allocationWavesList={allocationWavesList}
-              totalProjectsCount={totalProjectsCount}
-              showStatusColumn={true}
-            />
-          ) : (
-            <MinorRepairProjectTable
-              filteredProjects={filteredProjects}
-              user={user}
-              isSubmitting={isSubmitting}
-              openEditModal={openEditModal}
-              approveProject={approveProject}
-              rejectProject={rejectProject}
-              deleteProject={deleteProject}
-              assignProject={assignProject}
-              assignPersons={assignPersons}
-              setAssignPersons={setAssignPersons}
-              isLoading={isLoading}
-              totalPages={totalPages}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalProjectsCount={totalProjectsCount}
-              showStatusColumn={true}
-            />
-          )}
-        </>
-      )}
-
-      {activeTab === 'pending' && (
-        <div className="mt-2 mb-2">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Danh sách công trình chờ duyệt</h2>
-          {pendingProjects.length === 0 && !isLoading ? (
-            <p className="text-gray-600 text-center">Không có công trình nào đang chờ duyệt.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full table-auto border-collapse">
-                <thead>
-                  <tr className="bg-blue-50">
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Tên công trình</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Loại công trình</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Người tạo</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Thời gian tạo</th>
-                    {user?.permissions?.approve && (
-                      <th className="p-4 text-left text-gray-700 font-bold border-b">Thao tác</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingProjects.map(project => (
-                    <tr key={project._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                      <td className="p-4 text-gray-700">{project.name}</td>
-                      <td className="p-4 text-gray-700">{isCategory ? 'Danh mục' : 'Sửa chữa nhỏ'}</td>
-                      <td className="p-4 text-gray-700">
-                        {project.status === 'Chờ duyệt' ? 'Thêm mới' : project.pendingEdit ? 'Sửa' : 'Xóa'}
-                      </td>
-                      <td className="p-4 text-gray-700">{project.enteredBy || 'Không xác định'}</td>
-                      <td className="p-4 text-gray-700">{new Date(project.createdAt).toLocaleString('vi-VN')}</td>
-                      {user?.permissions?.approve && (
-                        <td className="p-4 text-gray-700">
-                          <div className="flex gap-2">
-                            {project.status === 'Chờ duyệt' ? (
-                              <>
-                                <button
-                                  onClick={() => approveProject(project._id)}
-                                  className="text-green-600 hover:text-green-800"
-                                  disabled={isSubmitting}
-                                >
-                                  <FaCheckCircle size={16} /> Duyệt
-                                </button>
-                                <button
-                                  onClick={() => rejectProject(project._id)}
-                                  className="text-red-600 hover:text-red-800"
-                                  disabled={isSubmitting}
-                                >
-                                  <FaTimesCircle size={16} /> Từ chối
-                                </button>
-                              </>
-                            ) : project.pendingEdit ? (
-                              <>
-                                <button
-                                  onClick={() => approveEditProject(project._id)}
-                                  className="text-green-600 hover:text-green-800"
-                                  disabled={isSubmitting}
-                                >
-                                  <FaCheckCircle size={16} /> Duyệt sửa
-                                </button>
-                                <button
-                                  onClick={() => rejectEditProject(project._id)}
-                                  className="text-red-600 hover:text-red-800"
-                                  disabled={isSubmitting}
-                                >
-                                  <FaTimesCircle size={16} /> Từ chối sửa
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => approveDeleteProject(project._id)}
-                                  className="text-green-600 hover:text-green-800"
-                                  disabled={isSubmitting}
-                                >
-                                  <FaCheckCircle size={16} /> Duyệt xóa
-                                </button>
-                                <button
-                                  onClick={() => rejectDeleteProject(project._id)}
-                                  className="text-red-600 hover:text-red-800"
-                                  disabled={isSubmitting}
-                                >
-                                  <FaTimesCircle size={16} /> Từ chối xóa
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'rejected' && (
-        <div className="mt-2 mb-2">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Danh sách công trình bị từ chối</h2>
-          {rejectedProjects.length === 0 && !isLoading ? (
-            <p className="text-gray-600 text-center">Không có công trình nào bị từ chối.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full table-auto border-collapse">
-                <thead>
-                  <tr className="bg-blue-50">
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Tên công trình</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Loại công trình</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động bị từ chối</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Người từ chối</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Thời gian từ chối</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rejectedProjects.map(project => (
-                    <tr key={project._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                      <td className="p-4 text-gray-700">{project.projectName}</td>
-                      <td className="p-4 text-gray-700">{project.projectModel === 'CategoryProject' ? 'Danh mục' : 'Sửa chữa nhỏ'}</td>
-                      <td className="p-4 text-gray-700">{project.actionType === 'edit' ? 'Sửa' : project.actionType === 'delete' ? 'Xóa' : 'Thêm mới'}</td>
-                      <td className="p-4 text-gray-700">{project.rejectedBy?.username || 'Không xác định'}</td>
-                      <td className="p-4 text-gray-700">{new Date(project.rejectedAt).toLocaleString('vi-VN')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  return {
+    filteredProjects,
+    pendingProjects,
+    rejectedProjects,
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    sortOrder,
+    setSortOrder,
+    showFilter,
+    setShowFilter,
+    totalProjectsCount,
+    newProject,
+    setNewProject,
+    editProject,
+    setEditProject,
+    allocateWaves,
+    setAllocateWaves,
+    assignPersons,
+    setAssignPersons,
+    filterStatus,
+    setFilterStatus,
+    filterAllocatedUnit,
+    setFilterAllocatedUnit,
+    filterConstructionUnit,
+    setFilterConstructionUnit,
+    filterName,
+    setFilterName,
+    filterMinInitialValue,
+    setFilterMinInitialValue,
+    filterMaxInitialValue,
+    setFilterMaxInitialValue,
+    filterProgress,
+    setFilterProgress,
+    filterAllocationWave,
+    setFilterAllocationWave,
+    filterSupervisor,
+    setFilterSupervisor,
+    filterEstimator,
+    setFilterEstimator,
+    filterReportDate,
+    setFilterReportDate,
+    allocatedUnits,
+    constructionUnitsList,
+    allocationWavesList,
+    usersList,
+    showModal,
+    setShowModal,
+    isLoading,
+    isSubmitting,
+    activeTab,
+    setActiveTab,
+    initialNewProjectState,
+    fetchProjects,
+    fetchRejectedProjects,
+    debouncedFetchProjects,
+    handleSortChange,
+    handleResetFilters,
+    openAddNewModal,
+    openEditModal,
+    handleInputChange,
+    handleNumericInputChange,
+    saveProject,
+    deleteProject,
+    approveProject,
+    rejectProject,
+    allocateProject,
+    assignProject,
+    approveEditProject,
+    rejectEditProject,
+    approveDeleteProject,
+    rejectDeleteProject,
+  };
 }
 
-export default ProjectManagement;
+export default ProjectManagementLogic;

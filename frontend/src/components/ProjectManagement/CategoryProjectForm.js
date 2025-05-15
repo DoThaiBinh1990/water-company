@@ -1,12 +1,12 @@
 import Modal from 'react-modal';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from '../config';
+import { API_URL } from 'config';
 import { toast } from 'react-toastify';
 
 Modal.setAppElement('#root');
 
-function MinorRepairProjectForm({
+function CategoryProjectForm({
   showModal,
   setShowModal,
   isSubmitting,
@@ -17,12 +17,15 @@ function MinorRepairProjectForm({
   saveProject,
   user,
   allocatedUnits,
+  allocationWavesList,
+  constructionUnitsList,
+  usersList,
   initialNewProjectState,
   setNewProject,
-  usersList,
 }) {
   const [activeTab, setActiveTab] = useState('basic');
   const [approvers, setApprovers] = useState([]); // Danh sách người duyệt
+  const [projectTypes, setProjectTypes] = useState([]); // Danh sách loại công trình
 
   useEffect(() => {
     const fetchApprovers = async () => {
@@ -38,8 +41,20 @@ function MinorRepairProjectForm({
       }
     };
 
+    const fetchProjectTypes = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/project-types`);
+        setProjectTypes(response.data.map(type => type.name));
+      } catch (error) {
+        console.error("Lỗi tải danh sách loại công trình:", error);
+        toast.error("Không thể tải danh sách loại công trình!", { position: "top-center" });
+        setProjectTypes([]);
+      }
+    };
+
     if (showModal) {
       fetchApprovers();
+      fetchProjectTypes();
     }
   }, [showModal]);
 
@@ -85,7 +100,7 @@ function MinorRepairProjectForm({
     >
       <div className="modal-header">
         <h2 className="text-2xl font-semibold text-gray-800">
-          {editProject ? 'Sửa công trình sửa chữa nhỏ' : 'Thêm công trình sửa chữa nhỏ'}
+          {editProject ? 'Sửa công trình danh mục' : 'Thêm công trình danh mục'}
         </h2>
       </div>
 
@@ -150,7 +165,7 @@ function MinorRepairProjectForm({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#ef4444', fontWeight: '500' }}>
-                  Tên công trình <span className="text-red-500">*</span>
+                  Tên danh mục <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -215,37 +230,44 @@ function MinorRepairProjectForm({
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Địa điểm
+                <label className="form-label" style={{ color: '#ef4444', fontWeight: '500' }}>
+                  Loại công trình <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={newProject.location}
+                <select
+                  name="projectType"
+                  value={newProject.projectType}
                   onChange={handleInputChange}
-                  className="form-input"
+                  className="form-select"
+                  required
                   disabled={isSubmitting}
                   style={{
-                    border: '2px solid #e5e7eb',
+                    border: '2px solid #fee2e2',
                     borderRadius: '8px',
                     padding: '8px',
                     width: '100%',
                     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                    e.target.style.borderColor = '#f87171';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.borderColor = '#fee2e2';
                     e.target.style.boxShadow = 'none';
                   }}
-                />
+                >
+                  <option value="">Chọn loại công trình</option>
+                  {projectTypes.map((type, index) => (
+                    <option key={index} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Quy mô
+                <label className="form-label" style={{ color: '#ef4444', fontWeight: '500' }}>
+                  Quy mô <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -253,49 +275,51 @@ function MinorRepairProjectForm({
                   value={newProject.scale}
                   onChange={handleInputChange}
                   className="form-input"
+                  required
                   disabled={isSubmitting}
                   style={{
-                    border: '2px solid #e5e7eb',
+                    border: '2px solid #fee2e2',
                     borderRadius: '8px',
                     padding: '8px',
                     width: '100%',
                     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                    e.target.style.borderColor = '#f87171';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.borderColor = '#fee2e2';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Ngày xảy ra sự cố
+                <label className="form-label" style={{ color: '#ef4444', fontWeight: '500' }}>
+                  Địa điểm XD <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="date"
-                  name="reportDate"
-                  value={newProject.reportDate}
+                  type="text"
+                  name="location"
+                  value={newProject.location}
                   onChange={handleInputChange}
                   className="form-input"
+                  required
                   disabled={isSubmitting}
                   style={{
-                    border: '2px solid #e5e7eb',
+                    border: '2px solid #fee2e2',
                     borderRadius: '8px',
                     padding: '8px',
                     width: '100%',
                     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                    e.target.style.borderColor = '#f87171';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.borderColor = '#fee2e2';
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -342,11 +366,81 @@ function MinorRepairProjectForm({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Phân bổ đợt
+                </label>
+                <select
+                  name="allocationWave"
+                  value={newProject.allocationWave}
+                  onChange={handleInputChange}
+                  className="form-select"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  <option value="">Chọn đợt</option>
+                  {allocationWavesList.map((wave, index) => (
+                    <option key={index} value={wave}>
+                      {wave}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Người lập hồ sơ dự toán
+                </label>
+                <select
+                  name="estimator"
+                  value={newProject.estimator}
+                  onChange={handleInputChange}
+                  className="form-select"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  <option value="">Chọn nhân viên</option>
+                  {usersList.map((user, index) => (
+                    <option key={index} value={user}>
+                      {user}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
                   Người theo dõi
                 </label>
                 <select
                   name="supervisor"
-                  value={newProject.supervisor || ''}
+                  value={newProject.supervisor}
                   onChange={handleInputChange}
                   className="form-select"
                   disabled={isSubmitting}
@@ -367,7 +461,7 @@ function MinorRepairProjectForm({
                   }}
                 >
                   <option value="">Chọn người theo dõi</option>
-                  {(Array.isArray(usersList) ? usersList : []).map((user, index) => (
+                  {usersList.map((user, index) => (
                     <option key={index} value={user}>
                       {user}
                     </option>
@@ -375,105 +469,14 @@ function MinorRepairProjectForm({
                 </select>
               </div>
 
-              <div style={{ marginBottom: '16px', gridColumn: 'span 2' }}>
-                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Bút phê lãnh đạo
-                </label>
-                <textarea
-                  name="leadershipApproval"
-                  value={newProject.leadershipApproval}
-                  onChange={handleInputChange}
-                  className="form-textarea"
-                  disabled={isSubmitting}
-                  style={{
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '8px',
-                    width: '100%',
-                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                    minHeight: '80px',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'progress' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Ngày kiểm tra
-                </label>
-                <input
-                  type="date"
-                  name="inspectionDate"
-                  value={newProject.inspectionDate}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  disabled={isSubmitting}
-                  style={{
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '8px',
-                    width: '100%',
-                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Ngày thanh toán
-                </label>
-                <input
-                  type="date"
-                  name="paymentDate"
-                  value={newProject.paymentDate}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  disabled={isSubmitting}
-                  style={{
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '8px',
-                    width: '100%',
-                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Giá trị thanh toán (VND)
+                  Số ngày thực hiện
                 </label>
                 <input
                   type="text"
-                  name="paymentValue"
-                  value={newProject.paymentValue}
+                  name="durationDays"
+                  value={newProject.durationDays}
                   onChange={handleNumericInputChange}
                   className="form-input"
                   disabled={isSubmitting}
@@ -495,7 +498,278 @@ function MinorRepairProjectForm({
                 />
               </div>
 
-              <div style={{ marginBottom: '16px', gridColumn: 'span 2' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Ngày bắt đầu lập hs dự toán
+                </label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={newProject.startDate}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Ngày hoàn thành hs dự toán
+                </label>
+                <input
+                  type="date"
+                  name="completionDate"
+                  value={newProject.completionDate}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Bút phê lãnh đạo
+                </label>
+                <input
+                  type="text"
+                  name="leadershipApproval"
+                  value={newProject.leadershipApproval}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'progress' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Giá trị phân bổ (Triệu đồng)
+                </label>
+                <input
+                  type="text"
+                  name="initialValue"
+                  value={newProject.initialValue}
+                  onChange={handleNumericInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Giá trị dự toán (Triệu đồng)
+                </label>
+                <input
+                  type="text"
+                  name="estimatedValue"
+                  value={newProject.estimatedValue}
+                  onChange={handleNumericInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Giá trị giao khoán (Triệu đồng)
+                </label>
+                <input
+                  type="text"
+                  name="contractValue"
+                  value={newProject.contractValue}
+                  onChange={handleNumericInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Đơn vị thi công
+                </label>
+                <select
+                  name="constructionUnit"
+                  value={newProject.constructionUnit}
+                  onChange={handleInputChange}
+                  className="form-select"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  <option value="">Chọn đơn vị</option>
+                  {constructionUnitsList.map((unit, index) => (
+                    <option key={index} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Tiến độ thi công
+                </label>
+                <input
+                  type="text"
+                  name="progress"
+                  value={newProject.progress}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
+                  Khả năng thực hiện
+                </label>
+                <input
+                  type="text"
+                  name="feasibility"
+                  value={newProject.feasibility}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  disabled={isSubmitting}
+                  style={{
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    width: '100%',
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#60a5fa';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
                   Ghi chú
                 </label>
@@ -543,7 +817,7 @@ function MinorRepairProjectForm({
         <button
           onClick={handleSaveClick}
           className="bg-blue-500 text-white text-lg font-semibold py-3 px-8 rounded-lg border border-blue-600 shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isSubmitting || !newProject.name || !newProject.allocatedUnit}
+          disabled={isSubmitting || !newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location}
         >
           {isSubmitting ? 'Đang lưu...' : editProject ? 'Cập nhật' : 'Lưu'}
         </button>
@@ -552,4 +826,4 @@ function MinorRepairProjectForm({
   );
 }
 
-export default MinorRepairProjectForm;
+export default CategoryProjectForm;

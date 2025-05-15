@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import ProjectManagement from './pages/ProjectManagement';
+import ProjectManagement from './components/ProjectManagement/ProjectManagement';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import { API_URL } from './config';
