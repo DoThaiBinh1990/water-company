@@ -173,6 +173,7 @@
     @apply text-center;
   }
 
+  /* Cột cố định trên PC */
   .table-fixed th.sticky-col-1,
   .table-fixed td.sticky-col-1 {
     @apply sticky left-0 z-30;
@@ -193,7 +194,7 @@
   .table-fixed th.sticky-col-2,
   .table-fixed td.sticky-col-2 {
     @apply sticky z-20;
-    left: 60px;
+    left: 40px;
   }
   .table-fixed th.sticky-col-2 {
     @apply bg-[var(--primary)];
@@ -315,7 +316,7 @@
   /* === Responsive Table Styles === */
   @media (max-width: 768px) {
     .table-container {
-      @apply overflow-x-hidden;
+      @apply overflow-x-auto;
     }
     .table-fixed {
       @apply block w-full;
@@ -361,6 +362,29 @@
     }
     .pagination-mobile button.bg-[var(--primary)] {
       @apply bg-[var(--primary)] text-white border-[var(--primary)];
+    }
+
+    /* Bỏ cố định cột trên mobile */
+    .table-fixed th.sticky-col-1,
+    .table-fixed td.sticky-col-1 {
+      position: static !important;
+      left: auto !important;
+      z-index: auto !important;
+      box-shadow: none !important;
+    }
+    .table-fixed th.sticky-col-2,
+    .table-fixed td.sticky-col-2 {
+      position: static !important;
+      left: auto !important;
+      z-index: auto !important;
+      box-shadow: none !important;
+    }
+    .table-fixed th.sticky-col-last,
+    .table-fixed td.sticky-col-last {
+      position: static !important;
+      right: auto !important;
+      z-index: auto !important;
+      box-shadow: none !important;
     }
   }
 

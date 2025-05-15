@@ -301,7 +301,8 @@ function App() {
                 setIsProcessingNotificationAction={setIsProcessingNotificationAction}
                 showHeader={showHeader}
                 toggleHeader={() => setShowHeader(!showHeader)}
-                isSidebarOpen={isSidebarOpen} // Truyền trạng thái Sidebar xuống Header
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
               />
               <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] p-6 md:p-8 lg:p-10 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-16'} ${showHeader ? 'pt-16 md:pt-12' : 'pt-0 md:pt-12'}`}>
                 <Routes>

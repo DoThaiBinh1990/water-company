@@ -518,24 +518,17 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
   };
 
   const saveProject = async () => {
+    // Kiểm tra các trường bắt buộc riêng biệt cho từng loại công trình
     if (isCategory) {
+      // Công trình danh mục: các trường bắt buộc
       if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location) {
         toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, và Địa điểm XD!', { position: "top-center" });
         return;
       }
     } else {
-      if (
-        !newProject.name ||
-        !newProject.allocatedUnit ||
-        !newProject.location ||
-        !newProject.scale ||
-        !newProject.reportDate ||
-        !newProject.approvedBy
-      ) {
-        toast.error(
-          'Vui lòng nhập đầy đủ các trường bắt buộc trong tab Cơ bản: Tên công trình, Đơn vị phân bổ, Địa điểm, Quy mô, Ngày xảy ra sự cố, và Người phê duyệt!',
-          { position: "top-center" }
-        );
+      // Công trình sửa chữa nhỏ: các trường bắt buộc
+      if (!newProject.name || !newProject.allocatedUnit || !newProject.location || !newProject.scale || !newProject.reportDate || !newProject.approvedBy) {
+        toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên công trình, Đơn vị phân bổ, Địa điểm, Quy mô, Ngày xảy ra sự cố, và Người phê duyệt!', { position: "top-center" });
         return;
       }
     }
@@ -544,6 +537,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     let projectPayload = { ...newProject, type };
     console.log("Dữ liệu gửi đi để lưu công trình:", projectPayload);
 
+    // Xử lý các trường số
     const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue', 'estimatedValue'];
     const numericFieldsMinor = ['paymentValue'];
     const fieldsToParse = isCategory ? numericFieldsCategory : numericFieldsMinor;
@@ -561,9 +555,10 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       projectPayload.durationDays = parseInt(projectPayload.durationDays, 10) || null;
     }
 
+    // Loại bỏ các trường không cần thiết cho từng loại công trình
     const fieldsToRemove = isCategory
       ? ['serial', 'reportDate', 'inspectionDate', 'paymentDate', 'paymentValue', 'minorRepairSerialNumber']
-      : ['constructionUnit', 'allocationWave', 'location', 'scale', 'initialValue', 'estimator', 'durationDays', 'startDate', 'completionDate', 'contractValue', 'progress', 'feasibility', 'projectType', 'estimatedValue', 'leadershipApproval', 'categorySerialNumber'];
+      : ['constructionUnit', 'allocationWave', 'estimator', 'durationDays', 'startDate', 'completionDate', 'contractValue', 'progress', 'feasibility', 'projectType', 'estimatedValue', 'categorySerialNumber'];
     fieldsToRemove.forEach(field => delete projectPayload[field]);
 
     if (!isCategory && !editProject) {

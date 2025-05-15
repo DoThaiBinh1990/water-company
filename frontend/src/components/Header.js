@@ -19,9 +19,8 @@ function Header({
   rejectDeleteAction,
   isProcessingNotificationAction,
   setIsProcessingNotificationAction,
-  showHeader,
-  toggleHeader,
-  isSidebarOpen, // Trạng thái Sidebar để Header co giãn
+  isSidebarOpen,
+  setIsSidebarOpen,
 }) {
   const handleAction = async (actionCallback, projectId) => {
     if (isProcessingNotificationAction) return;
@@ -45,15 +44,20 @@ function Header({
 
   return (
     <>
-      {/* Header chính */}
-      <header className={`bg-gradient-to-r from-blue-800 to-blue-600 shadow-lg h-12 px-4 flex justify-between items-center fixed top-0 z-[1000] transition-all duration-300 ${showHeader ? 'opacity-100 translate-y-0' : 'opacity-0 h-0 overflow-hidden md:opacity-100 md:h-12 md:overflow-visible'} ${isSidebarOpen ? 'left-0 md:left-64 md:right-0' : 'left-0 md:left-16 md:right-0'}`}>
+      <header className={`bg-gradient-to-r from-blue-800 to-blue-600 shadow-lg h-12 px-4 flex justify-between items-center fixed top-0 z-[1000] transition-all duration-300 left-0 right-0 ${isSidebarOpen ? 'md:left-64' : 'md:left-16'}`}>
         <div className="flex items-center gap-2">
           <button
             className="md:hidden p-2 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-all duration-200 transform hover:scale-105"
-            onClick={toggleHeader}
-            aria-label={showHeader ? "Ẩn header" : "Hiện header"}
+            onClick={() => {
+              if (typeof setIsSidebarOpen === 'function') {
+                setIsSidebarOpen(!isSidebarOpen);
+              } else {
+                console.error("Header Error: setIsSidebarOpen prop is not a function or is undefined.");
+              }
+            }}
+            aria-label={isSidebarOpen ? "Đóng menu" : "Mở menu"}
           >
-            {showHeader ? <FaTimes size={16} /> : <FaBars size={16} />}
+            {isSidebarOpen ? <FaTimes size={16} /> : <FaBars size={16} />}
           </button>
           <h1 className="text-base md:text-lg font-bold text-white">Phần mềm quản lý công việc</h1>
         </div>
@@ -89,7 +93,6 @@ function Header({
         </div>
       </header>
 
-      {/* Modal Thông báo - Giữ nguyên giao diện gốc */}
       <Modal
         isOpen={showNotificationsModal}
         onRequestClose={() => { if (!isProcessingNotificationAction) setShowNotificationsModal(false); }}
