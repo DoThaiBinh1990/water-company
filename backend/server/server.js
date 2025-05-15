@@ -35,6 +35,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Khởi tạo Socket.IO
 const io = socketIo(server, { cors: corsOptions });
 
 // Kết nối MongoDB
@@ -46,16 +47,18 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('Client disconnected:', socket.id));
 });
 
+// Đảm bảo middleware luôn gắn io vào req
+app.use((req, res, next) => {
+  if (!req.io) {
+    req.io = io;
+  }
+  next();
+});
+
 // Đăng ký các routes
 app.use('/api', authRoutes);
 app.use('/api', projectRoutes);
 app.use('/api', syncRoutes);
-
-// Truyền io vào các route để sử dụng Socket.IO
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
 
 const port = process.env.PORT || 5000;
 server.listen(port, () => {

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 // SerialCounter Schema
 const serialCounterSchema = new mongoose.Schema({
@@ -25,7 +26,11 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre('save', function (next) {
+// Mã hóa mật khẩu trước khi lưu
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
   if (this.role === 'admin') {
     this.permissions = {
       add: true,
@@ -122,12 +127,12 @@ const minorRepairProjectSchema = new mongoose.Schema({
   constructionUnit: { type: String, default: '', trim: true },
   allocationWave: { type: String, default: '', trim: true },
   location: { type: String, required: true, trim: true },
-  scale: { type: String, required: true, trim: true }, // Thêm trường Quy mô
-  reportDate: { type: Date, required: true }, // Thêm trường Ngày xảy ra sự cố
-  inspectionDate: { type: Date }, // Thêm trường Ngày kiểm tra
-  paymentDate: { type: Date }, // Thêm trường Ngày thanh toán
-  paymentValue: { type: Number, default: 0 }, // Thêm trường Giá trị thanh toán
-  leadershipApproval: { type: String, default: '', trim: true }, // Thêm trường Bút phê lãnh đạo
+  scale: { type: String, default: '' }, // Bỏ required
+  reportDate: { type: Date }, // Bỏ required
+  inspectionDate: { type: Date },
+  paymentDate: { type: Date },
+  paymentValue: { type: Number, default: 0 },
+  leadershipApproval: { type: String, default: '', trim: true },
   initialValue: { type: Number, default: 0 },
   enteredBy: { type: String, required: true, trim: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

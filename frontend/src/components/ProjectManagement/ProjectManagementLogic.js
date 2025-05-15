@@ -174,7 +174,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
           setPendingProjects(finalProjects);
         } else {
           finalProjects = filteredData.filter(project =>
-            project.status === 'Đã duyệt' && !project.pendingEdit && !project.pendingDelete
+            (project.status === 'Đã duyệt' && !project.pendingEdit && !project.pendingDelete) ||
+            (project.status === 'Chờ duyệt' && project.enteredBy === user.username)
           );
           setFilteredProjects(finalProjects);
           setTotalProjectsCount(projectsRes.data.total || 0);
@@ -509,12 +510,14 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   };
 
   const saveProject = async () => {
+    // Kiểm tra các trường bắt buộc cho cả tạo mới và cập nhật
     if (isCategory) {
       if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location) {
         toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, và Địa điểm XD!', { position: "top-center" });
         return;
       }
     } else {
+      // Áp dụng kiểm tra cho cả tạo mới và cập nhật
       if (!newProject.name || !newProject.allocatedUnit || !newProject.location || !newProject.scale || !newProject.reportDate || !newProject.approvedBy) {
         toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên công trình, Đơn vị phân bổ, Địa điểm, Quy mô, Ngày xảy ra sự cố, và Người phê duyệt!', { position: "top-center" });
         return;
@@ -568,14 +571,26 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         fetchPage = 1;
       }
 
-      toast.success(successMessage, { position: "top-center" });
+      toast.success(successMessage + ' Công trình đang ở trạng thái "Chờ duyệt".', { position: "top-center" });
 
       setNewProject(initialNewProjectState());
 
       if (fetchPage !== currentPage) {
         setCurrentPage(fetchPage);
       } else {
-        fetchProjects(currentPage, sortOrder, {}, false);
+        fetchProjects(fetchPage, sortOrder, {
+          status: filterStatus,
+          allocatedUnit: filterAllocatedUnit,
+          constructionUnit: filterConstructionUnit,
+          name: filterName,
+          minInitialValue: filterMinInitialValue,
+          maxInitialValue: filterMaxInitialValue,
+          progress: filterProgress,
+          allocationWave: filterAllocationWave,
+          supervisor: filterSupervisor,
+          estimator: filterEstimator,
+          reportDate: filterReportDate,
+        }, false);
         fetchProjects(1, sortOrder, {}, true);
       }
 

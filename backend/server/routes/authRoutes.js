@@ -9,16 +9,21 @@ router.get('/auth/me', authenticate, (req, res) => {
   res.json({ user: req.user });
 });
 
-router.post('/auth/login', async (req, res) => {
+// Sửa từ '/auth/login' thành '/login'
+router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) { return res.status(400).json({ message: 'Tên đăng nhập và mật khẩu không được để trống' }); }
+    if (!username || !password) { 
+      return res.status(400).json({ message: 'Tên đăng nhập và mật khẩu không được để trống' }); 
+    }
     const user = await User.findOne({ username });
     if (!user) return res.status(400).json({ message: 'Tài khoản không tồn tại' });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Mật khẩu không đúng' });
     let userPermissions = user.permissions;
-    if (user.role === 'admin') { userPermissions = { add: true, edit: true, delete: true, approve: true }; }
+    if (user.role === 'admin') { 
+      userPermissions = { add: true, edit: true, delete: true, approve: true }; 
+    }
     const token = jwt.sign({ 
       id: user._id, 
       role: user.role, 
