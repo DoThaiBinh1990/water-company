@@ -48,6 +48,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingAction, setIsSubmittingAction] = useState(false); // State cho các hành động trên bảng
   const [activeTab, setActiveTab] = useState('projects');
 
   const initialFilters = useMemo(() => ({
@@ -166,17 +167,11 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         const filteredData = projectsRes.data.projects || [];
         let finalProjects = filteredData;
 
-        if (isPending) {
-          finalProjects = filteredData.filter(project =>
-            project.status === 'Chờ duyệt' ||
-            (project.status === 'Đã duyệt' && (project.pendingEdit || project.pendingDelete))
-          );
+        if (isPending) { // Backend already filters based on 'pending=true'
           setPendingProjects(finalProjects);
         } else {
-          finalProjects = filteredData.filter(project =>
-            (project.status === 'Đã duyệt' && !project.pendingEdit && !project.pendingDelete) ||
-            (project.status === 'Chờ duyệt' && project.enteredBy === user.username)
-          );
+          // The main list might still need some client-side filtering if backend default isn't precise enough
+          // For now, assume backend provides the correct list for the 'projects' tab based on its default filters
           setFilteredProjects(finalProjects);
           setTotalProjectsCount(projectsRes.data.total || 0);
           setTotalPages(projectsRes.data.pages || 1);
@@ -512,8 +507,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const saveProject = async () => {
     // Kiểm tra các trường bắt buộc cho cả tạo mới và cập nhật
     if (isCategory) {
-      if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location) {
-        toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, và Địa điểm XD!', { position: "top-center" });
+      if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location || !newProject.approvedBy) {
+        toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, Địa điểm XD, và Người phê duyệt!', { position: "top-center" });
         return;
       }
     } else {
@@ -604,6 +599,62 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     }
   };
 
+  const restoreRejectedProject = async (rejectedId, projectDetails, projectModel, originalProjectId, actionType) => {
+    if (!window.confirm('Bạn có chắc chắn muốn khôi phục công trình này? Công trình sẽ được duyệt và chuyển vào danh sách chính.')) {
+      return;
+    }
+    setIsSubmittingAction(true);
+    try {
+      // Backend cần xử lý:
+      // Frontend chỉ cần gửi ID của rejected entry. Backend sẽ tự lấy thông tin cần thiết.
+      // Tuy nhiên, để giữ nguyên cấu trúc hiện tại, ta vẫn gửi các tham số này,
+      // backend có thể dùng chúng hoặc lấy trực tiếp từ rejectedEntry.
+      // Quan trọng là backend sẽ tạo mới công trình trong bảng gốc với status 'Đã duyệt'
+      // và xóa entry khỏi bảng rejected.
+      const response = await axios.post(`${API_URL}/api/rejected-projects/${rejectedId}/restore`, {
+        // Các tham số này có thể không cần thiết nếu backend tự lấy từ rejectedId
+        // nhưng để an toàn, ta vẫn gửi nếu backend hiện tại đang dùng.
+        // Nếu backend đã được sửa để chỉ cần rejectedId, có thể bỏ các tham số này.
+        projectDetails,
+        projectModel,
+        originalProjectId,
+        actionType
+      });
+      toast.success('Công trình đã được khôi phục và duyệt thành công!');
+      fetchRejectedProjects(); // Tải lại danh sách bị từ chối
+      // Tải lại danh sách chính và danh sách chờ duyệt, về trang 1 và sắp xếp mặc định
+      fetchProjects(1, sortOrder, {}, false); // Sử dụng sortOrder hiện tại hoặc mặc định
+      if (user?.permissions?.approve) {
+        fetchProjects(1, sortOrder, {}, true);
+      }
+    } catch (error) {
+      console.error("Error restoring project:", error);
+      toast.error(error.response?.data?.message || 'Lỗi khôi phục công trình.');
+    } finally {
+      setIsSubmittingAction(false);
+    }
+  };
+
+  const permanentlyDeleteRejectedProject = async (rejectedId) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn công trình bị từ chối này? Hành động này không thể hoàn tác.')) {
+      setIsSubmittingAction(true);
+      try {
+        // Backend cần có API để xóa vĩnh viễn từ collection RejectedProject
+        await axios.delete(`${API_URL}/api/rejected-projects/${rejectedId}`);
+        toast.success('Công trình bị từ chối đã được xóa vĩnh viễn.');
+        setRejectedProjects(prev => prev.filter(p => p._id !== rejectedId));
+      } catch (error) {
+        console.error("Error permanently deleting rejected project:", error);
+        toast.error(error.response?.data?.message || 'Lỗi xóa vĩnh viễn công trình bị từ chối.');
+      } finally {
+        setIsSubmittingAction(false);
+      }
+    }
+  };
+
+
+
+
   const handleActionWithConfirm = async (actionPromise, successMessage, confirmMessage = "Bạn có chắc chắn?") => {
     if (window.confirm(confirmMessage)) {
       setIsSubmitting(true);
@@ -678,21 +729,21 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const rejectEditProject = (id) =>
     handleActionWithConfirm(
       () => axios.patch(`${API_URL}/api/projects/${id}/reject-edit?type=${type}`),
-      'Đã từ chối yêu cầu sửa!',
+      'Đã từ chối yêu cầu sửa. Công trình trở lại trạng thái đã duyệt.',
       "Xác nhận TỪ CHỐI yêu cầu sửa công trình này?"
     );
 
   const approveDeleteProject = (id) =>
     handleActionWithConfirm(
       () => axios.patch(`${API_URL}/api/projects/${id}/approve-delete?type=${type}`),
-      'Đã duyệt yêu cầu xóa!',
+      'Đã duyệt yêu cầu xóa. Công trình sẽ bị xóa sau khi quản trị viên xác nhận.', // Hoặc 'Công trình đã được xóa!' nếu xóa ngay
       "Xác nhận DUYỆT yêu cầu xóa công trình này?"
     );
 
   const rejectDeleteProject = (id) =>
     handleActionWithConfirm(
       () => axios.patch(`${API_URL}/api/projects/${id}/reject-delete?type=${type}`),
-      'Đã từ chối yêu cầu xóa!',
+      'Đã từ chối yêu cầu xóa. Công trình trở lại trạng thái đã duyệt.',
       "Xác nhận TỪ CHỐI yêu cầu xóa công trình này?"
     );
 
@@ -768,6 +819,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     rejectEditProject,
     approveDeleteProject,
     rejectDeleteProject,
+    restoreRejectedProject, // Thêm hàm mới
+    permanentlyDeleteRejectedProject, // Thêm hàm mới
   };
 }
 

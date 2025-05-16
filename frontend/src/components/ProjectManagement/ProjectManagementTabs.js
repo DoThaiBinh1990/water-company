@@ -5,16 +5,6 @@ function ProjectManagementTabs({
   setActiveTab,
   isLoading,
   isSubmitting,
-  pendingProjects,
-  rejectedProjects,
-  user,
-  isCategory,
-  approveProject,
-  rejectProject,
-  approveEditProject,
-  rejectEditProject,
-  approveDeleteProject,
-  rejectDeleteProject,
 }) {
   return (
     <div className="flex flex-wrap gap-4 border-b mb-2">

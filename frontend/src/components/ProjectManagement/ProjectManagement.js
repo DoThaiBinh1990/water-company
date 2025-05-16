@@ -7,6 +7,7 @@ import CategoryProjectForm from './CategoryProjectForm';
 import MinorRepairProjectForm from './MinorRepairProjectForm';
 import CategoryProjectTable from './CategoryProjectTable';
 import MinorRepairProjectTable from './MinorRepairProjectTable';
+import RejectedProjectTable from './RejectedProjectTable';
 
 function ProjectManagement({ user, type, showHeader, addMessage }) {
   const {
@@ -69,6 +70,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     rejectEditProject,
     approveDeleteProject,
     rejectDeleteProject,
+    restoreRejectedProject, // Lấy hàm mới
+    permanentlyDeleteRejectedProject, // Lấy hàm mới
   } = ProjectManagementLogic({ user, type, showHeader, addMessage });
 
   const isCategory = type === 'category';
@@ -182,16 +185,6 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         setActiveTab={setActiveTab}
         isLoading={isLoading}
         isSubmitting={isSubmitting}
-        pendingProjects={pendingProjects}
-        rejectedProjects={rejectedProjects}
-        user={user}
-        isCategory={isCategory}
-        approveProject={approveProject}
-        rejectProject={rejectProject}
-        approveEditProject={approveEditProject}
-        rejectEditProject={rejectEditProject}
-        approveDeleteProject={approveDeleteProject}
-        rejectDeleteProject={rejectDeleteProject}
       />
 
       {activeTab === 'projects' && (
@@ -282,6 +275,64 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
             />
           )}
         </>
+      )}
+
+      {activeTab === 'pending' && (
+        isCategory ? (
+          <CategoryProjectTable
+            filteredProjects={pendingProjects}
+            user={user}
+            isSubmitting={isSubmitting}
+            openEditModal={openEditModal} // Sửa/xem chi tiết công trình đang chờ duyệt
+            approveProject={approveProject}
+            rejectProject={rejectProject}
+            approveEditProject={approveEditProject}
+            rejectEditProject={rejectEditProject}
+            approveDeleteProject={approveDeleteProject}
+            rejectDeleteProject={rejectDeleteProject}
+            // Các props không dùng cho tab pending
+            // deleteProject, allocateProject, assignProject, allocateWaves, setAllocateWaves, assignPersons, setAssignPersons
+            isLoading={isLoading}
+            totalPages={1} // Giả định pendingProjects là danh sách đầy đủ hoặc trang đầu tiên
+            currentPage={1}
+            setCurrentPage={() => {}} // Không có phân trang riêng cho tab này (hiện tại)
+            totalProjectsCount={pendingProjects.length}
+            // allocationWavesList={allocationWavesList} // Không cần thiết cho tab này
+            isPendingTab={true} // Flag để table biết đây là tab pending
+          />
+        ) : (
+          <MinorRepairProjectTable
+            filteredProjects={pendingProjects}
+            user={user}
+            isSubmitting={isSubmitting}
+            openEditModal={openEditModal}
+            approveProject={approveProject}
+            rejectProject={rejectProject}
+            approveEditProject={approveEditProject}
+            rejectEditProject={rejectEditProject}
+            approveDeleteProject={approveDeleteProject}
+            rejectDeleteProject={rejectDeleteProject}
+            // Các props không dùng cho tab pending
+            // deleteProject, assignProject, assignPersons, setAssignPersons
+            isLoading={isLoading}
+            totalPages={1}
+            currentPage={1}
+            setCurrentPage={() => {}}
+            totalProjectsCount={pendingProjects.length}
+            isPendingTab={true} // Flag để table biết đây là tab pending
+          />
+        )
+      )}
+
+      {activeTab === 'rejected' && (
+        <RejectedProjectTable
+          rejectedProjects={rejectedProjects}
+          isLoading={isLoading}
+          user={user}
+          type={type} // Để RejectedProjectTable có thể lọc theo type nếu cần
+          restoreRejectedProject={restoreRejectedProject} // Truyền hàm mới
+          permanentlyDeleteRejectedProject={permanentlyDeleteRejectedProject} // Truyền hàm mới
+        />
       )}
     </div>
   );

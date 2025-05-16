@@ -59,7 +59,6 @@ function CategoryProjectForm({
   }, [showModal]);
 
   const handleSaveClick = () => {
-    console.log("Nút Lưu được nhấn, gọi hàm saveProject...");
     saveProject();
   };
 
@@ -327,7 +326,7 @@ function CategoryProjectForm({
 
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Người phê duyệt
+                  Người phê duyệt <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="approvedBy"
@@ -335,8 +334,9 @@ function CategoryProjectForm({
                   onChange={handleInputChange}
                   className="form-select"
                   disabled={isSubmitting}
+                  required
                   style={{
-                    border: '2px solid #e5e7eb',
+                    border: '2px solid #fee2e2', // Mark as required style
                     borderRadius: '8px',
                     padding: '8px',
                     width: '100%',
@@ -344,10 +344,10 @@ function CategoryProjectForm({
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#60a5fa';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(96, 165, 250, 0.1)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.1)';
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.borderColor = '#fee2e2';
                     e.target.style.boxShadow = 'none';
                   }}
                 >
@@ -805,7 +805,6 @@ function CategoryProjectForm({
       <div className="modal-footer flex justify-end gap-6">
         <button
           onClick={() => {
-            console.log("Nút Hủy được nhấn...");
             setShowModal(false);
             setNewProject(initialNewProjectState());
           }}
@@ -817,7 +816,7 @@ function CategoryProjectForm({
         <button
           onClick={handleSaveClick}
           className="bg-blue-500 text-white text-lg font-semibold py-3 px-8 rounded-lg border border-blue-600 shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isSubmitting || !newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location}
+          disabled={isSubmitting || !newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location || !newProject.approvedBy}
         >
           {isSubmitting ? 'Đang lưu...' : editProject ? 'Cập nhật' : 'Lưu'}
         </button>

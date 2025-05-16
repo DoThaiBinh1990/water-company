@@ -44,7 +44,6 @@ function MinorRepairProjectForm({
   }, [showModal]);
 
   const handleSaveClick = () => {
-    console.log("Nút Lưu được nhấn, gọi hàm saveProject...");
     saveProject();
   };
 
@@ -216,7 +215,7 @@ function MinorRepairProjectForm({
 
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Địa điểm
+                  Địa điểm <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -224,6 +223,7 @@ function MinorRepairProjectForm({
                   value={newProject.location}
                   onChange={handleInputChange}
                   className="form-input"
+                  required
                   disabled={isSubmitting}
                   style={{
                     border: '2px solid #e5e7eb',
@@ -245,13 +245,14 @@ function MinorRepairProjectForm({
 
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Quy mô
+                  Quy mô <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="scale"
                   value={newProject.scale}
                   onChange={handleInputChange}
+                  required
                   className="form-input"
                   disabled={isSubmitting}
                   style={{
@@ -274,13 +275,14 @@ function MinorRepairProjectForm({
 
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Ngày xảy ra sự cố
+                  Ngày xảy ra sự cố <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
                   name="reportDate"
                   value={newProject.reportDate}
                   onChange={handleInputChange}
+                  required
                   className="form-input"
                   disabled={isSubmitting}
                   style={{
@@ -303,13 +305,14 @@ function MinorRepairProjectForm({
 
               <div style={{ marginBottom: '16px' }}>
                 <label className="form-label" style={{ color: '#374151', fontWeight: '500' }}>
-                  Người phê duyệt
+                  Người phê duyệt <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="approvedBy"
                   value={newProject.approvedBy || ''}
                   onChange={handleInputChange}
                   className="form-select"
+                  required
                   disabled={isSubmitting}
                   style={{
                     border: '2px solid #e5e7eb',
@@ -531,7 +534,6 @@ function MinorRepairProjectForm({
       <div className="modal-footer flex justify-end gap-6">
         <button
           onClick={() => {
-            console.log("Nút Hủy được nhấn...");
             setShowModal(false);
             setNewProject(initialNewProjectState());
           }}
@@ -543,7 +545,7 @@ function MinorRepairProjectForm({
         <button
           onClick={handleSaveClick}
           className="bg-blue-500 text-white text-lg font-semibold py-3 px-8 rounded-lg border border-blue-600 shadow-md hover:bg-blue-600 hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isSubmitting || !newProject.name || !newProject.allocatedUnit}
+          disabled={isSubmitting || !newProject.name || !newProject.allocatedUnit || !newProject.location || !newProject.scale || !newProject.reportDate || !newProject.approvedBy}
         >
           {isSubmitting ? 'Đang lưu...' : editProject ? 'Cập nhật' : 'Lưu'}
         </button>
