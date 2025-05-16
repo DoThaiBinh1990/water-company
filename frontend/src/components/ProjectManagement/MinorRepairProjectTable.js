@@ -115,7 +115,7 @@ function MinorRepairProjectTable({
     if (value === null || value === undefined || isNaN(value)) {
       return 'N/A';
     }
-    return `${Number(value).toLocaleString('vi-VN')} VND`;
+    return `${Number(value).toLocaleString('vi-VN')} Tr.đ`;
   };
 
   // Helper function to safely get nested property
@@ -158,10 +158,10 @@ function MinorRepairProjectTable({
       <div className="table-container">
         <table className="table-fixed">
           <thead>
-            <tr>{Array(17).fill().map((_, idx) => (<th key={idx}><div className="skeleton h-6 w-full rounded"></div></th>))}</tr>
+            <tr>{Array(16).fill().map((_, idx) => (<th key={idx}><div className="skeleton h-6 w-full rounded"></div></th>))}</tr> {/* Reduced skeleton columns */}
           </thead>
           <tbody>
-            {Array(5).fill().map((_, rowIdx) => (<tr key={rowIdx}>{Array(17).fill().map((_, colIdx) => (<td key={colIdx}><div className="skeleton h-6 w-full rounded"></div></td>))}</tr>))}
+            {Array(5).fill().map((_, rowIdx) => (<tr key={rowIdx}>{Array(16).fill().map((_, colIdx) => (<td key={colIdx}><div className="skeleton h-6 w-full rounded"></div></td>))}</tr>))}
           </tbody>
         </table>
       </div>
@@ -245,19 +245,19 @@ function MinorRepairProjectTable({
           <thead>
             <tr>
               <th className="sticky-col-1" style={{ width: '40px', position: 'sticky', top: 0, left: 0, backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 40 }}>STT</th>
-              <th className="sticky-col-2" style={{ width: '200px', position: 'sticky', top: 0, left: '40px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 30 }}>Tên công trình</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Đơn vị phân bổ</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Địa điểm</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Quy mô</th>
+              <th className="sticky-col-2" style={{ width: '200px', position: 'sticky', top: 0, left: '40px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 30, textAlign: 'center' }}>Tên công trình</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Đơn vị phân bổ</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Địa điểm</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Quy mô</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày xảy ra sự cố</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người theo dõi</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người theo dõi</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày kiểm tra</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày thanh toán</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'right' }}>Giá trị thanh toán</th>
-              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Tình trạng</th>
+              {/* <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Tình trạng</th> */}
               <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Trạng thái</th>
-              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Bút phê lãnh đạo</th>
-              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ghi chú</th>
+              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Bút phê lãnh đạo</th>
+              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ghi chú</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người phê duyệt</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người yêu cầu</th>
               <th className="sticky-col-last" style={{ width: '120px', position: 'sticky', top: 0, right: 0, backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 8px', zIndex: 30 }}>Hành động</th>
@@ -267,33 +267,38 @@ function MinorRepairProjectTable({
             {filteredProjects.map((project, index) => (
               <tr key={project._id} className="hover:bg-blue-100 transition-colors duration-200" style={{ borderBottom: '1px solid #E5E7EB' }}>
                 <td className="sticky-col-1" style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 30, textAlign: 'center' }}>{(currentPage - 1) * 10 + index + 1}</td>
-                {renderCell(project, { field: 'name', className: "sticky-col-2", style: { position: 'sticky', left: '40px', backgroundColor: 'white', zIndex: 20 } })}
-                {renderCell(project, { field: 'allocatedUnit' })}
-                {renderCell(project, { field: 'location' })}
-                {renderCell(project, { field: 'scale' })}
+                {renderCell(project, { field: 'name', className: "sticky-col-2", style: { position: 'sticky', left: '40px', backgroundColor: 'white', zIndex: 20, textAlign: 'left' } })}
+                {renderCell(project, { field: 'allocatedUnit', align: 'left' })}
+                {renderCell(project, { field: 'location', align: 'left' })}
+                {renderCell(project, { field: 'scale', align: 'left' })}
                 {renderCell(project, { field: 'reportDate', format: 'date', align: 'center' })}
-                {renderCell(project, { field: 'supervisor' })}
+                {renderCell(project, { field: 'supervisor', align: 'left' })}
                 {renderCell(project, { field: 'inspectionDate', format: 'date', align: 'center' })}
                 {renderCell(project, { field: 'paymentDate', format: 'date', align: 'center' })}
                 {renderCell(project, { field: 'paymentValue', format: 'currency', align: 'right' })}
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
+                {/* Đây là cột Tình trạng đã bị ẩn, không cần render <td> nữa
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}> 
                   <span className={`status-badge ${getStatusBadge(project.status).className}`}>
-                    <span className="status-icon">{getStatusBadge(project.status).icon}</span>
+                    <span className="status-icon mr-1">{getStatusBadge(project.status).icon}</span>
                     {getStatusBadge(project.status).text}
                   </span>
                   {project.assignedTo && (<span className="status-badge-sub status-badge-pink"><FaUser size={12} className="inline mr-1" /> {project.assignedTo}</span>)}
-                </td>
+                </td> */}
                 <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
-                  {isPendingTab ? (
-                    project.pendingEdit ? 'Chờ duyệt sửa' : project.pendingDelete ? 'Chờ duyệt xóa' : (project.status === 'Chờ duyệt' ? 'Chờ duyệt mới' : 'Đã duyệt')
-                  ) : (
-                    project.pendingEdit ? <span className="text-yellow-600 font-semibold">Đang chờ duyệt sửa</span> :
-                    project.pendingDelete ? <span className="text-red-600 font-semibold">Đang chờ duyệt xóa</span> :
-                    (project.status === 'Chờ duyệt' ? 'Chờ duyệt mới' : 'Đã duyệt')
-                  )}
+                  {isPendingTab ? 
+                    (project.pendingEdit ? <span className="flex items-center justify-center"><FaEdit className="text-yellow-500 mr-1.5" /> Chờ duyệt sửa</span> : 
+                     project.pendingDelete ? <span className="flex items-center justify-center"><FaTrash className="text-red-500 mr-1.5" /> Chờ duyệt xóa</span> : 
+                     (project.status === 'Chờ duyệt' ? <span className="flex items-center justify-center"><FaCheckCircle className="text-blue-500 mr-1.5" /> Chờ duyệt mới</span> : 
+                                                      <span className="flex items-center justify-center"><FaCheckCircle className="text-green-500 mr-1.5" /> Đã duyệt</span>))
+                    : 
+                    (project.pendingEdit ? <span className="flex items-center justify-center"><FaEdit className="text-yellow-500 mr-1.5" /> Đang chờ duyệt sửa</span> : 
+                     project.pendingDelete ? <span className="flex items-center justify-center"><FaTrash className="text-red-500 mr-1.5" /> Đang chờ duyệt xóa</span> : 
+                     (project.status === 'Chờ duyệt' ? <span className="flex items-center justify-center"><FaCheckCircle className="text-blue-500 mr-1.5" /> Chờ duyệt mới</span> : 
+                                                      <span className="flex items-center justify-center"><FaCheckCircle className="text-green-500 mr-1.5" /> Đã duyệt</span>))
+                  }
                 </td>
-                {renderCell(project, { field: 'leadershipApproval' })}
-                {renderCell(project, { field: 'notes' })}
+                {renderCell(project, { field: 'leadershipApproval', align: 'left' })}
+                {renderCell(project, { field: 'notes', align: 'left' })}
                 {renderCell(project, { field: 'approvedBy.username', align: 'center' })}
                 {renderCell(project, { field: 'createdBy.username', align: 'center' })} {/* Added Requester Column */}
                 <td className="sticky-col-last" style={{ borderRight: '1px solid #E5E7EB', padding: '12px 8px', position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 20 }}>

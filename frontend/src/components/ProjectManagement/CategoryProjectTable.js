@@ -164,10 +164,10 @@ function CategoryProjectTable({
       <div className="table-container">
         <table className="table-fixed">
           <thead>
-            <tr>{Array(25).fill().map((_, idx) => (<th key={idx}><div className="skeleton h-6 w-full rounded"></div></th>))}</tr>
+            <tr>{Array(24).fill().map((_, idx) => (<th key={idx}><div className="skeleton h-6 w-full rounded"></div></th>))}</tr> {/* Adjusted skeleton columns */}
           </thead>
           <tbody>
-            {Array(5).fill().map((_, rowIdx) => (<tr key={rowIdx}>{Array(25).fill().map((_, colIdx) => (<td key={colIdx}><div className="skeleton h-6 w-full rounded"></div></td>))}</tr>))}
+            {Array(5).fill().map((_, rowIdx) => (<tr key={rowIdx}>{Array(24).fill().map((_, colIdx) => (<td key={colIdx}><div className="skeleton h-6 w-full rounded"></div></td>))}</tr>))}
           </tbody>
         </table>
       </div>
@@ -228,8 +228,8 @@ function CategoryProjectTable({
         style={{
           borderRight: '1px solid #E5E7EB',
           padding: '12px 16px',
-          backgroundColor: cellData.isChanged ? '#fffacd' : (colConfig.style?.backgroundColor || 'transparent'),
-          textAlign: colConfig.align || 'left',
+          backgroundColor: cellData.isChanged ? '#fffacd' : (colConfig.style?.backgroundColor || 'transparent'), // LemonChiffon for changed cells
+          textAlign: colConfig.align || 'center', // Default to center alignment
           ...colConfig.style
         }}
       >
@@ -242,30 +242,30 @@ function CategoryProjectTable({
   return (
     <div className="flex flex-col">
       <div className="table-container" style={{ border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '8px', overflow: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
-        <table style={{ width: '3350px', borderCollapse: 'separate', borderSpacing: 0 }}> {/* Increased width for new column */}
+        <table style={{ width: '3400px', borderCollapse: 'separate', borderSpacing: 0 }}> {/* Adjusted width for Quy mô column */}
           <thead>
             <tr>
               <th className="sticky-col-1" style={{ width: '40px', position: 'sticky', top: 0, left: 0, backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 40 }}>STT</th>
-              <th className="sticky-col-2" style={{ width: '200px', position: 'sticky', top: 0, left: '40px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 30 }}>Tên công trình</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Đơn vị phân bổ</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Loại công trình</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Phân bổ đợt</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người lập dự toán</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người theo dõi</th>
-              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'right' }}>Số ngày thực hiện</th>
+              <th className="sticky-col-2" style={{ width: '200px', position: 'sticky', top: 0, left: '40px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 30, textAlign: 'center' }}>Tên công trình</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Đơn vị phân bổ</th>
+              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Quy mô</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Địa điểm XD</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Loại công trình</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người lập dự toán</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người theo dõi</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày bắt đầu</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày hoàn thành</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'right' }}>Giá trị phân bổ</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'right' }}>Giá trị dự toán</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'right' }}>Giá trị giao khoán</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Đơn vị thi công</th>
-              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Tiến độ thi công</th>
-              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Khả năng thực hiện</th>
-              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Bút phê lãnh đạo</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Quy mô</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Địa điểm XD</th>
-              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ghi chú</th>
-              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Tình trạng</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Đơn vị thi công</th>
+              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Tiến độ thi công</th>
+              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Khả năng thực hiện</th>
+              <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'right' }}>Số ngày thực hiện</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Phân bổ đợt</th>
+              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Bút phê lãnh đạo</th>
+              <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ghi chú</th>
+              {/* <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Tình trạng</th> */}
               <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Trạng thái</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người duyệt</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người yêu cầu</th>
@@ -276,40 +276,45 @@ function CategoryProjectTable({
             {filteredProjects.map((project, index) => (
               <tr key={project._id} className="hover:bg-blue-100 transition-colors duration-200" style={{ borderBottom: '1px solid #E5E7EB' }}>
                 <td className="sticky-col-1" style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 30, textAlign: 'center' }}>{(currentPage - 1) * 10 + index + 1}</td>
-                {renderCell(project, { field: 'name', className: "sticky-col-2", style: { position: 'sticky', left: '40px', backgroundColor: 'white', zIndex: 20 } })}
-                {renderCell(project, { field: 'allocatedUnit' })}
-                {renderCell(project, { field: 'projectType' })}
-                {renderCell(project, { field: 'allocationWave' })}
-                {renderCell(project, { field: 'estimator' })}
-                {renderCell(project, { field: 'supervisor' })}
-                {renderCell(project, { field: 'durationDays', align: 'right' })}
+                {renderCell(project, { field: 'name', className: "sticky-col-2", style: { position: 'sticky', left: '40px', backgroundColor: 'white', zIndex: 20, textAlign: 'left' } })}
+                {renderCell(project, { field: 'allocatedUnit', align: 'left' })}
+                {renderCell(project, { field: 'scale', align: 'left' })} {/* Widened column's data */}
+                {renderCell(project, { field: 'location', align: 'left' })}
+                {renderCell(project, { field: 'projectType', align: 'left' })}
+                {renderCell(project, { field: 'estimator', align: 'left' })}
+                {renderCell(project, { field: 'supervisor', align: 'left' })}
                 {renderCell(project, { field: 'startDate', format: 'date', align: 'center' })}
                 {renderCell(project, { field: 'completionDate', format: 'date', align: 'center' })}
                 {renderCell(project, { field: 'initialValue', format: 'currency', align: 'right' })}
                 {renderCell(project, { field: 'estimatedValue', format: 'currency', align: 'right' })}
                 {renderCell(project, { field: 'contractValue', format: 'currency', align: 'right' })}
-                {renderCell(project, { field: 'constructionUnit' })}
-                {renderCell(project, { field: 'progress' })}
-                {renderCell(project, { field: 'feasibility' })}
-                {renderCell(project, { field: 'leadershipApproval' })}
-                {renderCell(project, { field: 'scale' })}
-                {renderCell(project, { field: 'location' })}
-                {renderCell(project, { field: 'notes' })}
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
+                {renderCell(project, { field: 'constructionUnit', align: 'left' })}
+                {renderCell(project, { field: 'progress', align: 'left' })}
+                {renderCell(project, { field: 'feasibility', align: 'left' })}
+                {renderCell(project, { field: 'durationDays', align: 'right' })}
+                {renderCell(project, { field: 'allocationWave', align: 'left' })}
+                {renderCell(project, { field: 'leadershipApproval', align: 'left' })} {/* Moved and left-aligned */}
+                {renderCell(project, { field: 'notes', align: 'left' })}
+                {/* Đây là cột Tình trạng đã bị ẩn, không cần render <td> nữa
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}> 
                   <span className={`status-badge ${getStatusBadge(project.status).className}`}>
-                    <span className="status-icon">{getStatusBadge(project.status).icon}</span>
+                    <span className="status-icon mr-1">{getStatusBadge(project.status).icon}</span>
                     {getStatusBadge(project.status).text}
                   </span>
                   {project.assignedTo && (<span className="status-badge-sub status-badge-pink"><FaUser size={12} className="inline mr-1" /> {project.assignedTo}</span>)}
-                </td>
+                </td> */}
                 <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>
-                  {isPendingTab ? (
-                    project.pendingEdit ? 'Chờ duyệt sửa' : project.pendingDelete ? 'Chờ duyệt xóa' : (project.status === 'Chờ duyệt' ? 'Chờ duyệt mới' : 'Đã duyệt')
-                  ) : (
-                    project.pendingEdit ? <span className="text-yellow-600 font-semibold">Đang chờ duyệt sửa</span> :
-                    project.pendingDelete ? <span className="text-red-600 font-semibold">Đang chờ duyệt xóa</span> :
-                    (project.status === 'Chờ duyệt' ? 'Chờ duyệt mới' : 'Đã duyệt')
-                  )}
+                  {isPendingTab ? 
+                    (project.pendingEdit ? <span className="flex items-center justify-center"><FaEdit className="text-yellow-500 mr-1.5" /> Chờ duyệt sửa</span> : 
+                     project.pendingDelete ? <span className="flex items-center justify-center"><FaTrash className="text-red-500 mr-1.5" /> Chờ duyệt xóa</span> : 
+                     (project.status === 'Chờ duyệt' ? <span className="flex items-center justify-center"><FaCheckCircle className="text-blue-500 mr-1.5" /> Chờ duyệt mới</span> : 
+                                                      <span className="flex items-center justify-center"><FaCheckCircle className="text-green-500 mr-1.5" /> Đã duyệt</span>))
+                    : 
+                    (project.pendingEdit ? <span className="flex items-center justify-center"><FaEdit className="text-yellow-500 mr-1.5" /> Đang chờ duyệt sửa</span> : 
+                     project.pendingDelete ? <span className="flex items-center justify-center"><FaTrash className="text-red-500 mr-1.5" /> Đang chờ duyệt xóa</span> : 
+                     (project.status === 'Chờ duyệt' ? <span className="flex items-center justify-center"><FaCheckCircle className="text-blue-500 mr-1.5" /> Chờ duyệt mới</span> : 
+                                                      <span className="flex items-center justify-center"><FaCheckCircle className="text-green-500 mr-1.5" /> Đã duyệt</span>))
+                  }
                 </td>
                 {renderCell(project, { field: 'approvedBy.username', align: 'center' })}
                 {renderCell(project, { field: 'createdBy.username', align: 'center' })} {/* Moved Requester Column */}
