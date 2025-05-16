@@ -48,6 +48,7 @@ router.get('/projects', authenticate, async (req, res) => {
     const projects = await Model.find(query)
       .populate('createdBy', 'username')
       .populate('approvedBy', 'username')
+      .populate('pendingEdit.requestedBy', 'username') // Populate người yêu cầu sửa
       .sort({ createdAt: -1 })
       .skip((parseInt(page) - 1) * parseInt(limit))
       .limit(parseInt(limit));
@@ -217,7 +218,11 @@ router.patch('/projects/:id', authenticate, async (req, res) => {
     else if (canRequestEdit && project.status === 'Đã duyệt') {
       const dataToPending = { ...updateData };
       delete dataToPending.status; // Không cho phép thay đổi status qua pendingEdit
-      project.pendingEdit = dataToPending;
+      project.pendingEdit = {
+        changes: dataToPending,
+        requestedBy: req.user.id, // Lưu ID người yêu cầu sửa
+        requestedAt: new Date()   // Lưu thời gian yêu cầu sửa
+      };
       await project.save({ validateModifiedOnly: true }); // Chỉ validate các trường đã thay đổi
       const populatedProjectForNotification = { _id: project._id, name: project.name, type };
       const notification = new Notification({

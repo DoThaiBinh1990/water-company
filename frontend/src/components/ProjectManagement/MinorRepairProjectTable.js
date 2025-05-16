@@ -158,12 +158,10 @@ function MinorRepairProjectTable({
       <div className="table-container">
         <table className="table-fixed">
           <thead>
-            <tr>{Array(16).fill().map((_, idx) => (<th key={idx}><div className="skeleton h-6 w-full rounded"></div></th>))}</tr>
+            <tr>{Array(17).fill().map((_, idx) => (<th key={idx}><div className="skeleton h-6 w-full rounded"></div></th>))}</tr>
           </thead>
           <tbody>
-            {Array(5).fill().map((_, rowIdx) => (
-              <tr key={rowIdx}>{Array(16).fill().map((_, colIdx) => (<td key={colIdx}><div className="skeleton h-6 w-full rounded"></div></td>))}</tr>
-            ))}
+            {Array(5).fill().map((_, rowIdx) => (<tr key={rowIdx}>{Array(17).fill().map((_, colIdx) => (<td key={colIdx}><div className="skeleton h-6 w-full rounded"></div></td>))}</tr>))}
           </tbody>
         </table>
       </div>
@@ -190,6 +188,34 @@ function MinorRepairProjectTable({
       displayValue = cellData.value || 'N/A'; 
       originalDisplayValue = cellData.originalValue || 'N/A';
     }
+
+    // Special handling for "Người yêu cầu" column to display tooltip
+    if (colConfig.field === 'createdBy.username') {
+      const creatorName = project.createdBy ? project.createdBy.username : (project.enteredBy || 'N/A');
+      displayValue = creatorName; // Value displayed in the cell is the creator's name
+
+      let tooltipLines = [];
+      tooltipLines.push(`Người tạo: ${creatorName}`);
+      if (project.createdAt) {
+        tooltipLines.push(`Ngày tạo: ${formatDate(project.createdAt)}`);
+      }
+
+      // Assuming pendingEdit structure is { changes: {...}, requestedBy: {...}, requestedAt: ... }
+      if (project.pendingEdit && project.status === 'Đã duyệt' && project.pendingEdit.requestedBy) {
+        const editorName = project.pendingEdit.requestedBy.username;
+        const editTime = project.pendingEdit.requestedAt ? formatDate(project.pendingEdit.requestedAt) : 'N/A';
+        tooltipLines.push(`---`);
+        tooltipLines.push(`Yêu cầu sửa gần nhất:`);
+        tooltipLines.push(`  Bởi: ${editorName}`);
+        tooltipLines.push(`  Lúc: ${editTime}`);
+      }
+      
+      return (
+        <td key={`${project._id}-${colConfig.field}`} className={colConfig.className} style={{borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: colConfig.align || 'left', ...colConfig.style}} title={tooltipLines.join('\n')}>
+          {displayValue}
+        </td>
+      );
+    }
     
     return (
       <td
@@ -215,7 +241,7 @@ function MinorRepairProjectTable({
   return (
     <div className="flex flex-col">
       <div className="table-container" style={{ border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '8px', overflow: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
-        <table style={{ width: '2000px', borderCollapse: 'separate', borderSpacing: 0 }}>
+        <table style={{ width: '2150px', borderCollapse: 'separate', borderSpacing: 0 }}> {/* Increased width for new column */}
           <thead>
             <tr>
               <th className="sticky-col-1" style={{ width: '40px', position: 'sticky', top: 0, left: 0, backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', zIndex: 40 }}>STT</th>
@@ -224,7 +250,6 @@ function MinorRepairProjectTable({
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Địa điểm</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Quy mô</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày xảy ra sự cố</th>
-              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người phê duyệt</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Người theo dõi</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày kiểm tra</th>
               <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Ngày thanh toán</th>
@@ -233,6 +258,8 @@ function MinorRepairProjectTable({
               <th style={{ width: '120px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Trạng thái</th>
               <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Bút phê lãnh đạo</th>
               <th style={{ width: '200px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0 }}>Ghi chú</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người phê duyệt</th>
+              <th style={{ width: '150px', backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 16px', position: 'sticky', top: 0, textAlign: 'center' }}>Người yêu cầu</th>
               <th className="sticky-col-last" style={{ width: '120px', position: 'sticky', top: 0, right: 0, backgroundColor: '#3B82F6', color: 'white', borderRight: '1px solid #2563EB', borderBottom: '1px solid #2563EB', padding: '12px 8px', zIndex: 30 }}>Hành động</th>
             </tr>
           </thead>
@@ -245,7 +272,6 @@ function MinorRepairProjectTable({
                 {renderCell(project, { field: 'location' })}
                 {renderCell(project, { field: 'scale' })}
                 {renderCell(project, { field: 'reportDate', format: 'date', align: 'center' })}
-                {renderCell(project, { field: 'approvedBy.username', align: 'center' })}
                 {renderCell(project, { field: 'supervisor' })}
                 {renderCell(project, { field: 'inspectionDate', format: 'date', align: 'center' })}
                 {renderCell(project, { field: 'paymentDate', format: 'date', align: 'center' })}
@@ -268,6 +294,8 @@ function MinorRepairProjectTable({
                 </td>
                 {renderCell(project, { field: 'leadershipApproval' })}
                 {renderCell(project, { field: 'notes' })}
+                {renderCell(project, { field: 'approvedBy.username', align: 'center' })}
+                {renderCell(project, { field: 'createdBy.username', align: 'center' })} {/* Added Requester Column */}
                 <td className="sticky-col-last" style={{ borderRight: '1px solid #E5E7EB', padding: '12px 8px', position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 20 }}>
                   <div className="flex justify-center items-center gap-2">
                     {user?.permissions?.edit && !isPendingTab && (
