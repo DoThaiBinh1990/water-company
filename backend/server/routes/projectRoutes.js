@@ -36,9 +36,12 @@ router.get('/projects', authenticate, async (req, res) => {
       query.status = status;
     } else {
       // Mặc định chỉ lấy công trình đã duyệt
+      // Frontend sẽ xử lý việc hiển thị chỉ báo nếu có pendingEdit/pendingDelete
       query.status = 'Đã duyệt';
-      query.pendingEdit = null;
-      query.pendingDelete = false;
+      // Không lọc theo pendingEdit, pendingDelete ở đây nữa để tab chính vẫn thấy các công trình đã duyệt
+      // đang có yêu cầu sửa/xóa.
+      // query.pendingEdit = null; // Removed
+      // query.pendingDelete = false; // Removed
     }
 
     const count = await Model.countDocuments(query);
