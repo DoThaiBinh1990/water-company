@@ -1,71 +1,19 @@
+// d:\CODE\water-company\backend\server\routes\projectRoutes.js
 const express = require('express');
 const router = express.Router();
 const authenticate = require('../middleware');
 const { CategoryProject, MinorRepairProject, Notification, RejectedProject, User } = require('../models');
-const { updateSerialNumbers } = require('../utils');
+const { updateSerialNumbers, populateProjectFields } = require('../utils');
+const logger = require('../config/logger'); // Import logger
 
+// Route GET /projects đã được chuyển sang projects.core.routes.js
+/*
 router.get('/projects', authenticate, async (req, res) => {
-  try {
-    const { type, page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress, pending } = req.query;
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const query = {};
-
-    // Điều kiện tìm kiếm chung
-    if (allocatedUnit) query.allocatedUnit = allocatedUnit;
-    if (constructionUnit) query.constructionUnit = constructionUnit;
-    if (allocationWave) query.allocationWave = allocationWave;
-    if (assignedTo) query.assignedTo = { $regex: assignedTo, $options: 'i' };
-    if (search) query.name = { $regex: search, $options: 'i' };
-    if (minInitialValue || maxInitialValue) {
-      query.initialValue = {};
-      if (minInitialValue) query.initialValue.$gte = parseFloat(minInitialValue);
-      if (maxInitialValue) query.initialValue.$lte = parseFloat(maxInitialValue);
-    }
-    if (progress) query.progress = { $regex: progress, $options: 'i' };
-
-    // Xử lý trạng thái
-    if (pending === 'true' || pending === true) {
-      // Lấy công trình chờ duyệt, chờ sửa, chờ xóa
-      query.$or = [
-        { status: 'Chờ duyệt' },
-        { pendingEdit: { $ne: null } },
-        { pendingDelete: true }
-      ];
-    } else if (status) {
-      // Lọc đúng theo status truyền vào
-      query.status = status;
-    } else {
-      // Mặc định chỉ lấy công trình đã duyệt
-      // Frontend sẽ xử lý việc hiển thị chỉ báo nếu có pendingEdit/pendingDelete
-      query.status = 'Đã duyệt';
-      // Không lọc theo pendingEdit, pendingDelete ở đây nữa để tab chính vẫn thấy các công trình đã duyệt
-      // đang có yêu cầu sửa/xóa.
-      // query.pendingEdit = null; // Removed
-      // query.pendingDelete = false; // Removed
-    }
-
-    const count = await Model.countDocuments(query);
-    const projects = await Model.find(query)
-      .populate('createdBy', 'username')
-      .populate('approvedBy', 'username')
-      .populate('pendingEdit.requestedBy', 'username') // Populate người yêu cầu sửa
-      .sort({ createdAt: -1 })
-      .skip((parseInt(page) - 1) * parseInt(limit))
-      .limit(parseInt(limit));
-
-    res.json({
-      projects,
-      total: count,
-      page: parseInt(page),
-      pages: Math.ceil(count / parseInt(limit)),
-    });
-  } catch (error) {
-    console.error("Lỗi API lấy danh sách công trình:", error);
-    res.status(500).json({ message: 'Lỗi máy chủ khi lấy danh sách công trình' });
-  }
+  // ... (logic đã được comment out)
 });
+*/
 
-router.get('/projects/:id/status', authenticate, async (req, res) => {
+router.get('/projects/:id/status', authenticate, async (req, res, next) => { // Thêm next
   try {
     const { type } = req.query;
     if (!type || !['category', 'minor_repair'].includes(type)) {
@@ -82,180 +30,28 @@ router.get('/projects/:id/status', authenticate, async (req, res) => {
     };
     res.json(status);
   } catch (error) {
-    console.error("Lỗi API lấy trạng thái công trình:", error);
-    res.status(500).json({ message: 'Lỗi máy chủ khi lấy trạng thái công trình' });
+    logger.error("Lỗi API lấy trạng thái công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error); // Chuyển lỗi cho global error handler
   }
 });
 
-router.post('/projects', authenticate, async (req, res) => {
-  if (!req.user.permissions.add) return res.status(403).json({ message: 'Không có quyền thêm công trình' });
-  try {
-    const { name, allocatedUnit, location, type, approvedBy, scale, reportDate } = req.body;
-    // Kiểm tra các trường bắt buộc trong tab "Cơ bản" khi tạo mới
-    if (!name || !allocatedUnit || !location || !type || !approvedBy) {
-      return res.status(400).json({ message: 'Tên công trình, Đơn vị phân bổ, Địa điểm, Loại công trình và Người phê duyệt là bắt buộc.' });
-    }
-    // Kiểm tra bổ sung cho MinorRepairProject
-    if (type === 'minor_repair') {
-      if (!scale || !reportDate) {
-        return res.status(400).json({ message: 'Quy mô và Ngày xảy ra sự cố là bắt buộc cho công trình sửa chữa nhỏ.' });
-      }
-    }
-    // Kiểm tra cho CategoryProject
-    if (type === 'category') {
-      if (!scale) { // Giả sử scale là bắt buộc cho category
-        return res.status(400).json({ message: 'Quy mô là bắt buộc cho công trình danh mục.' });
-      }
-    }
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const projectData = { ...req.body, enteredBy: req.user.username, createdBy: req.user.id };
-    if (approvedBy) {
-      const approver = await User.findById(approvedBy);
-      if (!approver || !approver.permissions.approve) {
-        return res.status(400).json({ message: 'Người duyệt không hợp lệ hoặc không có quyền duyệt.' });
-      }
-      projectData.approvedBy = approvedBy;
-    }
-    delete projectData.type; // Xóa trường type khỏi projectData trước khi lưu
-    const project = new Model(projectData);
-    const newProject = await project.save();
-    const populatedProjectForNotification = { _id: newProject._id, name: newProject.name, type };
-
-    // Luôn tạo thông báo "pending", kể cả khi tài khoản có quyền approve
-    const notification = new Notification({
-      message: `Yêu cầu thêm công trình mới "${newProject.name}" đã được gửi để duyệt`,
-      type: 'new',
-      projectId: newProject._id,
-      projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-      status: 'pending',
-      userId: req.user.id, // Người tạo yêu cầu
-    });
-    await notification.save();
-    // Kiểm tra req.io trước khi gọi emit
-    if (req.io) {
-      req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-    } else {
-      console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-    }
-    return res.status(201).json({ message: 'Công trình đã được gửi để duyệt!', pending: true });
-  } catch (error) {
-    console.error("Lỗi API thêm công trình:", error);
-    if (error.code === 11000 && (error.message.includes('categorySerialNumber') || error.message.includes('minorRepairSerialNumber'))) {
-      return res.status(400).json({ message: 'Lỗi tạo số thứ tự công trình: Số thứ tự đã tồn tại. Vui lòng thử lại sau.' });
-    }
-    if (error.message.startsWith('Không thể tạo số thứ tự cho công trình')) {
-        return res.status(500).json({ message: error.message });
-    }
-    res.status(400).json({ message: 'Lỗi khi thêm công trình: ' + error.message });
-  }
+// Route POST /projects đã được chuyển sang projects.core.routes.js
+/*
+router.post('/projects', authenticate, async (req, res, next) => { // Thêm next
+  // ... (logic đã được comment out)
 });
+*/
 
-router.patch('/projects/:id', authenticate, async (req, res) => {
-  try {
-    const { type } = req.query;
-    if (!type || !['category', 'minor_repair'].includes(type)) {
-      return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
-    }
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-
-    const canEditDirectly = req.user.permissions.edit && project.status !== 'Đã duyệt';
-    const canRequestEdit = req.user.permissions.edit && (project.enteredBy === req.user.username || req.user.role === 'admin');
-    const isApprover = req.user.permissions.approve;
-
-    // Chuẩn bị dữ liệu cập nhật
-    const updateData = { ...req.body };
-
-    // Nếu công trình không có createdBy (công trình cũ), gán createdBy từ req.user.id
-    if (!project.createdBy) {
-      project.createdBy = req.user.id;
-      await project.save(); // Lưu lại createdBy
-    }
-
-    // Loại bỏ createdBy khỏi updateData để không ghi đè giá trị hiện tại
-    delete updateData.createdBy;
-
-    // Nếu công trình đang ở trạng thái "Đã duyệt" và người dùng không có quyền duyệt
-    if (project.status === 'Đã duyệt' && !isApprover) {
-      delete updateData.status; // Không cho phép thay đổi status
-      delete updateData.categorySerialNumber; // Không cho phép thay đổi serial
-      delete updateData.minorRepairSerialNumber; // Không cho phép thay đổi serial
-    }
-
-
-    // Trường hợp người dùng có quyền duyệt và đang duyệt yêu cầu sửa
-    if (isApprover && project.pendingEdit && req.body.approvedEdit === true) { // approvedEdit là một cờ gửi từ client
-      Object.assign(project, project.pendingEdit);
-      project.pendingEdit = null;
-      project.status = 'Đã duyệt'; // Đảm bảo trạng thái là đã duyệt
-      await project.save({ validateModifiedOnly: true }); // Chỉ validate các trường đã thay đổi
-      // Xử lý thông báo
-      const editNotification = await Notification.findOne({ projectId: project._id, type: 'edit', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
-      if (editNotification) {
-        editNotification.status = 'processed';
-        await editNotification.save();
-        if (req.io) {
-          req.io.emit('notification_processed', editNotification._id);
-          // Gửi thông báo cho người tạo yêu cầu
-          const approvedNotification = new Notification({
-            message: `Yêu cầu sửa công trình "${project.name}" đã được duyệt`,
-            type: 'edit',
-            projectId: project._id,
-            projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-            status: 'processed',
-            userId: project.createdBy, // Gửi cho người tạo công trình gốc
-          });
-          await approvedNotification.save();
-          req.io.emit('notification', approvedNotification);
-        } else {
-          console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-        }
-      }
-      return res.json(project);
-    } 
-    // Trường hợp người dùng yêu cầu sửa công trình đã duyệt
-    else if (canRequestEdit && project.status === 'Đã duyệt') {
-      const dataToPending = { ...updateData };
-      delete dataToPending.status; // Không cho phép thay đổi status qua pendingEdit
-      project.pendingEdit = {
-        changes: dataToPending,
-        requestedBy: req.user.id, // Lưu ID người yêu cầu sửa
-        requestedAt: new Date()   // Lưu thời gian yêu cầu sửa
-      };
-      await project.save({ validateModifiedOnly: true }); // Chỉ validate các trường đã thay đổi
-      const populatedProjectForNotification = { _id: project._id, name: project.name, type };
-      const notification = new Notification({
-        message: `Yêu cầu sửa công trình "${project.name}" bởi ${req.user.username}`,
-        type: 'edit',
-        projectId: project._id,
-        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-        status: 'pending',
-        userId: req.user.id, // Người tạo yêu cầu sửa
-      });
-      await notification.save();
-      if (req.io) {
-        req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-      }
-      return res.json({ message: 'Yêu cầu sửa đã được gửi để chờ duyệt', project });
-    } 
-    // Trường hợp người dùng có quyền sửa trực tiếp (công trình chưa duyệt)
-    else if (canEditDirectly) {
-      Object.assign(project, updateData);
-      await project.save({ validateModifiedOnly: true }); // Chỉ validate các trường đã thay đổi
-      return res.json(project);
-    } else {
-      return res.status(403).json({ message: 'Không có quyền sửa công trình này hoặc gửi yêu cầu sửa.' });
-    }
-  } catch (error) {
-    console.error("Lỗi API sửa công trình:", error);
-    res.status(400).json({ message: 'Lỗi khi cập nhật công trình: ' + error.message });
-  }
+// Route PATCH /projects/:id đã được chuyển sang projects.core.routes.js
+/*
+router.patch('/projects/:id', authenticate, async (req, res, next) => { // Thêm next
+  // ... (logic đã được comment out)
 });
+*/
 
-router.delete('/projects/:id', authenticate, async (req, res) => {
+// Route DELETE /projects/:id đã được chuyển sang projects.core.routes.js
+/*
+router.delete('/projects/:id', authenticate, async (req, res, next) => { // Thêm next
   try {
     const { type } = req.query;
     if (!type || !['category', 'minor_repair'].includes(type)) {
@@ -269,80 +65,66 @@ router.delete('/projects/:id', authenticate, async (req, res) => {
     const hasDeletePermission = req.user.permissions.delete;
     const isApprover = req.user.permissions.approve;
 
-    // Admin có thể xóa công trình chưa duyệt trực tiếp
     if (isUserAdmin && project.status !== 'Đã duyệt') {
-      const projectId = project._id; // Lưu projectId trước khi xóa
+      const projectId = project._id;
       await Model.deleteOne({ _id: req.params.id });
       await updateSerialNumbers(type);
 
-      // Xử lý thông báo nếu có
       const anyPendingNotification = await Notification.findOne({ projectId: projectId, status: 'pending', type: 'delete', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
       if (anyPendingNotification) {
         anyPendingNotification.status = 'processed';
         await anyPendingNotification.save();
         if (req.io) {
           req.io.emit('notification_processed', anyPendingNotification._id);
-          // Gửi thông báo cho người tạo yêu cầu
           const deletedNotification = new Notification({
             message: `Công trình "${project.name}" đã được xóa bởi admin`,
             type: 'delete',
-            projectId: project._id, // projectId vẫn còn giá trị ở đây
+            projectId: project._id, // Use original project._id for notification context
             projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
             status: 'processed',
-            userId: project.createdBy, // Gửi cho người tạo công trình gốc
+            userId: project.createdBy, // Notify the original creator
           });
           await deletedNotification.save();
           req.io.emit('notification', deletedNotification);
-        } else {
-          console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
         }
       }
       if (req.io) {
         req.io.emit('project_deleted', { projectId: project._id, projectType: type });
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
       }
       return res.json({ message: 'Admin đã xóa công trình thành công.' });
     }
-    // Người duyệt duyệt yêu cầu xóa
     else if (isApprover && project.pendingDelete) {
-      const projectId = project._id; // Lưu projectId trước khi xóa
+      const projectId = project._id;
       await Model.deleteOne({ _id: req.params.id });
       await updateSerialNumbers(type);
 
-      // Xử lý thông báo
       const deleteNotification = await Notification.findOne({ projectId: projectId, type: 'delete', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
       if (deleteNotification) {
         deleteNotification.status = 'processed';
         await deleteNotification.save();
         if (req.io) {
           req.io.emit('notification_processed', deleteNotification._id);
-          // Gửi thông báo cho người tạo yêu cầu
           const deletedNotification = new Notification({
             message: `Yêu cầu xóa công trình "${project.name}" đã được duyệt`,
             type: 'delete',
-            projectId: project._id, // projectId vẫn còn giá trị ở đây
+            projectId: project._id,
             projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
             status: 'processed',
-            userId: project.createdBy, // Gửi cho người tạo công trình gốc
+            userId: project.createdBy,
           });
           await deletedNotification.save();
           req.io.emit('notification', deletedNotification);
-        } else {
-          console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
         }
       }
       if (req.io) {
         req.io.emit('project_deleted', { projectId: project._id, projectType: type });
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
       }
       return res.json({ message: 'Đã xóa công trình (sau khi duyệt yêu cầu).' });
     }
-    // Người dùng có quyền xóa và công trình đã duyệt -> gửi yêu cầu xóa
     else if (hasDeletePermission && (project.enteredBy === req.user.username || req.user.role === 'admin') && project.status === 'Đã duyệt') {
       project.pendingDelete = true;
       await project.save();
+      // No need to populate project here as we are just sending a message and limited project info
       const populatedProjectForNotification = { _id: project._id, name: project.name, type };
       const notification = new Notification({
         message: `Yêu cầu xóa công trình "${project.name}" bởi ${req.user.username}`,
@@ -350,24 +132,20 @@ router.delete('/projects/:id', authenticate, async (req, res) => {
         projectId: project._id,
         projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
         status: 'pending',
-        userId: req.user.id, // Người tạo yêu cầu xóa
+        userId: req.user.id,
       });
       await notification.save();
       if (req.io) {
         req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
       }
-      return res.json({ message: 'Yêu cầu xóa đã được gửi để chờ duyệt.', project });
+      // Return only necessary info
+      return res.json({ message: 'Yêu cầu xóa đã được gửi để chờ duyệt.', project: { _id: project._id, name: project.name, pendingDelete: project.pendingDelete, type } });
     }
-    // Người dùng có quyền xóa và công trình chưa duyệt -> xóa trực tiếp
     else if (hasDeletePermission && project.status !== 'Đã duyệt') {
       await Model.deleteOne({ _id: req.params.id });
       await updateSerialNumbers(type);
       if (req.io) {
         req.io.emit('project_deleted', { projectId: project._id, projectType: type });
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
       }
       return res.json({ message: 'Đã xóa công trình.' });
     }
@@ -375,12 +153,13 @@ router.delete('/projects/:id', authenticate, async (req, res) => {
       return res.status(403).json({ message: 'Không có quyền xóa công trình này hoặc gửi yêu cầu xóa.' });
     }
   } catch (error) {
-    console.error("Lỗi API xóa công trình:", error);
-    res.status(500).json({ message: 'Lỗi máy chủ khi xóa công trình: ' + error.message });
+    logger.error("Lỗi API xóa công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
   }
 });
+*/
 
-router.patch('/projects/:id/approve', authenticate, async (req, res) => {
+router.patch('/projects/:id/approve', authenticate, async (req, res, next) => { // Thêm next
   if (!req.user.permissions.approve) return res.status(403).json({ message: 'Không có quyền duyệt' });
   try {
     const { type } = req.query;
@@ -388,510 +167,458 @@ router.patch('/projects/:id/approve', authenticate, async (req, res) => {
       return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
     }
     const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(req.params.id);
+    let project = await Model.findById(req.params.id); // Use let as project might be reassigned after populate
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    if (project.status !== 'Chờ duyệt') return res.status(400).json({ message: 'Công trình đã được xử lý hoặc không ở trạng thái chờ duyệt.' });
 
-    project.status = 'Đã duyệt';
-    project.pendingEdit = null; // Xóa yêu cầu sửa nếu có
-    project.pendingDelete = false; // Xóa yêu cầu xóa nếu có
-    project.approvedBy = req.user.id; // Lưu người duyệt
-    await project.save();
+    if (project.pendingEdit) {
+      const { changes, requestedBy } = project.pendingEdit;
+      changes.forEach(change => {
+        project[change.field] = change.newValue;
+      });
+      project.pendingEdit = null;
+      project.status = 'Đã duyệt'; // Ensure status is updated if it was pending due to edit
+      project.approvedBy = req.user.id; // Set the approver
+      await project.save({ validateModifiedOnly: true });
+      const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
-    // Xử lý thông báo
-    const newNotification = await Notification.findOne({ projectId: project._id, type: 'new', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
-    if (newNotification) {
-      newNotification.status = 'processed';
-      await newNotification.save();
+      const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type };
+      const notification = new Notification({
+        message: `Yêu cầu sửa công trình "${populatedProject.name}" đã được duyệt bởi ${req.user.username}`,
+        type: 'edit_approved',
+        projectId: populatedProject._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: requestedBy, // Notify the user who requested the edit
+      });
+      await notification.save();
       if (req.io) {
-        req.io.emit('notification_processed', newNotification._id);
-        // Gửi thông báo cho người tạo yêu cầu
-        const approvedNotification = new Notification({
-          message: `Công trình "${project.name}" đã được duyệt`,
-          type: 'new',
-          projectId: project._id,
-          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-          status: 'processed',
-          userId: project.createdBy, // Gửi cho người tạo công trình gốc
-        });
-        await approvedNotification.save();
-        req.io.emit('notification', approvedNotification);
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
+        req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+        req.io.emit('project_updated', populatedProject);
       }
+      return res.json({ message: 'Yêu cầu sửa đã được duyệt.', project: populatedProject });
+    } else if (project.status === 'Chờ duyệt') {
+      project.status = 'Đã duyệt';
+      project.approvedBy = req.user.id; // Set the approver
+      await project.save({ validateModifiedOnly: true });
+      const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
+
+      const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type };
+      const notification = new Notification({
+        message: `Công trình "${populatedProject.name}" đã được duyệt bởi ${req.user.username}`,
+        type: 'new_approved',
+        projectId: populatedProject._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: populatedProject.createdBy._id, // Notify the creator
+      });
+      await notification.save();
+      if (req.io) {
+        req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+        req.io.emit('project_approved', populatedProject);
+      }
+      return res.json({ message: 'Công trình đã được duyệt.', project: populatedProject });
+    } else if (project.pendingDelete) {
+      // This logic is now more complex due to the deleteProjectById changes.
+      // Approving a delete request means actually deleting the project.
+      const projectId = project._id;
+      const originalCreator = project.createdBy;
+      const projectName = project.name;
+
+      await Model.deleteOne({ _id: req.params.id });
+      await updateSerialNumbers(type);
+
+      const deleteNotification = await Notification.findOne({ projectId: projectId, type: 'delete', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
+      if (deleteNotification) {
+        deleteNotification.status = 'processed';
+        await deleteNotification.save();
+        if (req.io) {
+          req.io.emit('notification_processed', deleteNotification._id);
+        }
+      }
+      // Create a new notification for the processed deletion
+      const deletedConfirmationNotification = new Notification({
+        message: `Yêu cầu xóa công trình "${projectName}" đã được duyệt và công trình đã được xóa.`,
+        type: 'delete_approved',
+        // projectId: projectId, // projectId might no longer exist, or use a placeholder
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: originalCreator, // Notify the original creator or requester
+      });
+      await deletedConfirmationNotification.save();
+
+      if (req.io) {
+        req.io.emit('notification', deletedConfirmationNotification);
+        req.io.emit('project_deleted', { projectId: projectId, projectType: type });
+      }
+      return res.json({ message: 'Yêu cầu xóa đã được duyệt và công trình đã được xóa.' });
     }
-    res.json(project);
+    else {
+      return res.status(400).json({ message: 'Không có yêu cầu nào đang chờ duyệt cho công trình này.' });
+    }
   } catch (error) {
-    console.error("Lỗi API duyệt công trình:", error);
-    res.status(400).json({ message: 'Lỗi khi duyệt công trình: ' + error.message });
+    logger.error("Lỗi API duyệt công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
   }
 });
 
-router.patch('/projects/:id/reject', authenticate, async (req, res) => {
+router.patch('/projects/:id/reject', authenticate, async (req, res, next) => { // Thêm next
   if (!req.user.permissions.approve) return res.status(403).json({ message: 'Không có quyền từ chối' });
   try {
     const { type } = req.query;
+    const { reason } = req.body;
     if (!type || !['category', 'minor_repair'].includes(type)) {
       return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
     }
+    if (!reason) return res.status(400).json({ message: 'Lý do từ chối là bắt buộc.' });
+
     const Model = type === 'category' ? CategoryProject : MinorRepairProject;
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    
-    // Chỉ từ chối công trình đang ở trạng thái "Chờ duyệt" (tức là yêu cầu tạo mới)
-    if (project.status !== 'Chờ duyệt') {
-        return res.status(400).json({ message: 'Công trình không ở trạng thái chờ duyệt mới.' });
-    }
 
-    // Lưu công trình vào RejectedProjects trước khi xóa
-    const rejectedProject = new RejectedProject({
-      projectId: project._id,
-      projectName: project.name,
-      projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-      actionType: 'new', // Chỉ 'new' mới vào đây
-      rejectedBy: req.user.id,
-      details: project.toObject(), // Lưu toàn bộ thông tin công trình
-    });
-    await rejectedProject.save();
+    const originalProjectId = project._id;
+    const originalProjectName = project.name;
+    const originalProjectData = project.toObject(); // Get a plain object copy
+    const originalCreator = project.createdBy;
+    const originalPendingEditRequestedBy = project.pendingEdit ? project.pendingEdit.requestedBy : null;
 
-    const originalProjectId = project._id; // Lưu lại ID trước khi xóa
-    await Model.deleteOne({ _id: req.params.id });
-    await updateSerialNumbers(type); // Cập nhật số thứ tự
+    if (project.pendingEdit) {
+      const requestedBy = project.pendingEdit.requestedBy;
+      project.pendingEdit = null; // Clear pending edit
+      // Project status remains 'Đã duyệt' or its previous approved state
+      await project.save({ validateModifiedOnly: true });
+      const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
-    // Xử lý thông báo
-    const newNotification = await Notification.findOne({ projectId: originalProjectId, type: 'new', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
-    if (newNotification) {
-      newNotification.status = 'processed';
-      await newNotification.save();
+      const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type };
+      const notification = new Notification({
+        message: `Yêu cầu sửa công trình "${populatedProject.name}" đã bị từ chối bởi ${req.user.username}. Lý do: ${reason}`,
+        type: 'edit_rejected',
+        projectId: populatedProject._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: requestedBy, // Notify the user who requested the edit
+      });
+      await notification.save();
       if (req.io) {
-        req.io.emit('notification_processed', newNotification._id);
-        // Gửi thông báo cho người tạo yêu cầu
-        const rejectedUserNotification = new Notification({ // Đổi tên biến để tránh nhầm lẫn
-          message: `Công trình "${project.name}" đã bị từ chối`,
-          type: 'new',
-          projectId: originalProjectId, // Sử dụng ID đã lưu
-          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-          status: 'processed',
-          userId: project.createdBy, // Gửi cho người tạo công trình gốc
-        });
-        await rejectedUserNotification.save();
-        req.io.emit('notification', rejectedUserNotification);
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
+        req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+        req.io.emit('project_updated', populatedProject); // Emit update as pendingEdit is cleared
       }
-    }
+      return res.json({ message: 'Yêu cầu sửa đã bị từ chối.', project: populatedProject });
+    } else if (project.status === 'Chờ duyệt') {
+      // Move to RejectedProject collection and delete from original
+      const rejectedData = {
+        ...originalProjectData,
+        rejectionReason: reason,
+        rejectedBy: req.user.id,
+        rejectedAt: new Date(),
+        originalProjectId: originalProjectId,
+        projectType: type
+      };
+      delete rejectedData._id; // Remove _id to let MongoDB generate a new one for RejectedProject
+      delete rejectedData.__v;
 
-    if (req.io) {
-      req.io.emit('project_rejected', { projectId: originalProjectId, projectType: type, isNewRejection: true });
-    } else {
-      console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
+      const rejectedProject = new RejectedProject(rejectedData);
+      await rejectedProject.save();
+      await Model.deleteOne({ _id: originalProjectId });
+      await updateSerialNumbers(type); // Update serial numbers as a project is effectively removed
+
+      const notification = new Notification({
+        message: `Công trình "${originalProjectName}" đã bị từ chối bởi ${req.user.username}. Lý do: ${reason}`,
+        type: 'new_rejected',
+        // projectId: originalProjectId, // Project no longer exists in main collection
+        originalProjectId: originalProjectId, // Store original ID for reference
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: originalCreator, // Notify the creator
+      });
+      await notification.save();
+      if (req.io) {
+        req.io.emit('notification', notification);
+        req.io.emit('project_rejected_and_removed', { projectId: originalProjectId, projectType: type, rejectedProject });
+      }
+      return res.json({ message: 'Công trình đã bị từ chối và chuyển vào danh sách từ chối.', rejectedProject });
+    } else if (project.pendingDelete) {
+      project.pendingDelete = false; // Clear pending delete
+      await project.save({ validateModifiedOnly: true });
+      const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
+
+      const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type };
+      const notification = new Notification({
+        message: `Yêu cầu xóa công trình "${populatedProject.name}" đã bị từ chối bởi ${req.user.username}. Lý do: ${reason}`,
+        type: 'delete_rejected',
+        projectId: populatedProject._id,
+        projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+        status: 'processed',
+        userId: originalPendingEditRequestedBy || originalCreator, // Notify the requester or creator
+      });
+      await notification.save();
+      if (req.io) {
+        req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+        req.io.emit('project_updated', populatedProject); // Emit update as pendingDelete is cleared
+      }
+      return res.json({ message: 'Yêu cầu xóa đã bị từ chối.', project: populatedProject });
     }
-    res.json({ message: 'Đã từ chối công trình và chuyển vào danh sách bị từ chối.' });
+    else {
+      return res.status(400).json({ message: 'Không có yêu cầu nào đang chờ duyệt để từ chối cho công trình này.' });
+    }
   } catch (error) {
-    console.error("Lỗi API từ chối công trình:", error);
-    res.status(400).json({ message: 'Lỗi khi từ chối công trình: ' + error.message });
+    logger.error("Lỗi API từ chối công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
   }
 });
 
-router.patch('/projects/:id/allocate', authenticate, async (req, res) => {
-  if (!req.user.permissions.edit) return res.status(403).json({ message: 'Không có quyền phân bổ công trình' });
+router.patch('/projects/:id/allocate', authenticate, async (req, res, next) => { // Thêm next
+  if (!req.user.permissions.allocate) return res.status(403).json({ message: 'Không có quyền phân bổ' });
   try {
     const { type } = req.query;
-    if (!type || !['category', 'minor_repair'].includes(type)) {
-      return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
+    const { constructionUnit, allocationWave } = req.body;
+    if (!type || type !== 'category') { // Only category projects can be allocated
+      return res.status(400).json({ message: 'Chỉ công trình danh mục mới có thể được phân bổ.' });
     }
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(req.params.id);
+    if (!constructionUnit || !allocationWave) {
+      return res.status(400).json({ message: 'Đơn vị thi công và Đợt phân bổ là bắt buộc.' });
+    }
+
+    const project = await CategoryProject.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
     if (project.status !== 'Đã duyệt') {
-      return res.status(400).json({ message: 'Chỉ có thể phân bổ công trình đã được duyệt.' });
+      return res.status(400).json({ message: 'Chỉ công trình đã duyệt mới có thể được phân bổ.' });
     }
-    project.allocationWave = req.body.allocationWave || '';
-    await project.save();
-    res.json(project);
-  } catch (error) {
-    console.error("Lỗi API phân bổ công trình:", error);
-    res.status(400).json({ message: 'Lỗi khi phân bổ công trình: ' + error.message });
-  }
-});
 
-router.patch('/projects/:id/assign', authenticate, async (req, res) => {
-  if (!req.user.permissions.edit) return res.status(403).json({ message: 'Không có quyền phân công' });
-  try {
-    const { type } = req.query;
-    if (!type || !['category', 'minor_repair'].includes(type)) {
-      return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
-    }
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    if (project.status !== 'Đã duyệt') {
-      return res.status(400).json({ message: 'Chỉ có thể phân công công trình đã được duyệt.' });
-    }
-    project.assignedTo = req.body.assignedTo || '';
-    await project.save();
-    res.json(project);
-  } catch (error) {
-    console.error("Lỗi API phân công công trình:", error);
-    res.status(400).json({ message: 'Lỗi khi phân công công trình: ' + error.message });
-  }
-});
-
-router.patch('/projects/:id/approve-edit', authenticate, async (req, res) => {
-  if (!req.user.permissions.approve) return res.status(403).json({ message: 'Không có quyền duyệt sửa' });
-  try {
-    const { type } = req.query;
-    if (!type || !['category', 'minor_repair'].includes(type)) {
-      return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
-    }
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    if (!project.pendingEdit) return res.status(400).json({ message: 'Không có yêu cầu sửa nào đang chờ duyệt cho công trình này.' });
-
-    // Cập nhật dữ liệu từ pendingEdit
-    Object.assign(project, project.pendingEdit);
-    project.pendingEdit = null;
-    project.status = 'Đã duyệt'; // Đảm bảo trạng thái là đã duyệt
-    project.approvedBy = req.user.id; // Gán người duyệt là người dùng hiện tại
-
-    // Lưu công trình với validateModifiedOnly để chỉ kiểm tra các trường đã thay đổi
+    project.constructionUnit = constructionUnit;
+    project.allocationWave = allocationWave;
+    project.status = 'Đã phân bổ'; // Update status
     await project.save({ validateModifiedOnly: true });
+    const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
-    // Xử lý thông báo
-    const notification = await Notification.findOne({ projectId: project._id, type: 'edit', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
-    if (notification) {
-      notification.status = 'processed';
-      await notification.save();
-      if (req.io) {
-        req.io.emit('notification_processed', notification._id);
-        // Gửi thông báo cho người tạo yêu cầu
-        const approvedNotification = new Notification({
-          message: `Yêu cầu sửa công trình "${project.name}" đã được duyệt`,
-          type: 'edit',
-          projectId: project._id,
-          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-          status: 'processed',
-          userId: project.createdBy, // Gửi cho người tạo công trình gốc
-        });
-        await approvedNotification.save();
-        req.io.emit('notification', approvedNotification);
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-      }
+    // Create notification for allocation
+    const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type };
+    const notification = new Notification({
+      message: `Công trình "${populatedProject.name}" đã được phân bổ cho ${constructionUnit} (Đợt: ${allocationWave}) bởi ${req.user.username}.`,
+      type: 'allocated',
+      projectId: populatedProject._id,
+      projectModel: 'CategoryProject',
+      status: 'processed',
+      userId: populatedProject.createdBy._id, // Notify creator or relevant users
+    });
+    await notification.save();
+
+    if (req.io) {
+      req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+      req.io.emit('project_allocated', populatedProject);
     }
-    res.json(project);
+
+    res.json({ message: 'Công trình đã được phân bổ.', project: populatedProject });
   } catch (error) {
-    console.error("Lỗi API duyệt sửa:", error);
-    res.status(400).json({ message: 'Lỗi khi duyệt sửa: ' + error.message });
+    logger.error("Lỗi API phân bổ công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
   }
 });
 
-router.patch('/projects/:id/reject-edit', authenticate, async (req, res) => {
-  if (!req.user.permissions.approve) return res.status(403).json({ message: 'Không có quyền từ chối sửa' });
+router.patch('/projects/:id/assign', authenticate, async (req, res, next) => { // Thêm next
+  if (!req.user.permissions.assign) return res.status(403).json({ message: 'Không có quyền giao việc' });
   try {
     const { type } = req.query;
+    const { supervisor, estimator } = req.body; // Estimator only for category
     if (!type || !['category', 'minor_repair'].includes(type)) {
       return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
     }
+    if (!supervisor) {
+      return res.status(400).json({ message: 'Người giám sát là bắt buộc.' });
+    }
+    if (type === 'category' && !estimator) {
+      return res.status(400).json({ message: 'Người dự toán là bắt buộc cho công trình danh mục.' });
+    }
+
     const Model = type === 'category' ? CategoryProject : MinorRepairProject;
     const project = await Model.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    if (!project.pendingEdit) return res.status(400).json({ message: 'Không có yêu cầu sửa nào đang chờ duyệt cho công trình này.' });
 
-    // Hoàn lại trạng thái, không đưa vào RejectedProject
-    project.pendingEdit = null;
-    if (project.status !== 'Chờ duyệt') { // Nếu công trình đã từng được duyệt trước đó
-        project.status = 'Đã duyệt';
+    // Check if project status allows assignment (e.g., 'Đã duyệt' or 'Đã phân bổ')
+    if (!['Đã duyệt', 'Đã phân bổ'].includes(project.status)) {
+        return res.status(400).json({ message: `Công trình với trạng thái "${project.status}" không thể giao việc.` });
     }
-    // Nếu công trình đang 'Chờ duyệt' (tức là yêu cầu sửa được tạo khi công trình mới chưa được duyệt),
-    // thì khi từ chối sửa, nó vẫn ở trạng thái 'Chờ duyệt'.
-    await project.save();
 
-    // Xử lý thông báo
-    const notification = await Notification.findOne({ projectId: project._id, type: 'edit', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
-    if (notification) {
-      notification.status = 'processed'; // Đánh dấu là đã xử lý
-      await notification.save();
-      if (req.io) {
-        req.io.emit('notification_processed', notification._id);
-        // Gửi thông báo cho người tạo yêu cầu
-        const rejectedUserNotification = new Notification({ // Đổi tên biến
-          message: `Yêu cầu sửa công trình "${project.name}" đã bị từ chối`,
-          type: 'edit', // Giữ nguyên type là 'edit'
-          projectId: project._id,
-          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-          status: 'processed', // Đã xử lý
-          userId: project.createdBy, // Gửi cho người tạo công trình gốc
-        });
-        await rejectedUserNotification.save();
-        req.io.emit('notification', rejectedUserNotification);
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
+    project.supervisor = supervisor;
+    if (type === 'category') {
+      project.estimator = estimator;
+    }
+    // Optionally update status if needed, e.g., to 'Đang thực hiện'
+    // project.status = 'Đang thực hiện'; 
+    await project.save({ validateModifiedOnly: true });
+    const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
+
+    // Create notification for assignment
+    const supervisorUser = await User.findById(supervisor).select('fullName');
+    const estimatorUser = type === 'category' && estimator ? await User.findById(estimator).select('fullName') : null;
+    let assignMessage = `Công trình "${populatedProject.name}" đã được giao cho Giám sát: ${supervisorUser.fullName}`;
+    if (estimatorUser) {
+      assignMessage += ` và Dự toán: ${estimatorUser.fullName}`;
+    }
+    assignMessage += ` bởi ${req.user.username}.`;
+
+    const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type };
+    const notification = new Notification({
+      message: assignMessage,
+      type: 'assigned',
+      projectId: populatedProject._id,
+      projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+      status: 'processed',
+      userId: populatedProject.createdBy._id, // Notify creator or relevant users
+    });
+    await notification.save();
+
+    if (req.io) {
+      req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+      req.io.emit('project_assigned', populatedProject);
+    }
+
+    res.json({ message: 'Công trình đã được giao việc.', project: populatedProject });
+  } catch (error) {
+    logger.error("Lỗi API giao việc công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
+  }
+});
+
+// Get all notifications for the logged-in user
+router.get('/notifications', authenticate, async (req, res, next) => { // Thêm next
+  try {
+    // Fetch notifications where the current user is either the creator of the project
+    // or the user who initiated the action (for 'new', 'edit', 'delete' types)
+    // or if the user has 'approve' permission (to see all pending requests)
+
+    const userProjects = await Promise.all([
+      CategoryProject.find({ createdBy: req.user.id }).select('_id'),
+      MinorRepairProject.find({ createdBy: req.user.id }).select('_id')
+    ]).then(([catProjects, minorProjects]) => {
+      return [...catProjects.map(p => p._id), ...minorProjects.map(p => p._id)];
+    });
+
+    let query = {
+      $or: [
+        { userId: req.user.id }, // Notifications for actions taken by the user
+        { projectId: { $in: userProjects } } // Notifications related to projects created by the user
+      ]
+    };
+
+    // If user is an approver, they should see all pending 'new', 'edit', 'delete' notifications
+    if (req.user.permissions.approve) {
+      query = {
+        $or: [
+          ...query.$or,
+          { status: 'pending', type: { $in: ['new', 'edit', 'delete'] } }
+        ]
+      };
+    }
+
+    const notifications = await Notification.find(query)
+      .populate('userId', 'username fullName')
+      .populate({
+        path: 'projectId',
+        select: 'name type', // Select fields you need from the project
+        // Populate 'type' based on projectModel if you store it directly on project
+        // For now, we assume 'type' is available or can be inferred
+      })
+      .sort({ createdAt: -1 })
+      .limit(50); // Limit notifications for performance
+
+    // Manually add projectType to projectId if not directly available
+    const processedNotifications = notifications.map(notif => {
+      const notifObj = notif.toObject();
+      if (notifObj.projectId && !notifObj.projectId.type) {
+        notifObj.projectId.type = notifObj.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
       }
-    }
+      return notifObj;
+    });
 
-    if (req.io) {
-      // Gửi sự kiện để client cập nhật lại danh sách (nếu cần)
-      req.io.emit('project_edit_rejected', { projectId: project._id, projectType: type });
-    } else {
-      console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-    }
-    res.json({ message: 'Đã từ chối yêu cầu sửa. Công trình được hoàn lại trạng thái trước đó.', project });
+    res.json(processedNotifications);
   } catch (error) {
-    console.error("Lỗi API từ chối sửa:", error);
-    res.status(400).json({ message: 'Lỗi khi từ chối sửa: ' + error.message });
+    logger.error("Lỗi API lấy thông báo:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
   }
 });
 
-router.patch('/projects/:id/approve-delete', authenticate, async (req, res) => {
-  if (!req.user.permissions.approve) return res.status(403).json({ message: 'Không có quyền duyệt xóa' });
-  try {
-    const { type } = req.query;
-    if (!type || !['category', 'minor_repair'].includes(type)) {
-      return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
-    }
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    if (!project.pendingDelete) return res.status(400).json({ message: 'Công trình này không có yêu cầu xóa đang chờ duyệt.' });
-
-    const originalProjectId = project._id; // Lưu ID trước khi xóa
-    const originalProjectName = project.name; // Lưu tên trước khi xóa
-    const originalProjectCreatedBy = project.createdBy; // Lưu người tạo
-
-    await Model.deleteOne({ _id: originalProjectId });
-    await updateSerialNumbers(type);
-
-    // Xử lý thông báo
-    const notification = await Notification.findOne({ projectId: originalProjectId, type: 'delete', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
-    if (notification) {
-      notification.status = 'processed';
-      await notification.save();
-      if (req.io) {
-        req.io.emit('notification_processed', notification._id);
-        // Gửi thông báo cho người tạo yêu cầu
-        const deletedUserNotification = new Notification({ // Đổi tên biến
-          message: `Yêu cầu xóa công trình "${originalProjectName}" đã được duyệt`,
-          type: 'delete',
-          projectId: originalProjectId,
-          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-          status: 'processed',
-          userId: originalProjectCreatedBy,
-        });
-        await deletedUserNotification.save();
-        req.io.emit('notification', deletedUserNotification);
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-      }
-    }
-
-    if (req.io) {
-      req.io.emit('project_deleted', { projectId: originalProjectId, projectType: type });
-    } else {
-      console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-    }
-    res.json({ message: 'Đã xóa công trình theo yêu cầu' });
-  } catch (error) {
-    console.error("Lỗi API duyệt xóa:", error);
-    res.status(500).json({ message: 'Lỗi máy chủ khi duyệt xóa công trình: ' + error.message });
-  }
-});
-
-router.patch('/projects/:id/reject-delete', authenticate, async (req, res) => {
-  if (!req.user.permissions.approve) return res.status(403).json({ message: 'Không có quyền từ chối xóa' });
-  try {
-    const { type } = req.query;
-    if (!type || !['category', 'minor_repair'].includes(type)) {
-      return res.status(400).json({ message: 'Loại công trình không hợp lệ.' });
-    }
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    if (!project.pendingDelete) return res.status(400).json({ message: 'Công trình này không có yêu cầu xóa đang chờ duyệt.' });
-
-    // Hoàn lại trạng thái, không đưa vào RejectedProject
-    project.pendingDelete = false;
-    if (project.status !== 'Chờ duyệt') { // Nếu công trình đã từng được duyệt
-        project.status = 'Đã duyệt';
-    }
-    // Nếu công trình đang 'Chờ duyệt' (tức là yêu cầu xóa được tạo khi công trình mới chưa được duyệt),
-    // thì khi từ chối xóa, nó vẫn ở trạng thái 'Chờ duyệt'.
-    await project.save();
-
-    // Xử lý thông báo
-    const notification = await Notification.findOne({ projectId: project._id, type: 'delete', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
-    if (notification) {
-      notification.status = 'processed';
-      await notification.save();
-      if (req.io) {
-        req.io.emit('notification_processed', notification._id);
-        // Gửi thông báo cho người tạo yêu cầu
-        const rejectedUserNotification = new Notification({ // Đổi tên biến
-          message: `Yêu cầu xóa công trình "${project.name}" đã bị từ chối`,
-          type: 'delete',
-          projectId: project._id,
-          projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-          status: 'processed',
-          userId: project.createdBy, // Gửi cho người tạo công trình gốc
-        });
-        await rejectedUserNotification.save();
-        req.io.emit('notification', rejectedUserNotification);
-      } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-      }
-    }
-
-    if (req.io) {
-      // Gửi sự kiện để client cập nhật lại danh sách (nếu cần)
-      req.io.emit('project_delete_rejected', { projectId: project._id, projectType: type });
-    } else {
-      console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-    }
-    res.json({ message: 'Đã từ chối yêu cầu xóa. Công trình được hoàn lại trạng thái trước đó.', project });
-  } catch (error) {
-    console.error("Lỗi API từ chối xóa:", error);
-    res.status(400).json({ message: 'Lỗi khi từ chối xóa: ' + error.message });
-  }
-});
-
-router.post('/rejected-projects/:id/restore', authenticate, async (req, res) => {
-  if (!req.user.permissions.approve) {
-    return res.status(403).json({ message: 'Không có quyền khôi phục công trình.' });
-  }
-  try {
-    const { id: rejectedId } = req.params;
-    const rejectedEntry = await RejectedProject.findById(rejectedId);
-
-    if (!rejectedEntry) {
-      return res.status(404).json({ message: 'Không tìm thấy công trình bị từ chối.' });
-    }
-
-    // Chỉ khôi phục nếu actionType là 'new'
-    if (rejectedEntry.actionType !== 'new') {
-        return res.status(400).json({ message: 'Chỉ có thể khôi phục công trình bị từ chối khi tạo mới.' });
-    }
-
-    const { projectDetails, projectModel } = rejectedEntry; // Không cần originalProjectId và actionType nữa
-    const ModelToRestore = projectModel === 'CategoryProject' ? CategoryProject : MinorRepairProject;
-
-    let restoredProjectData = { ...projectDetails };
-
-    // Xóa _id cũ để MongoDB tạo _id mới, và các trường serial
-    delete restoredProjectData._id;
-    delete restoredProjectData.categorySerialNumber;
-    delete restoredProjectData.minorRepairSerialNumber;
-    delete restoredProjectData.createdAt; // Để mongoose tự tạo
-    delete restoredProjectData.updatedAt; // Để mongoose tự tạo
-    delete restoredProjectData.__v;     // Xóa version key
-
-    // Thiết lập trạng thái và người duyệt
-    restoredProjectData.status = 'Đã duyệt';
-    restoredProjectData.approvedBy = req.user.id; // Người khôi phục là người duyệt
-    restoredProjectData.pendingEdit = null;
-    restoredProjectData.pendingDelete = false;
-    
-    // Đảm bảo createdBy và enteredBy được giữ lại từ bản gốc nếu có
-    // Nếu không, sử dụng thông tin người dùng hiện tại (người khôi phục)
-    restoredProjectData.createdBy = projectDetails.createdBy || req.user.id;
-    restoredProjectData.enteredBy = projectDetails.enteredBy || req.user.username;
-
-
-    const newRestoredProject = new ModelToRestore(restoredProjectData);
-    await newRestoredProject.save(); // Hook pre-save sẽ tự tạo serial number mới
-
-    // Xóa bản ghi khỏi RejectedProject
-    await RejectedProject.findByIdAndDelete(rejectedId);
-    
-    // Cập nhật lại số thứ tự sau khi thêm mới
-    await updateSerialNumbers(projectModel === 'CategoryProject' ? 'category' : 'minor_repair');
-
-    if (req.io) {
-        req.io.emit('project_restored', { projectId: newRestoredProject._id, projectType: projectModel === 'CategoryProject' ? 'category' : 'minor_repair' });
-    } else {
-        console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-    }
-
-    res.status(200).json({ message: 'Công trình đã được khôi phục và duyệt thành công.', project: newRestoredProject });
-
-  } catch (error) {
-    console.error("Lỗi API khôi phục công trình:", error);
-    res.status(500).json({ message: 'Lỗi máy chủ khi khôi phục công trình: ' + error.message });
-  }
-});
-
-router.get('/rejected-projects', authenticate, async (req, res) => {
-  try {
-    const rejectedProjects = await RejectedProject.find()
-      .populate('rejectedBy', 'username')
-      .sort({ rejectedAt: -1 });
-    res.status(200).json(rejectedProjects);
-  } catch (error) {
-    console.error("Lỗi API lấy danh sách công trình bị từ chối:", error);
-    res.status(500).json({ message: "Lỗi máy chủ: " + error.message });
-  }
-});
-
-router.delete('/rejected-projects/:id', authenticate, async (req, res) => {
-    if (!req.user.permissions.delete) { // Hoặc một quyền admin đặc biệt
-        return res.status(403).json({ message: 'Không có quyền xóa vĩnh viễn công trình bị từ chối.' });
-    }
-    try {
-        const rejectedProject = await RejectedProject.findByIdAndDelete(req.params.id);
-        if (!rejectedProject) {
-            return res.status(404).json({ message: 'Không tìm thấy công trình bị từ chối để xóa.' });
-        }
-        // Không cần cập nhật serial number ở đây vì chỉ xóa khỏi bảng rejected
-        if (req.io) {
-            req.io.emit('rejected_project_permanently_deleted', { rejectedId: req.params.id });
-        } else {
-            console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
-        }
-        res.status(200).json({ message: 'Đã xóa vĩnh viễn công trình bị từ chối.' });
-    } catch (error) {
-        console.error("Lỗi API xóa vĩnh viễn công trình bị từ chối:", error);
-        res.status(500).json({ message: 'Lỗi máy chủ khi xóa vĩnh viễn công trình bị từ chối: ' + error.message });
-    }
-});
-
-router.get('/notifications', authenticate, async (req, res) => {
-  try {
-    const { status } = req.query;
-    const query = {};
-    if (status) query.status = status;
-    // Chỉ hiển thị thông báo liên quan đến người dùng
-    if (!req.user.permissions.approve) { // Nếu không phải người duyệt
-      query.userId = req.user.id; // Chỉ lấy thông báo của chính người đó
-    }
-    const notifications = await Notification.find(query).sort({ createdAt: -1 }).populate('projectId', 'name');
-    res.json(notifications);
-  } catch (error) {
-    console.error("Lỗi API lấy thông báo:", error);
-    res.status(500).json({ message: 'Lỗi máy chủ khi lấy thông báo' });
-  }
-});
-
-router.patch('/notifications/:id', authenticate, async (req, res) => {
-  if (!req.user.permissions.approve) return res.status(403).json({ message: 'Không có quyền cập nhật thông báo' });
+// Mark notification as read/processed
+router.patch('/notifications/:id/read', authenticate, async (req, res, next) => { // Thêm next
   try {
     const notification = await Notification.findById(req.params.id);
     if (!notification) return res.status(404).json({ message: 'Không tìm thấy thông báo' });
-    if (req.body.status && ['pending', 'processed'].includes(req.body.status)) {
-      notification.status = req.body.status;
-    } else {
-      return res.status(400).json({ message: 'Trạng thái không hợp lệ.' });
+
+    // Only allow marking as read if it's not a 'pending' approval type notification
+    // or if the user is the one who should act on it (e.g., the approver for pending)
+    // For simplicity now, any user involved or admin can mark as read if not 'pending'
+    if (notification.status === 'pending' && !req.user.permissions.approve) {
+        // A non-approver should not mark pending approval notifications as read
+        // unless it's a notification directed at them that isn't an approval task
+        if (notification.userId.toString() !== req.user.id.toString()) {
+             return res.status(403).json({ message: 'Không có quyền cập nhật thông báo này.' });
+        }
     }
-    await notification.save();
+
+    // For 'pending' notifications, 'approve' or 'reject' actions will change status to 'processed'.
+    // This route is more for general notifications being marked as 'read' (which we can treat as 'processed' if no 'read' status exists)
+    if (notification.status !== 'processed') {
+        notification.status = 'processed'; // Or introduce a 'read' status
+        await notification.save();
+    }
+
     if (req.io) {
-      req.io.emit('notification_processed', notification._id);
-    } else {
-      console.warn('Socket.IO không được khởi tạo, bỏ qua gửi thông báo.');
+      req.io.emit('notification_processed', notification._id); // Notify clients to remove/update it
     }
-    res.json(notification);
+    res.json({ message: 'Thông báo đã được đánh dấu là đã xử lý.', notification });
   } catch (error) {
-    console.error("Lỗi API cập nhật thông báo:", error);
-    res.status(400).json({ message: 'Lỗi khi cập nhật thông báo: ' + error.message });
+    logger.error("Lỗi API cập nhật thông báo:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
   }
 });
+
+
+// Get rejected projects
+router.get('/rejected-projects', authenticate, async (req, res, next) => { // Thêm next
+  if (!req.user.permissions.viewRejected) { // Assuming a specific permission
+    return res.status(403).json({ message: 'Không có quyền xem công trình bị từ chối.' });
+  }
+  try {
+    const { type, page = 1, limit = 10 } = req.query;
+    const query = {};
+    if (type) query.projectType = type;
+
+    const count = await RejectedProject.countDocuments(query);
+    const rejectedProjects = await RejectedProject.find(query)
+      .populate('rejectedBy', 'username fullName')
+      .populate('createdBy', 'username fullName') // Populate original creator
+      .sort({ rejectedAt: -1 })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit));
+
+    res.json({
+      rejectedProjects,
+      total: count,
+      page: parseInt(page),
+      pages: Math.ceil(count / parseInt(limit)),
+    });
+  } catch (error) {
+    logger.error("Lỗi API lấy danh sách công trình bị từ chối:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
+  }
+});
+
+// Route để xóa vĩnh viễn một công trình đã bị từ chối
+router.delete('/rejected-projects/:id', authenticate, async (req, res, next) => {
+  // Chỉ admin mới có quyền xóa vĩnh viễn
+  if (!req.user.permissions.delete || req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Không có quyền xóa vĩnh viễn công trình bị từ chối.' });
+  }
+  try {
+    const rejectedProject = await RejectedProject.findByIdAndDelete(req.params.id);
+    if (!rejectedProject) {
+      return res.status(404).json({ message: 'Không tìm thấy công trình bị từ chối.' });
+    }
+    res.json({ message: 'Công trình bị từ chối đã được xóa vĩnh viễn.' });
+  } catch (error) {
+    logger.error("Lỗi API xóa vĩnh viễn công trình bị từ chối:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
+  }
+});
+
 
 module.exports = router;

@@ -1,5 +1,6 @@
+// d:\CODE\water-company\backend\server\models.js
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt'); // Đảm bảo đã import bcrypt
 
 // SerialCounter Schema
 const serialCounterSchema = new mongoose.Schema({
@@ -23,6 +24,9 @@ const userSchema = new mongoose.Schema({
     edit: { type: Boolean, default: false },
     delete: { type: Boolean, default: false },
     approve: { type: Boolean, default: false },
+    viewRejected: { type: Boolean, default: false }, // Thêm quyền
+    allocate: { type: Boolean, default: false },     // Thêm quyền
+    assign: { type: Boolean, default: false },       // Thêm quyền
   },
 });
 
@@ -37,6 +41,9 @@ userSchema.pre('save', async function (next) {
       edit: true,
       delete: true,
       approve: true,
+      viewRejected: true, // Gán quyền
+      allocate: true,     // Gán quyền
+      assign: true,       // Gán quyền
     };
   }
   next();
@@ -175,26 +182,60 @@ const MinorRepairProject = mongoose.model('MinorRepairProject', minorRepairProje
 // Notification Schema
 const notificationSchema = new mongoose.Schema({
   message: { type: String, required: true },
-  type: { type: String, enum: ['new', 'edit', 'delete'], required: true },
+  type: { type: String, enum: ['new', 'edit', 'delete', 'new_approved', 'edit_approved', 'delete_approved', 'new_rejected', 'edit_rejected', 'delete_rejected', 'allocated', 'assigned'], required: true }, // Bổ sung các type
   projectId: { type: mongoose.Schema.Types.ObjectId, refPath: 'projectModel' },
   projectModel: { type: String, required: true, enum: ['CategoryProject', 'MinorRepairProject'] },
   status: { type: String, enum: ['pending', 'processed'], default: 'pending' },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User liên quan đến notification (người tạo, người nhận)
+  originalProjectId: { type: mongoose.Schema.Types.ObjectId }, // For rejected new projects
   createdAt: { type: Date, default: Date.now },
 });
 const Notification = mongoose.model('Notification', notificationSchema);
 
 // RejectedProject Schema (Công trình bị từ chối)
 const rejectedProjectSchema = new mongoose.Schema({
-  projectId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  projectName: { type: String, required: true },
-  projectModel: { type: String, enum: ['CategoryProject', 'MinorRepairProject'], required: true },
-  actionType: { type: String, enum: ['new', 'edit', 'delete'], required: true },
+  // Các trường từ project gốc sẽ được copy qua đây
+  name: { type: String, required: true, trim: true },
+  allocatedUnit: { type: String, required: true, trim: true },
+  location: { type: String, required: true, trim: true },
+  // ... (thêm các trường chung khác của project)
+  // Các trường riêng của từng loại project
+  categorySerialNumber: { type: Number, sparse: true },
+  minorRepairSerialNumber: { type: Number, sparse: true },
+  scale: { type: String },
+  reportDate: { type: Date },
+  // ... (thêm các trường riêng khác)
+  enteredBy: { type: String, required: true, trim: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  // Thông tin về việc từ chối
+  rejectionReason: { type: String, required: true },
   rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   rejectedAt: { type: Date, default: Date.now },
-  details: { type: mongoose.Schema.Types.Mixed },
-});
+  originalProjectId: { type: mongoose.Schema.Types.ObjectId, required: true, unique: true }, // ID của project gốc
+  projectType: { type: String, enum: ['category', 'minor_repair'], required: true }, // Loại project gốc
+  // Thêm các trường khác của project gốc nếu cần lưu lại
+  constructionUnit: { type: String, default: '', trim: true },
+  allocationWave: { type: String, default: '', trim: true },
+  initialValue: { type: Number, default: 0 },
+  assignedTo: { type: String, default: '', trim: true },
+  estimator: { type: String, default: '', trim: true },
+  supervisor: { type: String, default: '', trim: true },
+  durationDays: { type: Number, default: 0 },
+  startDate: { type: Date },
+  completionDate: { type: Date },
+  taskDescription: { type: String, default: '', trim: true },
+  contractValue: { type: Number, default: 0 },
+  progress: { type: String, default: '', trim: true },
+  feasibility: { type: String, default: '', trim: true },
+  notes: { type: String, default: '', trim: true },
+  estimatedValue: { type: Number, default: 0 },
+  leadershipApproval: { type: String, default: '', trim: true },
+  originalCreatedAt: { type: Date }, // Lưu lại createdAt của project gốc
+  originalUpdatedAt: { type: Date }, // Lưu lại updatedAt của project gốc
+}, { timestamps: true }); // timestamps này sẽ là của rejectedProject document
+
 const RejectedProject = mongoose.model('RejectedProject', rejectedProjectSchema);
+
 
 module.exports = {
   SerialCounter,

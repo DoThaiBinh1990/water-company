@@ -1,3 +1,4 @@
+// d:\CODE\water-company\frontend\src\components\ProjectManagement\ProjectManagementLogic.js
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
@@ -22,28 +23,33 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const [showFilter, setShowFilter] = useState(true);
   const [totalProjectsCount, setTotalProjectsCount] = useState(0);
 
-  const [newProject, setNewProject] = useState(null);
+  // Gom nhóm state filter
+  const [filters, setFilters] = useState({
+    status: '',
+    allocatedUnit: '',
+    constructionUnit: '',
+    name: '',
+    minInitialValue: '',
+    maxInitialValue: '',
+    progress: '',
+    allocationWave: '',
+    supervisor: '',
+    estimator: '',
+    reportDate: '',
+  });
+
+  const [formData, setFormData] = useState(null); // Đổi tên newProject thành formData
   const [editProject, setEditProject] = useState(null);
 
   const [allocateWaves, setAllocateWaves] = useState({});
   const [assignPersons, setAssignPersons] = useState({});
 
-  const [filterStatus, setFilterStatus] = useState('');
-  const [filterAllocatedUnit, setFilterAllocatedUnit] = useState('');
-  const [filterConstructionUnit, setFilterConstructionUnit] = useState('');
-  const [filterName, setFilterName] = useState('');
-  const [filterMinInitialValue, setFilterMinInitialValue] = useState('');
-  const [filterMaxInitialValue, setFilterMaxInitialValue] = useState('');
-  const [filterProgress, setFilterProgress] = useState('');
-  const [filterAllocationWave, setFilterAllocationWave] = useState('');
-  const [filterSupervisor, setFilterSupervisor] = useState('');
-  const [filterEstimator, setFilterEstimator] = useState('');
-  const [filterReportDate, setFilterReportDate] = useState('');
-
   const [allocatedUnits, setAllocatedUnits] = useState([]);
   const [constructionUnitsList, setConstructionUnitsList] = useState([]);
   const [allocationWavesList, setAllocationWavesList] = useState([]);
   const [usersList, setUsersList] = useState([]);
+  const [approversList, setApproversList] = useState([]); // Thêm state cho người duyệt
+  const [projectTypesList, setProjectTypesList] = useState([]); // Thêm state cho loại công trình
 
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +57,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const [isSubmittingAction, setIsSubmittingAction] = useState(false); // State cho các hành động trên bảng
   const [activeTab, setActiveTab] = useState('projects');
 
-  const initialFilters = useMemo(() => ({
+  const initialFilters = useMemo(() => ({ // Vẫn giữ initialFilters để reset
     status: '',
     allocatedUnit: '',
     constructionUnit: '',
@@ -65,7 +71,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     reportDate: '',
   }), []);
 
-  const initialNewProjectState = useCallback(() => {
+  // Đổi tên initialNewProjectState thành initialFormData
+  const initialFormData = useCallback(() => {
     const baseState = {
       name: '',
       allocatedUnit: '',
@@ -77,6 +84,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     };
     if (isCategory) {
       return {
+        // editProjectAndRefetchPending, // This line seems to be a misplaced function call or variable
         ...baseState,
         constructionUnit: '',
         allocationWave: '',
@@ -110,11 +118,12 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   }, [isCategory, user]);
 
   useEffect(() => {
-    setNewProject(initialNewProjectState());
-  }, [initialNewProjectState]);
+    // Khởi tạo formData khi component mount hoặc khi initialFormData thay đổi
+    setFormData(initialFormData());
+  }, [initialFormData]);
 
   const fetchProjects = useCallback(
-    async (pageToFetch = 1, currentSortOrder = sortOrder, filters = {}, isPending = false) => {
+    async (pageToFetch = 1, currentSortOrder = sortOrder, filterParams = {}, isPending = false) => {
       if (!user) {
         setFilteredProjects([]);
         setPendingProjects([]);
@@ -125,24 +134,28 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       setIsLoading(true);
       const params = new URLSearchParams({ type, page: pageToFetch, limit: 10 });
 
-      const currentFilters = {
-        status: filters.status ?? filterStatus,
-        allocatedUnit: filters.allocatedUnit ?? filterAllocatedUnit,
-        constructionUnit: isCategory ? (filters.constructionUnit ?? filterConstructionUnit) : undefined,
-        search: filters.name ?? filterName,
-        minInitialValue: isCategory ? (filters.minInitialValue ?? filterMinInitialValue) : undefined,
-        maxInitialValue: isCategory ? (filters.maxInitialValue ?? filterMaxInitialValue) : undefined,
-        progress: isCategory ? (filters.progress ?? filterProgress) : undefined,
-        allocationWave: isCategory ? (filters.allocationWave ?? filterAllocationWave) : undefined,
-        supervisor: filters.supervisor ?? filterSupervisor,
-        estimator: isCategory ? (filters.estimator ?? filterEstimator) : undefined,
-        reportDate: !isCategory ? (filters.reportDate ?? filterReportDate) : undefined,
-      };
+      // Sử dụng state `filters` đã được gom nhóm
+      const currentActiveFilters = { ...filters, ...filterParams }; // Cho phép ghi đè filter nếu cần
 
-      console.log('Fetching projects with filters:', currentFilters, 'Page:', pageToFetch);
+      // Lọc ra các filter không rỗng để gửi lên API
+      const activeApiFilters = {};
+      if (currentActiveFilters.status) activeApiFilters.status = currentActiveFilters.status;
+      if (currentActiveFilters.allocatedUnit) activeApiFilters.allocatedUnit = currentActiveFilters.allocatedUnit;
+      if (isCategory && currentActiveFilters.constructionUnit) activeApiFilters.constructionUnit = currentActiveFilters.constructionUnit;
+      if (currentActiveFilters.name) activeApiFilters.search = currentActiveFilters.name; // API dùng 'search' cho tên
+      if (isCategory && currentActiveFilters.minInitialValue) activeApiFilters.minInitialValue = currentActiveFilters.minInitialValue;
+      if (isCategory && currentActiveFilters.maxInitialValue) activeApiFilters.maxInitialValue = currentActiveFilters.maxInitialValue;
+      if (isCategory && currentActiveFilters.progress) activeApiFilters.progress = currentActiveFilters.progress;
+      if (isCategory && currentActiveFilters.allocationWave) activeApiFilters.allocationWave = currentActiveFilters.allocationWave;
+      if (currentActiveFilters.supervisor) activeApiFilters.supervisor = currentActiveFilters.supervisor;
+      if (isCategory && currentActiveFilters.estimator) activeApiFilters.estimator = currentActiveFilters.estimator;
+      if (!isCategory && currentActiveFilters.reportDate) activeApiFilters.reportDate = currentActiveFilters.reportDate;
 
-      Object.entries(currentFilters).forEach(([key, value]) => {
-        if (value) {
+
+      console.log('Fetching projects with API filters:', activeApiFilters, 'Page:', pageToFetch);
+
+      Object.entries(activeApiFilters).forEach(([key, value]) => {
+        if (value) { // Đảm bảo chỉ gửi giá trị không rỗng
           params.append(key, value);
         }
       });
@@ -164,15 +177,31 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         const projectsRes = await axios.get(`${API_URL}/api/projects?${params.toString()}`);
         console.log('API Response:', projectsRes.data);
 
-        const filteredData = projectsRes.data.projects || [];
-        let finalProjects = filteredData;
+        const rawProjects = projectsRes.data.projects || [];
+
+        // Chuẩn hóa dữ liệu user ở client-side nếu backend chưa populate đầy đủ
+        const normalizedProjects = rawProjects.map(project => {
+          const newProject = { ...project };
+          ['supervisor', 'estimator', 'createdBy', 'approvedBy'].forEach(userField => {
+            if (newProject[userField] && typeof newProject[userField] === 'string') {
+              // Nếu trường user là string (ID), tìm trong usersList
+              const foundUser = usersList.find(u => u._id === newProject[userField]);
+              if (foundUser) {
+                newProject[userField] = foundUser; // Thay thế ID bằng object user từ usersList
+              }
+            }
+          });
+          if (newProject.pendingEdit && newProject.pendingEdit.requestedBy && typeof newProject.pendingEdit.requestedBy === 'string') {
+            const foundUser = usersList.find(u => u._id === newProject.pendingEdit.requestedBy);
+            if (foundUser) newProject.pendingEdit.requestedBy = foundUser;
+          }
+          return newProject;
+        });
 
         if (isPending) { // Backend already filters based on 'pending=true'
-          setPendingProjects(finalProjects);
+          setPendingProjects(normalizedProjects);
         } else {
-          // The main list might still need some client-side filtering if backend default isn't precise enough
-          // For now, assume backend provides the correct list for the 'projects' tab based on its default filters
-          setFilteredProjects(finalProjects);
+          setFilteredProjects(normalizedProjects);
           setTotalProjectsCount(projectsRes.data.total || 0);
           setTotalPages(projectsRes.data.pages || 1);
         }
@@ -196,17 +225,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       type,
       isCategory,
       sortOrder,
-      filterStatus,
-      filterAllocatedUnit,
-      filterConstructionUnit,
-      filterName,
-      filterMinInitialValue,
-      filterMaxInitialValue,
-      filterProgress,
-      filterAllocationWave,
-      filterSupervisor,
-      filterEstimator,
-      filterReportDate,
+      filters, usersList // usersList đã có ở đây, đảm bảo nó được cập nhật và truyền đi
     ]
   );
 
@@ -214,7 +233,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     setIsLoading(true);
     try {
       const res = await axios.get(`${API_URL}/api/rejected-projects`);
-      setRejectedProjects(res.data || []);
+      setRejectedProjects(res.data.rejectedProjects || []); // Sửa ở đây để lấy rejectedProjects từ response
     } catch (error) {
       console.error("Lỗi khi tải danh sách công trình bị từ chối:", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách công trình bị từ chối!', { position: "top-center" });
@@ -233,9 +252,11 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
           axios.get(`${API_URL}/api/allocation-waves`),
           axios.get(`${API_URL}/api/construction-units`),
           axios.get(`${API_URL}/api/users`),
+          axios.get(`${API_URL}/api/project-types`), // Fetch project types
         ]);
 
         if (results[0].status === 'fulfilled') {
+          // allocatedUnits
           const units = results[0].value.data || [];
           setAllocatedUnits(units.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)));
         } else {
@@ -244,6 +265,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         }
 
         if (results[1].status === 'fulfilled') {
+          // allocationWavesList
           const waves = results[1].value.data || [];
           setAllocationWavesList(waves.map(wave => wave.name || String(wave)));
         } else {
@@ -252,6 +274,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         }
 
         if (results[2].status === 'fulfilled') {
+          // constructionUnitsList
           const constructionUnits = results[2].value.data || [];
           setConstructionUnitsList(constructionUnits.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)));
         } else {
@@ -260,11 +283,23 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         }
 
         if (results[3].status === 'fulfilled') {
-          const users = results[3].value.data || [];
-          setUsersList(users.map(user => user.username || String(user)));
+          // usersList and approversList
+          const usersData = results[3].value.data || [];
+          // usersList cho filter và form sẽ chứa các object { _id, fullName }
+          setUsersList(usersData.map(u => ({ _id: u._id, fullName: u.fullName || u.username || String(u) })));
+          setApproversList(usersData.filter(u => u.permissions?.approve)); // Dùng cho form (cần cả object user)
         } else {
           console.error("Lỗi tải Users:", results[3].reason);
           setUsersList([]);
+          setApproversList([]);
+        }
+
+        if (results[4].status === 'fulfilled') {
+          // projectTypesList
+          setProjectTypesList(results[4].value.data.map(type => type.name || String(type)));
+        } else {
+          console.error("Lỗi tải Project Types:", results[4].reason);
+          setProjectTypesList([]);
         }
       } catch (error) {
         console.error("Lỗi không xác định khi tải dữ liệu phụ trợ:", error);
@@ -273,56 +308,32 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         setAllocationWavesList([]);
         setConstructionUnitsList([]);
         setUsersList([]);
+        setApproversList([]);
+        setProjectTypesList([]);
       }
     };
     fetchAuxData();
   }, [user]);
 
   const debouncedFetchProjects = useCallback(
-    debounce((page, sort, filters, isPending) => {
-      fetchProjects(page, sort, filters, isPending);
+    debounce((page, sort, filterParams, isPending) => { // filterParams để ghi đè tạm thời nếu cần
+      fetchProjects(page, sort, filterParams, isPending);
     }, 500),
-    [fetchProjects]
+    [fetchProjects] // fetchProjects đã có filters trong dependency của nó
   );
 
+  // useEffect để fetch dữ liệu khi filters, currentPage, hoặc sortOrder thay đổi
   useEffect(() => {
     if (user) {
-      fetchProjects(currentPage, sortOrder, {
-        status: filterStatus,
-        allocatedUnit: filterAllocatedUnit,
-        constructionUnit: filterConstructionUnit,
-        name: filterName,
-        minInitialValue: filterMinInitialValue,
-        maxInitialValue: filterMaxInitialValue,
-        progress: filterProgress,
-        allocationWave: filterAllocationWave,
-        supervisor: filterSupervisor,
-        estimator: filterEstimator,
-        reportDate: filterReportDate,
-      }, false);
+      // Gọi fetchProjects với filters hiện tại từ state
+      fetchProjects(currentPage, sortOrder, {}, false);
     }
-  }, [
-    user,
-    type,
-    currentPage,
-    sortOrder,
-    fetchProjects,
-    filterStatus,
-    filterAllocatedUnit,
-    filterConstructionUnit,
-    filterName,
-    filterMinInitialValue,
-    filterMaxInitialValue,
-    filterProgress,
-    filterAllocationWave,
-    filterSupervisor,
-    filterEstimator,
-    filterReportDate,
-  ]);
+  }, [user, type, currentPage, sortOrder, filters, fetchProjects]); // Thêm filters vào dependency
 
+  // useEffect để fetch dữ liệu pending và rejected khi component mount hoặc user thay đổi
   useEffect(() => {
     if (user) {
-      fetchProjects(1, sortOrder, {}, true);
+      fetchProjects(1, sortOrder, {}, true); // Fetch pending projects
       fetchRejectedProjects();
 
       if (!socket.connected) {
@@ -343,6 +354,14 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
           fetchRejectedProjects();
         }
       });
+      
+      socket.on('project_rejected_and_removed', ({ projectId, projectType }) => { // Thêm sự kiện này
+        if (projectType === type) {
+          fetchProjects(currentPage, sortOrder, {}, false);
+          fetchProjects(1, sortOrder, {}, true);
+          fetchRejectedProjects();
+        }
+      });
 
       socket.on('notification_processed', () => {
         fetchProjects(currentPage, sortOrder, {}, false);
@@ -352,6 +371,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       return () => {
         socket.off('project_deleted');
         socket.off('project_rejected');
+        socket.off('project_rejected_and_removed'); // Hủy đăng ký
         socket.off('notification_processed');
       };
     } else {
@@ -362,49 +382,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       setCurrentPage(1);
       setTotalProjectsCount(0);
     }
-  }, [
-    user,
-    type,
-    sortOrder,
-    fetchProjects,
-    fetchRejectedProjects,
-    currentPage,
-  ]);
+  }, [user, type, sortOrder, fetchProjects, fetchRejectedProjects, currentPage]); // currentPage có thể không cần ở đây nếu fetchProjects đã xử lý
 
-  useEffect(() => {
-    if (user) {
-      debouncedFetchProjects(currentPage, sortOrder, {
-        status: filterStatus,
-        allocatedUnit: filterAllocatedUnit,
-        constructionUnit: filterConstructionUnit,
-        name: filterName,
-        minInitialValue: filterMinInitialValue,
-        maxInitialValue: filterMaxInitialValue,
-        progress: filterProgress,
-        allocationWave: filterAllocationWave,
-        supervisor: filterSupervisor,
-        estimator: filterEstimator,
-        reportDate: filterReportDate,
-      }, false);
-      debouncedFetchProjects(1, sortOrder, {}, true);
-    }
-  }, [
-    filterStatus,
-    filterAllocatedUnit,
-    filterConstructionUnit,
-    filterName,
-    filterMinInitialValue,
-    filterMaxInitialValue,
-    filterProgress,
-    filterAllocationWave,
-    filterSupervisor,
-    filterEstimator,
-    filterReportDate,
-    user,
-    sortOrder,
-    debouncedFetchProjects,
-    currentPage,
-  ]);
 
   const handleSortChange = (e) => {
     const newSortOrder = e.target.value;
@@ -412,22 +391,12 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   };
 
   const handleResetFilters = useCallback(() => {
-    setFilterStatus(initialFilters.status);
-    setFilterAllocatedUnit(initialFilters.allocatedUnit);
-    setFilterConstructionUnit(initialFilters.constructionUnit);
-    setFilterName(initialFilters.name);
-    setFilterMinInitialValue(initialFilters.minInitialValue);
-    setFilterMaxInitialValue(initialFilters.maxInitialValue);
-    setFilterProgress(initialFilters.progress);
-    setFilterAllocationWave(initialFilters.allocationWave);
-    setFilterSupervisor(initialFilters.supervisor);
-    setFilterEstimator(initialFilters.estimator);
-    setFilterReportDate(initialFilters.reportDate);
+    setFilters(initialFilters); // Reset toàn bộ object filters
   }, [initialFilters]);
 
   const openAddNewModal = () => {
     setEditProject(null);
-    setNewProject(initialNewProjectState());
+    setFormData(initialFormData()); // Sử dụng initialFormData
     setIsLoading(false);
     setIsSubmitting(false);
     setShowModal(true);
@@ -438,14 +407,22 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     const formatForInput = (dateStr) => dateStr ? new Date(dateStr).toISOString().split('T')[0] : '';
     let projectDataToSet = {};
 
+    // Helper function to safely get user ID
+    const getUserId = (userData) => {
+      if (userData && typeof userData === 'object' && userData._id) {
+        return userData._id;
+      }
+      return userData || ''; // Return the string ID or empty string
+    };
+
     const baseData = {
       name: project.name || '',
       allocatedUnit: project.allocatedUnit || '',
-      supervisor: project.supervisor || '',
+      supervisor: getUserId(project.supervisor), // Sẽ là _id
       taskDescription: project.taskDescription || '',
       notes: project.notes || '',
-      approvedBy: project.approvedBy?._id || '',
-      createdBy: project.createdBy?._id || project.createdBy || user?._id || '',
+      approvedBy: getUserId(project.approvedBy),
+      createdBy: getUserId(project.createdBy) || user?._id || '', // createdBy thường không thay đổi khi edit
     };
 
     if (isCategory) {
@@ -456,7 +433,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         location: project.location || '',
         scale: project.scale || '',
         initialValue: project.initialValue ?? '',
-        estimator: project.estimator || '',
+        estimator: getUserId(project.estimator), // Sẽ là _id
         durationDays: project.durationDays ?? '',
         startDate: formatForInput(project.startDate),
         completionDate: formatForInput(project.completionDate),
@@ -480,47 +457,29 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         leadershipApproval: project.leadershipApproval || '',
       };
     }
-    setNewProject(projectDataToSet);
+    setFormData(projectDataToSet); // Sử dụng setFormData
     setIsLoading(false);
     setIsSubmitting(false);
     setShowModal(true);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type: inputType, checked } = e.target;
-    setNewProject((prev) => ({
-      ...prev,
-      [name]: inputType === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleNumericInputChange = (e) => {
-    const { name, value } = e.target;
-    if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
-      setNewProject((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
-
   const saveProject = async () => {
     // Kiểm tra các trường bắt buộc cho cả tạo mới và cập nhật
     if (isCategory) {
-      if (!newProject.name || !newProject.allocatedUnit || !newProject.projectType || !newProject.scale || !newProject.location || !newProject.approvedBy) {
+      if (!formData.name || !formData.allocatedUnit || !formData.projectType || !formData.scale || !formData.location || !formData.approvedBy) {
         toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, Địa điểm XD, và Người phê duyệt!', { position: "top-center" });
         return;
       }
     } else {
       // Áp dụng kiểm tra cho cả tạo mới và cập nhật
-      if (!newProject.name || !newProject.allocatedUnit || !newProject.location || !newProject.scale || !newProject.reportDate || !newProject.approvedBy) {
+      if (!formData.name || !formData.allocatedUnit || !formData.location || !formData.scale || !formData.reportDate || !formData.approvedBy) {
         toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên công trình, Đơn vị phân bổ, Địa điểm, Quy mô, Ngày xảy ra sự cố, và Người phê duyệt!', { position: "top-center" });
         return;
       }
     }
 
     setIsSubmitting(true);
-    let projectPayload = { ...newProject, type };
+    let projectPayload = { ...formData, type }; // Sử dụng formData
     console.log("Dữ liệu gửi đi để lưu công trình:", projectPayload);
 
     const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue', 'estimatedValue'];
@@ -546,7 +505,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     fieldsToRemove.forEach(field => delete projectPayload[field]);
 
     if (!isCategory && !editProject) {
-      delete projectPayload.serial;
+      // delete projectPayload.serial; // Backend sẽ tự tạo serial nếu không có
     }
 
     try {
@@ -557,7 +516,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       if (editProject) {
         response = await axios.patch(`${API_URL}/api/projects/${editProject._id}?type=${type}`, projectPayload);
         successMessage = response.data.message || 'Đã cập nhật công trình thành công!';
-        if (response.data?.pendingEdit) {
+        if (response.data?.project?.pendingEdit) { // Sửa ở đây để kiểm tra project.pendingEdit
           successMessage = 'Đã gửi yêu cầu sửa công trình!';
         }
       } else {
@@ -565,28 +524,18 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         successMessage = response.data.message || 'Đã đăng ký công trình thành công!';
         fetchPage = 1;
       }
+      // Thông báo chỉ nên hiển thị "Chờ duyệt" nếu đó là trường hợp thực tế
+      toast.success(successMessage + (response.data?.project?.pendingEdit || (!editProject && response.data?.project?.status === 'Chờ duyệt') ? ' Công trình đang ở trạng thái "Chờ duyệt".' : ''), { position: "top-center" });
 
-      toast.success(successMessage + ' Công trình đang ở trạng thái "Chờ duyệt".', { position: "top-center" });
 
-      setNewProject(initialNewProjectState());
+      setFormData(initialFormData()); // Reset formData
 
       if (fetchPage !== currentPage) {
-        setCurrentPage(fetchPage);
+        setCurrentPage(fetchPage); // This will trigger useEffect to refetch
       } else {
-        fetchProjects(fetchPage, sortOrder, {
-          status: filterStatus,
-          allocatedUnit: filterAllocatedUnit,
-          constructionUnit: filterConstructionUnit,
-          name: filterName,
-          minInitialValue: filterMinInitialValue,
-          maxInitialValue: filterMaxInitialValue,
-          progress: filterProgress,
-          allocationWave: filterAllocationWave,
-          supervisor: filterSupervisor,
-          estimator: filterEstimator,
-          reportDate: filterReportDate,
-        }, false);
-        fetchProjects(1, sortOrder, {}, true);
+        // If on the same page, manually refetch
+        fetchProjects(fetchPage, sortOrder, {}, false);
+        fetchProjects(1, sortOrder, {}, true); // Refetch pending
       }
 
       setShowModal(false);
@@ -605,16 +554,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     }
     setIsSubmittingAction(true);
     try {
-      // Backend cần xử lý:
-      // Frontend chỉ cần gửi ID của rejected entry. Backend sẽ tự lấy thông tin cần thiết.
-      // Tuy nhiên, để giữ nguyên cấu trúc hiện tại, ta vẫn gửi các tham số này,
-      // backend có thể dùng chúng hoặc lấy trực tiếp từ rejectedEntry.
-      // Quan trọng là backend sẽ tạo mới công trình trong bảng gốc với status 'Đã duyệt'
-      // và xóa entry khỏi bảng rejected.
       const response = await axios.post(`${API_URL}/api/rejected-projects/${rejectedId}/restore`, {
-        // Các tham số này có thể không cần thiết nếu backend tự lấy từ rejectedId
-        // nhưng để an toàn, ta vẫn gửi nếu backend hiện tại đang dùng.
-        // Nếu backend đã được sửa để chỉ cần rejectedId, có thể bỏ các tham số này.
         projectDetails,
         projectModel,
         originalProjectId,
@@ -622,8 +562,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       });
       toast.success('Công trình đã được khôi phục và duyệt thành công!');
       fetchRejectedProjects(); // Tải lại danh sách bị từ chối
-      // Tải lại danh sách chính và danh sách chờ duyệt, về trang 1 và sắp xếp mặc định
-      fetchProjects(1, sortOrder, {}, false); // Sử dụng sortOrder hiện tại hoặc mặc định
+      fetchProjects(1, sortOrder, {}, false);
       if (user?.permissions?.approve) {
         fetchProjects(1, sortOrder, {}, true);
       }
@@ -639,7 +578,6 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn công trình bị từ chối này? Hành động này không thể hoàn tác.')) {
       setIsSubmittingAction(true);
       try {
-        // Backend cần có API để xóa vĩnh viễn từ collection RejectedProject
         await axios.delete(`${API_URL}/api/rejected-projects/${rejectedId}`);
         toast.success('Công trình bị từ chối đã được xóa vĩnh viễn.');
         setRejectedProjects(prev => prev.filter(p => p._id !== rejectedId));
@@ -652,22 +590,20 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     }
   };
 
-
-
-
   const handleActionWithConfirm = async (actionPromise, successMessage, confirmMessage = "Bạn có chắc chắn?") => {
     if (window.confirm(confirmMessage)) {
-      setIsSubmitting(true);
+      setIsSubmittingAction(true); // Sử dụng isSubmittingAction
       try {
         const response = await actionPromise();
         toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
-        fetchProjects(currentPage, sortOrder, {}, false);
-        fetchProjects(1, sortOrder, {}, true);
+        // Sau khi hành động thành công, cần refetch dữ liệu cho cả 2 tab chính và pending
+        fetchProjects(currentPage, sortOrder, {}, false); // Tải lại trang hiện tại của tab chính
+        fetchProjects(1, sortOrder, {}, true); // Tải lại tab pending (thường bắt đầu từ trang 1)
       } catch (err) {
         console.error("Lỗi hành động:", err.response?.data?.message || err.message);
         toast.error(err.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
       } finally {
-        setIsSubmitting(false);
+        setIsSubmittingAction(false); // Sử dụng isSubmittingAction
       }
     }
   };
@@ -675,7 +611,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const deleteProject = (id) =>
     handleActionWithConfirm(
       () => axios.delete(`${API_URL}/api/projects/${id}?type=${type}`),
-      null,
+      null, // Success message will come from backend or default in handleActionWithConfirm
       "Xác nhận Xóa hoặc gửi Yêu cầu xóa công trình này?"
     );
 
@@ -686,68 +622,118 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       "Xác nhận DUYỆT công trình này?"
     );
 
-  const rejectProject = (id) =>
+  const rejectProject = (id) => {
+    const reason = prompt("Vui lòng nhập lý do từ chối:");
+    if (reason === null) return; // User cancelled
+    if (!reason || reason.trim() === "") {
+      toast.error("Lý do từ chối không được để trống.");
+      return;
+    }
     handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/reject?type=${type}`),
+      () => axios.patch(`${API_URL}/api/projects/${id}/reject?type=${type}`, { reason }),
       'Đã từ chối công trình!',
       "Xác nhận TỪ CHỐI công trình này?"
     );
+  }
+
 
   const allocateProject = (id) => {
-    const wave = allocateWaves[id];
-    if (!wave) {
-      toast.error('Vui lòng chọn đợt phân bổ!', { position: "top-center" });
+    const constructionUnit = prompt("Nhập đơn vị thi công:");
+    if (constructionUnit === null) return;
+    if (!constructionUnit || constructionUnit.trim() === "") {
+      toast.error("Đơn vị thi công không được để trống.");
       return;
     }
+    const allocationWave = prompt("Nhập đợt phân bổ:");
+    if (allocationWave === null) return;
+    if (!allocationWave || allocationWave.trim() === "") {
+      toast.error("Đợt phân bổ không được để trống.");
+      return;
+    }
+
     handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/allocate?type=${type}`, { allocationWave: wave }),
+      () => axios.patch(`${API_URL}/api/projects/${id}/allocate?type=${type}`, { constructionUnit: constructionUnit.trim(), allocationWave: allocationWave.trim() }),
       'Đã phân bổ công trình!',
-      `Phân bổ công trình vào đợt "${wave}"?`
-    ).then(() => setAllocateWaves((prev) => ({ ...prev, [id]: '' })));
+      `Phân bổ cho ĐVTC "${constructionUnit.trim()}" (Đợt: "${allocationWave.trim()}")?`
+    );
   };
 
   const assignProject = (id) => {
-    const person = assignPersons[id];
-    if (!person || person.trim() === "") {
-      toast.error('Vui lòng nhập người phụ trách!', { position: "top-center" });
+    const supervisor = prompt("Nhập ID người giám sát:");
+    if (supervisor === null) return;
+    if (!supervisor || supervisor.trim() === "") {
+      toast.error("ID người giám sát không được để trống.");
       return;
     }
+    let estimator = null;
+    if (isCategory) {
+      estimator = prompt("Nhập ID người dự toán (nếu có):");
+      if (estimator === null) return; // User cancelled at estimator prompt
+    }
+
+    const payload = { supervisor: supervisor.trim() };
+    if (isCategory && estimator && estimator.trim() !== "") {
+      payload.estimator = estimator.trim();
+    }
+
     handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/assign?type=${type}`, { assignedTo: person.trim() }),
-      'Đã phân công công trình!',
-      `Phân công cho "${person.trim()}"?`
-    ).then(() => setAssignPersons((prev) => ({ ...prev, [id]: '' })));
+      () => axios.patch(`${API_URL}/api/projects/${id}/assign?type=${type}`, payload),
+      'Đã giao việc cho công trình!',
+      `Giao việc cho Giám sát ID: "${supervisor.trim()}"` + (isCategory && estimator && estimator.trim() ? ` và Dự toán ID: "${estimator.trim()}"` : "") + "?"
+    );
   };
+
 
   const approveEditProject = (id) =>
     handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/approve-edit?type=${type}`),
+      () => axios.patch(`${API_URL}/api/projects/${id}/approve?type=${type}`), // Sửa URL ở đây
       'Đã duyệt yêu cầu sửa!',
       "Xác nhận DUYỆT yêu cầu sửa công trình này?"
     );
 
-  const rejectEditProject = (id) =>
+  const rejectEditProject = (id) => {
+    const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu sửa:");
+    if (reason === null) return;
+    if (!reason || reason.trim() === "") {
+      toast.error("Lý do từ chối không được để trống.");
+      return;
+    }
     handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/reject-edit?type=${type}`),
-      'Đã từ chối yêu cầu sửa. Công trình trở lại trạng thái đã duyệt.',
+      () => axios.patch(`${API_URL}/api/projects/${id}/reject?type=${type}`, { reason }), // Backend dùng chung route /reject
+      'Đã từ chối yêu cầu sửa.',
       "Xác nhận TỪ CHỐI yêu cầu sửa công trình này?"
     );
+  }
+
 
   const approveDeleteProject = (id) =>
     handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/approve-delete?type=${type}`),
-      'Đã duyệt yêu cầu xóa. Công trình sẽ bị xóa sau khi quản trị viên xác nhận.', // Hoặc 'Công trình đã được xóa!' nếu xóa ngay
+      () => axios.patch(`${API_URL}/api/projects/${id}/approve?type=${type}`), // Backend dùng chung route /approve
+      'Đã duyệt yêu cầu xóa.',
       "Xác nhận DUYỆT yêu cầu xóa công trình này?"
     );
 
-  const rejectDeleteProject = (id) =>
+  const rejectDeleteProject = (id) => {
+    const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu xóa:");
+    if (reason === null) return;
+    if (!reason || reason.trim() === "") {
+      toast.error("Lý do từ chối không được để trống.");
+      return;
+    }
     handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/reject-delete?type=${type}`),
-      'Đã từ chối yêu cầu xóa. Công trình trở lại trạng thái đã duyệt.',
+      () => axios.patch(`${API_URL}/api/projects/${id}/reject?type=${type}`, { reason }), // Backend dùng chung route /reject
+      'Đã từ chối yêu cầu xóa.',
       "Xác nhận TỪ CHỐI yêu cầu xóa công trình này?"
     );
+  }
 
-  return {
+
+// Hàm mới: Lưu và refetch lại pendingProjects
+// const editProjectAndRefetchPending = async () => { // This function seems unused, consider removing or implementing
+//     await saveProject();
+//     await fetchProjects(1, sortOrder, {}, true);
+// };
+return {
     filteredProjects,
     pendingProjects,
     rejectedProjects,
@@ -759,47 +745,30 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     showFilter,
     setShowFilter,
     totalProjectsCount,
-    newProject,
-    setNewProject,
+    formData,
+    setFormData,
     editProject,
     setEditProject,
     allocateWaves,
     setAllocateWaves,
     assignPersons,
-    setAssignPersons,
-    filterStatus,
-    setFilterStatus,
-    filterAllocatedUnit,
-    setFilterAllocatedUnit,
-    filterConstructionUnit,
-    setFilterConstructionUnit,
-    filterName,
-    setFilterName,
-    filterMinInitialValue,
-    setFilterMinInitialValue,
-    filterMaxInitialValue,
-    setFilterMaxInitialValue,
-    filterProgress,
-    setFilterProgress,
-    filterAllocationWave,
-    setFilterAllocationWave,
-    filterSupervisor,
-    setFilterSupervisor,
-    filterEstimator,
-    setFilterEstimator,
-    filterReportDate,
-    setFilterReportDate,
+    setAssignPersons, // Giữ lại setAssignPersons vì nó được dùng trong renderTableActions
     allocatedUnits,
     constructionUnitsList,
     allocationWavesList,
     usersList,
+    approversList,
+    projectTypesList,
     showModal,
     setShowModal,
     isLoading,
+    isSubmittingAction, // Export isSubmittingAction
     isSubmitting,
     activeTab,
     setActiveTab,
-    initialNewProjectState,
+    initialFormData,
+    filters, // Export state filters mới
+    setFilters, // Export setter cho state filters mới
     fetchProjects,
     fetchRejectedProjects,
     debouncedFetchProjects,
@@ -807,8 +776,6 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     handleResetFilters,
     openAddNewModal,
     openEditModal,
-    handleInputChange,
-    handleNumericInputChange,
     saveProject,
     deleteProject,
     approveProject,
@@ -819,8 +786,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     rejectEditProject,
     approveDeleteProject,
     rejectDeleteProject,
-    restoreRejectedProject, // Thêm hàm mới
-    permanentlyDeleteRejectedProject, // Thêm hàm mới
+    restoreRejectedProject,
+    permanentlyDeleteRejectedProject,
   };
 }
 

@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\CODE\\water-company\\backend\\server\\logs\\.8a83b5d767cb21e4be00df91d42634f3783b042b-audit.json",
+    "files": [
+        {
+            "date": 1747483454884,
+            "name": "D:\\CODE\\water-company\\backend\\server\\logs\\application-2025-05-17.log",
+            "hash": "b6ab42166a4c5fb7c93e349d53683b2937b9710d55817b9e9694cc31ad38ad9e"
+        }
+    ],
+    "hashType": "sha256"
+}
