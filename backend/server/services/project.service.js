@@ -4,8 +4,8 @@ const { populateProjectFields, updateSerialNumbers } = require('../utils'); // �
 const logger = require('../config/logger'); // Import logger
 
 const getProjectsList = async (queryParams) => {
-  const { type, page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress, pending, supervisor, estimator } = queryParams;
-  const Model = type === 'category' ? CategoryProject : MinorRepairProject;
+  const { type = 'category', page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress, pending, supervisor, estimator } = queryParams; // Mặc định type là 'category'
+  const Model = type === 'category' ? CategoryProject : MinorRepairProject; // Bây giờ logic này sẽ đúng hơn
   const query = {};
 
   // Common search conditions
@@ -123,9 +123,11 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     throw error;
   }
 
-  const canEditDirectly = user.permissions.edit && project.status !== 'Đã duyệt';
-  const canRequestEdit = user.permissions.edit && (project.enteredBy === user.username || user.role === 'admin');
   const isApprover = user.permissions.approve;
+  // Admin hoặc người có quyền approve có thể sửa trực tiếp project đã duyệt
+  const canEditDirectly = (user.permissions.edit && project.status !== 'Đã duyệt') || (user.role === 'admin' || isApprover);
+  const canRequestEdit = user.permissions.edit && (project.enteredBy === user.username || user.role === 'admin');
+
 
   const currentUpdateData = { ...updateData };
 
@@ -134,15 +136,16 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
   }
   delete currentUpdateData.createdBy; // Không cho phép cập nhật createdBy từ request
 
-  // Nếu công trình đã duyệt và người dùng không phải là người duyệt, không cho phép sửa một số trường nhạy cảm
-  if (project.status === 'Đã duyệt' && !isApprover) {
+  // Nếu công trình đã duyệt và người dùng không phải là người duyệt (và không phải admin), không cho phép sửa một số trường nhạy cảm
+  if (project.status === 'Đã duyệt' && !isApprover && user.role !== 'admin') {
     delete currentUpdateData.status;
     delete currentUpdateData.categorySerialNumber;
     delete currentUpdateData.minorRepairSerialNumber;
     // Có thể thêm các trường khác không cho phép sửa ở đây
   }
 
-  if (canRequestEdit && project.status === 'Đã duyệt') {
+  // Chỉ tạo pendingEdit nếu không phải admin/approver và project đã duyệt và user có quyền yêu cầu sửa
+  if (canRequestEdit && project.status === 'Đã duyệt' && !(user.role === 'admin' || isApprover)) {
     const dataToPending = { ...currentUpdateData };
     delete dataToPending.status; // Không cho phép thay đổi status khi yêu cầu sửa
 
@@ -205,7 +208,7 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     await notification.save();
     if (io) io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
     return { message: 'Yêu cầu sửa đã được gửi để chờ duyệt', project: populatedProject, updated: true, pending: true };
-  } else if (canEditDirectly) {
+  } else if (canEditDirectly) { // Bao gồm cả trường hợp admin/approver sửa project đã duyệt
     Object.assign(project, currentUpdateData);
     await project.save({ validateModifiedOnly: true });
     const populatedProject = await populateProjectFields(project);
