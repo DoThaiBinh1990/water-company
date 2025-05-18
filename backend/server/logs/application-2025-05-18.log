@@ -495,3 +495,41 @@
 2025-05-18 19:32:16 info: Một người dùng đã kết nối: 1EIu1Ys24j5WgyWUAAAB
 2025-05-18 19:32:16 info: Một người dùng đã kết nối: p90mwIbjelexTZM-AAAD
 2025-05-18 19:32:16 info: MongoDB đã kết nối thành công.
+2025-05-18 22:58:49 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 22:58:49 info: MongoDB đã kết nối thành công.
+2025-05-18 23:18:30 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 23:18:31 info: MongoDB đã kết nối thành công.
+2025-05-18 23:21:01 info: Một người dùng đã kết nối: BKZRRWPAYHF1jq6pAAAC
+2025-05-18 23:21:01 info: Một người dùng đã kết nối: Jw_ljTlE9Ssh4OfYAAAD
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Ngũ Lão" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Dã Tượng (Đoạn từ SN 05 đến SN 070)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Kim Hải, Hồ Xuân Hương" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Hồng Thái ( Đoạn từ SN 034 đến SN 048)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Lương Thế Vinh" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Minh Khai (Từ ngã 3 giao Lê Ngọc Hân đến ngã 4 giao đường Hợp Thành- hai bên đường)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Khánh Yên (Đoạn từ SN 07 đến SN 103)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Khánh Yên (Đoạn từ SN 02 đến văn phòng Cảnh sát trật tự Ga Lào Cai)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Khánh Yên (Đoạn từ đường Quảng trường Ga đến SN 210, từ SN103 đến 225)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:26:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Hà Bổng (hai bên đường)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:40:00 info: Người dùng đã ngắt kết nối: BKZRRWPAYHF1jq6pAAAC
+2025-05-18 23:40:00 info: Người dùng đã ngắt kết nối: Jw_ljTlE9Ssh4OfYAAAD
+2025-05-18 23:40:06 info: Một người dùng đã kết nối: u7e_4aRObm5MrGVkAAAG
+2025-05-18 23:40:06 info: Một người dùng đã kết nối: nqX6dDC4iYS6HzNPAAAH
+2025-05-18 23:41:01 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Ngũ Lão" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Dã Tượng (Đoạn từ SN 05 đến SN 070)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Kim Hải, Hồ Xuân Hương" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Hồng Thái ( Đoạn từ SN 034 đến SN 048)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Lương Thế Vinh" từ Excel: Không tìm thấy người dùng "681e3c02f1cb6f545a296ba4" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Minh Khai (Từ ngã 3 giao Lê Ngọc Hân đến ngã 4 giao đường Hợp Thành- hai bên đường)" từ Excel: Không tìm thấy người dùng "6819c512f2d5dca31c312e6e" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Khánh Yên (Đoạn từ SN 07 đến SN 103)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Khánh Yên (Đoạn từ SN 02 đến văn phòng Cảnh sát trật tự Ga Lào Cai)" từ Excel: Không tìm thấy người dùng "6819dbdab39ddc757e4b0efa" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Khánh Yên (Đoạn từ đường Quảng trường Ga đến SN 210, từ SN103 đến 225)" từ Excel: Không tìm thấy người dùng "68253af0ae2af2c31a6872a3" cho trường Người phê duyệt.
+2025-05-18 23:41:02 error: Lỗi khi nhập công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Hà Bổng (hai bên đường)" từ Excel: Không tìm thấy người dùng "68253af0ae2af2c31a6872a3" cho trường Người phê duyệt.
+2025-05-18 23:59:35 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 23:59:35 info: Một người dùng đã kết nối: jmt5oO_UkMWsI4DKAAAB
+2025-05-18 23:59:35 info: MongoDB đã kết nối thành công.
+2025-05-18 23:59:40 info: Một người dùng đã kết nối: -E1jAfovFlJZHZ4ZAAAD
+2025-05-18 23:59:42 info: Người dùng đã ngắt kết nối: jmt5oO_UkMWsI4DKAAAB
+2025-05-18 23:59:42 info: Người dùng đã ngắt kết nối: -E1jAfovFlJZHZ4ZAAAD
+2025-05-18 23:59:50 info: Một người dùng đã kết nối: _xtP3bC4WPHxLzsTAAAG
+2025-05-18 23:59:50 info: Một người dùng đã kết nối: FOwh_rQmUI_rPNaUAAAH

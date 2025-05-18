@@ -42,9 +42,8 @@ exports.createProject = async (req, res, next) => {
 };
 
 exports.updateProject = async (req, res, next) => {
-  if (!req.user.permissions.edit) { // Kiểm tra quyền edit cơ bản ở controller
-      return res.status(403).json({ message: 'Không có quyền sửa công trình.' });
-  }
+  // Bỏ kiểm tra user.permissions.edit ở đây, service sẽ xử lý chi tiết
+  // if (!req.user.permissions.edit) return res.status(403).json({ message: 'Không có quyền sửa công trình.' });
   try {
     const { type } = req.query;
     const projectId = req.params.id;
@@ -74,79 +73,35 @@ exports.deleteProject = async (req, res, next) => {
       return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
     }
 
-    const Model = type === 'category' ? CategoryProject : MinorRepairProject;
-    const project = await Model.findById(projectId);
-
-    if (!project) {
-      return res.status(404).json({ message: 'Không tìm thấy công trình' });
-    }
-
-    const isUserAdmin = user.role === 'admin';
-    const isUserOfficeManagement = ['director', 'deputy_director', 'manager-office', 'deputy_manager-office'].includes(user.role);
-    const isUserBranchManagement = ['manager-branch', 'deputy_manager-branch'].includes(user.role);
-    const isUserOfficeStaff = user.role === 'staff-office';
-    const isUserBranchStaff = user.role === 'staff-branch';
-
-    const isUserApprover = user.permissions.approve; // Người có quyền duyệt chung
-    const userHasDeletePermission = user.permissions.delete;
-
-    const isProjectCreator = project.createdBy && project.createdBy.toString() === user.id;
-    const projectBelongsToUserUnit = user.unit && project.allocatedUnit === user.unit;
-
-    // 1. Admin xóa trực tiếp (bất kể trạng thái)
-    if (isUserAdmin) {
-      const result = await projectService.deleteProjectById(projectId, type, user, req.io);
-      return res.json(result);
-    }
-
-    // 2. Người có quyền duyệt (approve) duyệt yêu cầu xóa (project.pendingDelete = true)
-    // Chỉ áp dụng nếu họ không phải admin (admin đã xử lý ở trên)
-    if (isUserApprover && project.pendingDelete) {
-      const result = await projectService.deleteProjectById(projectId, type, user, req.io);
-      return res.json(result);
-    }
-
-    // 3. Các vai trò khác có quyền 'delete'
-    if (userHasDeletePermission) {
-      let canPerformAction = false;
-
-      if (isUserOfficeManagement || isUserOfficeStaff) { // Quản lý công ty, Nhân viên phòng -> Xóa/YC xóa tất cả
-        canPerformAction = true;
-      } else if (isUserBranchManagement) { // Quản lý chi nhánh
-        canPerformAction = projectBelongsToUserUnit; // Xóa/YC xóa CT thuộc chi nhánh mình
-      } else if (isUserBranchStaff) { // Nhân viên chi nhánh
-        canPerformAction = isProjectCreator && projectBelongsToUserUnit;
-      }
-
-      if (canPerformAction) {
-        if (project.status !== 'Đã duyệt') { // Xóa trực tiếp công trình CHƯA DUYỆT
-          const result = await projectService.deleteProjectById(projectId, type, user, req.io);
-          return res.json(result);
-        } else if (!project.pendingDelete) { // Yêu cầu xóa công trình ĐÃ DUYỆT (và chưa có yêu cầu xóa trước đó)
-          project.pendingDelete = true;
-          await project.save();
-          const populatedProjectForNotification = { _id: project._id, name: project.name, type };
-          const notification = new Notification({
-            message: `Yêu cầu xóa công trình "${project.name}" bởi ${user.username}`,
-            type: 'delete', projectId: project._id, projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-            status: 'pending', userId: user.id,
-          });
-          await notification.save();
-          if (req.io) req.io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-          return res.json({ message: 'Yêu cầu xóa đã được gửi để chờ duyệt.', project: { _id: project._id, name: project.name, pendingDelete: project.pendingDelete, type } });
-        }
-        // Nếu đã có pendingDelete và user không phải approver/admin, thì không làm gì thêm ở đây.
-      }
-    }
-
-    // Nếu không rơi vào các trường hợp trên -> không có quyền
-    return res.status(403).json({ message: 'Không có quyền thực hiện hành động xóa này.' });
+    // Service sẽ xử lý logic phân quyền chi tiết
+    const result = await projectService.deleteProjectById(projectId, type, user, req.io);
+    res.json(result);
 
   } catch (error) {
     logger.error("Lỗi Controller xóa công trình:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
     if (error.statusCode) {
       return res.status(error.statusCode).json({ message: error.message });
     }
+    next(error);
+  }
+};
+
+exports.importProjectsFromExcel = async (req, res, next) => {
+  try {
+    const { type } = req.query; // 'category' or 'minor_repair'
+    const { projects } = req.body; // Array of project data from Excel
+
+    if (!type || !['category', 'minor_repair'].includes(type)) {
+      return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
+    }
+    if (!projects || !Array.isArray(projects) || projects.length === 0) {
+      return res.status(400).json({ message: 'Dữ liệu công trình (projects) là bắt buộc và phải là một mảng không rỗng.' });
+    }
+    const result = await projectService.importProjectsBatch(projects, req.user, type, req.io);
+    res.status(200).json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller nhập công trình từ Excel:", { path: req.path, method: req.method, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) { return res.status(error.statusCode).json({ message: error.message }); }
     next(error);
   }
 };

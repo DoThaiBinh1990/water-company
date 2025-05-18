@@ -13,4 +13,7 @@ router.patch('/:id', authenticate, projectCoreController.updateProject);
 
 router.delete('/:id', authenticate, projectCoreController.deleteProject); // Thêm route DELETE by ID
 
+// Route for importing projects from Excel
+router.post('/import', authenticate, projectCoreController.importProjectsFromExcel);
+
 module.exports = router;

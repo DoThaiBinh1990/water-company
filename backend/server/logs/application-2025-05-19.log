@@ -1,0 +1,27 @@
+2025-05-19 00:11:27 info: Máy chủ đang chạy trên cổng 5000
+2025-05-19 00:11:27 info: Một người dùng đã kết nối: ZtCgBGg7Ob1XdHZQAAAB
+2025-05-19 00:11:27 info: Một người dùng đã kết nối: vPMvHIa1W1BupTY1AAAD
+2025-05-19 00:11:28 info: MongoDB đã kết nối thành công.
+2025-05-19 00:17:05 info: Người dùng đã ngắt kết nối: vPMvHIa1W1BupTY1AAAD
+2025-05-19 00:17:12 info: Một người dùng đã kết nối: xQRqrc7vnG-boXlxAAAF
+2025-05-19 00:17:48 info: Người dùng đã ngắt kết nối: xQRqrc7vnG-boXlxAAAF
+2025-05-19 00:17:53 info: Một người dùng đã kết nối: nSqaOgwz7JVj4sKiAAAH
+2025-05-19 00:18:41 info: Người dùng đã ngắt kết nối: nSqaOgwz7JVj4sKiAAAH
+2025-05-19 00:18:47 info: Một người dùng đã kết nối: MfD9-Uy2OQsHB4svAAAJ
+2025-05-19 00:19:56 info: Một người dùng đã kết nối: Z-b5MY4Qc_OHRn8oAAAL
+2025-05-19 00:22:03 info: Một người dùng đã kết nối: vO1TF7UeexbFkjr1AAAN
+2025-05-19 00:22:10 info: Người dùng đã ngắt kết nối: ZtCgBGg7Ob1XdHZQAAAB
+2025-05-19 00:22:10 info: Người dùng đã ngắt kết nối: vO1TF7UeexbFkjr1AAAN
+2025-05-19 00:22:10 info: Người dùng đã ngắt kết nối: Z-b5MY4Qc_OHRn8oAAAL
+2025-05-19 00:22:10 info: Người dùng đã ngắt kết nối: MfD9-Uy2OQsHB4svAAAJ
+2025-05-19 00:22:27 info: Một người dùng đã kết nối: WyNYF8xQ3InA2Eb4AAAQ
+2025-05-19 00:22:27 info: Một người dùng đã kết nối: QB_boqkGd8N4ZOSlAAAR
+2025-05-19 00:23:11 info: Người dùng đã ngắt kết nối: WyNYF8xQ3InA2Eb4AAAQ
+2025-05-19 00:23:14 info: Một người dùng đã kết nối: 9qRy7mSzDcnwJYjuAAAT
+2025-05-19 00:23:25 error: Lỗi Controller thêm công trình: Nhân viên chi nhánh chỉ có thể tạo công trình cho chi nhánh của mình.
+2025-05-19 00:23:49 error: Lỗi Controller cập nhật công trình: Không có quyền yêu cầu sửa công trình này.
+2025-05-19 00:23:53 error: Lỗi Controller cập nhật công trình: Không có quyền yêu cầu sửa công trình này.
+2025-05-19 00:25:05 info: Người dùng đã ngắt kết nối: 9qRy7mSzDcnwJYjuAAAT
+2025-05-19 00:25:13 info: Một người dùng đã kết nối: giIgzGZxgLnJ_kpNAAAV
+2025-05-19 00:25:24 info: Người dùng đã ngắt kết nối: giIgzGZxgLnJ_kpNAAAV
+2025-05-19 00:25:28 info: Một người dùng đã kết nối: nlNzQ0KPJAf3AdPaAAAX
