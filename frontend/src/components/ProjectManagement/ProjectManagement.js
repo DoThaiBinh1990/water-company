@@ -1,10 +1,11 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\ProjectManagement.js
-import { FaPlus, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaWrench, FaUser } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaWrench, FaUser, FaFileExcel, FaDownload } from 'react-icons/fa';
 import ProjectManagementLogic from './ProjectManagementLogic';
 import ProjectManagementTabs from './ProjectManagementTabs';
 import GenericFilter from './GenericFilter';
 import { categoryFilterConfig, minorRepairFilterConfig } from '../../config/filterConfigs';
 import GenericFormModal from './GenericFormModal';
+import ExcelImportModal from './ExcelImportModal'; // Sẽ tạo ở bước sau
 import GenericTable from './GenericTable';
 import { categoryProjectColumns, minorRepairProjectColumns } from '../../config/tableConfigs';
 import { categoryFormConfig, minorRepairFormConfig } from '../../config/formConfigs';
@@ -15,6 +16,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
   const {
     filteredProjects,
     pendingProjects,
+    pendingProjectsData, // Thêm pendingProjectsData vào đây
     rejectedProjects,
     totalPages,
     currentPage,
@@ -64,6 +66,12 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     restoreRejectedProject,
     permanentlyDeleteRejectedProject,
   } = logicProps;
+  const {
+    handleFileImport,
+    handleDownloadTemplate,
+    showExcelImportModal, setShowExcelImportModal, excelImportData, setExcelImportData,
+    submitExcelData, isImportingExcel, excelImportHeaders
+  } = logicProps; // Thêm các props mới từ logic
 
   const isCategory = type === 'category';
   const itemsPerPage = 10;
@@ -74,23 +82,39 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
   const currentTableColumns = isCategory ? categoryProjectColumns : minorRepairProjectColumns;
 
   const canUserPerformAction = (actionPermission, project = null) => {
-    if (!user || !user.permissions || !user.permissions[actionPermission]) {
+    if (!user || !user.permissions) {
       return false;
     }
-    // Admin và Quản lý công ty (không phải chi nhánh) có thể thực hiện trên mọi công trình
-    if (user.role === 'admin' || user.role === 'director' || user.role === 'deputy_director' || user.role.includes('manager-office') || user.role === 'staff-office') {
+
+    // Admin có mọi quyền
+    if (user.role === 'admin') return true;
+
+    // Kiểm tra quyền cơ bản của user
+    if (!user.permissions[actionPermission]) {
+      return false;
+    }
+
+    // User thuộc khối văn phòng công ty (director, manager-office, staff-office)
+    // Họ có thể thực hiện action nếu có quyền cơ bản (đã check ở trên)
+    if (user.role.includes('director') || user.role.includes('office')) {
       return true;
     }
-    // Quản lý chi nhánh và Nhân viên chi nhánh
+
+    // User thuộc chi nhánh (manager-branch, staff-branch)
     if (user.role.includes('-branch')) {
-      if (!project || !user.unit || project.allocatedUnit !== user.unit) { // Phải thuộc chi nhánh của user
-        return false;
+      // Nếu không có project cụ thể (ví dụ: nút "Thêm mới"), chỉ cần check quyền cơ bản (đã check)
+      if (!project) return true; 
+      
+      // Nếu có project, phải thuộc chi nhánh của user
+      if (!user.unit || project.allocatedUnit !== user.unit) {
+        // Trừ khi họ có quyền xem/thao tác trên chi nhánh khác (cho manager)
+        if (user.role === 'manager-branch' && user.permissions.viewOtherBranchProjects) {
+            return true; // Manager có quyền viewOtherBranchProjects có thể thao tác nếu có actionPermission
+        }
+        return false; 
       }
-      // Cả staff-branch và manager-branch đều có thể thao tác trên mọi công trình thuộc chi nhánh mình
-      // if (user.role === 'staff-branch') { 
-      //   return project.createdBy && project.createdBy._id === user._id; // Logic cũ: staff chỉ sửa/xóa của mình
-      // }
-      return true; // Logic mới: staff và manager chi nhánh thao tác trên mọi CT thuộc chi nhánh
+      // Nếu công trình thuộc chi nhánh của họ, và họ có actionPermission -> cho phép
+      return true; 
     }
     return false; // Mặc định không cho phép
   };
@@ -164,11 +188,33 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         <h1 className="text-3xl font-bold text-gray-800 animate-slideIn">
           {isCategory ? 'Công trình Danh mục' : 'Công trình Sửa chữa nhỏ'} {isLoading && <span className="text-sm text-gray-500">(Đang tải...)</span>}
         </h1>
-        <div className="flex items-center gap-4">
-          {user?.permissions?.add && (
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+          <button
+            onClick={handleDownloadTemplate}
+            className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-xl hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base w-full sm:w-auto"
+            disabled={isSubmitting || isLoading || isImportingExcel}
+          >
+            <FaDownload size={14} /> Tải file mẫu
+          </button>
+          <label
+            htmlFor="excel-upload"
+            className={`flex items-center gap-2 bg-teal-600 text-white px-3 py-2 rounded-xl hover:bg-teal-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl text-sm sm:text-base w-full sm:w-auto ${isSubmitting || isLoading || isImportingExcel ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          >
+            <FaFileExcel size={14} /> Nhập từ Excel
+          </label>
+          <input
+            type="file"
+            id="excel-upload"
+            className="hidden"
+            accept=".xlsx, .xls"
+            onChange={handleFileImport}
+            onClick={(event)=> { event.target.value = null }} // Allow re-uploading the same file
+            disabled={isSubmitting || isLoading || isImportingExcel}
+          />
+          {canUserPerformAction('add') && ( // Sử dụng canUserPerformAction cho nút Thêm mới
             <button
               onClick={openAddNewModal}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base w-full sm:w-auto"
               disabled={isSubmitting || isLoading}
             >
               <FaPlus size={16} /> Thêm mới
@@ -177,7 +223,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         </div>
       </div>
 
-      {(isLoading || isSubmitting || isSubmittingAction) && (
+      {(isLoading || isSubmitting || isSubmittingAction || isImportingExcel) && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, backdropFilter: 'blur(4px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '24px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', border: '1px solid #E5E7EB' }}>
             <div style={{ width: '40px', height: '40px', border: '4px solid #3B82F6', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
@@ -210,6 +256,26 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         />
       )}
 
+      {showExcelImportModal && excelImportData && (
+        <ExcelImportModal
+          showModal={showExcelImportModal}
+          setShowModal={setShowExcelImportModal}
+          initialData={excelImportData}
+          headersConfig={excelImportHeaders} // Sẽ lấy từ logic
+          projectType={type}
+          user={user}
+          dataSources={{
+            allocatedUnits,
+            constructionUnitsList,
+            allocationWavesList,
+            usersList,
+            approversList,
+            projectTypesList,
+          }}
+          onSubmit={submitExcelData}
+          isSubmitting={isImportingExcel}
+        />
+      )}
       <ProjectManagementTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -217,7 +283,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
         isSubmitting={isSubmitting || isSubmittingAction}
       />
 
-      {activeTab === 'projects' && (
+      {(activeTab === 'projects' || activeTab === 'pending') && ( // Hiển thị filter cho cả tab projects và pending
         <>
           <div className="mb-3">
             <GenericFilter
@@ -236,12 +302,15 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
                 setShowFilter={setShowFilter}
               />
           </div>
+        </>
+      )}
 
+      {activeTab === 'projects' && (
           <GenericTable
             data={filteredProjects}
             columns={currentTableColumns}
             user={user}
-            usersList={usersList} // Truyền usersList xuống GenericTable
+            usersList={usersList}
             isSubmitting={isSubmittingAction}
             isPendingTab={false}
             totalPages={totalPages}
@@ -250,29 +319,28 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
             totalItemsCount={totalProjectsCount}
             itemsPerPage={itemsPerPage}
             isLoading={isLoading}
-            tableWidth={isCategory ? '3400px' : '2150px'}
+            tableWidth={isCategory ? '3500px' : '2300px'} // Điều chỉnh lại nếu cần
             renderActions={renderTableActions}
           />
-        </>
       )}
 
       {activeTab === 'pending' && (
-        <GenericTable
-          data={pendingProjects}
-          columns={currentTableColumns}
-          user={user}
-          usersList={usersList} // Truyền usersList xuống GenericTable
-          isSubmitting={isSubmittingAction}
-          isPendingTab={true}
-          totalPages={1}
-          currentPage={1}
-          setCurrentPage={() => {}}
-          totalItemsCount={pendingProjects.length}
-          itemsPerPage={pendingProjects.length || itemsPerPage}
-          isLoading={isLoading}
-          tableWidth={isCategory ? '3400px' : '2150px'}
-          renderActions={renderTableActions}
-        />
+          <GenericTable
+            data={pendingProjects}
+            columns={currentTableColumns}
+            user={user}
+            usersList={usersList}
+            isSubmitting={isSubmittingAction}
+            isPendingTab={true}
+            totalPages={pendingProjectsData?.pages || 1} // Sử dụng totalPages từ pendingProjectsData
+            currentPage={currentPage} // Sử dụng currentPage chung
+            setCurrentPage={setCurrentPage} // Cho phép phân trang
+            totalItemsCount={pendingProjectsData?.total || 0} // Sử dụng total từ pendingProjectsData
+            itemsPerPage={itemsPerPage}
+            isLoading={isLoading}
+            tableWidth={isCategory ? '3500px' : '2300px'} // Điều chỉnh lại nếu cần
+            renderActions={renderTableActions}
+          />
       )}
 
       {activeTab === 'rejected' && (

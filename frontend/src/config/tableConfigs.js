@@ -7,21 +7,21 @@ const commonFields = {
   name: {
     header: 'Tên công trình',
     field: 'name',
-    width: '250px',
-    minWidth: '200px',
+    width: '300px', // Tăng độ rộng
+    minWidth: '250px', // Tăng độ rộng tối thiểu
     sticky: true,
     left: '50px',
     headerClassName: 'sticky-col-2-header',
     className: 'sticky-col-2-data align-left',
     tooltipRender: (project) => `Tên: ${project.name}\nLoại: ${project.projectType || 'N/A'}`
   },
-  allocatedUnit: { header: 'Đơn vị PB', field: 'allocatedUnit', width: '150px', minWidth: '120px', className: 'align-left' },
-  location: { header: 'Địa điểm', field: 'location', width: '200px', minWidth: '150px', className: 'align-left' },
-  scale: { header: 'Quy mô', field: 'scale', width: '180px', minWidth: '150px', className: 'align-left' },
+  allocatedUnit: { header: 'Đơn vị PB', field: 'allocatedUnit', width: '160px', minWidth: '130px', className: 'align-left' },
+  location: { header: 'Địa điểm', field: 'location', width: '220px', minWidth: '180px', className: 'align-left' },
+  scale: { header: 'Quy mô', field: 'scale', width: '250px', minWidth: '200px', className: 'align-left break-words' }, // Thêm break-words
   supervisor: {
     header: 'Người theo dõi',
     field: 'supervisor', // Backend nên trả về object user đã populate (với fullName) hoặc string ID
-    width: '150px',
+    width: '160px',
     minWidth: '120px',
     render: (project) => {
       const supervisor = project.supervisor;
@@ -37,8 +37,8 @@ const commonFields = {
       return 'N/A';
     }
   },
-  leadershipApproval: { header: 'Bút phê LĐ', field: 'leadershipApproval', width: '200px', minWidth: '150px', className: 'align-left' },
-  notes: { header: 'Ghi chú', field: 'notes', width: '250px', minWidth: '200px', className: 'align-left' },
+  leadershipApproval: { header: 'Bút phê LĐ', field: 'leadershipApproval', width: '250px', minWidth: '200px', className: 'align-left break-words' }, // Thêm break-words
+  notes: { header: 'Ghi chú', field: 'notes', width: '280px', minWidth: '220px', className: 'align-left break-words' }, // Thêm break-words
   status: {
     header: 'Trạng thái',
     field: 'status', // Field này sẽ được cellData.displayValue và cellData.originalValue sử dụng
@@ -87,7 +87,7 @@ const commonFields = {
   approvedBy: {
     header: 'Người duyệt',
     field: 'approvedBy', // Backend nên trả về object user đã populate (với fullName)
-    width: '150px',
+    width: '160px',
     minWidth: '120px',
     align: 'center',
     render: (project) => {
@@ -105,17 +105,37 @@ const commonFields = {
   createdBy: {
     header: 'Người tạo/YC',
     field: 'createdBy', // Backend nên trả về object user đã populate (với fullName)
-    width: '150px',
+    width: '160px',
     minWidth: '120px',
     align: 'center',
     tooltipRender: (project) => {
       let tooltipLines = [];
-      const creatorData = project.createdBy;
-      const creatorName = (creatorData && typeof creatorData === 'object' && (creatorData.fullName || creatorData.username))
-                            ? (creatorData.fullName || creatorData.username)
-                            : (typeof creatorData === 'string' ? creatorData : (project.enteredBy || 'N/A'));
-      tooltipLines.push(`Người tạo: ${creatorName}`);
-      if (project.createdAt) {
+      let creatorName = 'N/A';
+      let creatorDate = project.createdAt;
+
+      if (project.pendingEdit && project.pendingEdit.requestedBy) {
+        const requestedByData = project.pendingEdit.requestedBy;
+        creatorName = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
+                        ? (requestedByData.fullName || requestedByData.username)
+                        : (typeof requestedByData === 'string' ? requestedByData : 'N/A');
+        creatorDate = project.pendingEdit.requestedAt;
+        tooltipLines.push(`Người YC sửa: ${creatorName}`);
+      } else if (project.pendingDelete && project.createdBy) { // Giả sử pendingDelete lưu requestedBy trong createdBy của project gốc khi gửi YC
+        const requestedByData = project.createdBy; // Hoặc nếu có trường riêng cho người YC xóa
+         creatorName = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
+                        ? (requestedByData.fullName || requestedByData.username)
+                        : (typeof requestedByData === 'string' ? requestedByData : (project.enteredBy || 'N/A'));
+        // creatorDate = project.pendingDelete.requestedAt; // Nếu có trường này
+        tooltipLines.push(`Người YC xóa: ${creatorName}`);
+      } else {
+        const creatorData = project.createdBy;
+        creatorName = (creatorData && typeof creatorData === 'object' && (creatorData.fullName || creatorData.username))
+                              ? (creatorData.fullName || creatorData.username)
+                              : (typeof creatorData === 'string' ? creatorData : (project.enteredBy || 'N/A'));
+        tooltipLines.push(`Người tạo: ${creatorName}`);
+      }
+
+      if (creatorDate) {
         tooltipLines.push(`Ngày tạo: ${formatDate(project.createdAt)}`);
       }
       if (project.pendingEdit && project.status === 'Đã duyệt' && project.pendingEdit.requestedBy) {
@@ -139,34 +159,39 @@ const commonFields = {
       return tooltipLines.join('\n');
     },
     render: (project) => {
-        const creatorData = project.createdBy;
-        const creator = (creatorData && typeof creatorData === 'object' && (creatorData.fullName || creatorData.username))
-                        ? (creatorData.fullName || creatorData.username)
-                        : (typeof creatorData === 'string' ? creatorData : (project.enteredBy || 'N/A'));
+        let displayUser = 'N/A';
+        let actionText = '';
 
-        if (project.pendingEdit && project.status === 'Đã duyệt' && project.pendingEdit.requestedBy) {
-            let editorDisplay = 'Không rõ';
-            const requestedByData = project.pendingEdit.requestedBy; // Đây là object user đã populate từ backend
-            if (requestedByData) {
-              if (typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username)) {
-                editorDisplay = requestedByData.fullName || requestedByData.username;
-              } else if (typeof requestedByData === 'string') {
-                editorDisplay = requestedByData;
-              } else if (typeof requestedByData === 'object' && (requestedByData._id || requestedByData.id) && !requestedByData.username && !requestedByData.fullName) {
-                editorDisplay = `User (ID: ...${String(requestedByData._id || requestedByData.id).slice(-4)})`;
-              }
-            }
-            const finalEditorDisplay = typeof editorDisplay === 'string' ? editorDisplay : 'Không rõ';
-            return <span title={`Tạo bởi: ${creator}\nYC sửa bởi: ${finalEditorDisplay}`}>{finalEditorDisplay} (YC sửa)</span>;
+        if (project.pendingEdit && project.pendingEdit.requestedBy) {
+            const requestedByData = project.pendingEdit.requestedBy;
+            displayUser = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
+                            ? (requestedByData.fullName || requestedByData.username)
+                            : (typeof requestedByData === 'string' ? requestedByData : 'N/A');
+            actionText = '(YC sửa)';
+        } else if (project.pendingDelete && project.createdBy) { // Giả sử pendingDelete lưu requestedBy trong createdBy của project gốc khi gửi YC
+            const requestedByData = project.createdBy; // Hoặc nếu có trường riêng cho người YC xóa
+            displayUser = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
+                            ? (requestedByData.fullName || requestedByData.username)
+                            : (typeof requestedByData === 'string' ? requestedByData : (project.enteredBy || 'N/A'));
+            actionText = '(YC xóa)';
+        } else {
+            const creatorData = project.createdBy;
+            displayUser = (creatorData && typeof creatorData === 'object' && (creatorData.fullName || creatorData.username))
+                            ? (creatorData.fullName || creatorData.username)
+                            : (typeof creatorData === 'string' ? creatorData : (project.enteredBy || 'N/A'));
         }
-        return creator;
+
+        if (actionText) {
+            return <span title={`Người tạo gốc: ${project.enteredBy || 'N/A'}`}>{displayUser} {actionText}</span>;
+        }
+        return displayUser;
     }
   },
   projectType: { header: 'Loại CT', field: 'projectType', width: '150px', minWidth: '120px', className: 'align-left' },
   estimator: {
     header: 'Người lập DT',
-    field: 'estimator', // Backend nên trả về object user đã populate (với fullName)
-    width: '150px',
+    field: 'estimator',
+    width: '160px',
     minWidth: '120px',
     render: (project) => {
       const estimator = project.estimator;
@@ -182,18 +207,18 @@ const commonFields = {
   },
   startDate: { header: 'Ngày BĐ', field: 'startDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' },
   completionDate: { header: 'Ngày HT', field: 'completionDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' },
-  initialValue: { header: 'Giá trị PB', field: 'initialValue', width: '150px', minWidth: '120px', format: 'currency', align: 'right' },
-  estimatedValue: { header: 'Giá trị DT', field: 'estimatedValue', width: '150px', minWidth: '120px', format: 'currency', align: 'right' },
-  contractValue: { header: 'Giá trị GK', field: 'contractValue', width: '150px', minWidth: '120px', format: 'currency', align: 'right' },
-  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '150px', minWidth: '120px', className: 'align-left' },
-  progress: { header: 'Tiến độ TC', field: 'progress', width: '150px', minWidth: '120px', className: 'align-left' },
-  feasibility: { header: 'Khả năng TH', field: 'feasibility', width: '150px', minWidth: '120px', className: 'align-left' },
+  initialValue: { header: 'Giá trị PB', field: 'initialValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
+  estimatedValue: { header: 'Giá trị DT', field: 'estimatedValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
+  contractValue: { header: 'Giá trị GK', field: 'contractValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
+  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '160px', minWidth: '130px', className: 'align-left' },
+  progress: { header: 'Tiến độ TC', field: 'progress', width: '180px', minWidth: '150px', className: 'align-left' },
+  feasibility: { header: 'Khả năng TH', field: 'feasibility', width: '180px', minWidth: '150px', className: 'align-left' },
   durationDays: { header: 'Số ngày TH', field: 'durationDays', width: '120px', minWidth: '100px', align: 'right' },
-  allocationWave: { header: 'Phân bổ đợt', field: 'allocationWave', width: '150px', minWidth: '120px', className: 'align-left' },
-  reportDate: { header: 'Ngày xảy ra SC', field: 'reportDate', width: '150px', minWidth: '120px', format: 'date', align: 'center' },
-  inspectionDate: { header: 'Ngày kiểm tra', field: 'inspectionDate', width: '150px', minWidth: '120px', format: 'date', align: 'center' },
-  paymentDate: { header: 'Ngày thanh toán', field: 'paymentDate', width: '150px', minWidth: '120px', format: 'date', align: 'center' },
-  paymentValue: { header: 'Giá trị TT', field: 'paymentValue', width: '150px', minWidth: '120px', format: 'currency', align: 'right' },
+  allocationWave: { header: 'Phân bổ đợt', field: 'allocationWave', width: '160px', minWidth: '130px', className: 'align-left' },
+  reportDate: { header: 'Ngày xảy ra SC', field: 'reportDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
+  inspectionDate: { header: 'Ngày kiểm tra', field: 'inspectionDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
+  paymentDate: { header: 'Ngày thanh toán', field: 'paymentDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
+  paymentValue: { header: 'Giá trị TT', field: 'paymentValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
 };
 
 export const categoryProjectColumns = [

@@ -18,8 +18,10 @@ import {
   restoreRejectedProject as restoreRejectedProjectAPI,
   permanentlyDeleteRejectedProject as permanentlyDeleteRejectedProjectAPI,
   getAllocatedUnits, getAllocationWaves, getConstructionUnits, getUsers, getProjectTypes,
-  apiClient // Import apiClient từ apiService
+  apiClient, // Import apiClient từ apiService
+  importProjects as importProjectsAPI, // API mới
 } from '../../apiService'; // Import các hàm API
+import { generateExcelTemplate, readExcelData } from '../../utils/excelHelper';
 
 const socket = io(apiClient.defaults.baseURL, { // Sử dụng baseURL từ apiClient
   transports: ['websocket', 'polling'],
@@ -57,6 +59,11 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
 
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState('projects');
+
+  // States for Excel Import
+  const [showExcelImportModal, setShowExcelImportModal] = useState(false);
+  const [excelImportData, setExcelImportData] = useState(null);
+  const [excelImportHeaders, setExcelImportHeaders] = useState([]);
 
   const initialFilters = useMemo(() => ({
     status: '',
@@ -161,8 +168,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   });
 
   const { data: pendingProjectsData, isLoading: isLoadingPending, isFetching: isFetchingPending } = useQuery({
-    queryKey: ['pendingProjects', type, sortOrder], // Filters không áp dụng cho pending tab theo logic hiện tại
-    queryFn: () => getProjects(buildProjectQueryParams(1, sortOrder, {}, true)),
+    queryKey: ['pendingProjects', type, currentPage, sortOrder, filters], // Thêm currentPage và filters
+    queryFn: () => getProjects(buildProjectQueryParams(currentPage, sortOrder, filters, true)), // Sử dụng currentPage và filters
     enabled: !!user && activeTab === 'pending',
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách chờ duyệt!', { position: "top-center" }),
   });
@@ -569,6 +576,75 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     );
   }
 
+  // --- EXCEL IMPORT LOGIC ---
+  const handleDownloadTemplate = () => {
+    try {
+      generateExcelTemplate(type);
+      toast.success("Đã tải file mẫu Excel!", { position: "top-center" });
+    } catch (error) {
+      toast.error("Lỗi khi tạo file mẫu Excel.", { position: "top-center" });
+      console.error("Error generating Excel template:", error);
+    }
+  };
+
+  const handleFileImport = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+      toast.error("Vui lòng chọn file Excel (.xlsx hoặc .xls).", { position: "top-center" });
+      return;
+    }
+
+    try {
+      const { jsonData, headerRow } = await readExcelData(file);
+      if (!jsonData || jsonData.length === 0) {
+        toast.warn("File Excel rỗng hoặc không có dữ liệu.", { position: "top-center" });
+        return;
+      }
+      // Cần map headerRow từ file Excel sang cấu hình cột của bạn (fieldName, required, optionsSource)
+      // Đây là một bước quan trọng để modal biết cách hiển thị và validate.
+      // Tạm thời, chúng ta sẽ truyền headerRow và jsonData, modal sẽ cố gắng map.
+      // Lý tưởng nhất là bạn có một hàm map headerRow với formConfig.
+      setExcelImportHeaders(headerRow); // Lưu header gốc từ file
+      setExcelImportData(jsonData);
+      setShowExcelImportModal(true);
+    } catch (error) {
+      toast.error(error.message || "Lỗi khi đọc file Excel.", { position: "top-center" });
+      console.error("Error processing Excel file:", error);
+    }
+  };
+
+  const importProjectsMutation = useMutation({
+    mutationFn: (projectsToImport) => importProjectsAPI({ projects: projectsToImport, projectType: type }),
+    onSuccess: (data) => {
+      // Nếu backend trả về success (nghĩa là tất cả công trình đều hợp lệ và đã được lưu)
+      toast.success(data.message || "Tất cả công trình đã được nhập thành công!", { position: "top-center" });
+      queryClient.invalidateQueries(['projects', type]);
+      queryClient.invalidateQueries(['pendingProjects', type]);
+      setShowExcelImportModal(false);
+      setExcelImportData(null);
+      setExcelImportHeaders([]); // Clear headers
+    },
+    onError: (error) => {
+      // Nếu backend trả về lỗi (ví dụ: status 400 với danh sách lỗi chi tiết)
+      const errorData = error.response?.data;
+      if (errorData && errorData.results && Array.isArray(errorData.results)) {
+        toast.error(errorData.message || "Có lỗi trong dữ liệu. Vui lòng kiểm tra lại bảng.", { position: "top-center" });
+        // Không đóng modal, không clear data.
+        // ExcelImportModal sẽ cần một cách để nhận và hiển thị các lỗi này.
+        // Chúng ta có thể truyền một hàm callback vào ExcelImportModal để cập nhật lỗi từ backend,
+        // hoặc ProjectManagementLogic có thể set một state mới chứa lỗi backend và truyền xuống.
+        // Để đơn giản, hiện tại chỉ hiển thị toast chung.
+        // Nâng cao: Cập nhật validationErrors trong ExcelImportModal dựa trên errorData.results
+        // Ví dụ: setExcelImportBackendErrors(errorData.results); // Cần thêm state này và truyền xuống modal
+      } else {
+        toast.error(error.response?.data?.message || "Lỗi không xác định khi nhập công trình từ Excel!", { position: "top-center" });
+      }
+      // Không đóng modal, không clear data để người dùng sửa
+    }
+  });
+  const submitExcelData = (processedData) => importProjectsMutation.mutate(processedData);
   const isSubmitting = saveProjectMutation.isLoading;
   const isSubmittingAction =
     deleteProjectMutation.isLoading ||
@@ -578,6 +654,8 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     assignProjectMutation.isLoading ||
     restoreRejectedProjectMutation.isLoading ||
     permanentlyDeleteRejectedProjectMutation.isLoading;
+  
+  const isImportingExcel = importProjectsMutation.isLoading;
 
 return {
     filteredProjects,
@@ -631,6 +709,15 @@ return {
     rejectDeleteProject,
     restoreRejectedProject,
     permanentlyDeleteRejectedProject,
+    // Excel import related
+    handleFileImport,
+    handleDownloadTemplate,
+    showExcelImportModal,
+    setShowExcelImportModal,
+    excelImportData, setExcelImportData, // Để modal có thể clear khi đóng
+    excelImportHeaders,
+    submitExcelData,
+    isImportingExcel,
   };
 }
 

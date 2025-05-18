@@ -176,7 +176,7 @@ function GenericTable({
   return (
     <div className="flex flex-col mt-4">
       <div className="table-container-custom">
-        <table className="generic-table" style={{ width: tableWidth }}>
+        <table className="generic-table table-auto" style={{ width: tableWidth }}> {/* Thêm table-auto */}
           <thead>
             <tr>
               <th className="header-cell-custom sticky-col-1-header" style={{ width: '50px' }}>
@@ -186,7 +186,7 @@ function GenericTable({
                 <th
                   key={col.field || `header-${index}`}
                   className={`header-cell-custom ${col.sticky && col.left ? 'sticky-header' : ''} ${col.headerClassName || ''}`}
-                  style={{
+                  style={{ // Style cho header
                     width: col.width,
                     minWidth: col.minWidth || col.width,
                     textAlign: col.align || 'center',
@@ -194,7 +194,10 @@ function GenericTable({
                     ...col.headerStyle,
                   }}
                 >
-                  {col.header}
+                  <div className="flex items-center justify-center"> {/* Căn giữa nội dung header */}
+                    {col.header}
+                    {/* Có thể thêm icon sort ở đây nếu cần */}
+                  </div>
                 </th>
               ))}
               <th className="header-cell-custom sticky-col-last-header" style={{ width: '150px', textAlign: 'center' }}>
@@ -204,7 +207,7 @@ function GenericTable({
           </thead>
           <tbody className="divide-y divide-gray-200">
             {data.map((project, index) => (
-              <tr key={project._id} className="table-row-custom">
+              <tr key={project._id} className="table-row-custom hover:bg-blue-50 transition-colors duration-150"> {/* Thêm hover effect */}
                 <td className="data-cell-custom sticky-col-1-data" style={{ textAlign: 'center' }}>
                   {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>

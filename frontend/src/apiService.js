@@ -250,3 +250,9 @@ export const permanentlyDeleteRejectedProject = async (rejectedId) => {
   const { data } = await apiClient.delete(`/api/rejected-projects/${rejectedId}`);
   return data;
 };
+
+// Excel Import
+export const importProjects = async ({ projects, projectType }) => {
+  const { data } = await apiClient.post(`/api/projects/import?type=${projectType}`, { projects });
+  return data;
+};
