@@ -12,12 +12,13 @@ const commonFields = {
     sticky: true,
     left: '50px',
     headerClassName: 'sticky-col-2-header',
-    className: 'sticky-col-2-data align-left',
+    className: 'sticky-col-2-data align-left', // Ensure class sets text-align: left
+    align: 'left', // Explicit align for style prop
     tooltipRender: (project) => `Tên: ${project.name}\nLoại: ${project.projectType || 'N/A'}`
   },
-  allocatedUnit: { header: 'Đơn vị PB', field: 'allocatedUnit', width: '160px', minWidth: '130px', className: 'align-left' },
-  location: { header: 'Địa điểm', field: 'location', width: '220px', minWidth: '180px', className: 'align-left' },
-  scale: { header: 'Quy mô', field: 'scale', width: '250px', minWidth: '200px', className: 'align-left break-words' }, // Thêm break-words
+  allocatedUnit: { header: 'Đơn vị PB', field: 'allocatedUnit', width: '160px', minWidth: '130px', align: 'center' },
+  location: { header: 'Địa điểm', field: 'location', width: '220px', minWidth: '180px', align: 'left' },
+  scale: { header: 'Quy mô', field: 'scale', width: '300px', minWidth: '250px', align: 'left', className: 'align-left break-words' }, // Increased width, align left
   supervisor: {
     header: 'Người theo dõi',
     field: 'supervisor', // Backend nên trả về object user đã populate (với fullName) hoặc string ID
@@ -37,8 +38,8 @@ const commonFields = {
       return 'N/A';
     }
   },
-  leadershipApproval: { header: 'Bút phê LĐ', field: 'leadershipApproval', width: '250px', minWidth: '200px', className: 'align-left break-words' }, // Thêm break-words
-  notes: { header: 'Ghi chú', field: 'notes', width: '280px', minWidth: '220px', className: 'align-left break-words' }, // Thêm break-words
+  leadershipApproval: { header: 'Bút phê LĐ', field: 'leadershipApproval', width: '250px', minWidth: '200px', align: 'left', className: 'align-left break-words' },
+  notes: { header: 'Ghi chú', field: 'notes', width: '280px', minWidth: '220px', align: 'left', className: 'align-left break-words' },
   status: {
     header: 'Trạng thái',
     field: 'status', // Field này sẽ được cellData.displayValue và cellData.originalValue sử dụng
@@ -221,12 +222,13 @@ const commonFields = {
         return displayUser;
     }
   },
-  projectType: { header: 'Loại CT', field: 'projectType', width: '150px', minWidth: '120px', className: 'align-left' },
+  projectType: { header: 'Loại CT', field: 'projectType', width: '150px', minWidth: '120px', align: 'center' },
   estimator: {
     header: 'Người lập DT',
     field: 'estimator',
     width: '160px',
     minWidth: '120px',
+    align: 'center',
     render: (project) => {
       const estimator = project.estimator;
       if (estimator) {
@@ -244,11 +246,11 @@ const commonFields = {
   initialValue: { header: 'Giá trị PB', field: 'initialValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
   estimatedValue: { header: 'Giá trị DT', field: 'estimatedValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
   contractValue: { header: 'Giá trị GK', field: 'contractValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
-  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '160px', minWidth: '130px', className: 'align-left' },
-  progress: { header: 'Tiến độ TC', field: 'progress', width: '180px', minWidth: '150px', className: 'align-left' },
-  feasibility: { header: 'Khả năng TH', field: 'feasibility', width: '180px', minWidth: '150px', className: 'align-left' },
-  durationDays: { header: 'Số ngày TH', field: 'durationDays', width: '120px', minWidth: '100px', align: 'right' },
-  allocationWave: { header: 'Phân bổ đợt', field: 'allocationWave', width: '160px', minWidth: '130px', className: 'align-left' },
+  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '160px', minWidth: '130px', align: 'center' }, // Changed to center
+  progress: { header: 'Tiến độ TC', field: 'progress', width: '180px', minWidth: '150px', align: 'left' },
+  feasibility: { header: 'Khả năng TH', field: 'feasibility', width: '180px', minWidth: '150px', align: 'left' },
+  durationDays: { header: 'Số ngày TH', field: 'durationDays', width: '120px', minWidth: '100px', align: 'center' }, // Changed to center
+  allocationWave: { header: 'Phân bổ đợt', field: 'allocationWave', width: '160px', minWidth: '130px', align: 'center' }, // Changed to center
   reportDate: { header: 'Ngày xảy ra SC', field: 'reportDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
   inspectionDate: { header: 'Ngày kiểm tra', field: 'inspectionDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
   paymentDate: { header: 'Ngày thanh toán', field: 'paymentDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
@@ -263,6 +265,7 @@ export const categoryProjectColumns = [
   commonFields.location,
   commonFields.estimator,
   commonFields.supervisor,
+  commonFields.durationDays,
   commonFields.startDate,
   commonFields.completionDate,
   commonFields.initialValue,
@@ -271,7 +274,6 @@ export const categoryProjectColumns = [
   commonFields.constructionUnit,
   commonFields.progress,
   commonFields.feasibility,
-  commonFields.durationDays,
   commonFields.allocationWave,
   commonFields.leadershipApproval,
   commonFields.notes,

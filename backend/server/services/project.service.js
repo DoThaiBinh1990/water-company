@@ -31,14 +31,20 @@ const getProjectsList = async (queryParams) => {
     if (progress) query.progress = progress;
   }
 
-  if (pending === 'true' || pending === true) {
+  // Logic for 'pending' tab vs 'projects' tab
+  if (pending === 'true' || pending === true) { // For 'pending' tab
     query.$or = [
-      { status: 'Chờ duyệt' },
-      { pendingEdit: { $ne: null, $exists: true } },
-      { pendingDelete: true }
+      { status: 'Chờ duyệt' }, // New projects awaiting approval
+      { pendingEdit: { $ne: null, $exists: true } }, // Approved projects with pending edits
+      { pendingDelete: true } // Approved projects with pending deletions
     ];
-  } else if (status) {
-    query.status = status;
+  } else { // For 'projects' tab (main list)
+    if (status) { // If user explicitly filters by a status on the main tab
+      query.status = status;
+    } else { // Default for 'projects' tab: show only 'Đã duyệt' and other post-approval active statuses
+      query.status = { $in: ['Đã duyệt', 'Đã phân bổ', 'Đang thực hiện', 'Hoàn thành'] };
+      // This implicitly excludes 'Chờ duyệt' (new unapproved) and 'Đã từ chối'.
+    }
   }
 
   const userFieldToQuery = async (userIdentifier) => {
@@ -66,7 +72,18 @@ const getProjectsList = async (queryParams) => {
   // Role-based filtering
   if (user) {
     if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit && !user.permissions.viewOtherBranchProjects) {
-      query.allocatedUnit = user.unit;
+      // If 'pending' is true, we might want to show pending items for their unit regardless of status
+      // The current $or for pending already includes 'Chờ duyệt' which might be from other units if not restricted.
+      // Let's ensure unit restriction applies correctly.
+      if (query.$or) { // If it's the pending tab
+        query.$or.forEach(condition => {
+            if (!condition.allocatedUnit) { // Add unit restriction if not already there
+                condition.allocatedUnit = user.unit;
+            }
+        });
+      } else { // For main tab or if $or is not used
+        query.allocatedUnit = user.unit;
+      }
     }
   }
 
@@ -96,10 +113,10 @@ const getProjectsList = async (queryParams) => {
 };
 
 const createNewProject = async (projectData, user, projectType, io) => {
-  const { name, allocatedUnit, location, approvedBy, scale, reportDate, supervisor: supervisorInput, estimator: estimatorInput, ...restData } = projectData;
+  const { name, allocatedUnit, location, approvedBy: approvedByInput, scale, reportDate, supervisor: supervisorInput, estimator: estimatorInput, ...restData } = projectData;
 
-  if (!name || !allocatedUnit || !location || !approvedBy) {
-    throw { statusCode: 400, message: 'Tên công trình, Đơn vị phân bổ, Địa điểm, và Người phê duyệt là bắt buộc.' };
+  if (!name || !allocatedUnit || !location) { // approvedBy is handled differently now
+    throw { statusCode: 400, message: 'Tên công trình, Đơn vị phân bổ, và Địa điểm là bắt buộc.' };
   }
   if (projectType === 'minor_repair' && (!scale || !reportDate)) {
     throw { statusCode: 400, message: 'Quy mô và Ngày xảy ra sự cố là bắt buộc cho công trình sửa chữa nhỏ.' };
@@ -114,8 +131,8 @@ const createNewProject = async (projectData, user, projectType, io) => {
     name, allocatedUnit, location, scale, 
     ...restData, 
     enteredBy: user.username, 
-    createdBy: user.id, 
-    status: 'Chờ duyệt' 
+    createdBy: user.id,
+    // Status and approvedBy determined below
   };
 
   if (projectType === 'minor_repair') {
@@ -131,12 +148,32 @@ const createNewProject = async (projectData, user, projectType, io) => {
   } else if (!user.role.includes('admin') && !user.role.includes('office') && !user.role.includes('director')) {
     if (!user.unit) throw { statusCode: 403, message: 'Tài khoản của bạn chưa được gán đơn vị, không thể tạo công trình.' };
   }
+  
+  dataToSave.history = [{
+    action: 'created',
+    user: user.id,
+    timestamp: new Date()
+  }];
 
-  const approver = await User.findById(approvedBy);
-  if (!approver || !approver.permissions.approve) {
-    throw { statusCode: 400, message: 'Người duyệt không hợp lệ hoặc không có quyền duyệt.' };
+  let isPending = true;
+
+  if (user.role === 'admin') {
+    dataToSave.status = 'Đã duyệt';
+    dataToSave.approvedBy = user.id; // Admin approves their own creation
+    dataToSave.history.push({ action: 'approved', user: user.id, timestamp: new Date(), details: "Admin direct creation" });
+    isPending = false;
+  } else {
+    dataToSave.status = 'Chờ duyệt'; // Default, but make explicit
+    if (!approvedByInput) {
+        throw { statusCode: 400, message: 'Người phê duyệt là bắt buộc cho công trình mới.' };
+    }
+    const approver = await User.findById(approvedByInput);
+    if (!approver || !approver.permissions.approve) {
+        throw { statusCode: 400, message: 'Người duyệt không hợp lệ hoặc không có quyền duyệt.' };
+    }
+    dataToSave.approvedBy = approvedByInput;
   }
-  dataToSave.approvedBy = approvedBy;
+
 
   if (supervisorInput) {
     if (mongoose.Types.ObjectId.isValid(supervisorInput)) {
@@ -162,36 +199,38 @@ const createNewProject = async (projectData, user, projectType, io) => {
     dataToSave.estimator = null;
   }
 
-  delete dataToSave.type;
-
-  dataToSave.history = [{
-    action: 'created',
-    user: user.id,
-    timestamp: new Date()
-  }];
+  delete dataToSave.type; // Remove 'type' from projectData as it's not a schema field
 
   const project = new Model(dataToSave);
   let newProject = await project.save();
   newProject = await populateProjectFields(newProject);
 
   const populatedProjectForNotification = { _id: newProject._id, name: newProject.name, type: projectType };
-  const notification = new Notification({
-    message: `Yêu cầu thêm công trình mới "${newProject.name}" đã được gửi để duyệt`,
-    type: 'new',
-    projectId: newProject._id,
-    projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-    status: 'pending',
-    userId: user.id,
-    recipientId: newProject.approvedBy 
-  });
-  await notification.save();
-  if (io) {
-    io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-  } else {
-    logger.warn('Socket.IO không được khởi tạo trong service, bỏ qua gửi thông báo.');
-  }
 
-  return { message: 'Công trình đã được gửi để duyệt!', project: newProject.toObject(), pending: true };
+  if (isPending) {
+    const notification = new Notification({
+      message: `Yêu cầu thêm công trình mới "${newProject.name}" đã được gửi để duyệt`,
+      type: 'new',
+      projectId: newProject._id,
+      projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+      status: 'pending',
+      userId: user.id, // User who created the request
+      recipientId: dataToSave.approvedBy // User who needs to approve
+    });
+    await notification.save();
+    if (io) {
+      io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+    } else {
+      logger.warn('Socket.IO không được khởi tạo trong service, bỏ qua gửi thông báo cho công trình chờ duyệt.');
+    }
+    return { message: 'Công trình đã được gửi để duyệt!', project: newProject.toObject(), pending: true };
+  } else {
+    // Admin direct creation
+    if (io) {
+      io.emit('project_updated', { ...newProject.toObject(), projectType });
+    }
+    return { message: 'Công trình đã được tạo và duyệt bởi Admin!', project: newProject.toObject(), pending: false };
+  }
 };
 
 const updateProjectById = async (projectId, projectType, updateData, user, io) => {
@@ -203,19 +242,17 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
   }
 
   if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
-    if (project.allocatedUnit !== user.unit) {
-      if (!user.permissions.viewOtherBranchProjects) { 
-        throw { statusCode: 403, message: `Bạn chỉ có thể sửa công trình thuộc chi nhánh ${user.unit}.` };
-      }
+    if (project.allocatedUnit !== user.unit && !user.permissions.viewOtherBranchProjects) {
+      throw { statusCode: 403, message: `Bạn chỉ có thể sửa công trình thuộc chi nhánh ${user.unit}.` };
     }
   }
 
   const isUserAdmin = user.role === 'admin';
-  const isUserOfficeManagement = ['director', 'deputy_director', 'manager-office', 'deputy_manager-office'].includes(user.role);
   
   const currentUpdateData = { ...updateData };
   const forbiddenFields = ['createdBy', 'enteredBy', 'categorySerialNumber', 'minorRepairSerialNumber', 'status', 'pendingEdit', 'pendingDelete', 'history'];
-  if (!(isUserAdmin || isUserOfficeManagement) || project.status === 'Đã duyệt') {
+  
+  if (project.status === 'Đã duyệt' || !isUserAdmin) { 
       forbiddenFields.push('approvedBy');
   }
   forbiddenFields.forEach(field => delete currentUpdateData[field]);
@@ -246,37 +283,36 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     }
   }
 
-  if (isUserAdmin || isUserOfficeManagement) {
+  // Admin can edit directly
+  if (isUserAdmin) {
     Object.assign(project, currentUpdateData);
     let action = 'edited';
-    if (project.status === 'Chờ duyệt') {
+    if (project.status === 'Chờ duyệt' && currentUpdateData.approvedBy === user.id) { 
         project.status = 'Đã duyệt';
-        project.approvedBy = currentUpdateData.approvedBy || user.id; 
-        action = 'approved'; // Or 'new_approved_with_edit'
+        action = 'approved'; 
+    } else if (project.status === 'Chờ duyệt' && !currentUpdateData.approvedBy && project.approvedBy !== user.id) {
+        // Admin edits a project pending someone else's approval, it remains pending that person.
     }
+
     project.pendingEdit = null; 
-    project.history.push({ action, user: user.id, timestamp: new Date(), details: { changes: project.pendingEdit?.changes || 'Admin/Office edit' } });
+    project.history.push({ action, user: user.id, timestamp: new Date(), details: { changes: project.pendingEdit?.changes || 'Admin direct edit' } });
     await project.save({ validateModifiedOnly: true });
     const populatedProject = await populateProjectFields(project);
     if (io) io.emit('project_updated', { ...populatedProject.toObject(), projectType });
-    return { message: 'Công trình đã được cập nhật.', project: populatedProject.toObject(), updated: true };
+    return { message: 'Công trình đã được cập nhật bởi Admin.', project: populatedProject.toObject(), updated: true, pending: false };
   }
 
+  // Non-admin users with edit permission
   if (user.permissions.edit) {
     let canEditDirectlyUnapproved = false;
-    let canRequestEditApproved = false;
+    let canRequestEditApproved = true; // All non-admin with edit permission can request edit for approved projects
 
-    if (user.role === 'staff-office') { 
-      canEditDirectlyUnapproved = true;
-      canRequestEditApproved = true;
-    } else if (user.role.includes('-branch')) { 
-      if (user.unit && project.allocatedUnit === user.unit) { 
+    // Only the creator can edit their own unapproved project directly.
+    if (project.createdBy.toString() === user.id.toString() && project.status !== 'Đã duyệt') {
         canEditDirectlyUnapproved = true;
-        canRequestEditApproved = true;
-      }
     }
 
-    if (project.status !== 'Đã duyệt') { 
+    if (project.status !== 'Đã duyệt') { // Project is 'Chờ duyệt' (or other non-approved status)
       if (canEditDirectlyUnapproved) {
         Object.assign(project, currentUpdateData);
         project.history.push({ action: 'edited', user: user.id, timestamp: new Date(), details: { note: 'User edit while pending approval' } });
@@ -286,39 +322,64 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
         if (approverForNotification) {
             const notification = new Notification({
                 message: `Công trình "${project.name}" đang chờ duyệt đã được cập nhật bởi ${user.username}. Vui lòng kiểm tra.`,
-                type: 'edit_pending',
+                type: 'edit', 
                 projectId: project._id,
                 projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-                status: 'pending',
+                status: 'pending', 
                 userId: user.id,
                 recipientId: project.approvedBy
             });
             await notification.save();
             if (io) io.emit('notification', { ...notification.toObject(), projectId: { _id: project._id, name: project.name, type: projectType } });
         }
-        return { message: 'Công trình đã được cập nhật (trước duyệt).', project: populatedProject.toObject(), updated: true };
+        return { message: 'Công trình (chưa duyệt) đã được cập nhật.', project: populatedProject.toObject(), updated: true, pending: true };
       } else {
-        throw { statusCode: 403, message: 'Không có quyền sửa công trình này khi chưa duyệt.' };
-      }
-    } else { 
-      if (canRequestEditApproved) {
-        const dataToPending = { ...currentUpdateData };
+        // Non-creator editing an unapproved project: must go to pendingEdit
         const changesArray = [];
-        for (const field in dataToPending) {
-          if (Object.prototype.hasOwnProperty.call(dataToPending, field)) {
-            const nonEditableFields = ['_id', '__v', 'createdAt', 'updatedAt', 'history'];
-            if (!nonEditableFields.includes(field) && String(project[field]) !== String(dataToPending[field])) {
-              changesArray.push({ field, oldValue: project[field], newValue: dataToPending[field] });
+        for (const field in currentUpdateData) {
+          if (Object.prototype.hasOwnProperty.call(currentUpdateData, field)) {
+            if (String(project[field]) !== String(currentUpdateData[field])) {
+              changesArray.push({ field, oldValue: project[field], newValue: currentUpdateData[field] });
+            }
+          }
+        }
+        if (changesArray.length === 0) {
+          const populatedNoChangeProject = await populateProjectFields(project);
+          return { message: 'Không có thay đổi nào được ghi nhận.', project: populatedNoChangeProject.toObject(), updated: false, pending: false };
+        }
+        project.pendingEdit = { data: currentUpdateData, changes: changesArray, requestedBy: user.id, requestedAt: new Date() };
+        project.history.push({ action: 'edit_requested', user: user.id, timestamp: new Date(), details: { changes: changesArray, note: 'Edit request on unapproved project by non-creator' } });
+        await project.save({ validateModifiedOnly: true });
+        const populatedProject = await populateProjectFields(project);
+        const approverForNotification = await User.findById(project.approvedBy);
+        if (approverForNotification) {
+            const notification = new Notification({
+                message: `Yêu cầu sửa công trình "${populatedProject.name}" (chưa duyệt) bởi ${user.username}`,
+                type: 'edit', projectId: populatedProject._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id,
+                recipientId: project.approvedBy
+            });
+            await notification.save();
+            if (io) io.emit('notification', { ...notification.toObject(), projectId: { _id: populatedProject._id, name: populatedProject.name, type: projectType } });
+        }
+        return { message: 'Yêu cầu sửa công trình (chưa duyệt) đã được gửi để chờ duyệt.', project: populatedProject.toObject(), updated: true, pending: true };
+      }
+    } else { // Project is 'Đã duyệt' (or other post-approval status)
+      if (canRequestEditApproved) {
+        const changesArray = [];
+        for (const field in currentUpdateData) {
+          if (Object.prototype.hasOwnProperty.call(currentUpdateData, field)) {
+            if (String(project[field]) !== String(currentUpdateData[field])) {
+              changesArray.push({ field, oldValue: project[field], newValue: currentUpdateData[field] });
             }
           }
         }
 
         if (changesArray.length === 0) {
           const populatedNoChangeProject = await populateProjectFields(project);
-          return { message: 'Không có thay đổi nào được ghi nhận để yêu cầu sửa.', project: populatedNoChangeProject.toObject(), updated: false };
+          return { message: 'Không có thay đổi nào được ghi nhận.', project: populatedNoChangeProject.toObject(), updated: false, pending: false };
         }
 
-        project.pendingEdit = { data: dataToPending, changes: changesArray, requestedBy: user.id, requestedAt: new Date() };
+        project.pendingEdit = { data: currentUpdateData, changes: changesArray, requestedBy: user.id, requestedAt: new Date() };
         project.history.push({ action: 'edit_requested', user: user.id, timestamp: new Date(), details: { changes: changesArray } });
         await project.save({ validateModifiedOnly: true });
         const populatedProject = await populateProjectFields(project);
@@ -331,8 +392,10 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
         });
         await notification.save();
         if (io) io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-        return { message: 'Yêu cầu sửa đã được gửi để chờ duyệt', project: populatedProject.toObject(), updated: true, pending: true };
+        return { message: 'Yêu cầu sửa đã được gửi để chờ duyệt.', project: populatedProject.toObject(), updated: true, pending: true };
       } else {
+        // This case should ideally not be reached if user.permissions.edit is true.
+        // It's a fallback.
         throw { statusCode: 403, message: 'Không có quyền yêu cầu sửa công trình này.' };
       }
     }
@@ -346,16 +409,15 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
   const project = await Model.findById(projectId);
 
   if (!project) {
-    throw { statusCode: 404, message: 'Không tìm thấy công trình để xóa trong service' };
+    throw { statusCode: 404, message: 'Không tìm thấy công trình để xóa.' };
   }
   const originalProjectName = project.name;
   const originalCreatorId = project.createdBy;
+  const originalApproverId = project.approvedBy;
 
   if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
-    if (project.allocatedUnit !== user.unit) {
-      if (!user.permissions.viewOtherBranchProjects) { 
-        throw { statusCode: 403, message: `Bạn chỉ có thể xóa công trình thuộc chi nhánh ${user.unit}.` };
-      }
+    if (project.allocatedUnit !== user.unit && !user.permissions.viewOtherBranchProjects) { 
+      throw { statusCode: 403, message: `Bạn chỉ có thể thao tác với công trình thuộc chi nhánh ${user.unit}.` };
     }
   }
 
@@ -369,38 +431,36 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
         if (io) io.emit('notification_processed', pendingDeleteNotification._id);
     }
     const deletedConfirmationNotification = new Notification({
-        message: `Công trình "${originalProjectName}" đã được xóa bởi ${user.username}.`,
-        type: 'delete_approved', // or 'deleted_by_admin'
+        message: `Công trình "${originalProjectName}" đã được xóa bởi quản trị viên ${user.username}.`,
+        type: 'delete_approved', 
         projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
         status: 'processed',
-        userId: originalCreatorId,
-        originalProjectId: projectId,
+        userId: originalCreatorId, 
+        originalProjectId: projectId, 
     });
     await deletedConfirmationNotification.save();
     if (io) {
         io.emit('notification', deletedConfirmationNotification.toObject());
         io.emit('project_deleted', { projectId: projectId, projectType: projectType, projectName: originalProjectName });
     }
-    return { message: `Công trình "${originalProjectName}" đã được xóa bởi admin.` };
+    return { message: `Công trình "${originalProjectName}" đã được xóa bởi Admin.`, pendingDelete: false };
   }
 
   if (user.permissions.delete) {
-    let canPerformAction = false;
-    if (user.role.includes('office') || user.role.includes('director')) { 
-        canPerformAction = true;
-    } else if (user.role.includes('-branch')) { 
-        if (user.unit && project.allocatedUnit === user.unit) { 
-            canPerformAction = true;
-        }
+    let canPerformDirectDeleteUnapproved = false; 
+    let canRequestDeleteApproved = true; // All non-admin with delete permission can request delete for approved projects
+
+    if (project.createdBy.toString() === user.id.toString() && project.status !== 'Đã duyệt') {
+        canPerformDirectDeleteUnapproved = true;
     }
 
-    if (canPerformAction) {
-        if (project.status !== 'Đã duyệt' && !project.pendingDelete) { 
+    if (project.status !== 'Đã duyệt') { // Project is 'Chờ duyệt'
+        if (canPerformDirectDeleteUnapproved) {
             await Model.deleteOne({ _id: projectId });
             await updateSerialNumbers(projectType);
             const deletedNotification = new Notification({ 
                 message: `Công trình "${originalProjectName}" (chưa duyệt) đã được xóa bởi ${user.username}.`,
-                type: 'deleted_by_user', // A new type for direct deletion by permitted user
+                type: 'delete_approved', 
                 projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
                 status: 'processed',
                 userId: originalCreatorId,
@@ -411,8 +471,31 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
                 io.emit('notification', deletedNotification.toObject());
                 io.emit('project_deleted', { projectId: projectId, projectType: projectType, projectName: originalProjectName });
             }
-            return { message: `Công trình "${originalProjectName}" (chưa duyệt) đã được xóa.` };
-        } else if (!project.pendingDelete) { 
+            return { message: `Công trình "${originalProjectName}" (chưa duyệt) đã được xóa.`, pendingDelete: false };
+        } else {
+            // Non-creator trying to delete unapproved project: must go to pendingDelete
+            if (project.pendingDelete) {
+                 return { message: `Công trình "${originalProjectName}" (chưa duyệt) đã được yêu cầu xóa trước đó.`, project: (await populateProjectFields(project)).toObject(), pendingDelete: true };
+            }
+            project.pendingDelete = true;
+            project.history.push({ action: 'delete_requested', user: user.id, timestamp: new Date(), details: { note: 'Delete request on unapproved project by non-creator' } });
+            await project.save();
+            const populatedProjectForNotification = { _id: project._id, name: project.name, type: projectType };
+            const notification = new Notification({
+                message: `Yêu cầu xóa công trình "${project.name}" (chưa duyệt) bởi ${user.username}`,
+                type: 'delete', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+                status: 'pending', userId: user.id,
+                recipientId: originalApproverId || project.approvedBy 
+            });
+            await notification.save();
+            if (io) io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
+            return { message: `Yêu cầu xóa công trình "${originalProjectName}" (chưa duyệt) đã được gửi để chờ duyệt.`, project: (await populateProjectFields(project)).toObject(), pendingDelete: true };
+        }
+    } else { // Project is 'Đã duyệt' (or other post-approval status)
+        if (canRequestDeleteApproved) {
+            if (project.pendingDelete) { 
+                 return { message: `Công trình "${originalProjectName}" đã được yêu cầu xóa trước đó.`, project: (await populateProjectFields(project)).toObject(), pendingDelete: true };
+            }
             project.pendingDelete = true;
             project.history.push({ action: 'delete_requested', user: user.id, timestamp: new Date() });
             await project.save();
@@ -421,11 +504,14 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
                 message: `Yêu cầu xóa công trình "${project.name}" bởi ${user.username}`,
                 type: 'delete', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
                 status: 'pending', userId: user.id,
-                recipientId: project.approvedBy 
+                recipientId: originalApproverId || project.approvedBy 
             });
             await notification.save();
             if (io) io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
-            return { message: `Yêu cầu xóa công trình "${originalProjectName}" đã được gửi!`, project: (await populateProjectFields(project)).toObject(), pendingDelete: true };
+            return { message: `Yêu cầu xóa công trình "${originalProjectName}" đã được gửi để chờ duyệt.`, project: (await populateProjectFields(project)).toObject(), pendingDelete: true };
+        } else {
+            // Should not be reached if user.permissions.delete is true
+            throw { statusCode: 403, message: 'Không có quyền yêu cầu xóa công trình đã duyệt này.' };
         }
     }
   }
@@ -443,11 +529,10 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
     { name: 'name', label: 'Tên công trình' },
     { name: 'allocatedUnit', label: 'Đơn vị phân bổ' },
     { name: 'location', label: 'Địa điểm' },
-    { name: 'approvedBy', label: 'Người phê duyệt' },
   ];
   if (projectType === 'category') {
     basicRequiredFieldsConfig.push(
-        { name: 'projectType', label: 'Loại công trình' },
+        { name: 'projectType', label: 'Loại công trình' }, 
         { name: 'scale', label: 'Quy mô' }
     );
   } else {
@@ -460,89 +545,107 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
   for (let i = 0; i < projectsToImport.length; i++) {
     const projectDataFromExcel = { ...projectsToImport[i] };
     const originalProjectNameForDisplay = projectDataFromExcel.name || `Hàng ${i + 1} trong Excel`;
-    let dataToValidate = {};
+    let dataToValidateAndSave = {}; 
 
     try {
       for (const fieldConfig of basicRequiredFieldsConfig) {
         const fieldValue = projectDataFromExcel[fieldConfig.name];
         if (fieldValue === null || fieldValue === undefined || String(fieldValue).trim() === '') {
-          throw new Error(`Trường "${fieldConfig.label}" là bắt buộc.`);
+          throw new Error(`Trường "${fieldConfig.label}" (cột "${fieldConfig.name}") là bắt buộc cho công trình "${originalProjectNameForDisplay}".`);
         }
-        dataToValidate[fieldConfig.name] = fieldValue;
+        dataToValidateAndSave[fieldConfig.name] = fieldValue;
       }
 
       const allModelFields = Object.keys(Model.schema.paths);
       allModelFields.forEach(modelFieldKey => {
-        if (projectDataFromExcel.hasOwnProperty(modelFieldKey) && !dataToValidate.hasOwnProperty(modelFieldKey)) {
-            dataToValidate[modelFieldKey] = projectDataFromExcel[modelFieldKey];
+        if (projectDataFromExcel.hasOwnProperty(modelFieldKey) && !dataToValidateAndSave.hasOwnProperty(modelFieldKey)) {
+            dataToValidateAndSave[modelFieldKey] = projectDataFromExcel[modelFieldKey];
         }
       });
       
       if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
-        if (dataToValidate.allocatedUnit !== user.unit) {
-          if (!user.permissions.viewOtherBranchProjects) { 
-            throw new Error(`Bạn chỉ có thể nhập công trình cho chi nhánh ${user.unit}. Công trình "${originalProjectNameForDisplay}" thuộc đơn vị ${dataToValidate.allocatedUnit}.`);
-          }
+        if (dataToValidateAndSave.allocatedUnit !== user.unit && !user.permissions.viewOtherBranchProjects) { 
+            throw new Error(`Bạn chỉ có thể nhập công trình cho chi nhánh ${user.unit}. Công trình "${originalProjectNameForDisplay}" thuộc đơn vị ${dataToValidateAndSave.allocatedUnit}.`);
         }
       }
 
-      const userRefFields = ['approvedBy', 'supervisor', 'estimator'];
-      for (const field of userRefFields) {
-        const fieldValue = dataToValidate[field];
-        if (fieldValue) {
-          if (mongoose.Types.ObjectId.isValid(fieldValue)) {
-            const userFoundById = await User.findById(fieldValue).select('_id permissions fullName username');
+      const userRefFieldsToProcess = {
+        approvedBy: { required: user.role !== 'admin' }, 
+        supervisor: { required: false },
+        estimator: { required: false, categoryOnly: true }
+      };
+
+      for (const fieldName in userRefFieldsToProcess) {
+        const config = userRefFieldsToProcess[fieldName];
+        if (config.categoryOnly && projectType !== 'category') continue;
+
+        let userIdentifier = dataToValidateAndSave[fieldName]; 
+        
+        if (userIdentifier) {
+          if (mongoose.Types.ObjectId.isValid(userIdentifier)) {
+            const userFoundById = await User.findById(userIdentifier).select('_id permissions fullName username');
             if (!userFoundById) {
-              if (field === 'approvedBy') throw new Error(`Không tìm thấy người dùng với ID "${fieldValue}" cho trường Người phê duyệt.`);
-              dataToValidate[field] = null;
+              if (config.required) throw new Error(`Không tìm thấy người dùng với ID "${userIdentifier}" cho trường ${fieldName} của công trình "${originalProjectNameForDisplay}".`);
+              dataToValidateAndSave[fieldName] = null;
             } else {
-              if (field === 'approvedBy' && !userFoundById.permissions?.approve) {
-                throw new Error(`Người dùng "${userFoundById.fullName || userFoundById.username}" (ID: ${fieldValue}) không có quyền phê duyệt.`);
+              if (fieldName === 'approvedBy' && !userFoundById.permissions?.approve) {
+                throw new Error(`Người dùng "${userFoundById.fullName || userFoundById.username}" (ID: ${userIdentifier}) không có quyền phê duyệt cho công trình "${originalProjectNameForDisplay}".`);
               }
-              dataToValidate[field] = userFoundById._id;
+              dataToValidateAndSave[fieldName] = userFoundById._id;
             }
-          } else if (typeof fieldValue === 'string') {
+          } else if (typeof userIdentifier === 'string') { 
             const userFoundByName = await User.findOne({
-              $or: [{ username: fieldValue }, { fullName: fieldValue }],
+              $or: [{ username: userIdentifier }, { fullName: userIdentifier }],
             }).select('_id permissions fullName username');
             if (!userFoundByName) {
-              if (field === 'approvedBy') throw new Error(`Không tìm thấy người dùng có tên/username "${fieldValue}" cho trường Người phê duyệt.`);
-              dataToValidate[field] = null;
+              if (config.required) throw new Error(`Không tìm thấy người dùng có tên/username "${userIdentifier}" cho trường ${fieldName} của công trình "${originalProjectNameForDisplay}".`);
+              dataToValidateAndSave[fieldName] = null;
             } else {
-              if (field === 'approvedBy' && !userFoundByName.permissions?.approve) {
-                throw new Error(`Người dùng "${userFoundByName.fullName || userFoundByName.username}" không có quyền phê duyệt.`);
+              if (fieldName === 'approvedBy' && !userFoundByName.permissions?.approve) {
+                throw new Error(`Người dùng "${userFoundByName.fullName || userFoundByName.username}" không có quyền phê duyệt cho công trình "${originalProjectNameForDisplay}".`);
               }
-              dataToValidate[field] = userFoundByName._id;
+              dataToValidateAndSave[fieldName] = userFoundByName._id;
             }
-          } else {
-            if (field === 'approvedBy') throw new Error(`Giá trị không hợp lệ "${fieldValue}" cho trường Người phê duyệt.`);
-            dataToValidate[field] = null;
+          } else { 
+            if (config.required) throw new Error(`Giá trị không hợp lệ "${userIdentifier}" cho trường ${fieldName} của công trình "${originalProjectNameForDisplay}".`);
+            dataToValidateAndSave[fieldName] = null;
           }
-        } else if (field === 'approvedBy') {
-            throw new Error(`Trường Người phê duyệt là bắt buộc.`);
+        } else if (config.required) { 
+            throw new Error(`Trường ${fieldName} là bắt buộc và phải hợp lệ cho công trình "${originalProjectNameForDisplay}".`);
         } else {
-            dataToValidate[field] = null; 
+            dataToValidateAndSave[fieldName] = null; 
         }
       }
-
-      if (!dataToValidate.approvedBy) {
-        throw new Error(`Người phê duyệt là bắt buộc và phải hợp lệ.`);
-      }
-
-      const finalPayload = {};
-      allModelFields.forEach(schemaField => {
-          if (dataToValidate.hasOwnProperty(schemaField) && schemaField !== '_id' && schemaField !== '__v' && schemaField !== 'history') { // Exclude history
-              finalPayload[schemaField] = dataToValidate[schemaField];
-          }
-      });
+      
+      const finalPayload = { ...dataToValidateAndSave }; 
       finalPayload.enteredBy = user.username;
       finalPayload.createdBy = user.id;
+      finalPayload.history = [{ action: 'created', user: user.id, timestamp: new Date() }];
+
+      if (user.role === 'admin') {
+        finalPayload.status = 'Đã duyệt';
+        finalPayload.approvedBy = user.id; 
+        finalPayload.history.push({ action: 'approved', user: user.id, timestamp: new Date(), details: "Admin direct import" });
+      } else {
+        finalPayload.status = 'Chờ duyệt';
+        if (!finalPayload.approvedBy) { 
+             throw new Error(`Người phê duyệt là bắt buộc cho công trình "${originalProjectNameForDisplay}" khi nhập bởi người dùng không phải Admin.`);
+        }
+      }
+      
+      const schemaKeys = new Set(allModelFields);
+      for (const key in finalPayload) {
+          if (!schemaKeys.has(key) && key !== 'history') { 
+              delete finalPayload[key];
+          }
+      }
+      delete finalPayload.type; 
       
       projectsToSavePayloads.push(finalPayload);
       validationResults.push({ success: true, projectName: originalProjectNameForDisplay, rowIndex: i });
 
     } catch (error) {
-      logger.error(`Lỗi validate công trình "${originalProjectNameForDisplay}" từ Excel:`, { message: error.message, data: projectDataFromExcel, path: 'importProjectsBatch' });
+      logger.error(`Lỗi validate công trình "${originalProjectNameForDisplay}" (hàng ${i+1}) từ Excel:`, { message: error.message, data: projectDataFromExcel, path: 'importProjectsBatch' });
       validationResults.push({ success: false, projectName: originalProjectNameForDisplay, error: error.message, rowIndex: i, field: error.field }); 
       hasAnyError = true;
     }
@@ -551,7 +654,7 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
   if (hasAnyError) {
     const errorResponse = new Error('Có lỗi trong dữ liệu Excel. Vui lòng kiểm tra và thử lại.');
     errorResponse.statusCode = 400;
-    errorResponse.results = validationResults;
+    errorResponse.results = validationResults; 
     throw errorResponse;
   }
 
@@ -559,22 +662,11 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
   let importedCount = 0;
   for (const projectPayload of projectsToSavePayloads) {
     try {
-      if (user.role === 'admin') {
-        projectPayload.status = 'Đã duyệt';
-        projectPayload.approvedBy = user.id;
-      } else {
-        projectPayload.status = 'Chờ duyệt';
-      }
-      projectPayload.history = [{ // Add initial history entry for creation
-        action: 'created',
-        user: user.id,
-        timestamp: new Date()
-      }];
       const project = new Model(projectPayload);
       let newProject = await project.save();
       newProject = await populateProjectFields(newProject);
 
-      if (user.role !== 'admin') {
+      if (projectPayload.status === 'Chờ duyệt') { 
         const notification = new Notification({
           message: `Yêu cầu thêm công trình mới "${newProject.name}" (từ Excel) đã được gửi để duyệt`,
           type: 'new',
@@ -586,14 +678,16 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
         });
         await notification.save();
         if (io) io.emit('notification', { ...notification.toObject(), projectId: { _id: newProject._id, name: newProject.name, type: projectType } });
-      } else {
-         if (io) io.emit('project_updated', { ...newProject.toObject(), projectType });
+      } else { 
+         if (io) io.emit('project_updated', { ...newProject.toObject(), projectType }); 
       }
       savedProjectsResults.push({ success: true, projectName: newProject.name, project: newProject.toObject() });
       importedCount++;
-    } catch (error) {
-      logger.error(`Lỗi khi lưu công trình "${projectPayload.name}" từ Excel (sau validate):`, { message: error.message, data: projectPayload, path: 'importProjectsBatch' });
-      throw new Error(`Lỗi nghiêm trọng khi lưu công trình "${projectPayload.name}" đã validate: ${error.message}`);
+    } catch (dbError) {
+      logger.error(`Lỗi khi lưu công trình "${projectPayload.name}" từ Excel (sau validate):`, { message: dbError.message, data: projectPayload, path: 'importProjectsBatch' });
+      const criticalError = new Error(`Lỗi nghiêm trọng khi lưu công trình "${projectPayload.name}" đã validate: ${dbError.message}`);
+      criticalError.statusCode = 500; 
+      throw criticalError;
     }
   }
   return { message: `Hoàn tất nhập từ Excel. Đã nhập thành công ${importedCount} công trình.`, results: savedProjectsResults };

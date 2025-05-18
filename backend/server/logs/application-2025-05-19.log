@@ -55,3 +55,52 @@
 2025-05-19 01:17:28 error: Lỗi không xác định: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
 2025-05-19 01:17:31 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
 2025-05-19 01:17:31 error: Lỗi không xác định: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:18:59 info: Máy chủ đang chạy trên cổng 5000
+2025-05-19 01:18:59 info: Một người dùng đã kết nối: AtQZsdzMxNB6uTo-AAAB
+2025-05-19 01:18:59 info: Một người dùng đã kết nối: pUhUWcuwdOP50BfcAAAD
+2025-05-19 01:19:00 info: MongoDB đã kết nối thành công.
+2025-05-19 01:19:56 info: Người dùng đã ngắt kết nối: pUhUWcuwdOP50BfcAAAD
+2025-05-19 01:20:06 info: Một người dùng đã kết nối: ZpsbVUAgcpTcPMfQAAAF
+2025-05-19 01:20:32 info: Người dùng đã ngắt kết nối: AtQZsdzMxNB6uTo-AAAB
+2025-05-19 01:20:32 info: Người dùng đã ngắt kết nối: ZpsbVUAgcpTcPMfQAAAF
+2025-05-19 01:20:37 info: Một người dùng đã kết nối: nPr02XCIZaq-iv9-AAAI
+2025-05-19 01:20:37 info: Một người dùng đã kết nối: 2XSJKG9sIcqKnGgFAAAJ
+2025-05-19 01:20:53 info: Người dùng đã ngắt kết nối: nPr02XCIZaq-iv9-AAAI
+2025-05-19 01:20:56 info: Một người dùng đã kết nối: qfrKd3dxD7LL2-qKAAAL
+2025-05-19 01:21:35 info: Người dùng đã ngắt kết nối: qfrKd3dxD7LL2-qKAAAL
+2025-05-19 01:21:45 info: Một người dùng đã kết nối: W34WmR0vyeuW7ge6AAAN
+2025-05-19 01:37:08 info: Một người dùng đã kết nối: kEPc8v7FB9s5x62FAAAP
+2025-05-19 01:37:15 info: Máy chủ đang chạy trên cổng 5000
+2025-05-19 01:37:15 info: Một người dùng đã kết nối: 1TuzcDEj8pAflIlfAAAB
+2025-05-19 01:37:15 info: Một người dùng đã kết nối: uqLpQRO9on0WgoYFAAAD
+2025-05-19 01:37:15 info: Một người dùng đã kết nối: kv4WJ1FTDkPxxQ6zAAAF
+2025-05-19 01:37:16 info: MongoDB đã kết nối thành công.
+2025-05-19 01:37:26 info: Người dùng đã ngắt kết nối: 1TuzcDEj8pAflIlfAAAB
+2025-05-19 01:37:26 info: Người dùng đã ngắt kết nối: kv4WJ1FTDkPxxQ6zAAAF
+2025-05-19 01:37:26 info: Người dùng đã ngắt kết nối: uqLpQRO9on0WgoYFAAAD
+2025-05-19 01:37:37 info: Một người dùng đã kết nối: muCWMbjFIU1h7lmgAAAI
+2025-05-19 01:37:37 info: Một người dùng đã kết nối: 72VZ7h3ypAdM1qBqAAAJ
+2025-05-19 01:38:57 info: Máy chủ đang chạy trên cổng 5000
+2025-05-19 01:38:57 info: Một người dùng đã kết nối: LYkPTUsGVgIfZMjAAAAB
+2025-05-19 01:38:57 info: Một người dùng đã kết nối: 8zNnicEOC-SR6CJCAAAD
+2025-05-19 01:38:57 info: MongoDB đã kết nối thành công.
+2025-05-19 01:39:02 info: Người dùng đã ngắt kết nối: LYkPTUsGVgIfZMjAAAAB
+2025-05-19 01:39:02 info: Người dùng đã ngắt kết nối: 8zNnicEOC-SR6CJCAAAD
+2025-05-19 01:39:08 info: Một người dùng đã kết nối: 8slXsqtcfSJAYGnxAAAG
+2025-05-19 01:39:08 info: Một người dùng đã kết nối: mUxPTQ1flya7GqZDAAAH
+2025-05-19 01:50:20 info: Máy chủ đang chạy trên cổng 5000
+2025-05-19 01:50:20 info: Một người dùng đã kết nối: F3mSbz-Lz8paABAiAAAC
+2025-05-19 01:50:20 info: Một người dùng đã kết nối: sQ7UDzAfFMA7A8hSAAAD
+2025-05-19 01:50:21 info: MongoDB đã kết nối thành công.
+2025-05-19 01:50:27 info: Người dùng đã ngắt kết nối: F3mSbz-Lz8paABAiAAAC
+2025-05-19 01:50:27 info: Người dùng đã ngắt kết nối: sQ7UDzAfFMA7A8hSAAAD
+2025-05-19 01:50:37 info: Một người dùng đã kết nối: d9Lt9Kk8YBaJ4TeuAAAG
+2025-05-19 01:50:37 info: Một người dùng đã kết nối: PXb1MEkU4MVA35vGAAAH
+2025-05-19 01:52:23 info: Người dùng đã ngắt kết nối: d9Lt9Kk8YBaJ4TeuAAAG
+2025-05-19 01:52:29 info: Một người dùng đã kết nối: KEJHWtw1jMdP9zIZAAAJ
+2025-05-19 01:54:03 info: Người dùng đã ngắt kết nối: KEJHWtw1jMdP9zIZAAAJ
+2025-05-19 01:54:11 info: Một người dùng đã kết nối: XBAfIevhL9zO2yNmAAAL
+2025-05-19 01:59:52 info: Người dùng đã ngắt kết nối: XBAfIevhL9zO2yNmAAAL
+2025-05-19 01:59:59 info: Một người dùng đã kết nối: xlDeg2ut9iF8r6phAAAN
+2025-05-19 02:00:05 info: Người dùng đã ngắt kết nối: xlDeg2ut9iF8r6phAAAN
+2025-05-19 02:00:09 info: Một người dùng đã kết nối: edSfgkpICS6YjQ2uAAAP

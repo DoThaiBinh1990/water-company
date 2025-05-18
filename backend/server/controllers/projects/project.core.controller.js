@@ -8,10 +8,8 @@ exports.getProjects = async (req, res, next) => {
   try {
     // Truyền req.user (chứa thông tin user đã xác thực) vào service
     const result = await projectService.getProjectsList({ ...req.query, user: req.user });
-    const populatedProjects = await Promise.all(
-      result.projects.map(p => populateProjectFields(p))
-    );
-    res.json({ ...result, projects: populatedProjects });
+    // Population is now handled within the service
+    res.json(result);
   } catch (error) {
     logger.error("Lỗi Controller lấy danh sách công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
     next(error);
@@ -19,6 +17,7 @@ exports.getProjects = async (req, res, next) => {
 };
 
 exports.createProject = async (req, res, next) => {
+  // Permission check for 'add' is still relevant at the entry point
   if (!req.user.permissions.add) {
     return res.status(403).json({ message: 'Không có quyền thêm công trình' });
   }
@@ -27,8 +26,9 @@ exports.createProject = async (req, res, next) => {
     if (!type || !['category', 'minor_repair'].includes(type)) {
       return res.status(400).json({ message: 'Loại công trình (type) là bắt buộc và hợp lệ.' });
     }
+    // The service will now handle if it's direct approval (admin) or pending (non-admin)
     const result = await projectService.createNewProject(req.body, req.user, type, req.io);
-    res.status(201).json(result);
+    res.status(result.pending ? 202 : 201).json(result);
   } catch (error) {
     logger.error("Lỗi Controller thêm công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack, code: error.code, statusCode: error.statusCode });
     if (error.statusCode) {
@@ -42,8 +42,7 @@ exports.createProject = async (req, res, next) => {
 };
 
 exports.updateProject = async (req, res, next) => {
-  // Bỏ kiểm tra user.permissions.edit ở đây, service sẽ xử lý chi tiết
-  // if (!req.user.permissions.edit) return res.status(403).json({ message: 'Không có quyền sửa công trình.' });
+  // Service will handle detailed permission logic for editing
   try {
     const { type } = req.query;
     const projectId = req.params.id;
@@ -51,9 +50,8 @@ exports.updateProject = async (req, res, next) => {
     if (!type || !['category', 'minor_repair'].includes(type)) {
       return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
     }
-    // Service sẽ xử lý logic phân quyền chi tiết hơn
     const result = await projectService.updateProjectById(projectId, type, req.body, req.user, req.io);
-    res.status(result.updated ? 200 : (result.pending ? 202 : 200)).json(result);
+    res.status(result.pending ? 202 : (result.updated ? 200 : 200)).json(result); // 202 if pending, 200 if updated/no change
   } catch (error) {
     logger.error("Lỗi Controller cập nhật công trình:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
     if (error.statusCode) {
@@ -64,6 +62,7 @@ exports.updateProject = async (req, res, next) => {
 };
 
 exports.deleteProject = async (req, res, next) => {
+  // Service will handle detailed permission logic for deleting
   try {
     const { type } = req.query;
     const projectId = req.params.id;
@@ -73,9 +72,8 @@ exports.deleteProject = async (req, res, next) => {
       return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
     }
 
-    // Service sẽ xử lý logic phân quyền chi tiết
     const result = await projectService.deleteProjectById(projectId, type, user, req.io);
-    res.json(result);
+    res.status(result.pendingDelete ? 202 : 200).json(result);
 
   } catch (error) {
     logger.error("Lỗi Controller xóa công trình:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
@@ -97,11 +95,12 @@ exports.importProjectsFromExcel = async (req, res, next) => {
     if (!projects || !Array.isArray(projects) || projects.length === 0) {
       return res.status(400).json({ message: 'Dữ liệu công trình (projects) là bắt buộc và phải là một mảng không rỗng.' });
     }
+    // Admin imports are directly approved, others are pending. Service handles this.
     const result = await projectService.importProjectsBatch(projects, req.user, type, req.io);
     res.status(200).json(result);
   } catch (error) {
     logger.error("Lỗi Controller nhập công trình từ Excel:", { path: req.path, method: req.method, message: error.message, stack: error.stack, statusCode: error.statusCode });
-    if (error.statusCode) { return res.status(error.statusCode).json({ message: error.message }); }
+    if (error.statusCode) { return res.status(error.statusCode).json({ message: error.message, results: error.results }); } // Pass results if available
     next(error);
   }
 };

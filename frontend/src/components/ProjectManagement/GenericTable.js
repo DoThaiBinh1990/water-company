@@ -193,12 +193,12 @@ function GenericTable({
                   style={{ // Style cho header
                     width: col.width,
                     minWidth: col.minWidth || col.width,
-                    textAlign: col.align || 'center',
+                    textAlign: 'center', // Luôn căn giữa tiêu đề cột
                     left: col.sticky ? col.left : undefined,
                     ...col.headerStyle,
                   }}
                 >
-                  <div className="flex items-center justify-center"> {/* Căn giữa nội dung header */}
+                  <div className="flex items-center justify-center"> {/* Nội dung bên trong th cũng được căn giữa */}
                     {col.header}
                     {/* Có thể thêm icon sort ở đây nếu cần */}
                   </div>
