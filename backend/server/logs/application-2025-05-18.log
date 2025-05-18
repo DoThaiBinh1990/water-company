@@ -491,3 +491,7 @@
 2025-05-18 19:28:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
 2025-05-18 19:28:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
 2025-05-18 19:28:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:32:15 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 19:32:16 info: Một người dùng đã kết nối: 1EIu1Ys24j5WgyWUAAAB
+2025-05-18 19:32:16 info: Một người dùng đã kết nối: p90mwIbjelexTZM-AAAD
+2025-05-18 19:32:16 info: MongoDB đã kết nối thành công.
