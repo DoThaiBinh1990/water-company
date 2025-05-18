@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+// d:\CODE\water-company\frontend\src\components\ProjectManagement\GenericFormModal.js
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Modal from 'react-modal';
 import { toast } from 'react-toastify';
 import { FaSave, FaTimes } from 'react-icons/fa';
@@ -17,20 +18,42 @@ function GenericFormModal({
   initialFormState, // Hàm để lấy trạng thái form ban đầu
   // Dữ liệu phụ trợ cho các trường select
   allocatedUnits = [],
+  user, // Thêm user prop
   allocationWavesList = [],
   constructionUnitsList = [],
   usersList = [],
   approversList = [],
   projectTypesList = [],
 }) {
-  const [activeTab, setActiveTab] = useState(formConfig.tabs[0]?.name || 'basic');
+  // Lọc các tab dựa trên quyền của user
+  const visibleTabs = useMemo(() => {
+    if (!formConfig || !formConfig.tabs) return [];
+    if (!user) return formConfig.tabs; // Hoặc trả về mảng rỗng nếu user không tồn tại và form yêu cầu user
+
+    return formConfig.tabs.filter(tab => {
+      if (tab.name === 'assignment') { // Tab "Phân công & Chỉ đạo"
+        // Chỉ hiển thị cho admin hoặc các vai trò quản lý công ty hoặc quản lý chi nhánh có quyền allocate hoặc assign
+        return user.role === 'admin' ||
+               user.role === 'director' ||
+               user.role === 'deputy_director' ||
+               user.role.includes('manager-office') ||
+               (user.role.includes('manager-branch') && (user.permissions?.allocate || user.permissions?.assign));
+      }
+      return true; // Các tab khác hiển thị bình thường
+    });
+  }, [formConfig, user]);
+
+  const [activeTab, setActiveTab] = useState(visibleTabs[0]?.name || 'basic');
 
   useEffect(() => {
-    // Reset tab về tab đầu tiên khi formConfig thay đổi (ví dụ: chuyển loại công trình)
-    if (formConfig.tabs.length > 0) {
-      setActiveTab(formConfig.tabs[0].name);
+    // Reset tab về tab đầu tiên có thể thấy khi visibleTabs thay đổi hoặc formConfig thay đổi
+    if (visibleTabs.length > 0 && !visibleTabs.find(tab => tab.name === activeTab)) {
+      setActiveTab(visibleTabs[0].name);
+    } else if (visibleTabs.length > 0 && !activeTab) {
+      setActiveTab(visibleTabs[0].name);
     }
-  }, [formConfig]);
+  }, [visibleTabs, activeTab]);
+
 
   const handleInputChange = useCallback((e) => {
     const { name, value, type: inputType, checked } = e.target;
@@ -53,15 +76,17 @@ function GenericFormModal({
 
   const handleCloseModal = useCallback(() => {
     setShowModal(false);
-    setFormData(initialFormState()); // Reset form khi đóng
-    if (formConfig.tabs.length > 0) {
-      setActiveTab(formConfig.tabs[0].name); // Reset về tab đầu tiên
+    if (typeof initialFormState === 'function') {
+        setFormData(initialFormState()); // Reset form khi đóng
     }
-  }, [setShowModal, setFormData, initialFormState, formConfig.tabs]);
+    if (visibleTabs.length > 0) {
+      setActiveTab(visibleTabs[0].name); // Reset về tab đầu tiên có thể thấy
+    }
+  }, [setShowModal, setFormData, initialFormState, visibleTabs]);
 
   const handleSaveClick = () => {
-    // Kiểm tra các trường bắt buộc
-    for (const tab of formConfig.tabs) {
+    // Kiểm tra các trường bắt buộc chỉ trên các tab hiển thị
+    for (const tab of visibleTabs) {
       for (const field of tab.fields) {
         if (field.required && (!formData[field.name] || String(formData[field.name]).trim() === '')) {
           toast.error(`Vui lòng nhập đầy đủ thông tin cho trường "${field.label}".`, { position: "top-center" });
@@ -73,29 +98,29 @@ function GenericFormModal({
     saveProject();
   };
 
-  const isSaveDisabled = isSubmitting || formConfig.tabs.some(tab =>
+  const isSaveDisabled = isSubmitting || visibleTabs.some(tab =>
     tab.fields.some(field => field.required && (!formData[field.name] || String(formData[field.name]).trim() === ''))
   );
 
   const getOptionsForField = (field) => {
     switch (field.optionsSource) {
-      case 'allocatedUnits': return allocatedUnits.map(opt => ({ value: opt.name || opt, label: opt.name || opt }));
-      case 'allocationWaves': return allocationWavesList.map(opt => ({ value: opt.name || opt, label: opt.name || opt }));
-      case 'constructionUnits': return constructionUnitsList.map(opt => ({ value: opt.name || opt, label: opt.name || opt }));
-      case 'users': // usersList là mảng các object { _id, fullName }
-        return usersList.map(user => ({ value: user._id, label: user.fullName }));
-      case 'approvers': // approversList là mảng các object user đầy đủ
+      case 'allocatedUnits': return allocatedUnits.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
+      case 'allocationWaves': return allocationWavesList.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
+      case 'constructionUnits': return constructionUnitsList.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
+      case 'users':
+        return usersList.map(u => ({ value: u._id, label: u.fullName || u.username }));
+      case 'approvers':
         return approversList.map(approver => ({
           value: approver._id,
-          label: approver.fullName || approver.username // Ưu tiên fullName
+          label: approver.fullName || approver.username
         }));
-      case 'projectTypes': return projectTypesList.map(opt => ({ value: opt.name || opt, label: opt.name || opt }));
-      default: return field.options || []; // Nếu options được cung cấp trực tiếp trong config
+      case 'projectTypes': return projectTypesList.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
+      default: return field.options || [];
     }
   };
 
-  if (!formConfig || !formConfig.tabs || formConfig.tabs.length === 0) {
-    return null; // Không render gì nếu không có cấu hình form
+  if (!formConfig || !visibleTabs || visibleTabs.length === 0) {
+    return null;
   }
 
   return (
@@ -110,14 +135,16 @@ function GenericFormModal({
         },
         content: {
           position: 'relative', maxWidth: '720px', width: '90%', maxHeight: '90vh',
-          overflowY: 'auto', backgroundColor: 'var(--background)', borderRadius: '12px',
+          overflowY: 'hidden', /* Let inner div handle scroll */
+          backgroundColor: 'var(--background)', borderRadius: '12px',
           boxShadow: 'var(--shadow)', border: '1px solid var(--border)',
           padding: '0', zIndex: 1001, inset: 'auto',
+          display: 'flex', flexDirection: 'column', /* Added for flex layout */
         },
       }}
       contentLabel={editProject ? formConfig.editTitle : formConfig.addTitle}
     >
-      <div className="p-6 bg-white rounded-t-lg">
+      <div className="p-6 bg-white rounded-t-lg border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-800">
           {editProject ? formConfig.editTitle : formConfig.addTitle}
         </h2>
@@ -125,7 +152,7 @@ function GenericFormModal({
 
       <div className="px-6 pt-2 pb-4 border-b border-gray-200 bg-gray-50">
         <div className="flex border-b border-gray-300">
-          {formConfig.tabs.map(tab => (
+          {visibleTabs.map(tab => (
             <button
               key={tab.name}
               onClick={() => setActiveTab(tab.name)}
@@ -142,8 +169,8 @@ function GenericFormModal({
         </div>
       </div>
 
-      <div className="p-6 bg-white overflow-y-auto" style={{maxHeight: 'calc(90vh - 200px)'}}>
-        {formConfig.tabs.map(tab => activeTab === tab.name && (
+      <div className="p-6 bg-white overflow-y-auto flex-grow" /* Added flex-grow */ >
+        {visibleTabs.map(tab => activeTab === tab.name && (
           <div key={tab.name} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 animate-fadeIn">
             {tab.fields.map(field => (
               <div key={field.name} className={`${field.fullWidth ? 'sm:col-span-2' : ''}`}>

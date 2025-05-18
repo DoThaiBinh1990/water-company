@@ -4,69 +4,64 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const authenticate = require('../middleware');
-const { User, AllocatedUnit, ConstructionUnit, AllocationWave, ProjectType, CategoryProject, MinorRepairProject } = require('../models');
-const logger = require('../config/logger'); // Import logger
+const { User } = require('../models');
+const logger = require('../config/logger');
 
 router.get('/auth/me', authenticate, (req, res) => {
+  // req.user đã được middleware authenticate gán
+  // Trả về thông tin user (bao gồm permissions đã được resolve)
   res.json({ user: req.user });
 });
 
-router.post('/login', async (req, res, next) => { // Thêm next
+router.post('/login', async (req, res, next) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) { 
-      return res.status(400).json({ message: 'Tên đăng nhập và mật khẩu không được để trống' }); 
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Tên đăng nhập và mật khẩu không được để trống' });
     }
     const user = await User.findOne({ username });
     if (!user) return res.status(400).json({ message: 'Tài khoản không tồn tại' });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Mật khẩu không đúng' });
-    let userPermissions = user.permissions;
-    if (user.role === 'admin') { 
-      userPermissions = {
-        add: true,
-        edit: true,
-        delete: true,
-        approve: true,
-        viewRejected: true,
-        allocate: true,
-        assign: true,
-      }; 
-    }
-    const token = jwt.sign({ 
-      id: user._id, 
-      role: user.role, 
-      permissions: userPermissions, 
+
+    // Permissions được lấy từ user document (đã được set bởi pre-save hook hoặc admin)
+    const userPermissions = user.permissions;
+    const userUnit = user.unit; // Lấy unit của user
+
+    const token = jwt.sign({
+      id: user._id,
+      role: user.role,
+      permissions: userPermissions,
       username: user.username,
       fullName: user.fullName,
-      address: user.address,
-      phoneNumber: user.phoneNumber,
-      email: user.email,
-      unit: user.unit
+      unit: userUnit, // Thêm unit vào payload của token
     }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, user: { 
-      id: user._id, 
-      username: user.username, 
-      role: user.role, 
-      fullName: user.fullName,
-      address: user.address,
-      phoneNumber: user.phoneNumber,
-      email: user.email,
-      unit: user.unit,
-      permissions: userPermissions 
-    } });
+
+    res.json({
+      token, user: {
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+        fullName: user.fullName,
+        address: user.address,
+        phoneNumber: user.phoneNumber,
+        email: user.email,
+        unit: userUnit, // Trả về unit cho client
+        permissions: userPermissions
+      }
+    });
   } catch (error) {
     logger.error("Lỗi API đăng nhập:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
     next(error);
   }
 });
 
-router.post('/users', authenticate, async (req, res, next) => { // Thêm next
+router.post('/users', authenticate, async (req, res, next) => {
   if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền thêm người dùng' });
   try {
-    const { username, password, role, fullName, address, phoneNumber, email, unit, permissions } = req.body;
-    if (!username || !password || !role) { 
-      return res.status(400).json({ message: 'Tên người dùng, mật khẩu và vai trò không được để trống' }); 
+    const { username, password, role, fullName, address, phoneNumber, email, unit, permissions: clientPermissions } = req.body;
+    if (!username || !password || !role) {
+      return res.status(400).json({ message: 'Tên người dùng, mật khẩu và vai trò không được để trống' });
     }
     if (username.toLowerCase() === 'admin' && role === 'admin') {
       const existingAdmin = await User.findOne({ username: 'admin', role: 'admin' });
@@ -74,32 +69,37 @@ router.post('/users', authenticate, async (req, res, next) => { // Thêm next
     }
     const existingUser = await User.findOne({ username });
     if (existingUser) { return res.status(400).json({ message: 'Tên người dùng đã tồn tại.' }); }
-    // const hashedPassword = await bcrypt.hash(password, 10); // Mật khẩu đã được hash trong pre-save hook
-    let finalPermissions = permissions || {};
-    if (role === 'admin') {
-      finalPermissions = {
-        add: true,
-        edit: true,
-        delete: true,
-        approve: true,
-        viewRejected: true,
-        allocate: true,
-        assign: true,
-      };
-    }
-    const user = new User({ 
-      username, 
-      password, // Truyền mật khẩu chưa hash, pre-save hook sẽ xử lý
-      role, 
+
+    const user = new User({
+      username,
+      password,
+      role,
       fullName: fullName || '',
       address: address || '',
       phoneNumber: phoneNumber || '',
       email: email || '',
-      unit: unit || '',
-      permissions: finalPermissions 
+      unit: unit || '', // Lưu unit
+      // permissions sẽ được pre-save hook set dựa trên role.
     });
-    const newUser = await user.save();
-    const userResponse = newUser.toObject(); 
+
+    // Nếu client gửi permissions và role không phải admin, ghi đè lên default từ pre-save
+    // pre-save hook sẽ chạy sau khi các trường được gán ở đây.
+    // Nếu role là admin, pre-save hook sẽ luôn set full quyền.
+    if (clientPermissions && role !== 'admin') {
+        // Tạo một object permissions mới dựa trên default của role đó (nếu có) rồi merge với clientPermissions
+        // Hoặc đơn giản là gán clientPermissions, pre-save sẽ set default nếu role thay đổi và clientPermissions không đủ
+        let basePermissions = {}; // Lấy base permissions cho role từ logic tương tự pre-save nếu cần
+        // Ví dụ:
+        // if (role === 'staff-branch') basePermissions = { add: true, edit: true, delete: true, approve: false, ... };
+        // user.permissions = { ...basePermissions, ...clientPermissions };
+        // Hiện tại, để đơn giản, nếu client gửi permissions, ta dùng nó (trừ admin)
+        // pre-save sẽ xử lý phần còn lại.
+        user.permissions = clientPermissions;
+    }
+
+
+    const newUser = await user.save(); // pre-save hook sẽ chạy
+    const userResponse = newUser.toObject();
     delete userResponse.password;
     res.status(201).json(userResponse);
   } catch (error) {
@@ -109,8 +109,10 @@ router.post('/users', authenticate, async (req, res, next) => { // Thêm next
   }
 });
 
-router.get('/users', authenticate, async (req, res, next) => { // Thêm next
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền xem người dùng' });
+router.get('/users', authenticate, async (req, res, next) => {
+  // Cho phép tất cả người dùng đã xác thực lấy danh sách người dùng.
+  // Việc lọc danh sách cho các mục đích cụ thể (ví dụ: người duyệt) sẽ được thực hiện ở frontend.
+  // if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền xem người dùng' });
   try {
     const users = await User.find().select('-password');
     res.json(users);
@@ -120,44 +122,67 @@ router.get('/users', authenticate, async (req, res, next) => { // Thêm next
   }
 });
 
-router.patch('/users/:id', authenticate, async (req, res, next) => { // Thêm next
+router.patch('/users/:id', authenticate, async (req, res, next) => {
   if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền sửa người dùng' });
   try {
     const userToUpdate = await User.findById(req.params.id);
     if (!userToUpdate) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
-    const { username, password, role, fullName, address, phoneNumber, email, unit, permissions } = req.body;
-    
-    if (userToUpdate.role === 'admin' || userToUpdate.username.toLowerCase() === 'admin') {
-      if (role && role !== 'admin') { return res.status(403).json({ message: 'Không thể thay đổi vai trò của tài khoản admin.' }); }
-      if (username && username.toLowerCase() !== 'admin' && userToUpdate.username.toLowerCase() === 'admin') { return res.status(403).json({ message: 'Không thể thay đổi username của tài khoản admin chính ("admin").' }); }
-      if (username && username.toLowerCase() === 'admin' && userToUpdate.username.toLowerCase() !== 'admin') {
-        const existingAdmin = await User.findOne({ username: 'admin', role: 'admin' });
-        if (existingAdmin && !existingAdmin._id.equals(userToUpdate._id)) { return res.status(400).json({ message: 'Tên người dùng "admin" đã được sử dụng bởi tài khoản admin khác.' }); }
+
+    const { username, password, role, fullName, address, phoneNumber, email, unit, permissions: clientPermissions } = req.body;
+
+    const isUpdatingOwnAdminAccount = userToUpdate.username.toLowerCase() === 'admin' && userToUpdate.role === 'admin';
+
+    if (isUpdatingOwnAdminAccount) {
+      if (role && role !== 'admin') {
+        return res.status(403).json({ message: 'Không thể thay đổi vai trò của tài khoản admin chính.' });
       }
       userToUpdate.role = 'admin';
+      // Permissions của admin chính luôn full, không cho client thay đổi
+      userToUpdate.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true };
     } else {
-      if (role) userToUpdate.role = role;
-      if (permissions) userToUpdate.permissions = permissions;
+      const previousRole = userToUpdate.role;
+      if (role) {
+        userToUpdate.role = role;
+      }
+      // Nếu client gửi permissions, áp dụng chúng.
+      // pre-save hook sẽ chạy sau và có thể điều chỉnh permissions dựa trên role mới.
+      if (clientPermissions) {
+        // Nếu role thay đổi, permissions cũ có thể không còn phù hợp.
+        // Ta có thể reset permissions về rỗng trước khi gán clientPermissions,
+        // sau đó pre-save hook sẽ điền các default cho role mới nếu clientPermissions không đủ.
+        // Hoặc, nếu muốn clientPermissions ghi đè hoàn toàn (trừ admin), thì gán trực tiếp.
+        if (userToUpdate.role !== previousRole) {
+            userToUpdate.permissions = clientPermissions; // Gán thẳng, pre-save sẽ bổ sung nếu thiếu cho role mới
+        } else {
+            userToUpdate.permissions = { ...userToUpdate.permissions, ...clientPermissions }; // Merge nếu role không đổi
+        }
+      }
     }
 
-    if (username && username !== userToUpdate.username && !(userToUpdate.role === 'admin' && userToUpdate.username.toLowerCase() === 'admin')) {
+    if (username && username !== userToUpdate.username) {
+      if (isUpdatingOwnAdminAccount) {
+        return res.status(403).json({ message: 'Không thể thay đổi username của tài khoản admin chính.' });
+      }
       const existingUser = await User.findOne({ username });
-      if (existingUser && !existingUser._id.equals(userToUpdate._id)) { return res.status(400).json({ message: 'Tên người dùng mới đã tồn tại.' }); }
+      if (existingUser && !existingUser._id.equals(userToUpdate._id)) {
+        return res.status(400).json({ message: 'Tên người dùng mới đã tồn tại.' });
+      }
       userToUpdate.username = username;
     }
+
     if (fullName !== undefined) userToUpdate.fullName = fullName;
     if (address !== undefined) userToUpdate.address = address;
     if (phoneNumber !== undefined) userToUpdate.phoneNumber = phoneNumber;
     if (email !== undefined) userToUpdate.email = email;
-    if (unit !== undefined) userToUpdate.unit = unit;
+    if (unit !== undefined) userToUpdate.unit = unit; // Cập nhật unit
 
     if (password) {
       if (password.length < 6) { return res.status(400).json({ message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' }); }
       userToUpdate.password = password; // pre-save hook sẽ hash
     }
-    
-    const updatedUser = await userToUpdate.save();
-    const userResponse = updatedUser.toObject(); 
+
+    const updatedUser = await userToUpdate.save(); // pre-save hook sẽ chạy lại
+    const userResponse = updatedUser.toObject();
     delete userResponse.password;
     res.json(userResponse);
   } catch (error) {
@@ -167,7 +192,7 @@ router.patch('/users/:id', authenticate, async (req, res, next) => { // Thêm ne
   }
 });
 
-router.delete('/users/:id', authenticate, async (req, res, next) => { // Thêm next
+router.delete('/users/:id', authenticate, async (req, res, next) => {
   if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền xóa người dùng' });
   try {
     const user = await User.findById(req.params.id);
@@ -183,7 +208,7 @@ router.delete('/users/:id', authenticate, async (req, res, next) => { // Thêm n
 });
 
 const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlural) => {
-  router.post(`/${modelNamePlural}`, authenticate, async (req, res, next) => { // Thêm next
+  router.post(`/${modelNamePlural}`, authenticate, async (req, res, next) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: `Chỉ admin mới có quyền thêm ${modelNameSingular}` });
     try {
       const { name } = req.body;
@@ -200,7 +225,7 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
     }
   });
 
-  router.get(`/${modelNamePlural}`, authenticate, async (req, res, next) => { // Thêm next
+  router.get(`/${modelNamePlural}`, authenticate, async (req, res, next) => {
     try {
       const units = await model.find().sort({ name: 1 });
       res.json(units);
@@ -210,7 +235,7 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
     }
   });
 
-  router.patch(`/${modelNamePlural}/:id`, authenticate, async (req, res, next) => { // Thêm next
+  router.patch(`/${modelNamePlural}/:id`, authenticate, async (req, res, next) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: `Chỉ admin mới có quyền sửa ${modelNameSingular}` });
     try {
       const { name } = req.body;
@@ -229,24 +254,20 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
     }
   });
 
-  router.delete(`/${modelNamePlural}/:id`, authenticate, async (req, res, next) => { // Thêm next
+  router.delete(`/${modelNamePlural}/:id`, authenticate, async (req, res, next) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: `Chỉ admin mới có quyền xóa ${modelNameSingular}` });
     try {
       const unit = await model.findById(req.params.id);
       if (!unit) return res.status(404).json({ message: `Không tìm thấy ${modelNameSingular}` });
-      let projectsUsingUnit;
-      if (modelNamePlural === 'allocated-units') {
-        projectsUsingUnit = await CategoryProject.findOne({ allocatedUnit: unit.name }) || await MinorRepairProject.findOne({ allocatedUnit: unit.name });
-      } else if (modelNamePlural === 'construction-units') {
-        projectsUsingUnit = await CategoryProject.findOne({ constructionUnit: unit.name }) || await MinorRepairProject.findOne({ constructionUnit: unit.name });
-      } else if (modelNamePlural === 'allocation-waves') {
-        projectsUsingUnit = await CategoryProject.findOne({ allocationWave: unit.name }) || await MinorRepairProject.findOne({ allocationWave: unit.name });
-      } else if (modelNamePlural === 'project-types') {
-        projectsUsingUnit = await CategoryProject.findOne({ projectType: unit.name });
+      // Logic kiểm tra unit có đang được sử dụng không
+      const isUsedInCategory = await CategoryProject.exists({ $or: [{ allocatedUnit: unit.name }, { constructionUnit: unit.name }, { allocationWave: unit.name }] });
+      const isUsedInMinorRepair = await MinorRepairProject.exists({ allocatedUnit: unit.name });
+      const isUserUnit = await User.exists({ unit: unit.name });
+
+      if (isUsedInCategory || isUsedInMinorRepair || isUserUnit) {
+        return res.status(400).json({ message: `${modelNameSingular} "${unit.name}" đang được sử dụng và không thể xóa.` });
       }
-      if (projectsUsingUnit) {
-        return res.status(400).json({ message: `Không thể xóa. ${modelNameSingular} "${unit.name}" đang được sử dụng trong ít nhất một công trình.` });
-      }
+
       await model.deleteOne({ _id: req.params.id });
       res.json({ message: `Đã xóa ${modelNameSingular}` });
     } catch (error) {
@@ -255,10 +276,65 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
     }
   });
 };
-
+const { AllocatedUnit, ConstructionUnit, AllocationWave, ProjectType, CategoryProject, MinorRepairProject } = require('../models');
 createUnitCrudEndpoints(router, AllocatedUnit, 'đơn vị', 'allocated-units');
 createUnitCrudEndpoints(router, ConstructionUnit, 'đơn vị thi công', 'construction-units');
 createUnitCrudEndpoints(router, AllocationWave, 'đợt phân bổ', 'allocation-waves');
 createUnitCrudEndpoints(router, ProjectType, 'loại công trình', 'project-types');
+
+// Route cho user tự cập nhật thông tin cá nhân (không bao gồm role, permissions)
+router.patch('/users/me/profile', authenticate, async (req, res, next) => {
+  try {
+    const userToUpdate = await User.findById(req.user.id);
+    if (!userToUpdate) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+
+    const { fullName, address, phoneNumber, email } = req.body;
+
+    if (fullName !== undefined) userToUpdate.fullName = fullName;
+    if (address !== undefined) userToUpdate.address = address;
+    if (phoneNumber !== undefined) userToUpdate.phoneNumber = phoneNumber;
+    if (email !== undefined) {
+      // Optional: Validate email format
+      userToUpdate.email = email;
+    }
+
+    const updatedUser = await userToUpdate.save();
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password; // Không trả về mật khẩu
+    // Cập nhật thông tin user trong token nếu cần, hoặc yêu cầu client fetch lại user info
+    res.json({ message: 'Thông tin cá nhân đã được cập nhật.', user: userResponse });
+
+  } catch (error) {
+    logger.error("Lỗi API cập nhật profile người dùng:", { userId: req.user.id, message: error.message, stack: error.stack });
+    next(error);
+  }
+});
+
+// Route cho user tự đổi mật khẩu
+router.patch('/users/me/password', authenticate, async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Mật khẩu hiện tại và mật khẩu mới là bắt buộc.' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+    }
+
+    const user = await User.findById(req.user.id); // Lấy cả password hash
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Mật khẩu hiện tại không đúng.' });
+
+    user.password = newPassword; // pre-save hook sẽ hash mật khẩu mới
+    await user.save();
+
+    res.json({ message: 'Mật khẩu đã được thay đổi thành công.' });
+  } catch (error) {
+    logger.error("Lỗi API đổi mật khẩu người dùng:", { userId: req.user.id, message: error.message, stack: error.stack });
+    next(error);
+  }
+});
 
 module.exports = router;

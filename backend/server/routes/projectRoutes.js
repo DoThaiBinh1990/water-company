@@ -574,13 +574,19 @@ router.patch('/notifications/:id/read', authenticate, async (req, res, next) => 
 
 // Get rejected projects
 router.get('/rejected-projects', authenticate, async (req, res, next) => { // Thêm next
-  if (!req.user.permissions.viewRejected) { // Assuming a specific permission
-    return res.status(403).json({ message: 'Không có quyền xem công trình bị từ chối.' });
-  }
+  // Tất cả user đều có thể gọi API này, backend sẽ lọc dựa trên quyền và unit
+  // if (!req.user.permissions.viewRejected) {
+  //   return res.status(403).json({ message: 'Không có quyền xem công trình bị từ chối.' });
+  // }
   try {
     const { type, page = 1, limit = 10 } = req.query;
     const query = {};
     if (type) query.projectType = type;
+
+    // Lọc theo unit cho user chi nhánh nếu không có quyền xem chi nhánh khác
+    if ((req.user.role === 'staff-branch' || req.user.role === 'manager-branch') && req.user.unit && !req.user.permissions.viewOtherBranchProjects) {
+      query.allocatedUnit = req.user.unit;
+    }
 
     const count = await RejectedProject.countDocuments(query);
     const rejectedProjects = await RejectedProject.find(query)

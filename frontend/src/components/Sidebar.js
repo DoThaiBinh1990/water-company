@@ -73,20 +73,19 @@ function Sidebar({ user, onLogout, isSidebarOpen, setIsSidebarOpen }) {
                 Sửa chữa nhỏ
               </span>
             </Link>
-            {user?.permissions?.approve && (
-              <Link
-                to="/settings"
-                className={`flex items-center ${buttonPadding} rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-110 hover:bg-blue-600 hover:shadow-md ${
-                  isActive('/settings') ? 'bg-blue-700 text-white shadow-md' : 'text-white'
-                } ${isSidebarOpen ? '' : 'justify-center bg-blue-700/50 border border-blue-500/50'}`}
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <FaCog className={`${isSidebarOpen ? 'mr-3' : ''}`} size={iconSize} />
-                <span className={`transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
-                  Thiết lập
-                </span>
-              </Link>
-            )}
+            {/* Tất cả user đã đăng nhập đều có thể thấy mục Thiết lập (để vào Thông tin cá nhân) */}
+            <Link
+              to="/settings"
+              className={`flex items-center ${buttonPadding} rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-110 hover:bg-blue-600 hover:shadow-md ${
+                isActive('/settings') ? 'bg-blue-700 text-white shadow-md' : 'text-white'
+              } ${isSidebarOpen ? '' : 'justify-center bg-blue-700/50 border border-blue-500/50'}`}
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              <FaCog className={`${isSidebarOpen ? 'mr-3' : ''}`} size={iconSize} />
+              <span className={`transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
+                Thiết lập
+              </span>
+            </Link>
           </nav>
 
           <div className="mt-auto p-3 border-t border-blue-700 overflow-x-hidden overflow-y-hidden">

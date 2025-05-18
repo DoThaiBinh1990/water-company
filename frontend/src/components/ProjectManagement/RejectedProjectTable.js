@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaInfoCircle, FaUndo, FaTrash } from 'react-icons/fa';
+import { formatDate } from '../../utils/helpers'; // Import formatDate
 import { toast } from 'react-toastify';
 
 function RejectedProjectTable({
@@ -19,11 +20,13 @@ function RejectedProjectTable({
     );
   }
 
+  // Lọc dựa trên prop 'type' (category hoặc minor_repair)
   const filteredRejectedProjects = rejectedProjects.filter(p => {
-    if (type === 'category' && p.projectModel === 'CategoryProject') return true;
-    if (type === 'minor_repair' && p.projectModel === 'MinorRepairProject') return true;
+    // Backend đã trả về projectType là 'category' hoặc 'minor_repair'
+    if (p.projectType === type) return true;
     return false;
   });
+
 
   if (!filteredRejectedProjects || filteredRejectedProjects.length === 0) {
     return (
@@ -51,9 +54,14 @@ function RejectedProjectTable({
             <tr>
               <th style={{ width: '50px', backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>STT</th>
               <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Tên công trình</th>
+              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Địa điểm</th>
+              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Quy mô</th>
+              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Chi nhánh PB</th>
               <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Loại yêu cầu bị từ chối</th>
+              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Người yêu cầu</th>
               <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Người từ chối</th>
               <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Ngày từ chối</th>
+              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10, minWidth: '200px' }}>Lý do từ chối</th>
               <th
                 className="sticky-col-last-header"
                 style={{ width: '120px', backgroundColor: '#4A5568', color: 'white', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, right: 0, zIndex: 30 }}
@@ -65,11 +73,16 @@ function RejectedProjectTable({
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredRejectedProjects.map((project, index) => (
               <tr key={project._id || project.projectId} className="hover:bg-gray-100 transition-colors duration-150">
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>{index + 1}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{project.projectName || project.details?.name || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px' }}>{getActionTypeDisplay(project.actionType)}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>{project.rejectedBy?.username || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '12px 16px', textAlign: 'center' }}>{new Date(project.rejectedAt).toLocaleDateString('vi-VN')}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{index + 1}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.name || project.details?.name || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.location || project.details?.location || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.scale || project.details?.scale || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.allocatedUnit || project.details?.allocatedUnit || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{getActionTypeDisplay(project.actionType)}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{project.createdBy?.fullName || project.createdBy?.username || project.enteredBy || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{project.rejectedBy?.fullName || project.rejectedBy?.username || 'N/A'}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{formatDate(project.rejectedAt)}</td>
+                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{project.rejectionReason || 'N/A'}</td>
                 <td
                   className="sticky-col-last"
                   style={{ padding: '8px', textAlign: 'center', position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 20, borderLeft: '1px solid #E5E7EB' }}

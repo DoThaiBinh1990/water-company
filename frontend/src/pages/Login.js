@@ -1,42 +1,44 @@
+// d:\CODE\water-company\frontend\src\pages\Login.js
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { API_URL } from '../config';
+import { loginUser, apiClient } from '../apiService';
 
-function Login({ setUser }) {
+function Login({ setUser, initializeAuth }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const loginMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      const { token, user } = data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user)); // Lưu user vào localStorage để có thể lấy lại nếu cần
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(user); // Cập nhật state user trong App.js
+      toast.success('Đăng nhập thành công!', { position: "top-center" });
+      if (initializeAuth) {
+          // Đảm bảo initializeAuth được gọi sau khi user state đã được cập nhật
+          // Hoặc initializeAuth có thể tự đọc token từ localStorage
+          initializeAuth();
+      }
+      setTimeout(() => navigate('/category'), 1000); // Chuyển hướng sau khi đăng nhập
+    },
+    onError: (error) => {
+      const errorMessage = error.response?.data?.message || 'Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.';
+      toast.error(errorMessage, { position: "top-center" });
+    }
+  });
+
+  const handleLogin = () => {
     if (!username || !password) {
-      setError('Vui lòng nhập đầy đủ tên người dùng và mật khẩu');
       toast.error('Vui lòng nhập đầy đủ thông tin!', { position: "top-center" });
       return;
     }
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      setError('');
-      const response = await axios.post(`${API_URL}/api/login`, { username, password });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(user);
-      toast.success('Đăng nhập thành công!', { position: "top-center" });
-      setTimeout(() => navigate('/category'), 1000);
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.';
-      setError(errorMessage);
-      toast.error(errorMessage, { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
+    loginMutation.mutate({ username, password });
   };
 
   return (
@@ -49,9 +51,9 @@ function Login({ setUser }) {
         </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Water Company</h1>
         <p className="text-gray-600 mb-8 text-center">Hệ thống quản lý công trình</p>
-        {error && (
+        {loginMutation.isError && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
-            {error}
+            {loginMutation.error.response?.data?.message || 'Đăng nhập thất bại!'}
           </div>
         )}
         <div className="mb-4">
@@ -62,7 +64,7 @@ function Login({ setUser }) {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-            disabled={isLoading}
+            disabled={loginMutation.isLoading}
           />
         </div>
         <div className="mb-6">
@@ -73,15 +75,15 @@ function Login({ setUser }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-            disabled={isLoading}
+            disabled={loginMutation.isLoading}
           />
         </div>
         <button
           onClick={handleLogin}
-          className={`w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          disabled={isLoading}
+          className={`w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg ${loginMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={loginMutation.isLoading}
         >
-          {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          {loginMutation.isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
       </div>
     </div>

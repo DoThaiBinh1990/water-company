@@ -1,12 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useQuery, useMutation, useQueryClient as useReactQueryClient } from '@tanstack/react-query'; // Đổi tên useQueryClient để tránh xung đột
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import ProjectManagement from './components/ProjectManagement/ProjectManagement';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
-import { API_URL } from './config';
+import {
+  apiClient, // Sử dụng apiClient đã cấu hình interceptor
+  getMe,
+  getNotificationsByStatus as fetchNotificationsAPI,
+  getProjectStatus, // API để kiểm tra trạng thái trước khi action
+  approveEditProject as approveEditAPI, // Đổi tên để rõ ràng là API call
+  rejectEditProject as rejectEditAPI,
+  approveDeleteProject as approveDeleteAPI,
+  rejectDeleteProject as rejectDeleteAPI,
+} from './apiService';
 import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,7 +32,7 @@ const debounce = (func, delay) => {
   };
 };
 
-const socket = io(API_URL, {
+const socket = io(apiClient.defaults.baseURL, { // Sử dụng baseURL từ apiClient
   transports: ['websocket', 'polling'],
   withCredentials: true,
   autoConnect: false,
@@ -30,65 +40,61 @@ const socket = io(API_URL, {
 
 function App() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClientHook = useReactQueryClient(); // Sử dụng tên đã đổi
 
-  const [notifications, setNotifications] = useState([]);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [currentNotificationTab, setCurrentNotificationTab] = useState('pending');
-  const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
-  const [isProcessingNotificationAction, setIsProcessingNotificationAction] = useState(false);
   const [showHeader, setShowHeader] = useState(true); // Trạng thái ẩn/hiện Header (chỉ trên mobile)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Trạng thái ẩn/hiện Sidebar
 
-  const fetchNotificationsByStatus = useCallback(async (status) => {
-    setIsNotificationsLoading(true);
-    try {
-      const res = await axios.get(`${API_URL}/api/notifications?status=${status}`);
-      setNotifications(res.data || []);
-    } catch (error) {
-      console.error("Lỗi tải thông báo:", error.response?.data?.message || error.message);
-      toast.error(error.response?.data?.message || 'Lỗi tải thông báo!', { position: "top-center" });
-      setNotifications([]);
-    } finally {
-      setIsNotificationsLoading(false);
+  const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: getMe,
+    enabled: !!localStorage.getItem('token'), // Chỉ fetch khi có token
+    retry: false, // Không retry nếu lỗi (thường là token invalid)
+    onSuccess: (data) => {
+      if (data && typeof data === 'object') {
+        setUser(data);
+      } else {
+        // Dữ liệu user không hợp lệ, có thể token đã hết hạn ở backend nhưng vẫn hợp lệ ở client
+        console.error("Dữ liệu người dùng không hợp lệ từ server", data);
+        handleLogout(); // Xử lý logout
+      }
+    },
+    onError: (error) => {
+      console.error('Lỗi xác thực token (useQuery):', error);
+      handleLogout(); // Xử lý logout nếu có lỗi
     }
-  }, []);
+  });
 
-  const debouncedFetchNotifications = useCallback(
-    debounce((status) => fetchNotificationsByStatus(status), 300),
-    [fetchNotificationsByStatus]
-  );
+  const {
+    data: notifications = [], // Mặc định là mảng rỗng
+    isLoading: isNotificationsLoading,
+    refetch: refetchNotifications // Hàm để fetch lại notifications
+  } = useQuery({
+    queryKey: ['notifications', currentNotificationTab],
+    queryFn: () => fetchNotificationsAPI(currentNotificationTab),
+    enabled: !!user && showNotificationsModal, // Chỉ fetch khi user đã login và modal hiển thị
+    onError: (error) => {
+      console.error("Lỗi tải thông báo (useQuery):", error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || 'Lỗi tải thông báo!', { position: "top-center" });
+    }
+  });
 
   const initializeAuth = useCallback(async () => {
-    setLoading(true);
     const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-
-    if (token && storedUser) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      try {
-        const response = await axios.get(`${API_URL}/api/auth/me`);
-        const freshUser = response.data.user;
-        if (freshUser && typeof freshUser === 'object') {
-          setUser(freshUser);
-          debouncedFetchNotifications('pending');
-        } else {
-          throw new Error("Dữ liệu người dùng không hợp lệ từ server");
-        }
-      } catch (error) {
-        console.error('Lỗi xác thực token:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
-        setUser(null);
-        navigate('/login');
+    if (token) {
+      // Interceptor trong apiService sẽ tự động thêm token.
+      // Đảm bảo apiClient có header nếu token vừa được set bởi Login.js
+      if (!apiClient.defaults.headers.common['Authorization']) {
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       }
+      await refetchUser(); // Gọi refetch để useQuery currentUser chạy
     } else {
-      setUser(null);
+      setUser(null); // Nếu không có token, set user là null
     }
-    setLoading(false);
-  }, [debouncedFetchNotifications, navigate]);
+  }, [refetchUser, navigate]);
 
   useEffect(() => {
     initializeAuth();
@@ -100,32 +106,33 @@ function App() {
         socket.connect();
       }
       if (showNotificationsModal) {
-        fetchNotificationsByStatus(currentNotificationTab);
-      } else if (!notifications.length) {
-        // Initial fetch handled by initializeAuth
+        refetchNotifications(); // Fetch lại khi modal mở hoặc tab thay đổi
+      } else if (notifications.length === 0 && user.permissions?.approve) {
+        // Có thể fetch 'pending' notifications ở đây nếu muốn hiển thị badge sớm
+        // queryClientHook.prefetchQuery(['notifications', 'pending'], () => fetchNotificationsAPI('pending'));
       }
     } else {
       if (socket.connected) {
         socket.disconnect();
       }
-      setNotifications([]);
     }
 
     const handleNewNotification = (notification) => {
-      if (notification.status === 'pending' && user?.permissions?.approve) {
-        setNotifications(prev => [notification, ...prev.filter(n => n._id !== notification._id)]);
-      } else if (notification.status === 'processed' && notification.userId?.toString() === user?._id?.toString()) {
-        setNotifications(prev => [notification, ...prev.filter(n => n._id !== notification._id)]);
-      }
       if (showNotificationsModal) {
-        fetchNotificationsByStatus(currentNotificationTab);
+        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
+      }
+      // Luôn invalidate tab 'pending' nếu user có quyền approve và có notif mới dạng pending
+      if (user?.permissions?.approve && notification.status === 'pending') {
+        queryClientHook.invalidateQueries(['notifications', 'pending']);
+        toast.info(`Có yêu cầu mới: ${notification.message}`, { position: "top-center" });
       }
     };
 
     const handleNotificationProcessed = () => {
       if (showNotificationsModal) {
-        fetchNotificationsByStatus(currentNotificationTab);
+        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
       }
+      queryClientHook.invalidateQueries(['notifications', 'pending']); // Invalidate tab pending
     };
 
     socket.on('notification', handleNewNotification);
@@ -135,120 +142,134 @@ function App() {
       socket.off('notification', handleNewNotification);
       socket.off('notification_processed', handleNotificationProcessed);
     };
-  }, [user, showNotificationsModal, currentNotificationTab, fetchNotificationsByStatus]);
+  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook, notifications.length]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
+    delete apiClient.defaults.headers.common['Authorization'];
     setUser(null);
-    setNotifications([]);
     setShowNotificationsModal(false);
+    queryClientHook.clear(); // Xóa cache của React Query khi logout
     navigate('/login');
   };
 
-  const handleNotificationAction = async (actionPromise, successMessage) => {
-    if (isProcessingNotificationAction) return;
-    setIsProcessingNotificationAction(true);
-    try {
-      const response = await actionPromise();
-      toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
-      fetchNotificationsByStatus(currentNotificationTab);
-    } catch (error) {
-      console.error("Lỗi hành động thông báo:", error.response?.data?.message || error.message);
-      toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
-      fetchNotificationsByStatus(currentNotificationTab);
-    } finally {
-      setIsProcessingNotificationAction(false);
-    }
-  };
-
-  const showNotification = (message, type = 'info') => {
-    toast[type](message, {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
+  // Hook chung cho các mutation liên quan đến project actions từ notification
+  const useProjectActionMutation = (mutationFn, successMessageKey) => {
+    return useMutation({
+      mutationFn,
+      onSuccess: (data) => {
+        toast.success(data?.message || successMessageKey || "Thao tác thành công!", { position: "top-center" });
+        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
+        queryClientHook.invalidateQueries(['notifications', 'pending']); // Luôn làm mới tab pending
+        // Invalidate project list as well
+        queryClientHook.invalidateQueries(['projects']);
+        queryClientHook.invalidateQueries(['pendingProjects']);
+      },
+      onError: (error) => {
+        console.error("Lỗi hành động thông báo:", error.response?.data?.message || error.message);
+        toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
+        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]); // Làm mới để user thấy trạng thái hiện tại
+        queryClientHook.invalidateQueries(['notifications', 'pending']);
+      },
     });
   };
 
-  const approveEditAction = (projectId) => handleNotificationAction(
-    async () => {
+  const showNotification = (message, type = 'info') => {
+    if (toast[type]) {
+      toast[type](message, { position: "top-center" });
+    } else {
+      toast.info(message, { position: "top-center" }); // Default to info
+    }
+  };
+
+  const approveEditMutation = useProjectActionMutation(
+    async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
-        await fetchNotificationsByStatus('pending');
+        await queryClientHook.refetchQueries(['notifications', 'pending']); // Refetch để đảm bảo
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
-      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
-      if (!statusRes.data.pendingEdit) {
-        await fetchNotificationsByStatus('pending');
+      const statusData = await getProjectStatus({ projectId, type }); // Sử dụng API service
+      if (!statusData.pendingEdit) {
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
-      return axios.patch(`${API_URL}/api/projects/${projectId}/approve-edit?type=${type}`);
+      return approveEditAPI({ projectId, type }); // Sử dụng API service
     },
     'Đã duyệt yêu cầu sửa công trình!'
   );
 
-  const rejectEditAction = (projectId) => handleNotificationAction(
-    async () => {
+  const rejectEditMutation = useProjectActionMutation(
+    async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
-        await fetchNotificationsByStatus('pending');
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
-      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
-      if (!statusRes.data.pendingEdit) {
-        await fetchNotificationsByStatus('pending');
+      const statusData = await getProjectStatus({ projectId, type });
+      if (!statusData.pendingEdit) {
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
-      return axios.patch(`${API_URL}/api/projects/${projectId}/reject-edit?type=${type}`);
+      return rejectEditAPI({ projectId, type });
     },
     'Đã từ chối yêu cầu sửa công trình!'
   );
 
-  const approveDeleteAction = (projectId) => handleNotificationAction(
-    async () => {
+  const approveDeleteMutation = useProjectActionMutation(
+    async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
       if (!notification) {
-        await fetchNotificationsByStatus('pending');
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
-      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
-      if (!statusRes.data.pendingDelete) {
-        await fetchNotificationsByStatus('pending');
+      const statusData = await getProjectStatus({ projectId, type });
+      if (!statusData.pendingDelete) {
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Công trình không có yêu cầu xóa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
-      return axios.patch(`${API_URL}/api/projects/${projectId}/approve-delete?type=${type}`);
+      return approveDeleteAPI({ projectId, type });
     },
     'Đã duyệt yêu cầu xóa và xóa công trình!'
   );
 
-  const rejectDeleteAction = (projectId) => handleNotificationAction(
-    async () => {
+  const rejectDeleteMutation = useProjectActionMutation(
+    async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
       if (!notification) {
-        await fetchNotificationsByStatus('pending');
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
-      const statusRes = await axios.get(`${API_URL}/api/projects/${projectId}/status?type=${type}`);
-      if (!statusRes.data.pendingDelete) {
-        await fetchNotificationsByStatus('pending');
+      const statusData = await getProjectStatus({ projectId, type });
+      if (!statusData.pendingDelete) {
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Công trình không có yêu cầu xóa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
-      return axios.patch(`${API_URL}/api/projects/${projectId}/reject-delete?type=${type}`);
+      return rejectDeleteAPI({ projectId, type });
     },
     'Đã từ chối yêu cầu xóa công trình!'
   );
 
-  if (loading) {
+  // Các hàm action gọi mutate
+  const approveEditAction = (projectId) => approveEditMutation.mutate(projectId);
+  const rejectEditAction = (projectId) => rejectEditMutation.mutate(projectId);
+  const approveDeleteAction = (projectId) => approveDeleteMutation.mutate(projectId);
+  const rejectDeleteAction = (projectId) => rejectDeleteMutation.mutate(projectId);
+
+  // Trạng thái loading chung cho các action từ notification
+  const isProcessingNotificationAction =
+    approveEditMutation.isLoading ||
+    rejectEditMutation.isLoading ||
+    approveDeleteMutation.isLoading ||
+    rejectDeleteMutation.isLoading;
+
+  // Hiển thị loading khi đang xác thực token và có token trong localStorage
+  if (isLoadingUser && localStorage.getItem('token')) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[var(--background)]">
         <div className="flex items-center gap-3 p-4 bg-[var(--card-bg)] rounded-lg shadow-md">
@@ -259,7 +280,7 @@ function App() {
     );
   }
 
-  return (
+  return (    
     <>
       <ToastContainer
         position="top-center"
@@ -289,7 +310,7 @@ function App() {
                 notifications={notifications}
                 showNotificationsModal={showNotificationsModal}
                 setShowNotificationsModal={setShowNotificationsModal}
-                fetchNotificationsByStatus={fetchNotificationsByStatus}
+                fetchNotificationsByStatus={refetchNotifications} // Truyền hàm refetch
                 currentNotificationTab={currentNotificationTab}
                 setCurrentNotificationTab={setCurrentNotificationTab}
                 isNotificationsLoading={isNotificationsLoading}
@@ -298,9 +319,9 @@ function App() {
                 approveDeleteAction={approveDeleteAction}
                 rejectDeleteAction={rejectDeleteAction}
                 isProcessingNotificationAction={isProcessingNotificationAction}
-                setIsProcessingNotificationAction={setIsProcessingNotificationAction}
+                setIsProcessingNotificationAction={() => {}} // No longer directly setting this state from Header
                 showHeader={showHeader}
-                toggleHeader={() => setShowHeader(!showHeader)}
+                // toggleHeader={() => setShowHeader(!showHeader)} // This was removed from Header props
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
               />
@@ -328,7 +349,10 @@ function App() {
                       />
                     }
                   />
-                  <Route path="/settings" element={user.permissions?.approve ? <Settings user={user} /> : <Navigate to="/" replace />} />
+                  {/* Cho phép tất cả user truy cập /settings. 
+                      Logic hiển thị nội dung trong Settings.js sẽ dựa vào vai trò của user.
+                  */}
+                  <Route path="/settings" element={<Settings user={user} />} />
                   <Route path="/" element={<Navigate to="/category" replace />} />
                   <Route path="*" element={<Navigate to="/category" replace />} />
                 </Routes>
@@ -344,6 +368,7 @@ function App() {
           </div>
         )}
       </div>
+      <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 }

@@ -1,3 +1,4 @@
+// d:\CODE\water-company\frontend\src\config\tableConfigs.js
 import { FaUser, FaCalendarAlt, FaWrench } from 'react-icons/fa';
 import { formatDate, formatCurrency, getStatusDisplay } from '../utils/helpers';
 import React from 'react'; // Import React để sử dụng JSX trong render functions
@@ -29,8 +30,7 @@ const commonFields = {
           return supervisor.fullName || supervisor.username; // Ưu tiên fullName
         } else if (typeof supervisor === 'string') {
           // Nếu là string, có thể là ID hoặc tên chưa được populate đầy đủ.
-          // Trong trường hợp này, hiển thị string đó.
-          // Nếu bạn muốn tra cứu tên từ ID ở client, bạn cần có danh sách users ở client.
+          // GenericTable sẽ cố gắng resolve nếu usersList được truyền vào.
           return supervisor;
         }
       }
@@ -60,11 +60,8 @@ const commonFields = {
 
       let originalStatusDisplay = null;
       if (cellData.isChanged && cellData.originalValue !== null && cellData.originalValue !== undefined) {
-        // Tạo một project tạm để lấy thông tin hiển thị cho status cũ
-        // Hoặc bạn có thể có một hàm helper đơn giản hơn để chỉ lấy text của status cũ
-        // Giả sử getStatusDisplay có thể xử lý project object không đầy đủ chỉ với status
         const oldStatusInfo = getStatusDisplay({ status: cellData.originalValue }, false, cellData.originalValue);
-        originalStatusDisplay = oldStatusInfo.text; // Giả sử getStatusDisplay trả về text đã có icon
+        originalStatusDisplay = oldStatusInfo.text;
       }
 
       return (
@@ -74,7 +71,6 @@ const commonFields = {
             {assignedTo && !isPendingTab && ( // Chỉ hiển thị assignedTo ở tab projects
               <span className="ml-2 flex items-center text-purple-600" title={`Phụ trách: ${assignedToDisplay}`}>
                 <FaUser size={12} className="mr-0.5" />
-                {/* Đảm bảo assignedToDisplay là string trước khi split */}
                 {typeof assignedToDisplay === 'string' ? assignedToDisplay.split(' ')[0] : 'N/A'}
               </span>
             )}
@@ -231,7 +227,7 @@ export const minorRepairProjectColumns = [
   commonFields.location,
   commonFields.scale,
   commonFields.reportDate,
-  commonFields.supervisor,
+  commonFields.supervisor, // Đã được cập nhật ở commonFields
   commonFields.inspectionDate,
   commonFields.paymentDate,
   commonFields.paymentValue,

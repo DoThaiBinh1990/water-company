@@ -1,2 +1,493 @@
 2025-05-18 00:28:17 info: Người dùng đã ngắt kết nối: AqA_2WkrTHhksVRSAAAG
 2025-05-18 00:28:17 info: Người dùng đã ngắt kết nối: l_xIjQr5wv_zzkucAAAH
+2025-05-18 02:06:10 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 02:06:11 info: MongoDB đã kết nối thành công.
+2025-05-18 02:06:44 info: Một người dùng đã kết nối: xBtxHtknwD0gv1prAAAC
+2025-05-18 02:06:44 info: Một người dùng đã kết nối: ge2quuR4zln4QgM5AAAD
+2025-05-18 02:14:19 info: Một người dùng đã kết nối: hdB6vOISVUtNb3SkAAAF
+2025-05-18 02:14:49 info: Người dùng đã ngắt kết nối: xBtxHtknwD0gv1prAAAC
+2025-05-18 02:14:49 info: Người dùng đã ngắt kết nối: ge2quuR4zln4QgM5AAAD
+2025-05-18 02:14:49 info: Người dùng đã ngắt kết nối: hdB6vOISVUtNb3SkAAAF
+2025-05-18 02:14:50 info: Một người dùng đã kết nối: S6dWESMTuDbQzrs-AAAI
+2025-05-18 02:14:50 info: Một người dùng đã kết nối: -SMwUmOwfzABPhxHAAAJ
+2025-05-18 02:14:50 info: Người dùng đã ngắt kết nối: -SMwUmOwfzABPhxHAAAJ
+2025-05-18 02:14:52 info: Một người dùng đã kết nối: jEb0Zi_OyCZDryPPAAAL
+2025-05-18 02:14:58 info: Người dùng đã ngắt kết nối: S6dWESMTuDbQzrs-AAAI
+2025-05-18 02:15:04 info: Một người dùng đã kết nối: SPddGK_LQB4vXWo3AAAN
+2025-05-18 02:28:20 info: Người dùng đã ngắt kết nối: jEb0Zi_OyCZDryPPAAAL
+2025-05-18 02:28:20 info: Người dùng đã ngắt kết nối: SPddGK_LQB4vXWo3AAAN
+2025-05-18 15:11:26 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 15:11:27 info: MongoDB đã kết nối thành công.
+2025-05-18 15:11:52 info: Một người dùng đã kết nối: jHLfJftiRuoxmsp1AAAC
+2025-05-18 15:11:52 info: Một người dùng đã kết nối: e2tcccU-9aCZq3olAAAD
+2025-05-18 15:11:52 info: Người dùng đã ngắt kết nối: e2tcccU-9aCZq3olAAAD
+2025-05-18 15:11:52 info: Người dùng đã ngắt kết nối: jHLfJftiRuoxmsp1AAAC
+2025-05-18 15:11:53 info: Một người dùng đã kết nối: p4HD20rBLOC3ia5RAAAF
+2025-05-18 15:11:53 info: Một người dùng đã kết nối: g-uh7XoKZ52pDH22AAAH
+2025-05-18 15:12:56 info: Người dùng đã ngắt kết nối: p4HD20rBLOC3ia5RAAAF
+2025-05-18 15:13:02 info: Một người dùng đã kết nối: 6JrOxYJS3stcrcDTAAAJ
+2025-05-18 15:13:42 info: Người dùng đã ngắt kết nối: g-uh7XoKZ52pDH22AAAH
+2025-05-18 15:13:42 info: Người dùng đã ngắt kết nối: 6JrOxYJS3stcrcDTAAAJ
+2025-05-18 15:13:42 info: Một người dùng đã kết nối: -J4oAAw1II_zpXKrAAAM
+2025-05-18 15:13:42 info: Một người dùng đã kết nối: 2fg4hIOjoN0CJK9mAAAN
+2025-05-18 15:13:45 info: Người dùng đã ngắt kết nối: 2fg4hIOjoN0CJK9mAAAN
+2025-05-18 15:13:47 info: Một người dùng đã kết nối: xJ2p9q_UbPZa5ScPAAAP
+2025-05-18 15:22:48 info: Người dùng đã ngắt kết nối: -J4oAAw1II_zpXKrAAAM
+2025-05-18 15:22:48 info: Người dùng đã ngắt kết nối: xJ2p9q_UbPZa5ScPAAAP
+2025-05-18 15:27:49 info: Một người dùng đã kết nối: RI6v7Za8IVfvpW_OAAAR
+2025-05-18 15:32:17 info: Người dùng đã ngắt kết nối: RI6v7Za8IVfvpW_OAAAR
+2025-05-18 15:32:23 info: Một người dùng đã kết nối: zQQL8UMdXuNemHQmAAAT
+2025-05-18 15:32:28 info: Người dùng đã ngắt kết nối: zQQL8UMdXuNemHQmAAAT
+2025-05-18 15:32:31 info: Một người dùng đã kết nối: LXt3tMwE8sPP9xmaAAAW
+2025-05-18 15:32:31 info: Một người dùng đã kết nối: g3il7o2Vd6WiSj09AAAX
+2025-05-18 15:32:43 info: Người dùng đã ngắt kết nối: LXt3tMwE8sPP9xmaAAAW
+2025-05-18 15:32:43 info: Người dùng đã ngắt kết nối: g3il7o2Vd6WiSj09AAAX
+2025-05-18 15:32:49 info: Một người dùng đã kết nối: YqnjsJ0XrE8VYUTwAAAa
+2025-05-18 15:32:49 info: Một người dùng đã kết nối: RueU7sw4HQtCPEOxAAAb
+2025-05-18 15:33:17 info: Người dùng đã ngắt kết nối: YqnjsJ0XrE8VYUTwAAAa
+2025-05-18 15:33:17 info: Người dùng đã ngắt kết nối: RueU7sw4HQtCPEOxAAAb
+2025-05-18 15:33:21 info: Một người dùng đã kết nối: VzQ2_6KXMxoR3cf1AAAe
+2025-05-18 15:33:21 info: Một người dùng đã kết nối: DZDR5tEgFzbp3MoNAAAf
+2025-05-18 15:36:50 info: Người dùng đã ngắt kết nối: VzQ2_6KXMxoR3cf1AAAe
+2025-05-18 15:36:50 info: Người dùng đã ngắt kết nối: DZDR5tEgFzbp3MoNAAAf
+2025-05-18 15:36:57 info: Một người dùng đã kết nối: XUip_psfjqJORF7WAAAi
+2025-05-18 15:36:57 info: Một người dùng đã kết nối: gId3H3enMv76NHDaAAAj
+2025-05-18 15:37:40 info: Người dùng đã ngắt kết nối: XUip_psfjqJORF7WAAAi
+2025-05-18 15:37:57 info: Một người dùng đã kết nối: zNYWkGI0Wm89f6T4AAAl
+2025-05-18 15:38:33 error: Lỗi Controller cập nhật công trình: Không có quyền sửa công trình này hoặc gửi yêu cầu sửa.
+2025-05-18 15:39:39 info: Người dùng đã ngắt kết nối: zNYWkGI0Wm89f6T4AAAl
+2025-05-18 15:39:46 info: Một người dùng đã kết nối: ejdC0Jhglnjm4uj9AAAn
+2025-05-18 15:41:34 info: Người dùng đã ngắt kết nối: ejdC0Jhglnjm4uj9AAAn
+2025-05-18 15:41:39 info: Một người dùng đã kết nối: Ct47JU3aKlMobjRQAAAp
+2025-05-18 15:42:11 info: Người dùng đã ngắt kết nối: Ct47JU3aKlMobjRQAAAp
+2025-05-18 15:42:16 info: Một người dùng đã kết nối: wB0pmEu3EsTT69FiAAAr
+2025-05-18 15:42:25 info: Người dùng đã ngắt kết nối: wB0pmEu3EsTT69FiAAAr
+2025-05-18 15:42:28 info: Một người dùng đã kết nối: OqtDBYZNT77MjcA5AAAt
+2025-05-18 15:46:37 info: Một người dùng đã kết nối: 7HvummyiK6STiPASAAAv
+2025-05-18 15:46:38 info: Người dùng đã ngắt kết nối: gId3H3enMv76NHDaAAAj
+2025-05-18 15:46:38 info: Người dùng đã ngắt kết nối: 7HvummyiK6STiPASAAAv
+2025-05-18 15:46:38 info: Người dùng đã ngắt kết nối: OqtDBYZNT77MjcA5AAAt
+2025-05-18 15:46:42 info: Một người dùng đã kết nối: Ye4OCq7PWOs0vJHhAAAy
+2025-05-18 15:46:42 info: Một người dùng đã kết nối: aEvG9nOR22kxqXqEAAAz
+2025-05-18 15:46:48 info: Người dùng đã ngắt kết nối: Ye4OCq7PWOs0vJHhAAAy
+2025-05-18 15:46:48 info: Người dùng đã ngắt kết nối: aEvG9nOR22kxqXqEAAAz
+2025-05-18 15:46:51 info: Một người dùng đã kết nối: Pc8bBSX0EAYsUsvgAAA2
+2025-05-18 15:46:51 info: Một người dùng đã kết nối: kGGn34ruAcafwk47AAA3
+2025-05-18 15:47:12 info: Người dùng đã ngắt kết nối: Pc8bBSX0EAYsUsvgAAA2
+2025-05-18 15:47:12 info: Người dùng đã ngắt kết nối: kGGn34ruAcafwk47AAA3
+2025-05-18 15:47:15 info: Một người dùng đã kết nối: hCS2s8GEHS_ouwNrAAA6
+2025-05-18 15:47:15 info: Một người dùng đã kết nối: pxdnnon0Z84zlVCgAAA7
+2025-05-18 15:47:28 info: Người dùng đã ngắt kết nối: hCS2s8GEHS_ouwNrAAA6
+2025-05-18 15:47:28 info: Người dùng đã ngắt kết nối: pxdnnon0Z84zlVCgAAA7
+2025-05-18 15:47:30 info: Một người dùng đã kết nối: SniGU0SlWJug7FxYAAA-
+2025-05-18 15:47:30 info: Một người dùng đã kết nối: fmwixkCZYxkX72h1AAA_
+2025-05-18 15:49:51 info: Người dùng đã ngắt kết nối: SniGU0SlWJug7FxYAAA-
+2025-05-18 15:49:51 info: Người dùng đã ngắt kết nối: fmwixkCZYxkX72h1AAA_
+2025-05-18 15:49:58 info: Một người dùng đã kết nối: FI7dI783nF960PWPAABC
+2025-05-18 15:49:58 info: Một người dùng đã kết nối: OhJnvJ0H5d-6Hp5lAABD
+2025-05-18 15:52:08 info: Một người dùng đã kết nối: uk6HeMkiK1eKdZ64AABF
+2025-05-18 15:52:09 info: Người dùng đã ngắt kết nối: FI7dI783nF960PWPAABC
+2025-05-18 15:52:09 info: Người dùng đã ngắt kết nối: uk6HeMkiK1eKdZ64AABF
+2025-05-18 15:52:09 info: Người dùng đã ngắt kết nối: OhJnvJ0H5d-6Hp5lAABD
+2025-05-18 15:52:12 info: Một người dùng đã kết nối: wHC7LC3ewvE2cp1dAABI
+2025-05-18 15:52:12 info: Một người dùng đã kết nối: 3ovlcW7xdCzbGpROAABJ
+2025-05-18 15:56:45 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 15:56:45 info: Một người dùng đã kết nối: B-KFakw3FUCwRfMcAAAB
+2025-05-18 15:56:45 info: Một người dùng đã kết nối: K9a6c6NMU48I1YxJAAAD
+2025-05-18 15:56:46 info: MongoDB đã kết nối thành công.
+2025-05-18 15:56:51 info: Người dùng đã ngắt kết nối: B-KFakw3FUCwRfMcAAAB
+2025-05-18 15:56:51 info: Người dùng đã ngắt kết nối: K9a6c6NMU48I1YxJAAAD
+2025-05-18 15:56:57 info: Một người dùng đã kết nối: H25R99ag081Okj2LAAAG
+2025-05-18 15:56:57 info: Một người dùng đã kết nối: 9tLjKyZCsjukaZosAAAH
+2025-05-18 15:57:20 info: Người dùng đã ngắt kết nối: H25R99ag081Okj2LAAAG
+2025-05-18 15:57:23 info: Một người dùng đã kết nối: GPIZuL88oMu_c0EpAAAJ
+2025-05-18 15:57:45 error: Lỗi Controller cập nhật công trình: Nhân viên chỉ có thể yêu cầu sửa công trình do mình tạo.
+2025-05-18 15:59:12 info: Người dùng đã ngắt kết nối: GPIZuL88oMu_c0EpAAAJ
+2025-05-18 15:59:18 info: Một người dùng đã kết nối: 3v-ZmuAyRGfv152HAAAL
+2025-05-18 16:08:45 info: Người dùng đã ngắt kết nối: 9tLjKyZCsjukaZosAAAH
+2025-05-18 16:08:45 info: Người dùng đã ngắt kết nối: 3v-ZmuAyRGfv152HAAAL
+2025-05-18 16:08:55 info: Một người dùng đã kết nối: gnMIUndV2fCnDPwOAAAO
+2025-05-18 16:08:55 info: Một người dùng đã kết nối: lzqLTWaPN4ONGNbOAAAP
+2025-05-18 16:17:09 info: Người dùng đã ngắt kết nối: gnMIUndV2fCnDPwOAAAO
+2025-05-18 16:17:09 info: Người dùng đã ngắt kết nối: lzqLTWaPN4ONGNbOAAAP
+2025-05-18 16:17:17 info: Một người dùng đã kết nối: JoCAtM3_HFa9lKHxAAAS
+2025-05-18 16:17:17 info: Một người dùng đã kết nối: 9Q3QreXyPTEXGvPMAAAT
+2025-05-18 16:17:23 info: Người dùng đã ngắt kết nối: JoCAtM3_HFa9lKHxAAAS
+2025-05-18 16:17:26 info: Một người dùng đã kết nối: 8fKUc1uraYDci3s5AAAV
+2025-05-18 16:23:14 info: Người dùng đã ngắt kết nối: 9Q3QreXyPTEXGvPMAAAT
+2025-05-18 16:23:14 info: Người dùng đã ngắt kết nối: 8fKUc1uraYDci3s5AAAV
+2025-05-18 16:23:23 info: Một người dùng đã kết nối: 9HaTv5ku6DqkgFXnAAAY
+2025-05-18 16:23:23 info: Một người dùng đã kết nối: kBMQCs72we8Cz-5ZAAAZ
+2025-05-18 16:23:29 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:23:29 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:23:29 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:23:31 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:23:31 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:23:31 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:43:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:43:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:43:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 16:43:23 info: Người dùng đã ngắt kết nối: 9HaTv5ku6DqkgFXnAAAY
+2025-05-18 16:43:30 info: Một người dùng đã kết nối: ppPvwKykx1ANxNvOAAAb
+2025-05-18 16:43:45 info: Người dùng đã ngắt kết nối: ppPvwKykx1ANxNvOAAAb
+2025-05-18 16:43:49 info: Một người dùng đã kết nối: cmLxWjo-PkSd2CApAAAd
+2025-05-18 16:44:06 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 16:44:07 info: Một người dùng đã kết nối: 0PrCF-fuMwF7g1LxAAAC
+2025-05-18 16:44:07 info: Một người dùng đã kết nối: 2tZ9iqDxt6SgNAAKAAAD
+2025-05-18 16:44:07 info: MongoDB đã kết nối thành công.
+2025-05-18 16:44:26 info: Người dùng đã ngắt kết nối: 2tZ9iqDxt6SgNAAKAAAD
+2025-05-18 16:44:26 info: Người dùng đã ngắt kết nối: 0PrCF-fuMwF7g1LxAAAC
+2025-05-18 16:44:38 info: Một người dùng đã kết nối: eqXVf0NimmoIrX1nAAAG
+2025-05-18 16:44:38 info: Một người dùng đã kết nối: P7zmMjUj27Tf7cUBAAAH
+2025-05-18 16:45:02 error: Lỗi API sửa người dùng: User validation failed: role: `staff` is not a valid enum value for path `role`.
+2025-05-18 16:45:02 error: Lỗi không xác định: User validation failed: role: `staff` is not a valid enum value for path `role`.
+2025-05-18 16:45:33 info: Người dùng đã ngắt kết nối: eqXVf0NimmoIrX1nAAAG
+2025-05-18 16:45:46 info: Một người dùng đã kết nối: 01uCPbpEPA0rV4TKAAAJ
+2025-05-18 16:46:55 info: Người dùng đã ngắt kết nối: 01uCPbpEPA0rV4TKAAAJ
+2025-05-18 16:47:02 info: Một người dùng đã kết nối: bhKgFLFd0Jh0FNV4AAAL
+2025-05-18 16:50:22 info: Người dùng đã ngắt kết nối: P7zmMjUj27Tf7cUBAAAH
+2025-05-18 16:50:22 info: Người dùng đã ngắt kết nối: bhKgFLFd0Jh0FNV4AAAL
+2025-05-18 16:50:30 info: Một người dùng đã kết nối: f40z5Ho_lGfYf49aAAAO
+2025-05-18 16:50:30 info: Một người dùng đã kết nối: N1Z8r-sN16GORPwdAAAP
+2025-05-18 16:52:07 info: Người dùng đã ngắt kết nối: f40z5Ho_lGfYf49aAAAO
+2025-05-18 16:52:15 info: Một người dùng đã kết nối: 3h5Nduvao9JFKtXcAAAR
+2025-05-18 16:52:48 info: Người dùng đã ngắt kết nối: N1Z8r-sN16GORPwdAAAP
+2025-05-18 16:52:48 info: Người dùng đã ngắt kết nối: 3h5Nduvao9JFKtXcAAAR
+2025-05-18 16:52:53 info: Một người dùng đã kết nối: KKW2RW01xSQQAe42AAAU
+2025-05-18 16:52:53 info: Một người dùng đã kết nối: uyElAtEVMijwFrKAAAAV
+2025-05-18 16:53:00 info: Người dùng đã ngắt kết nối: KKW2RW01xSQQAe42AAAU
+2025-05-18 16:53:04 info: Một người dùng đã kết nối: eJhqohYDarqAxfJ8AAAX
+2025-05-18 16:53:13 info: Người dùng đã ngắt kết nối: uyElAtEVMijwFrKAAAAV
+2025-05-18 16:53:13 info: Người dùng đã ngắt kết nối: eJhqohYDarqAxfJ8AAAX
+2025-05-18 16:53:20 info: Một người dùng đã kết nối: qJh63VelK1PAlhwmAAAa
+2025-05-18 16:53:20 info: Một người dùng đã kết nối: 6KkQVEdOUEhNv8lWAAAb
+2025-05-18 16:53:30 info: Người dùng đã ngắt kết nối: qJh63VelK1PAlhwmAAAa
+2025-05-18 16:53:30 info: Người dùng đã ngắt kết nối: 6KkQVEdOUEhNv8lWAAAb
+2025-05-18 16:53:33 info: Một người dùng đã kết nối: IU-rRMLLgR7_r9LmAAAe
+2025-05-18 16:53:33 info: Một người dùng đã kết nối: 2r5tauWRz0Rs6qOuAAAf
+2025-05-18 16:53:51 info: Người dùng đã ngắt kết nối: IU-rRMLLgR7_r9LmAAAe
+2025-05-18 16:53:54 info: Một người dùng đã kết nối: YEZldRSJllmDp0TSAAAh
+2025-05-18 16:54:50 info: Người dùng đã ngắt kết nối: YEZldRSJllmDp0TSAAAh
+2025-05-18 16:54:57 info: Một người dùng đã kết nối: uPyYt4dyjcGiYoxcAAAj
+2025-05-18 16:55:06 info: Người dùng đã ngắt kết nối: uPyYt4dyjcGiYoxcAAAj
+2025-05-18 16:55:13 info: Một người dùng đã kết nối: Hw3GwEwVse820Q3UAAAl
+2025-05-18 16:55:41 info: Người dùng đã ngắt kết nối: Hw3GwEwVse820Q3UAAAl
+2025-05-18 16:55:44 info: Một người dùng đã kết nối: 8kquxpQleBIQSVKpAAAn
+2025-05-18 16:56:44 info: Người dùng đã ngắt kết nối: 8kquxpQleBIQSVKpAAAn
+2025-05-18 16:56:50 info: Một người dùng đã kết nối: IRuNSFkmqt1uDTbkAAAp
+2025-05-18 17:02:42 info: Người dùng đã ngắt kết nối: 2r5tauWRz0Rs6qOuAAAf
+2025-05-18 17:02:42 info: Người dùng đã ngắt kết nối: IRuNSFkmqt1uDTbkAAAp
+2025-05-18 17:02:48 info: Một người dùng đã kết nối: E0QvSyF08gf_LiE5AAAs
+2025-05-18 17:02:48 info: Một người dùng đã kết nối: QzPP0w0hAAL_EgOJAAAt
+2025-05-18 17:02:52 info: Người dùng đã ngắt kết nối: E0QvSyF08gf_LiE5AAAs
+2025-05-18 17:02:56 info: Một người dùng đã kết nối: 5zZdbyZlB8JS9Wi3AAAv
+2025-05-18 17:03:08 info: Người dùng đã ngắt kết nối: 5zZdbyZlB8JS9Wi3AAAv
+2025-05-18 17:03:11 info: Người dùng đã ngắt kết nối: QzPP0w0hAAL_EgOJAAAt
+2025-05-18 17:03:42 info: Một người dùng đã kết nối: F2DRKs1e9-6apRP8AAAx
+2025-05-18 17:03:42 info: Một người dùng đã kết nối: ZaSoJzKpVuLdaiwbAAAz
+2025-05-18 17:03:59 info: Người dùng đã ngắt kết nối: F2DRKs1e9-6apRP8AAAx
+2025-05-18 17:04:20 info: Một người dùng đã kết nối: mbpa_SPtvRZbXUq6AAA1
+2025-05-18 17:05:33 info: Người dùng đã ngắt kết nối: ZaSoJzKpVuLdaiwbAAAz
+2025-05-18 17:05:33 info: Người dùng đã ngắt kết nối: mbpa_SPtvRZbXUq6AAA1
+2025-05-18 17:05:40 info: Một người dùng đã kết nối: WXrG44Ch7Ma32f4PAAA4
+2025-05-18 17:05:40 info: Một người dùng đã kết nối: cVOTPUbP6lulsuM5AAA5
+2025-05-18 17:08:14 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 17:08:14 info: Một người dùng đã kết nối: wv5jLQcS8t0sd6m2AAAB
+2025-05-18 17:08:14 info: Một người dùng đã kết nối: zM9SSM14WOCWT7kcAAAD
+2025-05-18 17:08:14 info: MongoDB đã kết nối thành công.
+2025-05-18 17:09:49 info: Người dùng đã ngắt kết nối: zM9SSM14WOCWT7kcAAAD
+2025-05-18 17:10:00 info: Một người dùng đã kết nối: lwqQjd89l7y-Qd-0AAAF
+2025-05-18 17:23:48 info: Người dùng đã ngắt kết nối: lwqQjd89l7y-Qd-0AAAF
+2025-05-18 17:23:55 info: Một người dùng đã kết nối: lqIeKkHIGCoC22J2AAAH
+2025-05-18 17:25:03 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:25:03 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:25:11 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:25:11 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:27:25 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:27:25 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:27:37 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:27:37 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:40:44 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:40:44 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:41:00 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:41:00 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:41:25 info: Người dùng đã ngắt kết nối: lqIeKkHIGCoC22J2AAAH
+2025-05-18 17:41:32 info: Một người dùng đã kết nối: Wqala0gwBR8S0-SRAAAJ
+2025-05-18 17:41:38 info: Người dùng đã ngắt kết nối: Wqala0gwBR8S0-SRAAAJ
+2025-05-18 17:41:41 info: Một người dùng đã kết nối: npd4kKywXdcc0zUNAAAL
+2025-05-18 17:41:56 info: Người dùng đã ngắt kết nối: wv5jLQcS8t0sd6m2AAAB
+2025-05-18 17:41:56 info: Người dùng đã ngắt kết nối: npd4kKywXdcc0zUNAAAL
+2025-05-18 17:42:00 info: Một người dùng đã kết nối: Tf5yyhQe_BaHXhSFAAAO
+2025-05-18 17:42:00 info: Một người dùng đã kết nối: R07EG664PB6z1yvlAAAP
+2025-05-18 17:43:04 info: Người dùng đã ngắt kết nối: Tf5yyhQe_BaHXhSFAAAO
+2025-05-18 17:43:11 info: Một người dùng đã kết nối: vJTFgYvf6IWpKel8AAAR
+2025-05-18 17:45:34 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:45:34 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:45:38 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:45:38 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:46:32 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:46:32 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:50:53 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:50:53 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:51:07 error: Lỗi Controller thêm công trình: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:51:07 error: Lỗi không xác định: CategoryProject validation failed: estimator: Cast to ObjectId failed for value "" (type string) at path "estimator" because of "BSONError", supervisor: Cast to ObjectId failed for value "" (type string) at path "supervisor" because of "BSONError"
+2025-05-18 17:51:11 info: Người dùng đã ngắt kết nối: R07EG664PB6z1yvlAAAP
+2025-05-18 17:51:11 info: Người dùng đã ngắt kết nối: vJTFgYvf6IWpKel8AAAR
+2025-05-18 17:51:22 info: Một người dùng đã kết nối: jsnKGZF3jOLoHhAFAAAU
+2025-05-18 17:51:22 info: Một người dùng đã kết nối: OG5ZSlHWirVqBlw0AAAV
+2025-05-18 17:58:40 info: Người dùng đã ngắt kết nối: jsnKGZF3jOLoHhAFAAAU
+2025-05-18 17:58:40 info: Người dùng đã ngắt kết nối: OG5ZSlHWirVqBlw0AAAV
+2025-05-18 17:58:51 info: Một người dùng đã kết nối: fUTOVXEzeIZgj1-GAAAY
+2025-05-18 17:58:51 info: Một người dùng đã kết nối: 98TRG86iY0n__-AUAAAZ
+2025-05-18 17:58:57 info: Người dùng đã ngắt kết nối: fUTOVXEzeIZgj1-GAAAY
+2025-05-18 17:58:57 info: Người dùng đã ngắt kết nối: 98TRG86iY0n__-AUAAAZ
+2025-05-18 17:59:00 info: Một người dùng đã kết nối: WGVyMWe2_XuRoTnxAAAc
+2025-05-18 17:59:00 info: Một người dùng đã kết nối: 48reC5Zt8Hn1sGsVAAAd
+2025-05-18 17:59:05 info: Người dùng đã ngắt kết nối: WGVyMWe2_XuRoTnxAAAc
+2025-05-18 17:59:05 info: Người dùng đã ngắt kết nối: 48reC5Zt8Hn1sGsVAAAd
+2025-05-18 17:59:08 info: Một người dùng đã kết nối: 1TaHzs8d-uwVwGPVAAAg
+2025-05-18 17:59:08 info: Một người dùng đã kết nối: Bu9kXMMMtY-U6C3nAAAh
+2025-05-18 17:59:46 info: Người dùng đã ngắt kết nối: 1TaHzs8d-uwVwGPVAAAg
+2025-05-18 17:59:50 info: Một người dùng đã kết nối: qHNd9lxQ3vM2bqsbAAAj
+2025-05-18 18:00:40 info: Người dùng đã ngắt kết nối: Bu9kXMMMtY-U6C3nAAAh
+2025-05-18 18:00:40 info: Người dùng đã ngắt kết nối: qHNd9lxQ3vM2bqsbAAAj
+2025-05-18 18:00:46 info: Một người dùng đã kết nối: 4GVloPe0L6RW441OAAAm
+2025-05-18 18:00:46 info: Một người dùng đã kết nối: I51S6E6iXxEHv15OAAAn
+2025-05-18 18:01:05 info: Người dùng đã ngắt kết nối: 4GVloPe0L6RW441OAAAm
+2025-05-18 18:01:05 info: Người dùng đã ngắt kết nối: I51S6E6iXxEHv15OAAAn
+2025-05-18 18:01:09 info: Một người dùng đã kết nối: jbdYQFE9elR7pCCoAAAq
+2025-05-18 18:01:09 info: Một người dùng đã kết nối: BsDIIMuz_bjgz1XtAAAr
+2025-05-18 18:01:52 info: Người dùng đã ngắt kết nối: jbdYQFE9elR7pCCoAAAq
+2025-05-18 18:01:59 info: Một người dùng đã kết nối: JEBRMj-thS3IoDxOAAAt
+2025-05-18 18:03:37 info: Người dùng đã ngắt kết nối: JEBRMj-thS3IoDxOAAAt
+2025-05-18 18:03:44 info: Một người dùng đã kết nối: wOx7lLFivTgaUtcNAAAv
+2025-05-18 18:10:00 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:10:00 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:10:00 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:10:02 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:10:02 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:10:02 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:13:46 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:13:46 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:13:46 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:17 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:17 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:17 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:17 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:17 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:17 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:17 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:23 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:23 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:23 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:43 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:45 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:45 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:45 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:14:57 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:04 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:04 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:04 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:09 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:11 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:11 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:11 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:24 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:24 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:15:24 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:16:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:16:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:16:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:16:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:16:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:16:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:16:28 info: Người dùng đã ngắt kết nối: BsDIIMuz_bjgz1XtAAAr
+2025-05-18 18:16:28 info: Người dùng đã ngắt kết nối: wOx7lLFivTgaUtcNAAAv
+2025-05-18 18:16:35 info: Một người dùng đã kết nối: vFkYHi2dSp0isizfAAAy
+2025-05-18 18:16:35 info: Một người dùng đã kết nối: SkyycL9RIgIxFmzMAAAz
+2025-05-18 18:18:58 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:18:58 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:18:58 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:19:21 info: Người dùng đã ngắt kết nối: vFkYHi2dSp0isizfAAAy
+2025-05-18 18:19:28 info: Một người dùng đã kết nối: KIqGWivV1RVD5broAAA1
+2025-05-18 18:19:33 info: Người dùng đã ngắt kết nối: SkyycL9RIgIxFmzMAAAz
+2025-05-18 18:19:33 info: Người dùng đã ngắt kết nối: KIqGWivV1RVD5broAAA1
+2025-05-18 18:19:42 info: Một người dùng đã kết nối: LYtuhar5Z8IOirl0AAA4
+2025-05-18 18:19:42 info: Một người dùng đã kết nối: K6XSssV3TDNoxHTKAAA5
+2025-05-18 18:19:44 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:20:36 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:20:37 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:20:37 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:20:37 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:20:37 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:20:39 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:20:45 info: Người dùng đã ngắt kết nối: LYtuhar5Z8IOirl0AAA4
+2025-05-18 18:20:52 info: Một người dùng đã kết nối: jzXUU4DGONDnMW-lAAA7
+2025-05-18 18:20:55 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:23:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:23:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:23:16 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:23:26 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:23:26 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:23:26 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:28:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:28:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:28:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:32:32 info: Một người dùng đã kết nối: z1qRRuSTx6yVDhOwAAA9
+2025-05-18 18:34:29 info: Người dùng đã ngắt kết nối: z1qRRuSTx6yVDhOwAAA9
+2025-05-18 18:34:37 info: Một người dùng đã kết nối: D4Wf-8PnUtld5K7JAAA_
+2025-05-18 18:34:41 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:34:41 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:34:41 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:38:51 info: Người dùng đã ngắt kết nối: K6XSssV3TDNoxHTKAAA5
+2025-05-18 18:38:51 info: Người dùng đã ngắt kết nối: D4Wf-8PnUtld5K7JAAA_
+2025-05-18 18:38:51 info: Người dùng đã ngắt kết nối: jzXUU4DGONDnMW-lAAA7
+2025-05-18 18:39:01 info: Một người dùng đã kết nối: cFFIpVZCM9NuSR8wAABC
+2025-05-18 18:39:01 info: Một người dùng đã kết nối: OiRwtq3Fmlm7L6PJAABD
+2025-05-18 18:39:20 info: Người dùng đã ngắt kết nối: cFFIpVZCM9NuSR8wAABC
+2025-05-18 18:39:23 info: Một người dùng đã kết nối: THBuWqsad3InYASeAABF
+2025-05-18 18:42:08 info: Người dùng đã ngắt kết nối: THBuWqsad3InYASeAABF
+2025-05-18 18:42:15 info: Một người dùng đã kết nối: fuFIE75DzvklWuF8AABH
+2025-05-18 18:43:10 info: Người dùng đã ngắt kết nối: fuFIE75DzvklWuF8AABH
+2025-05-18 18:43:29 info: Một người dùng đã kết nối: Mb0xhekcm6e3ZGxpAABJ
+2025-05-18 18:43:56 info: Người dùng đã ngắt kết nối: Mb0xhekcm6e3ZGxpAABJ
+2025-05-18 18:44:00 info: Một người dùng đã kết nối: Td8beACYsAeVWdvHAABL
+2025-05-18 18:45:03 info: Người dùng đã ngắt kết nối: OiRwtq3Fmlm7L6PJAABD
+2025-05-18 18:45:03 info: Người dùng đã ngắt kết nối: Td8beACYsAeVWdvHAABL
+2025-05-18 18:45:12 info: Một người dùng đã kết nối: f_ROaxDi7GkhivXOAABO
+2025-05-18 18:45:12 info: Một người dùng đã kết nối: 4lZPeO9CUGNxk8LMAABP
+2025-05-18 18:50:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:38 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:38 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:38 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:50:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:51:13 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:51:13 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:51:13 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 18:52:05 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 18:52:05 info: Một người dùng đã kết nối: IxOcUkU55jDw514rAAAC
+2025-05-18 18:52:05 info: Một người dùng đã kết nối: 99AkA3YS-BhXl7AbAAAD
+2025-05-18 18:52:05 info: MongoDB đã kết nối thành công.
+2025-05-18 18:52:08 info: Người dùng đã ngắt kết nối: IxOcUkU55jDw514rAAAC
+2025-05-18 18:52:08 info: Người dùng đã ngắt kết nối: 99AkA3YS-BhXl7AbAAAD
+2025-05-18 18:52:15 info: Một người dùng đã kết nối: 60gm6FVOGvnMTDFTAAAG
+2025-05-18 18:52:15 info: Một người dùng đã kết nối: sGhF7FPTczEHu9ztAAAH
+2025-05-18 19:03:31 info: Máy chủ đang chạy trên cổng 5000
+2025-05-18 19:03:31 info: Một người dùng đã kết nối: SrFG5vhC6NrRHNllAAAB
+2025-05-18 19:03:31 info: Một người dùng đã kết nối: pUvlKB31yeSIUew9AAAD
+2025-05-18 19:03:31 info: MongoDB đã kết nối thành công.
+2025-05-18 19:03:39 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:03:39 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:03:39 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:03:48 info: Người dùng đã ngắt kết nối: SrFG5vhC6NrRHNllAAAB
+2025-05-18 19:03:56 info: Một người dùng đã kết nối: FIfSs5Z7fCKV40PtAAAF
+2025-05-18 19:04:21 error: Lỗi Controller thêm công trình: Nhân viên chi nhánh chỉ có thể tạo công trình cho chi nhánh của mình.
+2025-05-18 19:04:44 info: Người dùng đã ngắt kết nối: FIfSs5Z7fCKV40PtAAAF
+2025-05-18 19:04:47 info: Một người dùng đã kết nối: ippELJN8Ppls_j8FAAAH
+2025-05-18 19:05:04 info: Người dùng đã ngắt kết nối: ippELJN8Ppls_j8FAAAH
+2025-05-18 19:05:10 info: Một người dùng đã kết nối: OJ3WroeHAI0GXPCKAAAJ
+2025-05-18 19:05:31 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:05:33 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:05:38 info: Người dùng đã ngắt kết nối: OJ3WroeHAI0GXPCKAAAJ
+2025-05-18 19:05:42 info: Một người dùng đã kết nối: F8MjAuDKXXE_Y_jBAAAL
+2025-05-18 19:05:45 info: Người dùng đã ngắt kết nối: F8MjAuDKXXE_Y_jBAAAL
+2025-05-18 19:05:49 info: Một người dùng đã kết nối: OdsDn8g_7yTOH7b3AAAN
+2025-05-18 19:05:54 info: Người dùng đã ngắt kết nối: OdsDn8g_7yTOH7b3AAAN
+2025-05-18 19:05:58 info: Một người dùng đã kết nối: MN0appr49-rDiZXrAAAP
+2025-05-18 19:06:37 info: Người dùng đã ngắt kết nối: MN0appr49-rDiZXrAAAP
+2025-05-18 19:07:08 info: Một người dùng đã kết nối: kWGI2rqh_zBFCwBDAAAR
+2025-05-18 19:07:46 info: Người dùng đã ngắt kết nối: kWGI2rqh_zBFCwBDAAAR
+2025-05-18 19:08:08 info: Một người dùng đã kết nối: a8NZJGXcBdjWz8DsAAAT
+2025-05-18 19:08:27 info: Người dùng đã ngắt kết nối: a8NZJGXcBdjWz8DsAAAT
+2025-05-18 19:08:41 info: Một người dùng đã kết nối: 1NSw8CAQYlQAG6d7AAAV
+2025-05-18 19:12:06 info: Người dùng đã ngắt kết nối: pUvlKB31yeSIUew9AAAD
+2025-05-18 19:12:06 info: Người dùng đã ngắt kết nối: 1NSw8CAQYlQAG6d7AAAV
+2025-05-18 19:12:13 info: Một người dùng đã kết nối: iF1Y0rdVuhgJuygQAAAY
+2025-05-18 19:12:13 info: Một người dùng đã kết nối: GXfuJNgVGXcdLAluAAAZ
+2025-05-18 19:12:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:12:21 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:12:23 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:12:27 info: Người dùng đã ngắt kết nối: iF1Y0rdVuhgJuygQAAAY
+2025-05-18 19:12:31 info: Một người dùng đã kết nối: yLNJaw7j9MZFEE86AAAb
+2025-05-18 19:12:33 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:12:33 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:12:33 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:12:36 info: Người dùng đã ngắt kết nối: yLNJaw7j9MZFEE86AAAb
+2025-05-18 19:12:39 info: Người dùng đã ngắt kết nối: GXfuJNgVGXcdLAluAAAZ
+2025-05-18 19:12:43 info: Một người dùng đã kết nối: zYb9w0zuK39Y5dDOAAAd
+2025-05-18 19:12:43 info: Một người dùng đã kết nối: w3EupWoy49M94QmAAAAf
+2025-05-18 19:13:18 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:13:20 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:13:27 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:13:29 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:26 info: Một người dùng đã kết nối: K5slkYub_dBFmu1EAAAh
+2025-05-18 19:15:32 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:32 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:32 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:39 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:39 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:39 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:42 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:42 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:42 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:43 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:43 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:43 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:45 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:45 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:45 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:46 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:46 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:15:46 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:16:05 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:16:05 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:16:05 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:19:28 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:19:28 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:19:28 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:22:44 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:22:44 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:22:44 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:26:59 info: Một người dùng đã kết nối: 2PzUzDCEglNgT6zLAAAj
+2025-05-18 19:26:59 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:26:59 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:26:59 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:01 info: Người dùng đã ngắt kết nối: zYb9w0zuK39Y5dDOAAAd
+2025-05-18 19:27:01 info: Người dùng đã ngắt kết nối: 2PzUzDCEglNgT6zLAAAj
+2025-05-18 19:27:01 info: Người dùng đã ngắt kết nối: K5slkYub_dBFmu1EAAAh
+2025-05-18 19:27:01 info: Người dùng đã ngắt kết nối: w3EupWoy49M94QmAAAAf
+2025-05-18 19:27:08 info: Một người dùng đã kết nối: E5P-WzCDCXr7G2ypAAAm
+2025-05-18 19:27:08 info: Một người dùng đã kết nối: x295SakPVGazhFbeAAAn
+2025-05-18 19:27:10 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:27 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:33 info: Người dùng đã ngắt kết nối: E5P-WzCDCXr7G2ypAAAm
+2025-05-18 19:27:36 info: Một người dùng đã kết nối: pjHiv9Bg21HIaX8iAAAp
+2025-05-18 19:27:40 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:40 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:40 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:27:54 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:28:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:28:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-18 19:28:48 error: Error in populateProjectFields: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.

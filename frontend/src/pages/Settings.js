@@ -1,659 +1,504 @@
+// d:\CODE\water-company\frontend\src\pages\Settings.js
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram } from 'react-icons/fa';
+import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram, FaUserCog, FaKey } from 'react-icons/fa'; // Thêm FaUserCog, FaKey
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { API_URL } from '../config';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  getUsers, createUser as createUserAPI, updateUser as updateUserAPI, deleteUser as deleteUserAPI,
+  getAllocatedUnits, createAllocatedUnit as createAllocatedUnitAPI, updateAllocatedUnit as updateAllocatedUnitAPI, deleteAllocatedUnit as deleteAllocatedUnitAPI,
+  getConstructionUnits, createConstructionUnit as createConstructionUnitAPI, updateConstructionUnit as updateConstructionUnitAPI, deleteConstructionUnit as deleteConstructionUnitAPI,
+  getAllocationWaves, createAllocationWave as createAllocationWaveAPI, updateAllocationWave as updateAllocationWaveAPI, deleteAllocationWave as deleteAllocationWaveAPI,
+  getProjectTypes, createProjectType as createProjectTypeAPI, updateProjectType as updateProjectTypeAPI, deleteProjectType as deleteProjectTypeAPI,
+  updateUserProfile as updateUserProfileAPI, changeUserPassword as changeUserPasswordAPI,
+  syncProjectsData as syncProjectsAPI
+} from '../apiService';
+
+const initialNewUserState = {
+  username: '', password: '', role: 'staff-office', fullName: '',
+  address: '', phoneNumber: '', email: '', unit: '',
+  permissions: {
+    add: true, edit: true, delete: true, approve: false, viewRejected: false,
+    viewOtherBranchProjects: false
+  } // Default cho staff-office, đã bỏ allocate và assign
+};
 
 function Settings({ user }) {
-  const [activeTab, setActiveTab] = useState('users'); // Tab mặc định là Quản lý người dùng
+  const queryClient = useQueryClient();
+  // Tab mặc định sẽ là 'profile' cho tất cả user, admin có thể chuyển qua các tab khác
+  const [activeTab, setActiveTab] = useState('profile');
 
-  const [newUser, setNewUser] = useState({
-    username: '',
-    password: '',
-    role: 'staff',
-    fullName: '',
-    address: '',
-    phoneNumber: '',
-    email: '',
-    unit: '',
-    permissions: { add: false, edit: false, delete: false, approve: false }
-  });
-  const [newAllocatedUnit, setNewAllocatedUnit] = useState('');
-  const [editAllocatedUnit, setEditAllocatedUnit] = useState(null);
-  const [newConstructionUnit, setNewConstructionUnit] = useState('');
-  const [editConstructionUnit, setEditConstructionUnit] = useState(null);
-  const [newAllocationWave, setNewAllocationWave] = useState('');
-  const [editAllocationWave, setEditAllocationWave] = useState(null);
-  const [newProjectType, setNewProjectType] = useState('');
-  const [editProjectType, setEditProjectType] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [allocatedUnits, setAllocatedUnits] = useState([]);
-  const [constructionUnits, setConstructionUnits] = useState([]);
-  const [allocationWaves, setAllocationWaves] = useState([]);
-  const [projectTypes, setProjectTypes] = useState([]);
+  const [newUser, setNewUser] = useState(initialNewUserState);
   const [editingUserId, setEditingUserId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
 
-  useEffect(() => {
-    if (user?.role !== 'admin') return;
-    setIsLoading(true);
-    const fetchData = async () => {
-      try {
-        const [usersRes, allocatedUnitsRes, constructionUnitsRes, allocationWavesRes, projectTypesRes] = await Promise.all([
-          axios.get(`${API_URL}/api/users`),
-          axios.get(`${API_URL}/api/allocated-units`),
-          axios.get(`${API_URL}/api/construction-units`),
-          axios.get(`${API_URL}/api/allocation-waves`),
-          axios.get(`${API_URL}/api/project-types`),
-        ]);
-        setUsers(usersRes.data);
-        setAllocatedUnits(allocatedUnitsRes.data);
-        setConstructionUnits(constructionUnitsRes.data);
-        setAllocationWaves(allocationWavesRes.data);
-        setProjectTypes(projectTypesRes.data);
-      } catch (error) {
-        toast.error(error.response?.data?.message || 'Lỗi khi tải dữ liệu!', { position: "top-center" });
-      } finally {
-        setIsLoading(false);
+  const [newAllocatedUnitName, setNewAllocatedUnitName] = useState('');
+  const [editAllocatedUnit, setEditAllocatedUnit] = useState(null);
+  const [newConstructionUnitName, setNewConstructionUnitName] = useState('');
+  const [editConstructionUnit, setEditConstructionUnit] = useState(null);
+  const [newAllocationWaveName, setNewAllocationWaveName] = useState('');
+  const [editAllocationWave, setEditAllocationWave] = useState(null);
+  const [newProjectTypeName, setNewProjectTypeName] = useState('');
+  const [editProjectType, setEditProjectType] = useState(null);
+
+  const [userProfile, setUserProfile] = useState({
+    fullName: user?.fullName || '',
+    address: user?.address || '',
+    phoneNumber: user?.phoneNumber || '',
+    email: user?.email || '',
+  });
+  const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+
+  // --- QUERIES ---
+  const { data: users = [], isLoading: isLoadingUsers, isFetching: isFetchingUsers } = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+    enabled: user?.role === 'admin' && activeTab === 'users',
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách người dùng!', { position: "top-center" }),
+  });
+
+  const { data: allocatedUnits = [], isLoading: isLoadingAllocatedUnits, isFetching: isFetchingAllocatedUnits } = useQuery({
+    queryKey: ['allocatedUnits'],
+    queryFn: getAllocatedUnits,
+    enabled: user?.role === 'admin' && (activeTab === 'allocatedUnits' || activeTab === 'users'),
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải đơn vị!', { position: "top-center" }),
+  });
+
+  const { data: constructionUnits = [], isLoading: isLoadingConstructionUnits, isFetching: isFetchingConstructionUnits } = useQuery({
+    queryKey: ['constructionUnits'],
+    queryFn: getConstructionUnits,
+    enabled: user?.role === 'admin' && activeTab === 'constructionUnits',
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải đơn vị thi công!', { position: "top-center" }),
+  });
+
+  const { data: allocationWaves = [], isLoading: isLoadingAllocationWaves, isFetching: isFetchingAllocationWaves } = useQuery({
+    queryKey: ['allocationWaves'],
+    queryFn: getAllocationWaves,
+    enabled: user?.role === 'admin' && activeTab === 'allocationWaves',
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải đợt phân bổ!', { position: "top-center" }),
+  });
+
+  const { data: projectTypes = [], isLoading: isLoadingProjectTypes, isFetching: isFetchingProjectTypes } = useQuery({
+    queryKey: ['projectTypes'],
+    queryFn: getProjectTypes,
+    enabled: user?.role === 'admin' && activeTab === 'projectTypes',
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải loại công trình!', { position: "top-center" }),
+  });
+
+  const isLoadingTabData =
+    (activeTab === 'users' && (isLoadingUsers || isFetchingUsers)) ||
+    (activeTab === 'allocatedUnits' && (isLoadingAllocatedUnits || isFetchingAllocatedUnits)) ||
+    (activeTab === 'constructionUnits' && (isLoadingConstructionUnits || isFetchingConstructionUnits)) ||
+    (activeTab === 'allocationWaves' && (isLoadingAllocationWaves || isFetchingAllocationWaves)) ||
+    (activeTab === 'projectTypes' && (isLoadingProjectTypes || isFetchingProjectTypes));
+    // Không cần isLoading cho tab 'profile' vì dữ liệu user đã có từ prop
+
+  // --- MUTATIONS ---
+  const useCreateGenericMutation = (mutationFn, queryKeyToInvalidate, successAddMsg, successEditMsg, resetFormFn) => {
+    return useMutation({
+      mutationFn,
+      onSuccess: (data, variables) => {
+        const isEditing = editingUserId || editAllocatedUnit || editConstructionUnit || editAllocationWave || editProjectType || (variables && (variables.userId || variables.unitId || variables.waveId || variables.typeId));
+        toast.success(isEditing ? successEditMsg : successAddMsg, { position: "top-center" });
+        if (queryKeyToInvalidate) {
+            queryClient.invalidateQueries(queryKeyToInvalidate);
+        }
+        if (resetFormFn) resetFormFn();
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" }),
+    });
+  };
+
+  const validateUsername = (username) => /^[a-zA-Z0-9_]{3,20}$/.test(username);
+  const validatePassword = (password) => password.length >= 6;
+
+  const userMutation = useMutation({
+    mutationFn: (userData) => {
+      const dataToSubmit = { ...userData };
+      if (editingUserId && !dataToSubmit.password) {
+        delete dataToSubmit.password;
       }
-    };
-    fetchData();
-  }, [user]);
+      return editingUserId ? updateUserAPI({ userId: editingUserId, userData: dataToSubmit }) : createUserAPI(dataToSubmit);
+    },
+    onSuccess: () => {
+      toast.success(editingUserId ? 'Đã cập nhật người dùng!' : 'Đã thêm người dùng!', { position: "top-center" });
+      queryClient.invalidateQueries(['users']);
+      setNewUser(initialNewUserState);
+      setEditingUserId(null);
+    },
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi thao tác với người dùng!', { position: "top-center" }),
+  });
 
-  const validateUsername = (username) => {
-    const regex = /^[a-zA-Z0-9_]{3,20}$/;
-    return regex.test(username);
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 6;
-  };
-
-  const saveUser = async () => {
+  const saveUser = () => {
     if (!newUser.username || (!editingUserId && !newUser.password)) {
-      toast.error('Vui lòng nhập đầy đủ tên người dùng và mật khẩu!', { position: "top-center" });
-      return;
+      return toast.error('Vui lòng nhập đầy đủ tên người dùng và mật khẩu!', { position: "top-center" });
     }
     if (!validateUsername(newUser.username)) {
-      toast.error('Tên người dùng phải dài 3-20 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới!', { position: "top-center" });
-      return;
+      return toast.error('Tên người dùng phải dài 3-20 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới!', { position: "top-center" });
     }
     if (!editingUserId && !validatePassword(newUser.password)) {
-      toast.error('Mật khẩu phải dài ít nhất 6 ký tự!', { position: "top-center" });
-      return;
+      return toast.error('Mật khẩu phải dài ít nhất 6 ký tự!', { position: "top-center" });
     }
-    setIsLoading(true);
-    try {
-      const userData = { ...newUser };
-      if (!userData.password) delete userData.password;
-      const request = editingUserId
-        ? axios.patch(`${API_URL}/api/users/${editingUserId}`, userData)
-        : axios.post(`${API_URL}/api/users`, userData);
-      const response = await request;
-      if (editingUserId) {
-        setUsers(users.map(u => u._id === editingUserId ? response.data : u));
-        toast.success('Đã cập nhật người dùng!', { position: "top-center" });
-      } else {
-        setUsers([...users, response.data]);
-        toast.success('Đã thêm người dùng!', { position: "top-center" });
-      }
-      setNewUser({ 
-        username: '', 
-        password: '', 
-        role: 'staff', 
-        fullName: '', 
-        address: '', 
-        phoneNumber: '', 
-        email: '', 
-        unit: '', 
-        permissions: { add: false, edit: false, delete: false, approve: false } 
-      });
-      setEditingUserId(null);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật người dùng!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
+    userMutation.mutate(newUser);
   };
 
-  const editUser = (user) => {
+  const editUserHandler = (userToEdit) => {
     setNewUser({
-      username: user.username,
+      username: userToEdit.username,
       password: '',
-      role: user.role,
-      fullName: user.fullName,
-      address: user.address,
-      phoneNumber: user.phoneNumber,
-      email: user.email,
-      unit: user.unit,
-      permissions: user.permissions
+      role: userToEdit.role,
+      fullName: userToEdit.fullName || '',
+      address: userToEdit.address || '',
+      phoneNumber: userToEdit.phoneNumber || '',
+      email: userToEdit.email || '',
+      unit: userToEdit.unit || '',
+      permissions: {
+        ...initialNewUserState.permissions,
+        ...(userToEdit.permissions || {})
+      }
     });
-    setEditingUserId(user._id);
+    setEditingUserId(userToEdit._id);
   };
 
-  const deleteUser = async (id) => {
-    setIsLoading(true);
-    try {
-      await axios.delete(`${API_URL}/api/users/${id}`);
-      setUsers(users.filter(u => u._id !== id));
-      toast.success('Đã xóa người dùng!', { position: "top-center" });
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi xóa người dùng!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
+  const deleteUserMutation = useCreateGenericMutation(deleteUserAPI, ['users'], '', 'Đã xóa người dùng!', null);
+  const deleteUserHandler = (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+      deleteUserMutation.mutate(id);
     }
   };
 
-  const saveAllocatedUnit = async () => {
-    if (!newAllocatedUnit.trim()) {
-      toast.error('Vui lòng nhập tên đơn vị!', { position: "top-center" });
+  const allocatedUnitMutation = useCreateGenericMutation(
+    (unitData) => editAllocatedUnit ? updateAllocatedUnitAPI({ unitId: editAllocatedUnit._id, unitData }) : createAllocatedUnitAPI(unitData),
+    ['allocatedUnits', 'users'],
+    'Đã thêm đơn vị!', 'Đã cập nhật đơn vị!',
+    () => { setNewAllocatedUnitName(''); setEditAllocatedUnit(null); }
+  );
+  const saveAllocatedUnit = () => {
+    if (!newAllocatedUnitName.trim()) return toast.error('Vui lòng nhập tên đơn vị!', { position: "top-center" });
+    allocatedUnitMutation.mutate({ name: newAllocatedUnitName.trim() });
+  };
+  const deleteAllocatedUnitMutation = useCreateGenericMutation(deleteAllocatedUnitAPI, ['allocatedUnits', 'users'], '', 'Đã xóa đơn vị!', null);
+  const deleteAllocatedUnitHandler = (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa đơn vị này? Các user thuộc đơn vị này có thể bị ảnh hưởng.')) {
+      deleteAllocatedUnitMutation.mutate(id);
+    }
+  };
+
+  const constructionUnitMutation = useCreateGenericMutation(
+    (unitData) => editConstructionUnit ? updateConstructionUnitAPI({ unitId: editConstructionUnit._id, unitData }) : createConstructionUnitAPI(unitData),
+    ['constructionUnits'], 'Đã thêm đơn vị thi công!', 'Đã cập nhật đơn vị thi công!',
+    () => { setNewConstructionUnitName(''); setEditConstructionUnit(null); }
+  );
+  const saveConstructionUnit = () => {
+    if (!newConstructionUnitName.trim()) return toast.error('Vui lòng nhập tên đơn vị thi công!', { position: "top-center" });
+    constructionUnitMutation.mutate({ name: newConstructionUnitName.trim() });
+  };
+  const deleteConstructionUnitMutation = useCreateGenericMutation(deleteConstructionUnitAPI, ['constructionUnits'], '', 'Đã xóa đơn vị thi công!', null);
+  const deleteConstructionUnitHandler = (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa đơn vị thi công này?')) {
+      deleteConstructionUnitMutation.mutate(id);
+    }
+  };
+
+  const allocationWaveMutation = useCreateGenericMutation(
+    (waveData) => editAllocationWave ? updateAllocationWaveAPI({ waveId: editAllocationWave._id, waveData }) : createAllocationWaveAPI(waveData),
+    ['allocationWaves'], 'Đã thêm đợt phân bổ!', 'Đã cập nhật đợt phân bổ!',
+    () => { setNewAllocationWaveName(''); setEditAllocationWave(null); }
+  );
+  const saveAllocationWave = () => {
+    if (!newAllocationWaveName.trim()) return toast.error('Vui lòng nhập tên đợt phân bổ!', { position: "top-center" });
+    allocationWaveMutation.mutate({ name: newAllocationWaveName.trim() });
+  };
+  const deleteAllocationWaveMutation = useCreateGenericMutation(deleteAllocationWaveAPI, ['allocationWaves'], '', 'Đã xóa đợt phân bổ!', null);
+  const deleteAllocationWaveHandler = (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa đợt phân bổ này?')) {
+      deleteAllocationWaveMutation.mutate(id);
+    }
+  };
+
+  const projectTypeMutation = useCreateGenericMutation(
+    (typeData) => editProjectType ? updateProjectTypeAPI({ typeId: editProjectType._id, typeData }) : createProjectTypeAPI(typeData),
+    ['projectTypes'], 'Đã thêm loại công trình!', 'Đã cập nhật loại công trình!',
+    () => { setNewProjectTypeName(''); setEditProjectType(null); }
+  );
+  const saveProjectType = () => {
+    if (!newProjectTypeName.trim()) return toast.error('Vui lòng nhập tên loại công trình!', { position: "top-center" });
+    projectTypeMutation.mutate({ name: newProjectTypeName.trim() });
+  };
+  const deleteProjectTypeMutation = useCreateGenericMutation(deleteProjectTypeAPI, ['projectTypes'], '', 'Đã xóa loại công trình!', null);
+  const deleteProjectTypeHandler = (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa loại công trình này?')) {
+      deleteProjectTypeMutation.mutate(id);
+    }
+  };
+
+  const syncProjectsMutation = useMutation({
+    mutationFn: syncProjectsAPI,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Đồng bộ dữ liệu thành công!', { position: "top-center" });
+      queryClient.invalidateQueries(['projects', 'category']);
+      queryClient.invalidateQueries(['projects', 'minor_repair']);
+    },
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi đồng bộ dữ liệu công trình!', { position: "top-center" }),
+  });
+  const syncProjects = () => syncProjectsMutation.mutate();
+
+  // Mutations cho user tự cập nhật
+  const updateUserProfileMutation = useMutation({
+    mutationFn: updateUserProfileAPI,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Cập nhật thông tin thành công!', { position: "top-center" });
+      queryClient.invalidateQueries(['currentUser']); // Làm mới thông tin user ở Header/Sidebar
+      // Cập nhật lại state user trong App.js nếu cần, hoặc để App.js tự fetch lại
+      // Hoặc có thể cập nhật user prop trực tiếp nếu App.js truyền hàm setUser xuống
+    },
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi cập nhật thông tin!', { position: "top-center" }),
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: changeUserPasswordAPI,
+    onSuccess: (data) => {
+      toast.success(data.message || 'Đổi mật khẩu thành công!', { position: "top-center" });
+      setPasswordData({ currentPassword: '', newPassword: '', confirmNewPassword: '' }); // Reset form
+    },
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi đổi mật khẩu!', { position: "top-center" }),
+  });
+
+  const handleProfileUpdate = (e) => {
+    e.preventDefault();
+    updateUserProfileMutation.mutate(userProfile);
+  };
+
+  const handlePasswordChange = (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+      toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp!', { position: "top-center" });
       return;
     }
-    setIsLoading(true);
-    try {
-      const request = editAllocatedUnit
-        ? axios.patch(`${API_URL}/api/allocated-units/${editAllocatedUnit._id}`, { name: newAllocatedUnit.trim() })
-        : axios.post(`${API_URL}/api/allocated-units`, { name: newAllocatedUnit.trim() });
-      const response = await request;
-      if (editAllocatedUnit) {
-        setAllocatedUnits(allocatedUnits.map(u => u._id === editAllocatedUnit._id ? response.data : u));
-        toast.success('Đã cập nhật đơn vị!', { position: "top-center" });
-      } else {
-        setAllocatedUnits([...allocatedUnits, response.data]);
-        toast.success('Đã thêm đơn vị!', { position: "top-center" });
-      }
-      setNewAllocatedUnit('');
-      setEditAllocatedUnit(null);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const deleteAllocatedUnit = async (id) => {
-    setIsLoading(true);
-    try {
-      await axios.delete(`${API_URL}/api/allocated-units/${id}`);
-      setAllocatedUnits(allocatedUnits.filter(u => u._id !== id));
-      toast.success('Đã xóa đơn vị!', { position: "top-center" });
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const saveConstructionUnit = async () => {
-    if (!newConstructionUnit.trim()) {
-      toast.error('Vui lòng nhập tên đơn vị thi công!', { position: "top-center" });
+    if (!validatePassword(passwordData.newPassword)) {
+      toast.error('Mật khẩu mới phải có ít nhất 6 ký tự!', { position: "top-center" });
       return;
     }
-    setIsLoading(true);
-    try {
-      const request = editConstructionUnit
-        ? axios.patch(`${API_URL}/api/construction-units/${editConstructionUnit._id}`, { name: newConstructionUnit.trim() })
-        : axios.post(`${API_URL}/api/construction-units`, { name: newConstructionUnit.trim() });
-      const response = await request;
-      if (editConstructionUnit) {
-        setConstructionUnits(constructionUnits.map(u => u._id === editConstructionUnit._id ? response.data : u));
-        toast.success('Đã cập nhật đơn vị thi công!', { position: "top-center" });
-      } else {
-        setConstructionUnits([...constructionUnits, response.data]);
-        toast.success('Đã thêm đơn vị thi công!', { position: "top-center" });
-      }
-      setNewConstructionUnit('');
-      setEditConstructionUnit(null);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đơn vị thi công!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
+    changePasswordMutation.mutate({
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword,
+    });
   };
 
-  const deleteConstructionUnit = async (id) => {
-    setIsLoading(true);
-    try {
-      await axios.delete(`${API_URL}/api/construction-units/${id}`);
-      setConstructionUnits(constructionUnits.filter(u => u._id !== id));
-      toast.success('Đã xóa đơn vị thi công!', { position: "top-center" });
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi xóa đơn vị thi công!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
+  const anyAdminMutationLoading = // Chỉ các mutation của admin
+    userMutation.isLoading || deleteUserMutation.isLoading ||
+    allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading ||
+    constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading ||
+    allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading ||
+    projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading;
+
+  const anyProfileMutationLoading = updateUserProfileMutation.isLoading || changePasswordMutation.isLoading;
+
+
+  const handleRoleChange = (e) => {
+    const role = e.target.value;
+    let defaultPermissions = { ...initialNewUserState.permissions };
+
+    switch (role) {
+      case 'admin':
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: true };
+        break;
+      case 'director':
+      case 'deputy_director':
+      case 'manager-office':
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: true };
+        break;
+      case 'deputy_manager-office':
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: true };
+        break;
+      case 'staff-office':
+        defaultPermissions = { add: true, edit: true, delete: true, approve: false, viewRejected: true, /*allocate: false, assign: false,*/ viewOtherBranchProjects: true };
+        break;
+      case 'manager-branch':
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: false };
+        break;
+      case 'deputy_manager-branch':
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: false };
+        break;
+      case 'staff-branch':
+        defaultPermissions = { add: true, edit: true, delete: true, approve: false, viewRejected: false, /*allocate: false, assign: false,*/ viewOtherBranchProjects: false };
+        break;
+      case 'worker':
+        defaultPermissions = { add: false, edit: false, delete: false, approve: false, viewRejected: false, /*allocate: false, assign: false,*/ viewOtherBranchProjects: false };
+        break;
+      default:
+        defaultPermissions = { add: false, edit: false, delete: false, approve: false, viewRejected: false, /*allocate: false, assign: false,*/ viewOtherBranchProjects: false };
     }
+    // Loại bỏ allocate và assign khỏi defaultPermissions nếu chúng không còn trong initialNewUserState.permissions
+    const finalPermissions = {};
+    for (const key in initialNewUserState.permissions) {
+        finalPermissions[key] = defaultPermissions[key] !== undefined ? defaultPermissions[key] : false;
+    }
+    setNewUser(prev => ({ ...prev, role, permissions: finalPermissions }));
   };
 
-  const saveAllocationWave = async () => {
-    if (!newAllocationWave.trim()) {
-      toast.error('Vui lòng nhập tên đợt phân bổ!', { position: "top-center" });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const request = editAllocationWave
-        ? axios.patch(`${API_URL}/api/allocation-waves/${editAllocationWave._id}`, { name: newAllocationWave.trim() })
-        : axios.post(`${API_URL}/api/allocation-waves`, { name: newAllocationWave.trim() });
-      const response = await request;
-      if (editAllocationWave) {
-        setAllocationWaves(allocationWaves.map(w => w._id === editAllocationWave._id ? response.data : w));
-        toast.success('Đã cập nhật đợt phân bổ!', { position: "top-center" });
-      } else {
-        setAllocationWaves([...allocationWaves, response.data]);
-        toast.success('Đã thêm đợt phân bổ!', { position: "top-center" });
-      }
-      setNewAllocationWave('');
-      setEditAllocationWave(null);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật đợt phân bổ!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    setUserProfile({
+      fullName: user?.fullName || '',
+      address: user?.address || '',
+      phoneNumber: user?.phoneNumber || '',
+      email: user?.email || '',
+    });
+  }, [user]);
 
-  const deleteAllocationWave = async (id) => {
-    setIsLoading(true);
-    try {
-      await axios.delete(`${API_URL}/api/allocation-waves/${id}`);
-      setAllocationWaves(allocationWaves.filter(w => w._id !== id));
-      toast.success('Đã xóa đợt phân bổ!', { position: "top-center" });
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi xóa đợt phân bổ!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const saveProjectType = async () => {
-    if (!newProjectType.trim()) {
-      toast.error('Vui lòng nhập tên loại công trình!', { position: "top-center" });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const request = editProjectType
-        ? axios.patch(`${API_URL}/api/project-types/${editProjectType._id}`, { name: newProjectType.trim() })
-        : axios.post(`${API_URL}/api/project-types`, { name: newProjectType.trim() });
-      const response = await request;
-      if (editProjectType) {
-        setProjectTypes(projectTypes.map(pt => pt._id === editProjectType._id ? response.data : pt));
-        toast.success('Đã cập nhật loại công trình!', { position: "top-center" });
-      } else {
-        setProjectTypes([...projectTypes, response.data]);
-        toast.success('Đã thêm loại công trình!', { position: "top-center" });
-      }
-      setNewProjectType('');
-      setEditProjectType(null);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi thêm/cập nhật loại công trình!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const deleteProjectType = async (id) => {
-    setIsLoading(true);
-    try {
-      await axios.delete(`${API_URL}/api/project-types/${id}`);
-      setProjectTypes(projectTypes.filter(pt => pt._id !== id));
-      toast.success('Đã xóa loại công trình!', { position: "top-center" });
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi xóa loại công trình!', { position: "top-center" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const syncProjects = async () => {
-    if (isSyncing) return;
-    setIsSyncing(true);
-    try {
-      const response = await axios.post(`${API_URL}/api/sync-projects`);
-      toast.success(response.data.message, { position: "top-center" });
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Lỗi khi đồng bộ dữ liệu công trình!', { position: "top-center" });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  if (user?.role !== 'admin') {
-    return <div className="p-8 text-center text-red-600">Bạn không có quyền truy cập trang này!</div>;
-  }
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Thiết lập</h1>
 
-      {isLoading && (
+      {(isLoadingTabData && !anyAdminMutationLoading && !anyProfileMutationLoading) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="text-white text-xl">Đang tải...</div>
+          <div className="text-white text-xl">Đang tải dữ liệu cài đặt...</div>
         </div>
       )}
 
-      {isSyncing && (
+      {syncProjectsMutation.isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="text-white text-xl">Đang đồng bộ dữ liệu công trình...</div>
         </div>
       )}
 
-      {/* Tabs Navigation */}
       <div className="flex flex-wrap gap-4 border-b mb-6">
-        <button
-          onClick={() => setActiveTab('users')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'users' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSyncing}
-        >
-          <FaUsers /> Quản lý người dùng
-        </button>
-        <button
-          onClick={() => setActiveTab('allocatedUnits')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'allocatedUnits' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSyncing}
-        >
-          <FaBuilding /> Quản lý đơn vị
-        </button>
-        <button
-          onClick={() => setActiveTab('constructionUnits')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'constructionUnits' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSyncing}
-        >
-          <FaHardHat /> Quản lý đơn vị thi công
-        </button>
-        <button
-          onClick={() => setActiveTab('allocationWaves')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'allocationWaves' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSyncing}
-        >
-          <FaList /> Quản lý đợt phân bổ
-        </button>
-        <button
-          onClick={() => setActiveTab('projectTypes')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projectTypes' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSyncing}
-        >
-          <FaProjectDiagram /> Quản lý loại công trình
-        </button>
-        <button
-          onClick={() => setActiveTab('syncProjects')}
-          className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'syncProjects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`}
-          disabled={isLoading || isSyncing}
-        >
-          <FaSync /> Đồng bộ dữ liệu công trình
-        </button>
+        <button onClick={() => setActiveTab('profile')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'profile' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaUserCog /> Thông tin cá nhân</button>
+        {user?.role === 'admin' && (
+          <>
+            <button onClick={() => setActiveTab('users')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'users' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaUsers /> Quản lý người dùng</button>
+            <button onClick={() => setActiveTab('allocatedUnits')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'allocatedUnits' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaBuilding /> Quản lý đơn vị</button>
+            <button onClick={() => setActiveTab('constructionUnits')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'constructionUnits' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaHardHat /> Quản lý ĐVTC</button>
+            <button onClick={() => setActiveTab('allocationWaves')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'allocationWaves' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaList /> Quản lý đợt PB</button>
+            <button onClick={() => setActiveTab('projectTypes')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projectTypes' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaProjectDiagram /> Quản lý loại CT</button>
+            <button onClick={() => setActiveTab('syncProjects')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'syncProjects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaSync /> Đồng bộ dữ liệu</button>
+          </>
+        )}
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'users' && (
+      {activeTab === 'profile' && (
+        <div className="bg-white p-8 rounded-2xl shadow-md">
+          <form onSubmit={handleProfileUpdate}>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><FaUserCog /> Cập nhật thông tin cá nhân</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div><label className="block text-gray-700 mb-2">Họ và tên</label><input type="text" value={userProfile.fullName} onChange={(e) => setUserProfile(prev => ({ ...prev, fullName: e.target.value }))} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={updateUserProfileMutation.isLoading} /></div>
+              <div><label className="block text-gray-700 mb-2">Địa chỉ</label><input type="text" value={userProfile.address} onChange={(e) => setUserProfile(prev => ({ ...prev, address: e.target.value }))} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={updateUserProfileMutation.isLoading} /></div>
+              <div><label className="block text-gray-700 mb-2">Số điện thoại</label><input type="text" value={userProfile.phoneNumber} onChange={(e) => setUserProfile(prev => ({ ...prev, phoneNumber: e.target.value }))} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={updateUserProfileMutation.isLoading} /></div>
+              <div><label className="block text-gray-700 mb-2">Email</label><input type="email" value={userProfile.email} onChange={(e) => setUserProfile(prev => ({ ...prev, email: e.target.value }))} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={updateUserProfileMutation.isLoading} /></div>
+            </div>
+            <button type="submit" className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 ${updateUserProfileMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={updateUserProfileMutation.isLoading}>
+              {updateUserProfileMutation.isLoading ? 'Đang lưu...' : 'Lưu thay đổi thông tin'}
+            </button>
+          </form>
+
+          <hr className="my-8 border-gray-300" />
+
+          <form onSubmit={handlePasswordChange}>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><FaKey /> Đổi mật khẩu</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div><label className="block text-gray-700 mb-2">Mật khẩu hiện tại</label><input type="password" value={passwordData.currentPassword} onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={changePasswordMutation.isLoading} /></div>
+              <div><label className="block text-gray-700 mb-2">Mật khẩu mới</label><input type="password" value={passwordData.newPassword} onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={changePasswordMutation.isLoading} /></div>
+              <div><label className="block text-gray-700 mb-2">Xác nhận mật khẩu mới</label><input type="password" value={passwordData.confirmNewPassword} onChange={(e) => setPasswordData(prev => ({ ...prev, confirmNewPassword: e.target.value }))} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={changePasswordMutation.isLoading} /></div>
+            </div>
+            <button type="submit" className={`bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 ${changePasswordMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={changePasswordMutation.isLoading}>
+              {changePasswordMutation.isLoading ? 'Đang đổi...' : 'Đổi mật khẩu'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {activeTab === 'users' && user?.role === 'admin' && (
         <div className="bg-white p-8 rounded-2xl shadow-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">{editingUserId ? 'Cập nhật người dùng' : 'Thêm người dùng'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div><label className="block text-gray-700 mb-2">Tên người dùng</label><input type="text" placeholder="Nhập tên người dùng (3-20 ký tự)" value={newUser.username} onChange={(e) => setNewUser({ ...newUser, username: e.target.value })} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading} maxLength={20} /></div>
+            <div><label className="block text-gray-700 mb-2">Mật khẩu</label><input type="password" placeholder={editingUserId ? 'Để trống nếu không đổi' : 'Nhập mật khẩu (tối thiểu 6 ký tự)'} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading} maxLength={50} /></div>
+            <div><label className="block text-gray-700 mb-2">Họ và tên</label><input type="text" placeholder="Nhập họ và tên" value={newUser.fullName} onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading} maxLength={50} /></div>
+            <div><label className="block text-gray-700 mb-2">Địa chỉ</label><input type="text" placeholder="Nhập địa chỉ" value={newUser.address} onChange={(e) => setNewUser({ ...newUser, address: e.target.value })} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading} maxLength={100} /></div>
+            <div><label className="block text-gray-700 mb-2">Số điện thoại</label><input type="text" placeholder="Nhập số điện thoại" value={newUser.phoneNumber} onChange={(e) => setNewUser({ ...newUser, phoneNumber: e.target.value })} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading} maxLength={15} /></div>
+            <div><label className="block text-gray-700 mb-2">Email</label><input type="email" placeholder="Nhập email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading} maxLength={50} /></div>
             <div>
-              <label className="block text-gray-700 mb-2">Tên người dùng</label>
-              <input
-                type="text"
-                placeholder="Nhập tên người dùng (3-20 ký tự)"
-                value={newUser.username}
-                onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={20}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Mật khẩu</label>
-              <input
-                type="password"
-                placeholder={editingUserId ? 'Để trống nếu không đổi' : 'Nhập mật khẩu (tối thiểu 6 ký tự)'}
-                value={newUser.password}
-                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={50}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Họ và tên</label>
-              <input
-                type="text"
-                placeholder="Nhập họ và tên"
-                value={newUser.fullName}
-                onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={50}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Địa chỉ</label>
-              <input
-                type="text"
-                placeholder="Nhập địa chỉ"
-                value={newUser.address}
-                onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={100}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Số điện thoại</label>
-              <input
-                type="text"
-                placeholder="Nhập số điện thoại"
-                value={newUser.phoneNumber}
-                onChange={(e) => setNewUser({ ...newUser, phoneNumber: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={15}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Email</label>
-              <input
-                type="email"
-                placeholder="Nhập email"
-                value={newUser.email}
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={50}
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Đơn vị</label>
-              <select
-                value={newUser.unit}
-                onChange={(e) => setNewUser({ ...newUser, unit: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-              >
-                <option value="">Chọn đơn vị</option>
-                {allocatedUnits.map((unit, index) => (
-                  <option key={index} value={unit.name}>
-                    {unit.name}
-                  </option>
-                ))}
+              <label className="block text-gray-700 mb-2">Đơn vị/Chi nhánh</label>
+              <select value={newUser.unit} onChange={(e) => setNewUser({ ...newUser, unit: e.target.value })} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading || isLoadingAllocatedUnits}>
+                <option value="">Chọn đơn vị/chi nhánh</option>
+                {allocatedUnits.map((unit, index) => (<option key={unit._id || index} value={unit.name}>{unit.name}</option>))}
               </select>
             </div>
             <div>
               <label className="block text-gray-700 mb-2">Vai trò</label>
-              <select
-                value={newUser.role}
-                onChange={(e) => {
-                  const role = e.target.value;
-                  const defaultPermissions = {
-                    admin: { add: true, edit: true, delete: true, approve: true },
-                    director: { add: true, edit: true, delete: true, approve: true },
-                    deputy_director: { add: true, edit: true, delete: true, approve: true },
-                    manager: { add: true, edit: true, delete: false, approve: true },
-                    deputy_manager: { add: true, edit: true, delete: false, approve: false },
-                    staff: { add: true, edit: false, delete: false, approve: false },
-                    branch_director: { add: true, edit: true, delete: true, approve: true },
-                    branch_deputy_director: { add: true, edit: true, delete: false, approve: false },
-                    branch_staff: { add: true, edit: false, delete: false, approve: false },
-                    worker: { add: false, edit: false, delete: false, approve: false },
-                  }[role] || { add: false, edit: false, delete: false, approve: false };
-                  setNewUser({ ...newUser, role, permissions: defaultPermissions });
-                }}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-              >
+              <select value={newUser.role} onChange={handleRoleChange} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={userMutation.isLoading}>
                 <option value="admin">Admin</option>
                 <option value="director">Tổng giám đốc</option>
                 <option value="deputy_director">Phó tổng giám đốc</option>
-                <option value="manager">Trưởng phòng</option>
-                <option value="deputy_manager">Phó phòng</option>
-                <option value="staff">Nhân viên phòng</option>
-                <option value="branch_director">Giám đốc chi nhánh</option>
-                <option value="branch_deputy_director">Phó giám đốc chi nhánh</option>
-                <option value="branch_staff">Nhân viên chi nhánh</option>
-                <option value="worker">Công nhân trực tiếp</option>
+                <option value="manager-office">Trưởng phòng (Công ty)</option>
+                <option value="deputy_manager-office">Phó phòng (Công ty)</option>
+                <option value="staff-office">Nhân viên (Phòng Công ty)</option>
+                <option value="manager-branch">Giám đốc (Chi nhánh)</option>
+                <option value="deputy_manager-branch">Phó giám đốc (Chi nhánh)</option>
+                <option value="staff-branch">Nhân viên (Chi nhánh)</option>
+                <option value="worker">Công nhân</option>
               </select>
             </div>
           </div>
           <div className="mb-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Phân quyền</h3>
-            <div className="flex flex-wrap gap-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={newUser.permissions.add}
-                  onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, add: e.target.checked } })}
-                  className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
-                  disabled={isLoading}
-                />
-                Thêm
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={newUser.permissions.edit}
-                  onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, edit: e.target.checked } })}
-                  className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
-                  disabled={isLoading}
-                />
-                Sửa
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={newUser.permissions.delete}
-                  onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, delete: e.target.checked } })}
-                  className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
-                  disabled={isLoading}
-                />
-                Xóa
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={newUser.permissions.approve}
-                  onChange={(e) => setNewUser({ ...newUser, permissions: { ...newUser.permissions, approve: e.target.checked } })}
-                  className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
-                  disabled={isLoading}
-                />
-                Duyệt
-              </label>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Phân quyền chi tiết</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4"> {/* Giảm số cột để dễ nhìn hơn */}
+              {Object.keys(initialNewUserState.permissions)
+                .filter(permKey => permKey !== 'allocate' && permKey !== 'assign') // Loại bỏ allocate và assign
+                .map(permKey => (
+                <label key={permKey} className="flex items-center">
+                  <input type="checkbox" checked={newUser.permissions[permKey] || false} onChange={(e) => setNewUser(prev => ({ ...prev, permissions: { ...prev.permissions, [permKey]: e.target.checked } }))} className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" disabled={userMutation.isLoading || newUser.role === 'admin'} />
+                  {permKey === 'add' && 'Thêm CT'}
+                  {permKey === 'edit' && 'Sửa CT'}
+                  {permKey === 'delete' && 'Xóa CT'}
+                  {permKey === 'approve' && 'Duyệt CT'}
+                  {permKey === 'viewRejected' && 'Xem CT từ chối'}
+                  {/* Bỏ hiển thị allocate và assign */}
+                  {permKey === 'viewOtherBranchProjects' && 'Xem CT chi nhánh khác'}
+                </label>
+              ))}
             </div>
           </div>
           <div className="flex gap-4">
-            <button
-              onClick={saveUser}
-              className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={isLoading}
-            >
-              <FaUserPlus /> {editingUserId ? 'Cập nhật' : 'Thêm'} người dùng
-            </button>
-            {editingUserId && (
-              <button
-                onClick={() => {
-                  setNewUser({ 
-                    username: '', 
-                    password: '', 
-                    role: 'staff', 
-                    fullName: '', 
-                    address: '', 
-                    phoneNumber: '', 
-                    email: '', 
-                    unit: '', 
-                    permissions: { add: false, edit: false, delete: false, approve: false } 
-                  });
-                  setEditingUserId(null);
-                }}
-                className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isLoading}
-              >
-                Hủy
-              </button>
-            )}
+            <button onClick={saveUser} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${userMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={userMutation.isLoading}><FaUserPlus /> {editingUserId ? 'Cập nhật' : 'Thêm'}</button>
+            {editingUserId && (<button onClick={() => { setNewUser(initialNewUserState); setEditingUserId(null); }} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${userMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={userMutation.isLoading}>Hủy</button>)}
           </div>
           <div className="mt-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách người dùng</h2>
             <div className="overflow-x-auto">
               <table className="w-full table-auto border-collapse">
                 <thead>
-                  <tr className="bg-blue-50">
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Tên người dùng</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Họ và tên</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Địa chỉ</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Số điện thoại</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Email</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Đơn vị</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Vai trò</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Quyền</th>
-                    <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
-                  </tr>
+                  <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên người dùng</th><th className="p-4 text-left text-gray-700 font-bold border-b">Họ và tên</th><th className="p-4 text-left text-gray-700 font-bold border-b">Đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Vai trò</th><th className="p-4 text-left text-gray-700 font-bold border-b">Quyền</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr>
                 </thead>
                 <tbody>
-                  {users.map(user => (
-                    <tr key={user._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                      <td className="p-4 text-gray-700">{user.username}</td>
-                      <td className="p-4 text-gray-700">{user.fullName || 'N/A'}</td>
-                      <td className="p-4 text-gray-700">{user.address || 'N/A'}</td>
-                      <td className="p-4 text-gray-700">{user.phoneNumber || 'N/A'}</td>
-                      <td className="p-4 text-gray-700">{user.email || 'N/A'}</td>
-                      <td className="p-4 text-gray-700">{user.unit || 'N/A'}</td>
+                  {users.map(u => (
+                    <tr key={u._id} className="border-t hover:bg-blue-50">
+                      <td className="p-4 text-gray-700">{u.username}</td><td className="p-4 text-gray-700">{u.fullName || 'N/A'}</td><td className="p-4 text-gray-700">{u.unit || 'N/A'}</td>
                       <td className="p-4 text-gray-700">
-                        {user.role === 'admin' && 'Admin'}
-                        {user.role === 'director' && 'Tổng giám đốc'}
-                        {user.role === 'deputy_director' && 'Phó tổng giám đốc'}
-                        {user.role === 'manager' && 'Trưởng phòng'}
-                        {user.role === 'deputy_manager' && 'Phó phòng'}
-                        {user.role === 'staff' && 'Nhân viên phòng'}
-                        {user.role === 'branch_director' && 'Giám đốc chi nhánh'}
-                        {user.role === 'branch_deputy_director' && 'Phó giám đốc chi nhánh'}
-                        {user.role === 'branch_staff' && 'Nhân viên chi nhánh'}
-                        {user.role === 'worker' && 'Công nhân trực tiếp'}
+                        {u.role === 'admin' && 'Admin'}
+                        {u.role === 'director' && 'Tổng giám đốc'}
+                        {u.role === 'deputy_director' && 'Phó tổng giám đốc'}
+                        {u.role === 'manager-office' && 'Trưởng phòng (CT)'}
+                        {u.role === 'deputy_manager-office' && 'Phó phòng (CT)'}
+                        {u.role === 'staff-office' && 'Nhân viên (Phòng CT)'}
+                        {u.role === 'manager-branch' && 'Giám đốc (CN)'}
+                        {u.role === 'deputy_manager-branch' && 'Phó giám đốc (CN)'}
+                        {u.role === 'staff-branch' && 'Nhân viên (CN)'}
+                        {u.role === 'worker' && 'Công nhân'}
                       </td>
-                      <td className="p-4 text-gray-700">
-                        {Object.keys(user.permissions)
-                          .filter(key => user.permissions[key])
-                          .map(key => ({
-                            add: 'Thêm',
-                            edit: 'Sửa',
-                            delete: 'Xóa',
-                            approve: 'Duyệt'
-                          }[key]))
-                          .join(', ') || 'Không có quyền'}
+                      <td className="p-4 text-gray-700 text-xs">
+                        {Object.entries(u.permissions || {})
+                          .filter(([, value]) => value)
+                          .map(([key]) => ({
+                            add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'XemTừChối',
+                            // allocate: 'PhânBổ', assign: 'GiaoViệc', // Bỏ hiển thị
+                            viewOtherBranchProjects: 'XemCNKhác'
+                          }[key] || key))
+                          .join(', ')}
                       </td>
                       <td className="p-4 flex gap-2">
-                        <button
-                          onClick={() => editUser(user)}
-                          className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
-                          disabled={isLoading}
-                        >
-                          <FaEdit size={16} />
-                        </button>
-                        <button
-                          onClick={() => deleteUser(user._id)}
-                          className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
-                          disabled={isLoading}
-                        >
-                          <FaTrash size={16} />
-                        </button>
+                        <button onClick={() => editUserHandler(u)} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={userMutation.isLoading || deleteUserMutation.isLoading}><FaEdit size={16} /></button>
+                        <button onClick={() => deleteUserHandler(u._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={userMutation.isLoading || deleteUserMutation.isLoading || u.role === 'admin'}><FaTrash size={16} /></button>
                       </td>
                     </tr>
                   ))}
@@ -664,335 +509,11 @@ function Settings({ user }) {
         </div>
       )}
 
-      {activeTab === 'allocatedUnits' && (
-        <div className="bg-white p-8 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị</h2>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <label className="block text-gray-700 mb-2">Tên đơn vị</label>
-              <input
-                type="text"
-                placeholder="Nhập tên đơn vị"
-                value={newAllocatedUnit}
-                onChange={(e) => setNewAllocatedUnit(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={50}
-              />
-            </div>
-            <div className="flex items-end gap-4">
-              <button
-                onClick={saveAllocatedUnit}
-                className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isLoading}
-              >
-                <FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'} đơn vị
-              </button>
-              {editAllocatedUnit && (
-                <button
-                  onClick={() => {
-                    setNewAllocatedUnit('');
-                    setEditAllocatedUnit(null);
-                  }}
-                  className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={isLoading}
-                >
-                  Hủy
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-blue-50">
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th>
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allocatedUnits.map(unit => (
-                  <tr key={unit._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                    <td className="p-4 text-gray-700">{unit.name}</td>
-                    <td className="p-4 flex gap-2">
-                      <button
-                        onClick={() => {
-                          setNewAllocatedUnit(unit.name);
-                          setEditAllocatedUnit(unit);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaEdit size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteAllocatedUnit(unit._id)}
-                        className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'constructionUnits' && (
-        <div className="bg-white p-8 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị thi công</h2>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <label className="block text-gray-700 mb-2">Tên đơn vị thi công</label>
-              <input
-                type="text"
-                placeholder="Nhập tên đơn vị thi công"
-                value={newConstructionUnit}
-                onChange={(e) => setNewConstructionUnit(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={50}
-              />
-            </div>
-            <div className="flex items-end gap-4">
-              <button
-                onClick={saveConstructionUnit}
-                className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isLoading}
-              >
-                <FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'} đơn vị
-              </button>
-              {editConstructionUnit && (
-                <button
-                  onClick={() => {
-                    setNewConstructionUnit('');
-                    setEditConstructionUnit(null);
-                  }}
-                  className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={isLoading}
-                >
-                  Hủy
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-blue-50">
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th>
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {constructionUnits.map(unit => (
-                  <tr key={unit._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                    <td className="p-4 text-gray-700">{unit.name}</td>
-                    <td className="p-4 flex gap-2">
-                      <button
-                        onClick={() => {
-                          setNewConstructionUnit(unit.name);
-                          setEditConstructionUnit(unit);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaEdit size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteConstructionUnit(unit._id)}
-                        className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'allocationWaves' && (
-        <div className="bg-white p-8 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label>
-              <input
-                type="text"
-                placeholder="Nhập tên đợt phân bổ"
-                value={newAllocationWave}
-                onChange={(e) => setNewAllocationWave(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={50}
-              />
-            </div>
-            <div className="flex items-end gap-4">
-              <button
-                onClick={saveAllocationWave}
-                className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isLoading}
-              >
-                <FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'} đợt phân bổ
-              </button>
-              {editAllocationWave && (
-                <button
-                  onClick={() => {
-                    setNewAllocationWave('');
-                    setEditAllocationWave(null);
-                  }}
-                  className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={isLoading}
-                >
-                  Hủy
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-blue-50">
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th>
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allocationWaves.map(wave => (
-                  <tr key={wave._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                    <td className="p-4 text-gray-700">{wave.name}</td>
-                    <td className="p-4 flex gap-2">
-                      <button
-                        onClick={() => {
-                          setNewAllocationWave(wave.name);
-                          setEditAllocationWave(wave);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaEdit size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteAllocationWave(wave._id)}
-                        className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'projectTypes' && (
-        <div className="bg-white p-8 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý loại công trình</h2>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <label className="block text-gray-700 mb-2">Tên loại công trình</label>
-              <input
-                type="text"
-                placeholder="Nhập tên loại công trình"
-                value={newProjectType}
-                onChange={(e) => setNewProjectType(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                disabled={isLoading}
-                maxLength={50}
-              />
-            </div>
-            <div className="flex items-end gap-4">
-              <button
-                onClick={saveProjectType}
-                className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isLoading}
-              >
-                <FaPlus /> {editProjectType ? 'Cập nhật' : 'Thêm'} loại công trình
-              </button>
-              {editProjectType && (
-                <button
-                  onClick={() => {
-                    setNewProjectType('');
-                    setEditProjectType(null);
-                  }}
-                  className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all duration-200 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={isLoading}
-                >
-                  Hủy
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-blue-50">
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Tên loại công trình</th>
-                  <th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectTypes.map(type => (
-                  <tr key={type._id} className="border-t hover:bg-blue-50 transition-all duration-200">
-                    <td className="p-4 text-gray-700">{type.name}</td>
-                    <td className="p-4 flex gap-2">
-                      <button
-                        onClick={() => {
-                          setNewProjectType(type.name);
-                          setEditProjectType(type);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaEdit size={16} />
-                      </button>
-                      <button
-                        onClick={() => deleteProjectType(type._id)}
-                        className="text-red-600 hover:text-red-800 disabled:opacity-50 transition-all duration-200"
-                        disabled={isLoading}
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'syncProjects' && (
-        <div className="bg-white p-8 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Đồng bộ dữ liệu công trình</h2>
-          <p className="text-gray-600 mb-4">
-            Chức năng này sẽ đồng bộ dữ liệu công trình từ collection cũ (<code>projects</code>) sang các collection mới (<code>categoryprojects</code> và <code>minorrepairprojects</code>).
-            <br />
-            <strong>Lưu ý:</strong> Hành động này sẽ cập nhật hoặc thêm mới các công trình dựa trên dữ liệu cũ, giữ nguyên các công trình đã có trong collection mới nếu không có thay đổi.
-          </p>
-          <button
-            onClick={() => {
-              if (window.confirm('Bạn có chắc chắn muốn đồng bộ dữ liệu công trình?')) {
-                syncProjects();
-              }
-            }}
-            className={`bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg ${isSyncing ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={isSyncing}
-          >
-            <FaSync /> Đồng bộ dữ liệu công trình
-          </button>
-        </div>
-      )}
+      {activeTab === 'allocatedUnits' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên đơn vị</label> <input type="text" placeholder="Nhập tên đơn vị" value={newAllocatedUnitName} onChange={(e) => setNewAllocatedUnitName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocatedUnitMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveAllocatedUnit} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocatedUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocatedUnitMutation.isLoading}><FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'}</button> {editAllocatedUnit && (<button onClick={() => { setNewAllocatedUnitName(''); setEditAllocatedUnit(null); }} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocatedUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocatedUnitMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {allocatedUnits.map(unit => (<tr key={unit._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{unit.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewAllocatedUnitName(unit.name); setEditAllocatedUnit(unit);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteAllocatedUnitHandler(unit._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
+      {activeTab === 'constructionUnits' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị thi công</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên đơn vị thi công</label> <input type="text" placeholder="Nhập tên đơn vị thi công" value={newConstructionUnitName} onChange={(e) => setNewConstructionUnitName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={constructionUnitMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveConstructionUnit} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${constructionUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={constructionUnitMutation.isLoading}><FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'}</button> {editConstructionUnit && (<button onClick={() => { setNewConstructionUnitName(''); setEditConstructionUnit(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${constructionUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={constructionUnitMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {constructionUnits.map(unit => (<tr key={unit._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{unit.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewConstructionUnitName(unit.name); setEditConstructionUnit(unit);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteConstructionUnitHandler(unit._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
+      {activeTab === 'allocationWaves' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label> <input type="text" placeholder="Nhập tên đợt phân bổ" value={newAllocationWaveName} onChange={(e) => setNewAllocationWaveName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocationWaveMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveAllocationWave} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}><FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'}</button> {editAllocationWave && (<button onClick={() => { setNewAllocationWaveName(''); setEditAllocationWave(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {allocationWaves.map(wave => (<tr key={wave._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{wave.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewAllocationWaveName(wave.name); setEditAllocationWave(wave);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteAllocationWaveHandler(wave._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
+      {activeTab === 'projectTypes' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý loại công trình</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên loại công trình</label> <input type="text" placeholder="Nhập tên loại công trình" value={newProjectTypeName} onChange={(e) => setNewProjectTypeName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={projectTypeMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveProjectType} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}><FaPlus /> {editProjectType ? 'Cập nhật' : 'Thêm'}</button> {editProjectType && (<button onClick={() => { setNewProjectTypeName(''); setEditProjectType(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên loại công trình</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {projectTypes.map(type => (<tr key={type._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{type.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewProjectTypeName(type.name); setEditProjectType(type);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteProjectTypeHandler(type._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
+      {activeTab === 'syncProjects' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Đồng bộ dữ liệu công trình</h2> <p className="text-gray-600 mb-4"> Chức năng này sẽ đồng bộ dữ liệu công trình từ collection cũ (<code>projects</code>) sang các collection mới (<code>categoryprojects</code> và <code>minorrepairprojects</code>). <br /> <strong>Lưu ý:</strong> Hành động này sẽ cập nhật hoặc thêm mới các công trình dựa trên dữ liệu cũ, giữ nguyên các công trình đã có trong collection mới nếu không có thay đổi. </p> <button onClick={() => { if (window.confirm('Bạn có chắc chắn muốn đồng bộ dữ liệu công trình?')) { syncProjects(); } }} className={`bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 flex items-center gap-2 shadow-md ${syncProjectsMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={syncProjectsMutation.isLoading}><FaSync /> Đồng bộ dữ liệu công trình</button> </div>)}
     </div>
   );
 }

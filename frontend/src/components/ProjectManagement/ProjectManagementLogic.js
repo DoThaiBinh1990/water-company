@@ -1,12 +1,27 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\ProjectManagementLogic.js
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import io from 'socket.io-client';
 import debounce from 'lodash/debounce';
 import { toast } from 'react-toastify';
-import { API_URL } from 'config';
+import { API_URL } from '../../config'; // API_URL có thể không cần nữa nếu dùng apiClient.defaults.baseURL
+import {
+  getProjects,
+  createProject,
+  updateProject,
+  deleteProject as deleteProjectAPI, // Đổi tên hàm import
+  approveProject as approveProjectAPI,
+  rejectProject as rejectProjectAPI,
+  allocateProject as allocateProjectAPI,
+  assignProject as assignProjectAPI,
+  getRejectedProjects,
+  restoreRejectedProject as restoreRejectedProjectAPI,
+  permanentlyDeleteRejectedProject as permanentlyDeleteRejectedProjectAPI,
+  getAllocatedUnits, getAllocationWaves, getConstructionUnits, getUsers, getProjectTypes,
+  apiClient // Import apiClient từ apiService
+} from '../../apiService'; // Import các hàm API
 
-const socket = io(API_URL, {
+const socket = io(apiClient.defaults.baseURL, { // Sử dụng baseURL từ apiClient
   transports: ['websocket', 'polling'],
   withCredentials: true,
   autoConnect: false,
@@ -14,14 +29,10 @@ const socket = io(API_URL, {
 
 function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const isCategory = type === 'category';
-  const [filteredProjects, setFilteredProjects] = useState([]);
-  const [pendingProjects, setPendingProjects] = useState([]);
-  const [rejectedProjects, setRejectedProjects] = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
+  const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState('serial_asc');
   const [showFilter, setShowFilter] = useState(true);
-  const [totalProjectsCount, setTotalProjectsCount] = useState(0);
 
   // Gom nhóm state filter
   const [filters, setFilters] = useState({
@@ -44,20 +55,10 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const [allocateWaves, setAllocateWaves] = useState({});
   const [assignPersons, setAssignPersons] = useState({});
 
-  const [allocatedUnits, setAllocatedUnits] = useState([]);
-  const [constructionUnitsList, setConstructionUnitsList] = useState([]);
-  const [allocationWavesList, setAllocationWavesList] = useState([]);
-  const [usersList, setUsersList] = useState([]);
-  const [approversList, setApproversList] = useState([]); // Thêm state cho người duyệt
-  const [projectTypesList, setProjectTypesList] = useState([]); // Thêm state cho loại công trình
-
   const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmittingAction, setIsSubmittingAction] = useState(false); // State cho các hành động trên bảng
   const [activeTab, setActiveTab] = useState('projects');
 
-  const initialFilters = useMemo(() => ({ // Vẫn giữ initialFilters để reset
+  const initialFilters = useMemo(() => ({
     status: '',
     allocatedUnit: '',
     constructionUnit: '',
@@ -71,7 +72,6 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     reportDate: '',
   }), []);
 
-  // Đổi tên initialNewProjectState thành initialFormData
   const initialFormData = useCallback(() => {
     const baseState = {
       name: '',
@@ -84,7 +84,6 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     };
     if (isCategory) {
       return {
-        // editProjectAndRefetchPending, // This line seems to be a misplaced function call or variable
         ...baseState,
         constructionUnit: '',
         allocationWave: '',
@@ -122,268 +121,152 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     setFormData(initialFormData());
   }, [initialFormData]);
 
-  const fetchProjects = useCallback(
-    async (pageToFetch = 1, currentSortOrder = sortOrder, filterParams = {}, isPending = false) => {
-      if (!user) {
-        setFilteredProjects([]);
-        setPendingProjects([]);
-        setTotalPages(1);
-        setTotalProjectsCount(0);
-        return;
-      }
-      setIsLoading(true);
-      const params = new URLSearchParams({ type, page: pageToFetch, limit: 10 });
+  // --- QUERIES ---
+  const buildProjectQueryParams = (page, currentSortOrder, currentFilters, isPending) => {
+    const params = { type, page, limit: 10 };
+    const activeApiFilters = {};
+    if (currentFilters.status) activeApiFilters.status = currentFilters.status;
+    if (currentFilters.allocatedUnit) activeApiFilters.allocatedUnit = currentFilters.allocatedUnit;
+    if (isCategory && currentFilters.constructionUnit) activeApiFilters.constructionUnit = currentFilters.constructionUnit;
+    if (currentFilters.name) activeApiFilters.search = currentFilters.name;
+    if (isCategory && currentFilters.minInitialValue) activeApiFilters.minInitialValue = currentFilters.minInitialValue;
+    if (isCategory && currentFilters.maxInitialValue) activeApiFilters.maxInitialValue = currentFilters.maxInitialValue;
+    if (isCategory && currentFilters.progress) activeApiFilters.progress = currentFilters.progress;
+    if (isCategory && currentFilters.allocationWave) activeApiFilters.allocationWave = currentFilters.allocationWave;
+    if (currentFilters.supervisor) activeApiFilters.supervisor = currentFilters.supervisor;
+    if (isCategory && currentFilters.estimator) activeApiFilters.estimator = currentFilters.estimator;
+    if (!isCategory && currentFilters.reportDate) activeApiFilters.reportDate = currentFilters.reportDate;
 
-      // Sử dụng state `filters` đã được gom nhóm
-      const currentActiveFilters = { ...filters, ...filterParams }; // Cho phép ghi đè filter nếu cần
+    Object.assign(params, activeApiFilters);
 
-      // Lọc ra các filter không rỗng để gửi lên API
-      const activeApiFilters = {};
-      if (currentActiveFilters.status) activeApiFilters.status = currentActiveFilters.status;
-      if (currentActiveFilters.allocatedUnit) activeApiFilters.allocatedUnit = currentActiveFilters.allocatedUnit;
-      if (isCategory && currentActiveFilters.constructionUnit) activeApiFilters.constructionUnit = currentActiveFilters.constructionUnit;
-      if (currentActiveFilters.name) activeApiFilters.search = currentActiveFilters.name; // API dùng 'search' cho tên
-      if (isCategory && currentActiveFilters.minInitialValue) activeApiFilters.minInitialValue = currentActiveFilters.minInitialValue;
-      if (isCategory && currentActiveFilters.maxInitialValue) activeApiFilters.maxInitialValue = currentActiveFilters.maxInitialValue;
-      if (isCategory && currentActiveFilters.progress) activeApiFilters.progress = currentActiveFilters.progress;
-      if (isCategory && currentActiveFilters.allocationWave) activeApiFilters.allocationWave = currentActiveFilters.allocationWave;
-      if (currentActiveFilters.supervisor) activeApiFilters.supervisor = currentActiveFilters.supervisor;
-      if (isCategory && currentActiveFilters.estimator) activeApiFilters.estimator = currentActiveFilters.estimator;
-      if (!isCategory && currentActiveFilters.reportDate) activeApiFilters.reportDate = currentActiveFilters.reportDate;
-
-
-      console.log('Fetching projects with API filters:', activeApiFilters, 'Page:', pageToFetch);
-
-      Object.entries(activeApiFilters).forEach(([key, value]) => {
-        if (value) { // Đảm bảo chỉ gửi giá trị không rỗng
-          params.append(key, value);
-        }
-      });
-
-      if (currentSortOrder === 'serial_asc') {
-        params.append('sort', isCategory ? 'categorySerialNumber' : 'minorRepairSerialNumber');
-        params.append('order', 'asc');
-      } else if (currentSortOrder === 'created_desc') {
-        params.append('sort', 'createdAt');
-        params.append('order', 'desc');
-      }
-
-      try {
-        if (isPending) {
-          params.append('pending', 'true');
-        }
-
-        console.log('API URL:', `${API_URL}/api/projects?${params.toString()}`);
-        const projectsRes = await axios.get(`${API_URL}/api/projects?${params.toString()}`);
-        console.log('API Response:', projectsRes.data);
-
-        const rawProjects = projectsRes.data.projects || [];
-
-        // Chuẩn hóa dữ liệu user ở client-side nếu backend chưa populate đầy đủ
-        const normalizedProjects = rawProjects.map(project => {
-          const newProject = { ...project };
-          ['supervisor', 'estimator', 'createdBy', 'approvedBy'].forEach(userField => {
-            if (newProject[userField] && typeof newProject[userField] === 'string') {
-              // Nếu trường user là string (ID), tìm trong usersList
-              const foundUser = usersList.find(u => u._id === newProject[userField]);
-              if (foundUser) {
-                newProject[userField] = foundUser; // Thay thế ID bằng object user từ usersList
-              }
-            }
-          });
-          if (newProject.pendingEdit && newProject.pendingEdit.requestedBy && typeof newProject.pendingEdit.requestedBy === 'string') {
-            const foundUser = usersList.find(u => u._id === newProject.pendingEdit.requestedBy);
-            if (foundUser) newProject.pendingEdit.requestedBy = foundUser;
-          }
-          return newProject;
-        });
-
-        if (isPending) { // Backend already filters based on 'pending=true'
-          setPendingProjects(normalizedProjects);
-        } else {
-          setFilteredProjects(normalizedProjects);
-          setTotalProjectsCount(projectsRes.data.total || 0);
-          setTotalPages(projectsRes.data.pages || 1);
-        }
-      } catch (error) {
-        console.error("Lỗi khi tải danh sách công trình:", error.response?.data?.message || error.message);
-        toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách công trình!', { position: "top-center" });
-        if (isPending) {
-          setPendingProjects([]);
-        } else {
-          setFilteredProjects([]);
-          setTotalProjectsCount(0);
-          setTotalPages(1);
-          setCurrentPage(1);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [
-      user,
-      type,
-      isCategory,
-      sortOrder,
-      filters, usersList // usersList đã có ở đây, đảm bảo nó được cập nhật và truyền đi
-    ]
-  );
-
-  const fetchRejectedProjects = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await axios.get(`${API_URL}/api/rejected-projects`);
-      setRejectedProjects(res.data.rejectedProjects || []); // Sửa ở đây để lấy rejectedProjects từ response
-    } catch (error) {
-      console.error("Lỗi khi tải danh sách công trình bị từ chối:", error.response?.data?.message || error.message);
-      toast.error(error.response?.data?.message || 'Lỗi khi tải danh sách công trình bị từ chối!', { position: "top-center" });
-      setRejectedProjects([]);
-    } finally {
-      setIsLoading(false);
+    if (currentSortOrder === 'serial_asc') {
+      params.sort = isCategory ? 'categorySerialNumber' : 'minorRepairSerialNumber';
+      params.order = 'asc';
+    } else if (currentSortOrder === 'created_desc') {
+      params.sort = 'createdAt';
+      params.order = 'desc';
     }
-  }, []);
+    if (isPending) {
+      params.pending = 'true';
+    }
+    return params;
+  };
+
+  const { data: projectsData, isLoading: isLoadingProjects, isFetching: isFetchingProjects } = useQuery({
+    queryKey: ['projects', type, currentPage, sortOrder, filters],
+    queryFn: () => getProjects(buildProjectQueryParams(currentPage, sortOrder, filters, false)),
+    enabled: !!user && activeTab === 'projects',
+    keepPreviousData: true,
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách công trình!', { position: "top-center" }),
+  });
+
+  const { data: pendingProjectsData, isLoading: isLoadingPending, isFetching: isFetchingPending } = useQuery({
+    queryKey: ['pendingProjects', type, sortOrder], // Filters không áp dụng cho pending tab theo logic hiện tại
+    queryFn: () => getProjects(buildProjectQueryParams(1, sortOrder, {}, true)),
+    enabled: !!user && activeTab === 'pending',
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách chờ duyệt!', { position: "top-center" }),
+  });
+
+  const { data: rejectedProjectsData, isLoading: isLoadingRejected, isFetching: isFetchingRejected } = useQuery({
+    queryKey: ['rejectedProjects', type],
+    queryFn: () => getRejectedProjects({ type }), // Giả sử API này không cần phân trang phức tạp trên UI này
+    enabled: !!user && activeTab === 'rejected',
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách bị từ chối!', { position: "top-center" }),
+  });
+
+  const filteredProjects = projectsData?.projects || [];
+  const totalProjectsCount = projectsData?.total || 0;
+  const totalPages = projectsData?.pages || 1;
+  const pendingProjects = pendingProjectsData?.projects || [];
+  const rejectedProjects = rejectedProjectsData?.rejectedProjects || [];
+
+  // Queries for auxiliary data
+  const { data: allocatedUnits = [] } = useQuery({
+    queryKey: ['allocatedUnits'], queryFn: getAllocatedUnits, enabled: !!user,
+    select: data => data.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)),
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải đơn vị!', { position: "top-center" }),
+  });
+  const { data: allocationWavesList = [] } = useQuery({
+    queryKey: ['allocationWaves'], queryFn: getAllocationWaves, enabled: !!user,
+    select: data => data.map(wave => wave.name || String(wave)),
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải đợt phân bổ!', { position: "top-center" }),
+  });
+  const { data: constructionUnitsList = [] } = useQuery({
+    queryKey: ['constructionUnits'], queryFn: getConstructionUnits, enabled: !!user,
+    select: data => data.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)),
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải đơn vị thi công!', { position: "top-center" }),
+  });
+  const { data: usersData = [] } = useQuery({
+    // Query này cần cho tất cả user có thể truy cập trang này để chọn người
+    // enabled: !!user, // Bỏ điều kiện chỉ admin, cho phép tất cả user đã đăng nhập fetch
+    queryKey: ['users'], queryFn: getUsers, enabled: !!user, // Fetch khi user tồn tại
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách người dùng!', { position: "top-center" }),
+  });
+  const { data: projectTypesList = [] } = useQuery({
+    queryKey: ['projectTypes'], queryFn: getProjectTypes, enabled: !!user,
+    select: data => data.map(pt => pt.name || String(pt)),
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải loại công trình!', { position: "top-center" }),
+  });
+
+  const usersList = useMemo(() => usersData.map(u => ({ _id: u._id, fullName: u.fullName || u.username || String(u) })), [usersData]);
+  const approversList = useMemo(() => usersData.filter(u => u.permissions?.approve), [usersData]);
+
+  const isLoading = isLoadingProjects || isLoadingPending || isLoadingRejected || isFetchingProjects || isFetchingPending || isFetchingRejected;
 
   useEffect(() => {
     if (!user) return;
-    const fetchAuxData = async () => {
-      try {
-        const results = await Promise.allSettled([
-          axios.get(`${API_URL}/api/allocated-units`),
-          axios.get(`${API_URL}/api/allocation-waves`),
-          axios.get(`${API_URL}/api/construction-units`),
-          axios.get(`${API_URL}/api/users`),
-          axios.get(`${API_URL}/api/project-types`), // Fetch project types
-        ]);
-
-        if (results[0].status === 'fulfilled') {
-          // allocatedUnits
-          const units = results[0].value.data || [];
-          setAllocatedUnits(units.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)));
-        } else {
-          console.error("Lỗi tải Allocated Units:", results[0].reason);
-          setAllocatedUnits([]);
-        }
-
-        if (results[1].status === 'fulfilled') {
-          // allocationWavesList
-          const waves = results[1].value.data || [];
-          setAllocationWavesList(waves.map(wave => wave.name || String(wave)));
-        } else {
-          console.error("Lỗi tải Allocation Waves:", results[1].reason);
-          setAllocationWavesList([]);
-        }
-
-        if (results[2].status === 'fulfilled') {
-          // constructionUnitsList
-          const constructionUnits = results[2].value.data || [];
-          setConstructionUnitsList(constructionUnits.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)));
-        } else {
-          console.error("Lỗi tải Construction Units:", results[2].reason);
-          setConstructionUnitsList([]);
-        }
-
-        if (results[3].status === 'fulfilled') {
-          // usersList and approversList
-          const usersData = results[3].value.data || [];
-          // usersList cho filter và form sẽ chứa các object { _id, fullName }
-          setUsersList(usersData.map(u => ({ _id: u._id, fullName: u.fullName || u.username || String(u) })));
-          setApproversList(usersData.filter(u => u.permissions?.approve)); // Dùng cho form (cần cả object user)
-        } else {
-          console.error("Lỗi tải Users:", results[3].reason);
-          setUsersList([]);
-          setApproversList([]);
-        }
-
-        if (results[4].status === 'fulfilled') {
-          // projectTypesList
-          setProjectTypesList(results[4].value.data.map(type => type.name || String(type)));
-        } else {
-          console.error("Lỗi tải Project Types:", results[4].reason);
-          setProjectTypesList([]);
-        }
-      } catch (error) {
-        console.error("Lỗi không xác định khi tải dữ liệu phụ trợ:", error);
-        toast.error('Lỗi không xác định khi tải dữ liệu phụ trợ!', { position: "top-center" });
-        setAllocatedUnits([]);
-        setAllocationWavesList([]);
-        setConstructionUnitsList([]);
-        setUsersList([]);
-        setApproversList([]);
-        setProjectTypesList([]);
-      }
+    // Socket listeners
+    const invalidateProjectQueries = () => {
+      queryClient.invalidateQueries(['projects', type]);
+      queryClient.invalidateQueries(['pendingProjects', type]);
     };
-    fetchAuxData();
-  }, [user]);
 
-  const debouncedFetchProjects = useCallback(
-    debounce((page, sort, filterParams, isPending) => { // filterParams để ghi đè tạm thời nếu cần
-      fetchProjects(page, sort, filterParams, isPending);
-    }, 500),
-    [fetchProjects] // fetchProjects đã có filters trong dependency của nó
-  );
+    const invalidateAllProjectRelatedQueries = () => {
+      invalidateProjectQueries();
+      queryClient.invalidateQueries(['rejectedProjects', type]);
+    };
 
-  // useEffect để fetch dữ liệu khi filters, currentPage, hoặc sortOrder thay đổi
-  useEffect(() => {
     if (user) {
-      // Gọi fetchProjects với filters hiện tại từ state
-      fetchProjects(currentPage, sortOrder, {}, false);
-    }
-  }, [user, type, currentPage, sortOrder, filters, fetchProjects]); // Thêm filters vào dependency
-
-  // useEffect để fetch dữ liệu pending và rejected khi component mount hoặc user thay đổi
-  useEffect(() => {
-    if (user) {
-      fetchProjects(1, sortOrder, {}, true); // Fetch pending projects
-      fetchRejectedProjects();
-
       if (!socket.connected) {
         socket.connect();
       }
-
-      socket.on('project_deleted', ({ projectId, projectType }) => {
-        if (projectType === type) {
-          fetchProjects(currentPage, sortOrder, {}, false);
-          fetchProjects(1, sortOrder, {}, true);
-        }
+      socket.on('project_deleted', ({ projectId, projectType: eventProjectType }) => { // Đổi tên ở đây để rõ ràng
+        if (eventProjectType === type) invalidateAllProjectRelatedQueries();
       });
-
-      socket.on('project_rejected', ({ projectId, projectType }) => {
-        if (projectType === type) {
-          fetchProjects(currentPage, sortOrder, {}, false);
-          fetchProjects(1, sortOrder, {}, true);
-          fetchRejectedProjects();
-        }
+      socket.on('project_rejected', ({ projectId, projectType: eventProjectType }) => {
+        if (eventProjectType === type) invalidateAllProjectRelatedQueries();
       });
-      
-      socket.on('project_rejected_and_removed', ({ projectId, projectType }) => { // Thêm sự kiện này
-        if (projectType === type) {
-          fetchProjects(currentPage, sortOrder, {}, false);
-          fetchProjects(1, sortOrder, {}, true);
-          fetchRejectedProjects();
-        }
+      socket.on('project_rejected_and_removed', ({ projectId, projectType: eventProjectType }) => {
+        if (eventProjectType === type) invalidateAllProjectRelatedQueries();
       });
-
       socket.on('notification_processed', () => {
-        fetchProjects(currentPage, sortOrder, {}, false);
-        fetchProjects(1, sortOrder, {}, true);
+        invalidateProjectQueries();
+      });
+      socket.on('project_updated', ({ projectType: eventProjectType }) => {
+        if (eventProjectType === type) invalidateProjectQueries();
+      });
+      socket.on('project_approved', ({ projectType: eventProjectType }) => {
+        if (eventProjectType === type) invalidateProjectQueries();
+      });
+      socket.on('project_allocated', ({ projectType: eventProjectType }) => {
+        if (eventProjectType === type) invalidateProjectQueries();
+      });
+      socket.on('project_assigned', ({ projectType: eventProjectType }) => {
+        if (eventProjectType === type) invalidateProjectQueries();
       });
 
       return () => {
         socket.off('project_deleted');
         socket.off('project_rejected');
-        socket.off('project_rejected_and_removed'); // Hủy đăng ký
+        socket.off('project_rejected_and_removed');
         socket.off('notification_processed');
+        socket.off('project_updated');
+        socket.off('project_approved');
+        socket.off('project_allocated');
+        socket.off('project_assigned');
       };
-    } else {
-      setFilteredProjects([]);
-      setPendingProjects([]);
-      setRejectedProjects([]);
-      setTotalPages(1);
-      setCurrentPage(1);
-      setTotalProjectsCount(0);
     }
-  }, [user, type, sortOrder, fetchProjects, fetchRejectedProjects, currentPage]); // currentPage có thể không cần ở đây nếu fetchProjects đã xử lý
-
+  }, [user, type, queryClient]);
 
   const handleSortChange = (e) => {
     const newSortOrder = e.target.value;
@@ -397,8 +280,6 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
   const openAddNewModal = () => {
     setEditProject(null);
     setFormData(initialFormData()); // Sử dụng initialFormData
-    setIsLoading(false);
-    setIsSubmitting(false);
     setShowModal(true);
   };
 
@@ -418,7 +299,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     const baseData = {
       name: project.name || '',
       allocatedUnit: project.allocatedUnit || '',
-      supervisor: getUserId(project.supervisor), // Sẽ là _id
+      supervisor: getUserId(project.supervisor), // Đảm bảo lấy _id nếu là object
       taskDescription: project.taskDescription || '',
       notes: project.notes || '',
       approvedBy: getUserId(project.approvedBy),
@@ -433,7 +314,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         location: project.location || '',
         scale: project.scale || '',
         initialValue: project.initialValue ?? '',
-        estimator: getUserId(project.estimator), // Sẽ là _id
+        estimator: getUserId(project.estimator), // Đảm bảo lấy _id nếu là object
         durationDays: project.durationDays ?? '',
         startDate: formatForInput(project.startDate),
         completionDate: formatForInput(project.completionDate),
@@ -458,12 +339,11 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       };
     }
     setFormData(projectDataToSet); // Sử dụng setFormData
-    setIsLoading(false);
-    setIsSubmitting(false);
     setShowModal(true);
   };
-
-  const saveProject = async () => {
+  // --- MUTATIONS ---
+  const saveProjectMutation = useMutation({
+    mutationFn: async (projectPayload) => {
     // Kiểm tra các trường bắt buộc cho cả tạo mới và cập nhật
     if (isCategory) {
       if (!formData.name || !formData.allocatedUnit || !formData.projectType || !formData.scale || !formData.location || !formData.approvedBy) {
@@ -477,10 +357,7 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
         return;
       }
     }
-
-    setIsSubmitting(true);
-    let projectPayload = { ...formData, type }; // Sử dụng formData
-    console.log("Dữ liệu gửi đi để lưu công trình:", projectPayload);
+    projectPayload = { ...projectPayload, type }; // Add type for API
 
     const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue', 'estimatedValue'];
     const numericFieldsMinor = ['paymentValue'];
@@ -505,123 +382,109 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     fieldsToRemove.forEach(field => delete projectPayload[field]);
 
     if (!isCategory && !editProject) {
+      // Ensure supervisor and estimator are null if empty string
+      if (projectPayload.supervisor === '') {
+          projectPayload.supervisor = null;
+      }
+      if (isCategory && projectPayload.estimator === '') {
+          projectPayload.estimator = null;
+      }
+
+
       // delete projectPayload.serial; // Backend sẽ tự tạo serial nếu không có
     }
 
-    try {
-      let response;
-      let successMessage = '';
-      let fetchPage = currentPage;
-
       if (editProject) {
-        response = await axios.patch(`${API_URL}/api/projects/${editProject._id}?type=${type}`, projectPayload);
-        successMessage = response.data.message || 'Đã cập nhật công trình thành công!';
-        if (response.data?.project?.pendingEdit) { // Sửa ở đây để kiểm tra project.pendingEdit
-          successMessage = 'Đã gửi yêu cầu sửa công trình!';
-        }
+        return updateProject({ projectId: editProject._id, type, data: projectPayload });
       } else {
-        response = await axios.post(`${API_URL}/api/projects`, projectPayload);
-        successMessage = response.data.message || 'Đã đăng ký công trình thành công!';
-        fetchPage = 1;
+        return createProject(projectPayload);
       }
-      // Thông báo chỉ nên hiển thị "Chờ duyệt" nếu đó là trường hợp thực tế
-      toast.success(successMessage + (response.data?.project?.pendingEdit || (!editProject && response.data?.project?.status === 'Chờ duyệt') ? ' Công trình đang ở trạng thái "Chờ duyệt".' : ''), { position: "top-center" });
-
-
+    },
+    onMutate: (projectPayload) => {
+      // Ensure supervisor and estimator are null if empty string BEFORE sending
+      if (projectPayload.supervisor === '') {
+          projectPayload.supervisor = null;
+      }
+      if (isCategory && projectPayload.estimator === '') {
+          projectPayload.estimator = null;
+      }
+    },
+    onSuccess: (data) => {
+      let successMessage = data.message || (editProject ? 'Đã cập nhật công trình!' : 'Đã đăng ký công trình!');
+      if (data?.project?.pendingEdit || (!editProject && data?.project?.status === 'Chờ duyệt')) {
+        successMessage += ' Công trình đang ở trạng thái "Chờ duyệt".';
+      }
+      toast.success(successMessage, { position: "top-center" });
       setFormData(initialFormData()); // Reset formData
-
-      if (fetchPage !== currentPage) {
-        setCurrentPage(fetchPage); // This will trigger useEffect to refetch
-      } else {
-        // If on the same page, manually refetch
-        fetchProjects(fetchPage, sortOrder, {}, false);
-        fetchProjects(1, sortOrder, {}, true); // Refetch pending
-      }
-
+      queryClient.invalidateQueries(['projects', type]);
+      queryClient.invalidateQueries(['pendingProjects', type]);
+      if (!editProject) setCurrentPage(1); // Go to first page on new creation
       setShowModal(false);
-    } catch (err) {
+    },
+    onError: (err) => {
       const errorMessage = err.response?.data?.message || 'Lỗi khi lưu công trình!';
-      console.error('Lỗi khi lưu công trình:', errorMessage, err.response?.data);
       toast.error(errorMessage, { position: "top-center" });
-    } finally {
-      setIsSubmitting(false);
-    }
+    },
+  });
+  const saveProject = () => saveProjectMutation.mutate(formData);
+
+  const useCreateActionMutation = (mutationFn, { successMsg, confirmMsg, invalidateRejected = false } = {}) => {
+    return useMutation({
+      mutationFn,
+      onSuccess: (data) => {
+        toast.success(data.message || successMsg || "Thao tác thành công!", { position: "top-center" });
+        queryClient.invalidateQueries(['projects', type]);
+        queryClient.invalidateQueries(['pendingProjects', type]);
+        if (invalidateRejected) {
+          queryClient.invalidateQueries(['rejectedProjects', type]);
+        }
+      },
+      onError: (err) => {
+        toast.error(err.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
+      },
+    });
   };
 
-  const restoreRejectedProject = async (rejectedId, projectDetails, projectModel, originalProjectId, actionType) => {
+  const restoreRejectedProjectMutation = useCreateActionMutation(
+    restoreRejectedProjectAPI,
+    { successMsg: 'Công trình đã được khôi phục và duyệt!', invalidateRejected: true }
+  );
+  const restoreRejectedProject = (rejectedId, projectDetails, projectModel, originalProjectId, actionType) => {
     if (!window.confirm('Bạn có chắc chắn muốn khôi phục công trình này? Công trình sẽ được duyệt và chuyển vào danh sách chính.')) {
       return;
     }
-    setIsSubmittingAction(true);
-    try {
-      const response = await axios.post(`${API_URL}/api/rejected-projects/${rejectedId}/restore`, {
-        projectDetails,
-        projectModel,
-        originalProjectId,
-        actionType
-      });
-      toast.success('Công trình đã được khôi phục và duyệt thành công!');
-      fetchRejectedProjects(); // Tải lại danh sách bị từ chối
-      fetchProjects(1, sortOrder, {}, false);
-      if (user?.permissions?.approve) {
-        fetchProjects(1, sortOrder, {}, true);
-      }
-    } catch (error) {
-      console.error("Error restoring project:", error);
-      toast.error(error.response?.data?.message || 'Lỗi khôi phục công trình.');
-    } finally {
-      setIsSubmittingAction(false);
-    }
+    restoreRejectedProjectMutation.mutate({ rejectedId, projectDetails, projectModel, originalProjectId, actionType });
   };
 
-  const permanentlyDeleteRejectedProject = async (rejectedId) => {
+  const permanentlyDeleteRejectedProjectMutation = useCreateActionMutation(
+    permanentlyDeleteRejectedProjectAPI,
+    { successMsg: 'Công trình bị từ chối đã được xóa vĩnh viễn.', invalidateRejected: true }
+  );
+  const permanentlyDeleteRejectedProject = (rejectedId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn công trình bị từ chối này? Hành động này không thể hoàn tác.')) {
-      setIsSubmittingAction(true);
-      try {
-        await axios.delete(`${API_URL}/api/rejected-projects/${rejectedId}`);
-        toast.success('Công trình bị từ chối đã được xóa vĩnh viễn.');
-        setRejectedProjects(prev => prev.filter(p => p._id !== rejectedId));
-      } catch (error) {
-        console.error("Error permanently deleting rejected project:", error);
-        toast.error(error.response?.data?.message || 'Lỗi xóa vĩnh viễn công trình bị từ chối.');
-      } finally {
-        setIsSubmittingAction(false);
-      }
+      permanentlyDeleteRejectedProjectMutation.mutate(rejectedId);
     }
   };
 
-  const handleActionWithConfirm = async (actionPromise, successMessage, confirmMessage = "Bạn có chắc chắn?") => {
+  const handleActionWithConfirm = (mutation, variables, confirmMessage = "Bạn có chắc chắn?") => {
     if (window.confirm(confirmMessage)) {
-      setIsSubmittingAction(true); // Sử dụng isSubmittingAction
-      try {
-        const response = await actionPromise();
-        toast.success(successMessage || response?.data?.message || "Thao tác thành công!", { position: "top-center" });
-        // Sau khi hành động thành công, cần refetch dữ liệu cho cả 2 tab chính và pending
-        fetchProjects(currentPage, sortOrder, {}, false); // Tải lại trang hiện tại của tab chính
-        fetchProjects(1, sortOrder, {}, true); // Tải lại tab pending (thường bắt đầu từ trang 1)
-      } catch (err) {
-        console.error("Lỗi hành động:", err.response?.data?.message || err.message);
-        toast.error(err.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
-      } finally {
-        setIsSubmittingAction(false); // Sử dụng isSubmittingAction
-      }
+      mutation.mutate(variables);
     }
   };
 
+  const deleteProjectMutation = useCreateActionMutation(deleteProjectAPI); // Sử dụng hàm API đã đổi tên
   const deleteProject = (id) =>
-    handleActionWithConfirm(
-      () => axios.delete(`${API_URL}/api/projects/${id}?type=${type}`),
-      null, // Success message will come from backend or default in handleActionWithConfirm
+    handleActionWithConfirm(deleteProjectMutation, { projectId: id, type },
       "Xác nhận Xóa hoặc gửi Yêu cầu xóa công trình này?"
     );
 
+  const approveProjectMutation = useCreateActionMutation(approveProjectAPI);
   const approveProject = (id) =>
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/approve?type=${type}`),
-      'Đã duyệt công trình!',
+    handleActionWithConfirm(approveProjectMutation, { projectId: id, type },
       "Xác nhận DUYỆT công trình này?"
     );
 
+  const rejectProjectMutation = useCreateActionMutation(rejectProjectAPI);
   const rejectProject = (id) => {
     const reason = prompt("Vui lòng nhập lý do từ chối:");
     if (reason === null) return; // User cancelled
@@ -629,14 +492,12 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       toast.error("Lý do từ chối không được để trống.");
       return;
     }
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/reject?type=${type}`, { reason }),
-      'Đã từ chối công trình!',
+    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason },
       "Xác nhận TỪ CHỐI công trình này?"
     );
   }
 
-
+  const allocateProjectMutation = useCreateActionMutation(allocateProjectAPI);
   const allocateProject = (id) => {
     const constructionUnit = prompt("Nhập đơn vị thi công:");
     if (constructionUnit === null) return;
@@ -650,14 +511,12 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
       toast.error("Đợt phân bổ không được để trống.");
       return;
     }
-
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/allocate?type=${type}`, { constructionUnit: constructionUnit.trim(), allocationWave: allocationWave.trim() }),
-      'Đã phân bổ công trình!',
+    handleActionWithConfirm(allocateProjectMutation, { projectId: id, type, constructionUnit: constructionUnit.trim(), allocationWave: allocationWave.trim() },
       `Phân bổ cho ĐVTC "${constructionUnit.trim()}" (Đợt: "${allocationWave.trim()}")?`
     );
   };
 
+  const assignProjectMutation = useCreateActionMutation(assignProjectAPI);
   const assignProject = (id) => {
     const supervisor = prompt("Nhập ID người giám sát:");
     if (supervisor === null) return;
@@ -675,64 +534,51 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     if (isCategory && estimator && estimator.trim() !== "") {
       payload.estimator = estimator.trim();
     }
-
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/assign?type=${type}`, payload),
-      'Đã giao việc cho công trình!',
+    handleActionWithConfirm(assignProjectMutation, { projectId: id, type, ...payload },
       `Giao việc cho Giám sát ID: "${supervisor.trim()}"` + (isCategory && estimator && estimator.trim() ? ` và Dự toán ID: "${estimator.trim()}"` : "") + "?"
     );
   };
 
-
+  // Approve/Reject Edit/Delete actions use the same approveProjectAPI and rejectProjectAPI
+  // The backend /approve and /reject routes handle pendingEdit and pendingDelete logic.
   const approveEditProject = (id) =>
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/approve?type=${type}`), // Sửa URL ở đây
-      'Đã duyệt yêu cầu sửa!',
+    handleActionWithConfirm(approveProjectMutation, { projectId: id, type },
       "Xác nhận DUYỆT yêu cầu sửa công trình này?"
     );
 
   const rejectEditProject = (id) => {
     const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu sửa:");
     if (reason === null) return;
-    if (!reason || reason.trim() === "") {
-      toast.error("Lý do từ chối không được để trống.");
-      return;
-    }
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/reject?type=${type}`, { reason }), // Backend dùng chung route /reject
-      'Đã từ chối yêu cầu sửa.',
+    if (!reason || reason.trim() === "") { toast.error("Lý do từ chối không được để trống."); return; }
+    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason },
       "Xác nhận TỪ CHỐI yêu cầu sửa công trình này?"
     );
   }
 
-
   const approveDeleteProject = (id) =>
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/approve?type=${type}`), // Backend dùng chung route /approve
-      'Đã duyệt yêu cầu xóa.',
+    handleActionWithConfirm(approveProjectMutation, { projectId: id, type },
       "Xác nhận DUYỆT yêu cầu xóa công trình này?"
     );
 
   const rejectDeleteProject = (id) => {
     const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu xóa:");
     if (reason === null) return;
-    if (!reason || reason.trim() === "") {
-      toast.error("Lý do từ chối không được để trống.");
-      return;
-    }
-    handleActionWithConfirm(
-      () => axios.patch(`${API_URL}/api/projects/${id}/reject?type=${type}`, { reason }), // Backend dùng chung route /reject
-      'Đã từ chối yêu cầu xóa.',
+    if (!reason || reason.trim() === "") { toast.error("Lý do từ chối không được để trống."); return; }
+    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason },
       "Xác nhận TỪ CHỐI yêu cầu xóa công trình này?"
     );
   }
 
+  const isSubmitting = saveProjectMutation.isLoading;
+  const isSubmittingAction =
+    deleteProjectMutation.isLoading ||
+    approveProjectMutation.isLoading ||
+    rejectProjectMutation.isLoading ||
+    allocateProjectMutation.isLoading ||
+    assignProjectMutation.isLoading ||
+    restoreRejectedProjectMutation.isLoading ||
+    permanentlyDeleteRejectedProjectMutation.isLoading;
 
-// Hàm mới: Lưu và refetch lại pendingProjects
-// const editProjectAndRefetchPending = async () => { // This function seems unused, consider removing or implementing
-//     await saveProject();
-//     await fetchProjects(1, sortOrder, {}, true);
-// };
 return {
     filteredProjects,
     pendingProjects,
@@ -761,17 +607,14 @@ return {
     projectTypesList,
     showModal,
     setShowModal,
-    isLoading,
-    isSubmittingAction, // Export isSubmittingAction
+    isLoading, // This is the combined loading state
+    isSubmittingAction,
     isSubmitting,
     activeTab,
     setActiveTab,
     initialFormData,
-    filters, // Export state filters mới
-    setFilters, // Export setter cho state filters mới
-    fetchProjects,
-    fetchRejectedProjects,
-    debouncedFetchProjects,
+    filters,
+    setFilters,
     handleSortChange,
     handleResetFilters,
     openAddNewModal,
