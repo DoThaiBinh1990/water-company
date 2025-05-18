@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const { CategoryProject, MinorRepairProject, User, Notification, RejectedProject, SerialCounter } = require('../models');
 const { populateProjectFields, updateSerialNumbers } = require('../utils');
-const logger = require('../config/logger'); // Đã sửa đường dẫn này
+const logger = require('../config/logger');
 
 const getProjectsList = async (queryParams) => {
   const { user, type = 'category', page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress, pending, supervisor, estimator, reportDate } = queryParams;
@@ -77,13 +77,14 @@ const getProjectsList = async (queryParams) => {
     .populate('supervisor', 'username fullName')
     .populate(type === 'category' ? { path: 'estimator', select: 'username fullName' } : '')
     .populate({ path: 'pendingEdit.requestedBy', select: 'username fullName' })
+    .populate({ path: 'history.user', select: 'username fullName' }) // Populate user in history
     .sort({ createdAt: -1 }) // Sắp xếp theo ngày tạo mới nhất
     .skip((parseInt(page) - 1) * parseInt(limit))
     .limit(parseInt(limit));
 
   // Populate fields for each project
   const projects = await Promise.all(
-    projectsFromDB.map(p => populateProjectFields(p))
+    projectsFromDB.map(p => populateProjectFields(p)) // populateProjectFields should handle history.user as well
   );
 
   return {
@@ -111,7 +112,7 @@ const createNewProject = async (projectData, user, projectType, io) => {
   
   const dataToSave = { 
     name, allocatedUnit, location, scale, 
-    ...restData, // Bao gồm các trường khác như initialValue, notes, etc.
+    ...restData, 
     enteredBy: user.username, 
     createdBy: user.id, 
     status: 'Chờ duyệt' 
@@ -121,21 +122,15 @@ const createNewProject = async (projectData, user, projectType, io) => {
     dataToSave.reportDate = reportDate;
   }
 
-
-  // Kiểm tra quyền tạo công trình dựa trên đơn vị của user
   if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
     if (dataToSave.allocatedUnit !== user.unit) {
-      // Nếu user chi nhánh cố tạo cho đơn vị khác unit của họ VÀ họ không có quyền viewOtherBranchProjects (ngầm định là không có quyền tạo cho đơn vị khác)
-      // Hoặc có thể thêm một quyền riêng "createForOtherBranch"
-      if (!user.permissions.viewOtherBranchProjects) { // Tạm dùng quyền này để kiểm soát
+      if (!user.permissions.viewOtherBranchProjects) { 
         throw { statusCode: 403, message: `Bạn chỉ có thể tạo công trình cho chi nhánh ${user.unit}.` };
       }
     }
   } else if (!user.role.includes('admin') && !user.role.includes('office') && !user.role.includes('director')) {
-    // Các vai trò không phải admin/công ty/giám đốc mà không có unit thì không được tạo
     if (!user.unit) throw { statusCode: 403, message: 'Tài khoản của bạn chưa được gán đơn vị, không thể tạo công trình.' };
   }
-
 
   const approver = await User.findById(approvedBy);
   if (!approver || !approver.permissions.approve) {
@@ -143,14 +138,13 @@ const createNewProject = async (projectData, user, projectType, io) => {
   }
   dataToSave.approvedBy = approvedBy;
 
-  // Xử lý supervisor và estimator (nếu có)
   if (supervisorInput) {
     if (mongoose.Types.ObjectId.isValid(supervisorInput)) {
       const supervisorUser = await User.findById(supervisorInput);
       if (supervisorUser) dataToSave.supervisor = supervisorUser._id;
-      else dataToSave.supervisor = null; // Hoặc báo lỗi nếu ID không tìm thấy
+      else dataToSave.supervisor = null; 
     } else {
-      dataToSave.supervisor = null; // Nếu không phải ID hợp lệ
+      dataToSave.supervisor = null; 
     }
   } else {
     dataToSave.supervisor = null;
@@ -168,8 +162,13 @@ const createNewProject = async (projectData, user, projectType, io) => {
     dataToSave.estimator = null;
   }
 
-
   delete dataToSave.type;
+
+  dataToSave.history = [{
+    action: 'created',
+    user: user.id,
+    timestamp: new Date()
+  }];
 
   const project = new Model(dataToSave);
   let newProject = await project.save();
@@ -183,7 +182,7 @@ const createNewProject = async (projectData, user, projectType, io) => {
     projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
     status: 'pending',
     userId: user.id,
-    recipientId: newProject.approvedBy // Gửi cho người duyệt đã chọn
+    recipientId: newProject.approvedBy 
   });
   await notification.save();
   if (io) {
@@ -203,28 +202,24 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     throw { statusCode: 404, message: 'Không tìm thấy công trình' };
   }
 
-  // Kiểm tra quyền sửa dựa trên đơn vị của user và công trình
   if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
     if (project.allocatedUnit !== user.unit) {
       if (!user.permissions.viewOtherBranchProjects) { 
         throw { statusCode: 403, message: `Bạn chỉ có thể sửa công trình thuộc chi nhánh ${user.unit}.` };
       }
     }
-    // Staff-branch và manager-branch có thể sửa công trình của chi nhánh mình nếu có quyền user.permissions.edit
-    // Không cần kiểm tra isProjectCreator nữa nếu họ có quyền edit chung cho chi nhánh.
   }
 
   const isUserAdmin = user.role === 'admin';
   const isUserOfficeManagement = ['director', 'deputy_director', 'manager-office', 'deputy_manager-office'].includes(user.role);
   
   const currentUpdateData = { ...updateData };
-  const forbiddenFields = ['createdBy', 'enteredBy', 'categorySerialNumber', 'minorRepairSerialNumber', 'status', 'pendingEdit', 'pendingDelete'];
+  const forbiddenFields = ['createdBy', 'enteredBy', 'categorySerialNumber', 'minorRepairSerialNumber', 'status', 'pendingEdit', 'pendingDelete', 'history'];
   if (!(isUserAdmin || isUserOfficeManagement) || project.status === 'Đã duyệt') {
       forbiddenFields.push('approvedBy');
   }
   forbiddenFields.forEach(field => delete currentUpdateData[field]);
 
-  // Xử lý supervisor và estimator nếu có trong updateData
   if (currentUpdateData.hasOwnProperty('supervisor')) {
     if (currentUpdateData.supervisor === '' || !mongoose.Types.ObjectId.isValid(currentUpdateData.supervisor)) {
       currentUpdateData.supervisor = null;
@@ -251,38 +246,40 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     }
   }
 
-  // 1. Admin và Quản lý công ty (Phòng/Ban, TGĐ, PTGĐ) có thể sửa trực tiếp
   if (isUserAdmin || isUserOfficeManagement) {
     Object.assign(project, currentUpdateData);
+    let action = 'edited';
     if (project.status === 'Chờ duyệt') {
         project.status = 'Đã duyệt';
         project.approvedBy = currentUpdateData.approvedBy || user.id; 
+        action = 'approved'; // Or 'new_approved_with_edit'
     }
     project.pendingEdit = null; 
+    project.history.push({ action, user: user.id, timestamp: new Date(), details: { changes: project.pendingEdit?.changes || 'Admin/Office edit' } });
     await project.save({ validateModifiedOnly: true });
     const populatedProject = await populateProjectFields(project);
     if (io) io.emit('project_updated', { ...populatedProject.toObject(), projectType });
     return { message: 'Công trình đã được cập nhật.', project: populatedProject.toObject(), updated: true };
   }
 
-  // 2. Các vai trò khác có quyền 'edit'
   if (user.permissions.edit) {
     let canEditDirectlyUnapproved = false;
     let canRequestEditApproved = false;
 
-    if (user.role === 'staff-office') { // Nhân viên phòng công ty
+    if (user.role === 'staff-office') { 
       canEditDirectlyUnapproved = true;
       canRequestEditApproved = true;
-    } else if (user.role.includes('-branch')) { // manager-branch và staff-branch
-      if (user.unit && project.allocatedUnit === user.unit) { // Phải thuộc chi nhánh của họ
+    } else if (user.role.includes('-branch')) { 
+      if (user.unit && project.allocatedUnit === user.unit) { 
         canEditDirectlyUnapproved = true;
         canRequestEditApproved = true;
       }
     }
 
-    if (project.status !== 'Đã duyệt') { // Công trình CHƯA DUYỆT
+    if (project.status !== 'Đã duyệt') { 
       if (canEditDirectlyUnapproved) {
         Object.assign(project, currentUpdateData);
+        project.history.push({ action: 'edited', user: user.id, timestamp: new Date(), details: { note: 'User edit while pending approval' } });
         await project.save({ validateModifiedOnly: true });
         const populatedProject = await populateProjectFields(project);
         const approverForNotification = await User.findById(project.approvedBy);
@@ -303,13 +300,13 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
       } else {
         throw { statusCode: 403, message: 'Không có quyền sửa công trình này khi chưa duyệt.' };
       }
-    } else { // Công trình ĐÃ DUYỆT -> tạo pendingEdit
+    } else { 
       if (canRequestEditApproved) {
         const dataToPending = { ...currentUpdateData };
         const changesArray = [];
         for (const field in dataToPending) {
           if (Object.prototype.hasOwnProperty.call(dataToPending, field)) {
-            const nonEditableFields = ['_id', '__v', 'createdAt', 'updatedAt'];
+            const nonEditableFields = ['_id', '__v', 'createdAt', 'updatedAt', 'history'];
             if (!nonEditableFields.includes(field) && String(project[field]) !== String(dataToPending[field])) {
               changesArray.push({ field, oldValue: project[field], newValue: dataToPending[field] });
             }
@@ -322,6 +319,7 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
         }
 
         project.pendingEdit = { data: dataToPending, changes: changesArray, requestedBy: user.id, requestedAt: new Date() };
+        project.history.push({ action: 'edit_requested', user: user.id, timestamp: new Date(), details: { changes: changesArray } });
         await project.save({ validateModifiedOnly: true });
         const populatedProject = await populateProjectFields(project);
 
@@ -353,7 +351,6 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
   const originalProjectName = project.name;
   const originalCreatorId = project.createdBy;
 
-  // Kiểm tra quyền xóa dựa trên đơn vị của user và công trình
   if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
     if (project.allocatedUnit !== user.unit) {
       if (!user.permissions.viewOtherBranchProjects) { 
@@ -362,11 +359,9 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
     }
   }
 
-  // Admin có thể xóa trực tiếp
   if (user.role === 'admin') {
     await Model.deleteOne({ _id: projectId });
     await updateSerialNumbers(projectType);
-    // ... (xử lý notification)
     const pendingDeleteNotification = await Notification.findOne({ projectId: projectId, type: 'delete', status: 'pending' });
     if (pendingDeleteNotification) {
         pendingDeleteNotification.status = 'processed';
@@ -375,7 +370,7 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
     }
     const deletedConfirmationNotification = new Notification({
         message: `Công trình "${originalProjectName}" đã được xóa bởi ${user.username}.`,
-        type: 'delete_approved',
+        type: 'delete_approved', // or 'deleted_by_admin'
         projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
         status: 'processed',
         userId: originalCreatorId,
@@ -389,41 +384,49 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
     return { message: `Công trình "${originalProjectName}" đã được xóa bởi admin.` };
   }
 
-  // User có quyền delete
   if (user.permissions.delete) {
     let canPerformAction = false;
-    if (user.role.includes('office') || user.role.includes('director')) { // Quản lý công ty, Nhân viên phòng -> Xóa/YC xóa tất cả
+    if (user.role.includes('office') || user.role.includes('director')) { 
         canPerformAction = true;
-    } else if (user.role.includes('-branch')) { // manager-branch và staff-branch
-        if (user.unit && project.allocatedUnit === user.unit) { // Phải thuộc chi nhánh của họ
+    } else if (user.role.includes('-branch')) { 
+        if (user.unit && project.allocatedUnit === user.unit) { 
             canPerformAction = true;
         }
     }
 
     if (canPerformAction) {
-        if (project.status !== 'Đã duyệt' && !project.pendingDelete) { // Xóa trực tiếp công trình CHƯA DUYỆT
+        if (project.status !== 'Đã duyệt' && !project.pendingDelete) { 
             await Model.deleteOne({ _id: projectId });
             await updateSerialNumbers(projectType);
-            // ... (xử lý notification)
-            const deletedConfirmationNotification = new Notification({ /* ... */ }); // Tương tự như admin
-            await deletedConfirmationNotification.save();
-            if (io) { /* ... */ }
+            const deletedNotification = new Notification({ 
+                message: `Công trình "${originalProjectName}" (chưa duyệt) đã được xóa bởi ${user.username}.`,
+                type: 'deleted_by_user', // A new type for direct deletion by permitted user
+                projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
+                status: 'processed',
+                userId: originalCreatorId,
+                originalProjectId: projectId,
+            });
+            await deletedNotification.save();
+            if (io) {
+                io.emit('notification', deletedNotification.toObject());
+                io.emit('project_deleted', { projectId: projectId, projectType: projectType, projectName: originalProjectName });
+            }
             return { message: `Công trình "${originalProjectName}" (chưa duyệt) đã được xóa.` };
-        } else if (!project.pendingDelete) { // Yêu cầu xóa công trình ĐÃ DUYỆT
+        } else if (!project.pendingDelete) { 
             project.pendingDelete = true;
+            project.history.push({ action: 'delete_requested', user: user.id, timestamp: new Date() });
             await project.save();
             const populatedProjectForNotification = { _id: project._id, name: project.name, type: projectType };
             const notification = new Notification({
                 message: `Yêu cầu xóa công trình "${project.name}" bởi ${user.username}`,
                 type: 'delete', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
                 status: 'pending', userId: user.id,
-                recipientId: project.approvedBy // Gửi cho người duyệt hiện tại
+                recipientId: project.approvedBy 
             });
             await notification.save();
             if (io) io.emit('notification', { ...notification.toObject(), projectId: populatedProjectForNotification });
             return { message: `Yêu cầu xóa công trình "${originalProjectName}" đã được gửi!`, project: (await populateProjectFields(project)).toObject(), pendingDelete: true };
         }
-        // Nếu đã có pendingDelete, và user không phải approver, thì không làm gì thêm (controller sẽ chặn nếu cần)
     }
   }
   
@@ -475,15 +478,13 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
         }
       });
       
-      // Kiểm tra quyền tạo công trình dựa trên đơn vị của user cho từng dòng Excel
       if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
         if (dataToValidate.allocatedUnit !== user.unit) {
-          if (!user.permissions.viewOtherBranchProjects) { // Tạm dùng quyền này
+          if (!user.permissions.viewOtherBranchProjects) { 
             throw new Error(`Bạn chỉ có thể nhập công trình cho chi nhánh ${user.unit}. Công trình "${originalProjectNameForDisplay}" thuộc đơn vị ${dataToValidate.allocatedUnit}.`);
           }
         }
       }
-
 
       const userRefFields = ['approvedBy', 'supervisor', 'estimator'];
       for (const field of userRefFields) {
@@ -530,7 +531,7 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
 
       const finalPayload = {};
       allModelFields.forEach(schemaField => {
-          if (dataToValidate.hasOwnProperty(schemaField) && schemaField !== '_id' && schemaField !== '__v') {
+          if (dataToValidate.hasOwnProperty(schemaField) && schemaField !== '_id' && schemaField !== '__v' && schemaField !== 'history') { // Exclude history
               finalPayload[schemaField] = dataToValidate[schemaField];
           }
       });
@@ -542,7 +543,7 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
 
     } catch (error) {
       logger.error(`Lỗi validate công trình "${originalProjectNameForDisplay}" từ Excel:`, { message: error.message, data: projectDataFromExcel, path: 'importProjectsBatch' });
-      validationResults.push({ success: false, projectName: originalProjectNameForDisplay, error: error.message, rowIndex: i, field: error.field }); // Thêm field nếu có
+      validationResults.push({ success: false, projectName: originalProjectNameForDisplay, error: error.message, rowIndex: i, field: error.field }); 
       hasAnyError = true;
     }
   }
@@ -564,6 +565,11 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
       } else {
         projectPayload.status = 'Chờ duyệt';
       }
+      projectPayload.history = [{ // Add initial history entry for creation
+        action: 'created',
+        user: user.id,
+        timestamp: new Date()
+      }];
       const project = new Model(projectPayload);
       let newProject = await project.save();
       newProject = await populateProjectFields(newProject);

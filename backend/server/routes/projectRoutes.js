@@ -178,6 +178,11 @@ router.patch('/projects/:id/approve', authenticate, async (req, res, next) => { 
       project.pendingEdit = null;
       project.status = 'Đã duyệt'; // Ensure status is updated if it was pending due to edit
       project.approvedBy = req.user.id; // Set the approver
+      project.history.push({
+        action: 'edit_approved',
+        user: req.user.id,
+        timestamp: new Date()
+      });
       await project.save({ validateModifiedOnly: true });
       const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
@@ -199,6 +204,11 @@ router.patch('/projects/:id/approve', authenticate, async (req, res, next) => { 
     } else if (project.status === 'Chờ duyệt') {
       project.status = 'Đã duyệt';
       project.approvedBy = req.user.id; // Set the approver
+      project.history.push({
+        action: 'approved',
+        user: req.user.id,
+        timestamp: new Date()
+      });
       await project.save({ validateModifiedOnly: true });
       const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
@@ -226,6 +236,12 @@ router.patch('/projects/:id/approve', authenticate, async (req, res, next) => { 
 
       await Model.deleteOne({ _id: req.params.id });
       await updateSerialNumbers(type);
+      // Ghi log cho hành động xóa đã được duyệt
+      // Không ghi vào history của project vì nó đã bị xóa
+      // Notification sẽ là nơi ghi nhận chính
+      // logger.info(`Project ${projectId} (type: ${type}) delete approved and deleted by ${req.user.username}`);
+
+
 
       const deleteNotification = await Notification.findOne({ projectId: projectId, type: 'delete', status: 'pending', projectModel: type === 'category' ? 'CategoryProject' : 'MinorRepairProject' });
       if (deleteNotification) {
@@ -285,6 +301,11 @@ router.patch('/projects/:id/reject', authenticate, async (req, res, next) => { /
       const requestedBy = project.pendingEdit.requestedBy;
       project.pendingEdit = null; // Clear pending edit
       // Project status remains 'Đã duyệt' or its previous approved state
+      project.history.push({
+        action: 'edit_rejected',
+        user: req.user.id,
+        timestamp: new Date()
+      });
       await project.save({ validateModifiedOnly: true });
       const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
@@ -313,6 +334,12 @@ router.patch('/projects/:id/reject', authenticate, async (req, res, next) => { /
         originalProjectId: originalProjectId,
         projectType: type
       };
+      rejectedData.history = project.history || []; // Chuyển lịch sử cũ
+      rejectedData.history.push({
+        action: 'rejected', // Hoặc 'new_rejected'
+        user: req.user.id,
+        timestamp: new Date()
+      });
       delete rejectedData._id; // Remove _id to let MongoDB generate a new one for RejectedProject
       delete rejectedData.__v;
 
@@ -338,6 +365,11 @@ router.patch('/projects/:id/reject', authenticate, async (req, res, next) => { /
       return res.json({ message: 'Công trình đã bị từ chối và chuyển vào danh sách từ chối.', rejectedProject });
     } else if (project.pendingDelete) {
       project.pendingDelete = false; // Clear pending delete
+      project.history.push({
+        action: 'delete_rejected',
+        user: req.user.id,
+        timestamp: new Date()
+      });
       await project.save({ validateModifiedOnly: true });
       const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
@@ -387,6 +419,11 @@ router.patch('/projects/:id/allocate', authenticate, async (req, res, next) => {
     project.constructionUnit = constructionUnit;
     project.allocationWave = allocationWave;
     project.status = 'Đã phân bổ'; // Update status
+    project.history.push({
+      action: 'allocated',
+      user: req.user.id,
+      timestamp: new Date()
+    });
     await project.save({ validateModifiedOnly: true });
     const populatedProject = await populateProjectFields(project); // Sử dụng hàm populateProjectFields đã import
 
@@ -442,6 +479,11 @@ router.patch('/projects/:id/assign', authenticate, async (req, res, next) => { /
     if (type === 'category') {
       project.estimator = estimator;
     }
+    project.history.push({
+      action: 'assigned',
+      user: req.user.id,
+      timestamp: new Date()
+    });
     // Optionally update status if needed, e.g., to 'Đang thực hiện'
     // project.status = 'Đang thực hiện'; 
     await project.save({ validateModifiedOnly: true });

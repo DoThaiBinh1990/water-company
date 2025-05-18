@@ -158,6 +158,12 @@ const categoryProjectSchema = new mongoose.Schema({
   projectType: { type: String, default: '', trim: true },
   estimatedValue: { type: Number, default: 0 },
   leadershipApproval: { type: String, default: '', trim: true },
+  history: [{ // Thêm 'edited' vào enum
+    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned'], required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    timestamp: { type: Date, default: Date.now },
+    details: { type: mongoose.Schema.Types.Mixed } // Có thể lưu chi tiết thay đổi hoặc lý do
+  }],
 }, { timestamps: true });
 
 categoryProjectSchema.pre('save', async function (next) {
@@ -201,6 +207,12 @@ const minorRepairProjectSchema = new mongoose.Schema({
   notes: { type: String, default: '', trim: true },
   pendingEdit: { type: Object, default: null },
   pendingDelete: { type: Boolean, default: false },
+  history: [{ // Thêm 'edited' vào enum
+    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned'], required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    timestamp: { type: Date, default: Date.now },
+    details: { type: mongoose.Schema.Types.Mixed }
+  }],
 }, { timestamps: true });
 
 minorRepairProjectSchema.pre('save', async function (next) {

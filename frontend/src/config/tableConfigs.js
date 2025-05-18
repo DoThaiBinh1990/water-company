@@ -86,17 +86,56 @@ const commonFields = {
   },
   approvedBy: {
     header: 'Người duyệt',
-    field: 'approvedBy', // Backend nên trả về object user đã populate (với fullName)
+    field: 'approvedBy',
     width: '160px',
-    minWidth: '120px',
+    minWidth: '130px',
     align: 'center',
+    tooltipRender: (project) => {
+      if (!project.history || project.history.length === 0) {
+        const currentApproverData = project.approvedBy;
+        const currentApproverName = (currentApproverData && typeof currentApproverData === 'object' && (currentApproverData.fullName || currentApproverData.username))
+                                    ? (currentApproverData.fullName || currentApproverData.username)
+                                    : (typeof currentApproverData === 'string' ? currentApproverData : 'N/A');
+        return `Người duyệt: ${currentApproverName}`;
+      }
+      const approvalActions = project.history.filter(h => ['approved', 'edit_approved', 'rejected', 'edit_rejected', 'delete_approved', 'delete_rejected'].includes(h.action));
+      if (approvalActions.length === 0) {
+        const currentApprover = project.approvedBy ? (project.approvedBy.fullName || project.approvedBy.username) : 'Chưa duyệt';
+        return `Người duyệt hiện tại: ${currentApprover}`;
+      }
+
+      const tooltipLines = approvalActions.map(h => {
+        const userName = (h.user && typeof h.user === 'object') ? (h.user.fullName || h.user.username) : 'N/A';
+        let actionText = h.action;
+        if (h.action === 'approved') actionText = 'Duyệt mới';
+        else if (h.action === 'edit_approved') actionText = 'Duyệt sửa';
+        else if (h.action === 'rejected') actionText = 'Từ chối mới';
+        else if (h.action === 'edit_rejected') actionText = 'Từ chối sửa';
+        else if (h.action === 'delete_approved') actionText = 'Duyệt xóa';
+        else if (h.action === 'delete_rejected') actionText = 'Từ chối xóa';
+        return `${actionText} bởi ${userName} (${formatDate(h.timestamp)})`;
+      });
+      
+      const currentApprover = project.approvedBy ? (project.approvedBy.fullName || project.approvedBy.username) : 'Chưa có người duyệt';
+      tooltipLines.unshift(`Người duyệt hiện tại: ${currentApprover}`);
+      return tooltipLines.join('\n');
+    },
     render: (project) => {
+      // Hiển thị người duyệt gần nhất từ history nếu có hành động duyệt
+      const lastApprovalAction = project.history?.filter(h => h.action === 'approved' || h.action === 'edit_approved').pop();
+      if (lastApprovalAction && lastApprovalAction.user) {
+        const user = lastApprovalAction.user;
+        if (typeof user === 'object' && (user.fullName || user.username)) {
+          return user.fullName || user.username;
+        }
+      }
+      // Fallback về project.approvedBy nếu không có trong history hoặc user không được populate
       const approvedBy = project.approvedBy;
       if (approvedBy) {
         if (typeof approvedBy === 'object' && (approvedBy.fullName || approvedBy.username)) {
-          return approvedBy.fullName || approvedBy.username; // Ưu tiên fullName
+          return approvedBy.fullName || approvedBy.username;
         } else if (typeof approvedBy === 'string') {
-          return approvedBy;
+          return approvedBy; // ID
         }
       }
       return 'N/A';
@@ -104,85 +143,80 @@ const commonFields = {
   },
   createdBy: {
     header: 'Người tạo/YC',
-    field: 'createdBy', // Backend nên trả về object user đã populate (với fullName)
+    field: 'createdBy',
     width: '160px',
-    minWidth: '120px',
+    minWidth: '130px',
     align: 'center',
     tooltipRender: (project) => {
       let tooltipLines = [];
-      let creatorName = 'N/A';
-      let creatorDate = project.createdAt;
-
-      if (project.pendingEdit && project.pendingEdit.requestedBy) {
-        const requestedByData = project.pendingEdit.requestedBy;
-        creatorName = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
-                        ? (requestedByData.fullName || requestedByData.username)
-                        : (typeof requestedByData === 'string' ? requestedByData : 'N/A');
-        creatorDate = project.pendingEdit.requestedAt;
-        tooltipLines.push(`Người YC sửa: ${creatorName}`);
-      } else if (project.pendingDelete && project.createdBy) { // Giả sử pendingDelete lưu requestedBy trong createdBy của project gốc khi gửi YC
-        const requestedByData = project.createdBy; // Hoặc nếu có trường riêng cho người YC xóa
-         creatorName = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
-                        ? (requestedByData.fullName || requestedByData.username)
-                        : (typeof requestedByData === 'string' ? requestedByData : (project.enteredBy || 'N/A'));
-        // creatorDate = project.pendingDelete.requestedAt; // Nếu có trường này
-        tooltipLines.push(`Người YC xóa: ${creatorName}`);
+      const creationAction = project.history?.find(h => h.action === 'created');
+      if (creationAction && creationAction.user) {
+        const creator = creationAction.user;
+        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDate(creationAction.timestamp)})`);
+      } else if (project.createdBy) { 
+        const creator = project.createdBy;
+        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDate(project.createdAt)})`);
       } else {
-        const creatorData = project.createdBy;
-        creatorName = (creatorData && typeof creatorData === 'object' && (creatorData.fullName || creatorData.username))
-                              ? (creatorData.fullName || creatorData.username)
-                              : (typeof creatorData === 'string' ? creatorData : (project.enteredBy || 'N/A'));
-        tooltipLines.push(`Người tạo: ${creatorName}`);
+        tooltipLines.push(`Người tạo: ${project.enteredBy || 'N/A'} (${formatDate(project.createdAt)})`);
       }
 
-      if (creatorDate) {
-        tooltipLines.push(`Ngày tạo: ${formatDate(project.createdAt)}`);
+      const editRequestActions = project.history?.filter(h => h.action === 'edit_requested');
+      if (editRequestActions && editRequestActions.length > 0) {
+        tooltipLines.push("--- Yêu cầu sửa ---");
+        editRequestActions.forEach(h => {
+          const requester = h.user;
+          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDate(h.timestamp)})`);
+        });
       }
-      if (project.pendingEdit && project.status === 'Đã duyệt' && project.pendingEdit.requestedBy) {
-        let editorName = 'Không rõ';
-        const requestedByData = project.pendingEdit.requestedBy; // Đây là object user đã populate từ backend
-        if (requestedByData) {
-            if (typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username)) {
-                editorName = requestedByData.fullName || requestedByData.username;
-            } else if (typeof requestedByData === 'string') { // Fallback nếu chỉ là string ID/username
-                editorName = requestedByData;
-            } else if (typeof requestedByData === 'object' && (requestedByData._id || requestedByData.id) && !requestedByData.username && !requestedByData.fullName) {
-                editorName = `User (ID: ...${String(requestedByData._id || requestedByData.id).slice(-4)})`;
-            }
-        }
-        const editTime = project.pendingEdit.requestedAt ? formatDate(project.pendingEdit.requestedAt) : 'N/A';
-        tooltipLines.push(`---`);
-        tooltipLines.push(`YC sửa gần nhất:`);
-        tooltipLines.push(`  Bởi: ${editorName}`);
-        tooltipLines.push(`  Lúc: ${editTime}`);
+
+      const deleteRequestActions = project.history?.filter(h => h.action === 'delete_requested');
+      if (deleteRequestActions && deleteRequestActions.length > 0) {
+        tooltipLines.push("--- Yêu cầu xóa ---");
+        deleteRequestActions.forEach(h => {
+          const requester = h.user;
+          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDate(h.timestamp)})`);
+        });
       }
       return tooltipLines.join('\n');
     },
     render: (project) => {
         let displayUser = 'N/A';
         let actionText = '';
+        let originalCreatorName = project.enteredBy || 'N/A'; // Lấy người tạo gốc từ enteredBy
 
-        if (project.pendingEdit && project.pendingEdit.requestedBy) {
-            const requestedByData = project.pendingEdit.requestedBy;
-            displayUser = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
-                            ? (requestedByData.fullName || requestedByData.username)
-                            : (typeof requestedByData === 'string' ? requestedByData : 'N/A');
-            actionText = '(YC sửa)';
-        } else if (project.pendingDelete && project.createdBy) { // Giả sử pendingDelete lưu requestedBy trong createdBy của project gốc khi gửi YC
-            const requestedByData = project.createdBy; // Hoặc nếu có trường riêng cho người YC xóa
-            displayUser = (requestedByData && typeof requestedByData === 'object' && (requestedByData.fullName || requestedByData.username))
-                            ? (requestedByData.fullName || requestedByData.username)
-                            : (typeof requestedByData === 'string' ? requestedByData : (project.enteredBy || 'N/A'));
-            actionText = '(YC xóa)';
-        } else {
-            const creatorData = project.createdBy;
-            displayUser = (creatorData && typeof creatorData === 'object' && (creatorData.fullName || creatorData.username))
-                            ? (creatorData.fullName || creatorData.username)
-                            : (typeof creatorData === 'string' ? creatorData : (project.enteredBy || 'N/A'));
+        if (project.createdBy && typeof project.createdBy === 'object') {
+            originalCreatorName = project.createdBy.fullName || project.createdBy.username || project.enteredBy || 'N/A';
         }
 
+
+        // Ưu tiên hiển thị người yêu cầu gần nhất nếu có và project đang trong trạng thái pending
+        const lastEditRequest = project.history?.filter(h => h.action === 'edit_requested').pop();
+        const lastDeleteRequest = project.history?.filter(h => h.action === 'delete_requested').pop();
+
+        if (project.pendingEdit && lastEditRequest && lastEditRequest.user) {
+            const requester = lastEditRequest.user;
+            displayUser = requester.fullName || requester.username;
+            actionText = '(YC sửa)';
+        } else if (project.pendingDelete && lastDeleteRequest && lastDeleteRequest.user) {
+            const requester = lastDeleteRequest.user;
+            displayUser = requester.fullName || requester.username;
+            actionText = '(YC xóa)';
+        } else {
+            // Hiển thị người tạo gốc từ history hoặc project.createdBy
+            const creationAction = project.history?.find(h => h.action === 'created');
+            if (creationAction && creationAction.user) {
+                const creator = creationAction.user;
+                displayUser = creator.fullName || creator.username;
+            } else if (project.createdBy && typeof project.createdBy === 'object') {
+                const creator = project.createdBy;
+                displayUser = creator.fullName || creator.username;
+            } else if (project.enteredBy) {
+                displayUser = project.enteredBy;
+            }
+        }
+        
         if (actionText) {
-            return <span title={`Người tạo gốc: ${project.enteredBy || 'N/A'}`}>{displayUser} {actionText}</span>;
+            return <span title={`Người tạo gốc: ${originalCreatorName}`}>{displayUser} {actionText}</span>;
         }
         return displayUser;
     }

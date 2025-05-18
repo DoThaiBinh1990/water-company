@@ -35,3 +35,23 @@
 2025-05-19 00:37:36 info: Một người dùng đã kết nối: KQgTxKbiCOkihd7BAAAH
 2025-05-19 00:38:26 info: Người dùng đã ngắt kết nối: KQgTxKbiCOkihd7BAAAH
 2025-05-19 00:38:36 info: Một người dùng đã kết nối: whZcUjPTK11udiBxAAAJ
+2025-05-19 00:54:36 info: Người dùng đã ngắt kết nối: OuUp2yfnk2_ExSuCAAAB
+2025-05-19 00:54:36 info: Người dùng đã ngắt kết nối: whZcUjPTK11udiBxAAAJ
+2025-05-19 00:54:41 info: Một người dùng đã kết nối: iQK5T_bVS6zAoO_-AAAM
+2025-05-19 00:54:41 info: Một người dùng đã kết nối: mH2rcL5Y-elSgq8qAAAN
+2025-05-19 01:12:13 info: Người dùng đã ngắt kết nối: iQK5T_bVS6zAoO_-AAAM
+2025-05-19 01:12:24 info: Một người dùng đã kết nối: Czg-HlEyetvMkr4YAAAP
+2025-05-19 01:12:50 info: Máy chủ đang chạy trên cổng 5000
+2025-05-19 01:12:50 info: Một người dùng đã kết nối: 2t7y9t1It5IFyjPeAAAB
+2025-05-19 01:12:50 info: Một người dùng đã kết nối: rmRz4EZ1ZNOWA7uuAAAD
+2025-05-19 01:12:50 info: MongoDB đã kết nối thành công.
+2025-05-19 01:13:12 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.0.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:13:12 error: Lỗi không xác định: CategoryProject validation failed: history.0.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:13:27 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.0.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:13:27 error: Lỗi không xác định: CategoryProject validation failed: history.0.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:17:23 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:17:23 error: Lỗi không xác định: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:17:28 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:17:28 error: Lỗi không xác định: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:17:31 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.
+2025-05-19 01:17:31 error: Lỗi không xác định: CategoryProject validation failed: history.2.action: `edited` is not a valid enum value for path `action`.

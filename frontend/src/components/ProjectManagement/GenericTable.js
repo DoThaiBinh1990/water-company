@@ -31,10 +31,14 @@ function GenericTable({
     // Helper để "resolve" ID user thành object user (chứa _id, fullName, username) từ usersList
     const resolveUserValue = (value) => {
       if (typeof value === 'string' && currentUsersList && currentUsersList.length > 0) {
-        const foundUser = currentUsersList.find(u => u._id === value);
-        return foundUser || value; // Trả về object user nếu tìm thấy, ngược lại trả về ID gốc
+        // Kiểm tra xem value có phải là ObjectId hợp lệ không trước khi tìm kiếm
+        // Điều này giúp tránh lỗi nếu value là một chuỗi bất kỳ không phải ID
+        if (value.match(/^[0-9a-fA-F]{24}$/)) { // Regex cơ bản cho ObjectId
+          const foundUser = currentUsersList.find(u => u._id === value);
+          return foundUser || value; 
+        }
       }
-      // Nếu value đã là object (ví dụ: đã được populate từ backend hoặc từ lần resolve trước)
+      // Nếu value đã là object hoặc không phải string ID, thì trả về chính nó.
       // hoặc không phải string ID, thì trả về chính nó.
       return value;
     };
