@@ -1,102 +1,55 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\ExcelImportModal.js
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react'; // Add useCallback
 import Modal from 'react-modal';
 import { FaSave, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { categoryFormConfig, minorRepairFormConfig } from '../../config/formConfigs';
+// import { format } from 'date-fns'; // Not strictly needed if backend handles date string
 
 Modal.setAppElement('#root');
 
 const ExcelImportModal = ({
   showModal,
   setShowModal,
-  initialData, // Dữ liệu đọc từ Excel (mảng các object)
-  headersConfig: excelHeaders, // Header đọc từ file Excel
+  initialData,
+  headersConfig: excelHeaders,
   projectType,
   user,
-  dataSources, // { allocatedUnits, usersList, approversList, projectTypesList, ... }
+  dataSources,
   onSubmit,
   isSubmitting,
+  backendValidationErrors, // New prop for backend errors
 }) => {
   const [editedData, setEditedData] = useState([]);
-  const [validationErrors, setValidationErrors] = useState({}); // { rowIndex: { fieldName: "Error message" } }
+  const [validationErrors, setValidationErrors] = useState({});
 
   const formConfig = useMemo(() => projectType === 'category' ? categoryFormConfig : minorRepairFormConfig, [projectType]);
 
-  // Map header từ Excel sang fieldName và lấy config của field đó
   const tableColumns = useMemo(() => {
     if (!excelHeaders || !formConfig) return [];
-    
     const fieldMap = new Map();
     formConfig.tabs.forEach(tab => {
         tab.fields.forEach(field => {
-            fieldMap.set(field.label.replace(' (*)', '').replace(' (Nhập Username/Họ tên)', '').trim().toLowerCase(), field);
-            fieldMap.set(field.name.toLowerCase(), field); // Map bằng fieldName nữa cho chắc
+            const cleanLabel = field.label.replace(' (*)', '').replace(' (Nhập Username/Họ tên)', '').trim().toLowerCase();
+            fieldMap.set(cleanLabel, field);
+            fieldMap.set(field.name.toLowerCase(), field);
         });
     });
-
     return excelHeaders.map(header => {
         const cleanHeader = String(header).replace(' (*)', '').replace(' (Nhập Username/Họ tên)', '').trim().toLowerCase();
-        const fieldConfig = fieldMap.get(cleanHeader) || { name: header, label: header, type: 'text' }; // Fallback
+        const fieldConfig = fieldMap.get(cleanHeader) || { name: header, label: header, type: 'text', required: String(header).includes('(*)') };
         return {
-            Header: header, // Hiển thị header gốc từ Excel
-            accessor: fieldConfig.name, // Dùng field.name để truy cập dữ liệu
-            config: fieldConfig, // Lưu config của field,
-            // Thêm minWidth gợi ý cho một số cột phổ biến
+            Header: header,
+            accessor: fieldConfig.name,
+            config: fieldConfig,
             minWidth: fieldConfig.name === 'name' ? '250px' :
                       (fieldConfig.name === 'location' || fieldConfig.name === 'scale' || fieldConfig.name === 'notes') ? '200px' :
-                      (fieldConfig.optionsSource === 'users' || fieldConfig.optionsSource === 'approvers') ? '180px' :
-                      '150px',
+                      (fieldConfig.optionsSource === 'users' || fieldConfig.optionsSource === 'approvers') ? '180px' : '150px',
         };
     });
   }, [excelHeaders, formConfig]);
 
-
-  useEffect(() => {
-    if (initialData) {
-      const mappedData = initialData.map(row => {
-        const newRow = {};
-        tableColumns.forEach(col => {
-          const excelHeaderKey = Object.keys(row).find(k => 
-            String(k).replace(' (*)', '').replace(' (Nhập Username/Họ tên)', '').trim().toLowerCase() === col.config.label.replace(' (*)', '').replace(' (Nhập Username/Họ tên)', '').trim().toLowerCase() ||
-            String(k).toLowerCase() === col.accessor.toLowerCase()
-          );
-          let value = excelHeaderKey ? row[excelHeaderKey] : (row[col.accessor] || '');
-          
-          // Nếu là trường user/approver và giá trị từ Excel là tên, cố gắng tìm ID
-          // Backend sẽ là nơi quyết định cuối cùng, đây chỉ là gợi ý cho UI
-          if ((col.config.optionsSource === 'users' || col.config.optionsSource === 'approvers') && typeof value === 'string') {
-            const options = getOptionsForField(col.config);
-            const foundOptionByName = options.find(opt => opt.label.toLowerCase() === String(value).toLowerCase());
-            if (foundOptionByName) {
-              value = foundOptionByName.value; // Chuyển thành ID nếu tìm thấy bằng tên
-            }
-          }
-          newRow[col.accessor] = value;
-        });
-        return newRow;
-      });
-      setEditedData(mappedData);
-    }
-  }, [initialData, tableColumns, dataSources]); // Thêm dataSources vào dependency
-
-  const handleInputChange = (rowIndex, fieldName, value) => {
-    const newData = [...editedData];
-    newData[rowIndex][fieldName] = value;
-    setEditedData(newData);
-    setValidationErrors(prev => {
-      const newErrors = { ...prev };
-      if (newErrors[rowIndex]) {
-        delete newErrors[rowIndex][fieldName];
-        if (Object.keys(newErrors[rowIndex]).length === 0) {
-          delete newErrors[rowIndex];
-        }
-      }
-      return newErrors;
-    });
-  };
-
-  const getOptionsForField = (fieldConfig) => {
+  const getOptionsForField = useCallback((fieldConfig) => {
     if (!fieldConfig || !dataSources) return [];
     switch (fieldConfig.optionsSource) {
       case 'allocatedUnits': return dataSources.allocatedUnits?.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name })) || [];
@@ -107,59 +60,128 @@ const ExcelImportModal = ({
       case 'projectTypes': return dataSources.projectTypesList?.map(pt => ({ value: typeof pt === 'string' ? pt : pt.name, label: typeof pt === 'string' ? pt : pt.name })) || [];
       default: return fieldConfig.options || [];
     }
-  };
+  }, [dataSources]);
 
-  const validateData = () => {
-    const errors = {};
-    const basicInfoFields = formConfig.tabs.find(tab => tab.name === 'basic')?.fields || [];
+  useEffect(() => {
+    if (initialData) {
+      const mappedData = initialData.map(row => {
+        const newRow = {};
+        tableColumns.forEach(col => {
+          const excelHeaderKey = Object.keys(row).find(k =>
+            String(k).replace(' (*)', '').replace(' (Nhập Username/Họ tên)', '').trim().toLowerCase() === col.config.label.replace(' (*)', '').replace(' (Nhập Username/Họ tên)', '').trim().toLowerCase() ||
+            String(k).toLowerCase() === col.accessor.toLowerCase()
+          );
+          let value = excelHeaderKey ? row[excelHeaderKey] : (row[col.accessor] || '');
 
-    editedData.forEach((row, rowIndex) => {
-      const rowErrors = {};
-      basicInfoFields.forEach(field => {
-        if (field.required) {
-          const value = row[field.name];
-          if (value === null || value === undefined || String(value).trim() === '') {
-            rowErrors[field.name] = `${field.label} là bắt buộc.`;
+          if ((col.config.optionsSource === 'users' || col.config.optionsSource === 'approvers') && typeof value === 'string') {
+            const options = getOptionsForField(col.config);
+            const foundOptionByName = options.find(opt => opt.label.toLowerCase() === String(value).toLowerCase());
+            if (foundOptionByName) value = foundOptionByName.value;
           }
-          if ((field.optionsSource === 'users' || field.optionsSource === 'approvers') && value) {
-            const options = getOptionsForField(field);
-            const isValidOption = options.some(opt => opt.value === value); // Value phải là ID
-            if (!isValidOption) {
-                // Nếu value không phải ID (ví dụ là tên từ Excel chưa map được), thì báo lỗi
-                // Trừ khi backend có thể tự tìm ID từ tên (nhưng ở đây ta muốn người dùng chọn ID)
-                rowErrors[field.name] = `Giá trị "${value}" không hợp lệ cho ${field.label}. Vui lòng chọn từ danh sách.`;
-            }
-          } else if (field.type === 'select' && value && field.optionsSource && !['users', 'approvers'].includes(field.optionsSource)) {
-            const options = getOptionsForField(field);
-            const isValidOption = options.some(opt => opt.value === value || opt.label === value);
-             if (!isValidOption) {
-                rowErrors[field.name] = `Giá trị "${value}" không hợp lệ cho ${field.label}. Vui lòng chọn từ danh sách.`;
-             }
+          // Convert Excel date numbers to JS Date objects if applicable
+          if (col.config.type === 'date' && typeof value === 'number' && value > 25569) { // Excel date epoch
+            value = new Date(Math.round((value - 25569) * 86400 * 1000));
           }
-        }
+          newRow[col.accessor] = value;
+        });
+        return newRow;
       });
-      if (Object.keys(rowErrors).length > 0) {
-        errors[rowIndex] = rowErrors;
+      setEditedData(mappedData);
+      setValidationErrors({}); // Clear previous errors
+    }
+  }, [initialData, tableColumns, getOptionsForField]);
+
+  // Effect to merge backend validation errors
+  useEffect(() => {
+    if (backendValidationErrors && Array.isArray(backendValidationErrors)) {
+        const newErrors = { ...validationErrors }; // Start with current frontend errors
+        backendValidationErrors.forEach(result => {
+            if (!result.success && result.rowIndex !== undefined) {
+                if (!newErrors[result.rowIndex]) newErrors[result.rowIndex] = {};
+                // Backend error might be a single string or an object of field errors
+                if (typeof result.error === 'string') {
+                    newErrors[result.rowIndex]['general'] = (newErrors[result.rowIndex]['general'] ? newErrors[result.rowIndex]['general'] + '; ' : '') + result.error;
+                } else if (typeof result.error === 'object') { // Assuming backend sends { fieldName: "Error message" }
+                    for (const fieldKey in result.error) {
+                        newErrors[result.rowIndex][fieldKey] = (newErrors[result.rowIndex][fieldKey] ? newErrors[result.rowIndex][fieldKey] + '; ' : '') + result.error[fieldKey];
+                    }
+                } else if (result.field && typeof result.message === 'string') { // Alternative backend error format
+                    newErrors[result.rowIndex][result.field] = (newErrors[result.rowIndex][result.field] ? newErrors[result.rowIndex][result.field] + '; ' : '') + result.message;
+                }
+            }
+        });
+        setValidationErrors(newErrors);
+    }
+  }, [backendValidationErrors]);
+
+
+  const handleInputChange = (rowIndex, fieldName, value) => {
+    const newData = [...editedData];
+    newData[rowIndex][fieldName] = value;
+    setEditedData(newData);
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      if (newErrors[rowIndex]) {
+        delete newErrors[rowIndex][fieldName]; // Clear specific field error
+        if (Object.keys(newErrors[rowIndex]).length === 0) delete newErrors[rowIndex];
       }
+      return newErrors;
     });
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async () => { // Chuyển thành async để xử lý response từ backend
-    if (!validateData()) {
+  const validateRow = (row, rowIndex) => {
+    const rowErrors = {};
+    tableColumns.forEach(col => {
+        const field = col.config;
+        const value = row[col.accessor];
+        const isValueEmpty = value === null || value === undefined || String(value).trim() === '';
+
+        if (field.required && isValueEmpty) {
+            rowErrors[field.name] = `${field.label.replace(' (*)', '')} là bắt buộc.`;
+        }
+        if ((field.optionsSource === 'users' || field.optionsSource === 'approvers') && !isValueEmpty) {
+            const options = getOptionsForField(field);
+            if (typeof value === 'string' && !options.some(opt => opt.value === value || opt.label.toLowerCase() === value.toLowerCase())) {
+                // If it's a string and not found by ID or exact label match, it might be a name to be resolved by backend.
+                // For frontend, if it's not an ID and not an exact label, consider it potentially problematic if strict.
+                // Let's assume backend handles name-to-ID. If we want stricter frontend, add error here.
+            } else if (typeof value !== 'string' && !options.some(opt => opt.value === value)) {
+                 // If it's not a string (e.g. a number that's not an ID) and not a valid ID
+                // rowErrors[field.name] = `Giá trị không hợp lệ cho ${field.label.replace(' (*)', '')}.`;
+            }
+        }
+        if (field.type === 'date' && !isValueEmpty) {
+            const dateValue = new Date(value);
+            if (isNaN(dateValue.getTime())) {
+                 rowErrors[field.name] = `${field.label.replace(' (*)', '')} không đúng định dạng ngày.`;
+            }
+        }
+        if (field.numeric && !isValueEmpty && isNaN(parseFloat(value))) {
+            rowErrors[field.name] = `${field.label.replace(' (*)', '')} phải là số.`;
+        }
+    });
+    return rowErrors;
+  };
+
+  const validateAllData = () => {
+    const errors = {};
+    editedData.forEach((row, rowIndex) => {
+      const rowErrors = validateRow(row, rowIndex);
+      if (Object.keys(rowErrors).length > 0) errors[rowIndex] = rowErrors;
+    });
+    // Merge with existing backend errors if any, frontend errors take precedence for now
+    // Or, clear frontend errors and only show backend errors after submit attempt.
+    // For now, let's merge, but this might need refinement.
+    const mergedErrors = { ...backendValidationErrors, ...errors };
+    setValidationErrors(mergedErrors);
+    return Object.keys(mergedErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validateAllData()) {
       toast.error("Vui lòng sửa các lỗi trong bảng trước khi tải lên.", { position: "top-center" });
       return;
     }
-    // Gọi onSubmit (là submitExcelData từ ProjectManagementLogic)
-    // onSubmit bây giờ nên trả về một promise để biết kết quả từ backend
-    // Nếu backend trả về lỗi, chúng ta sẽ cập nhật validationErrors
-    // Nếu thành công, ProjectManagementLogic sẽ tự đóng modal và hiển thị toast.
-    // Vì vậy, ở đây chúng ta không cần trực tiếp xử lý đóng modal khi thành công.
-    // ProjectManagementLogic sẽ gọi setShowExcelImportModal(false) khi mutation thành công.
-
-    // Quan trọng: `onSubmit` (chính là `submitExcelData` trong logic) sẽ gọi mutation.
-    // Mutation đó đã có `onSuccess` và `onError`. Chúng ta không cần xử lý đóng modal ở đây nữa.
     onSubmit(editedData);
   };
 
@@ -167,7 +189,7 @@ const ExcelImportModal = ({
     setShowModal(false);
     setEditedData([]);
     setValidationErrors({});
-  }
+  };
 
   if (!showModal) return null;
 
@@ -180,7 +202,7 @@ const ExcelImportModal = ({
         content: { position: 'relative', margin: 'auto', width: '90%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '0', border:'1px solid #ccc', borderRadius: '8px' }
       }}
       contentLabel="Xem và Chỉnh sửa Dữ liệu Excel"
-    >      
+    >
       <div className="p-5 bg-gray-100 border-b border-gray-300">
         <h2 className="text-xl font-semibold text-gray-800">Xem trước và Chỉnh sửa Dữ liệu từ Excel</h2>
         <p className="text-sm text-gray-600">Kiểm tra và chỉnh sửa dữ liệu trước khi tải lên. Các trường có dấu (*) là bắt buộc.</p>
@@ -195,9 +217,9 @@ const ExcelImportModal = ({
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r sticky left-0 bg-gray-50 z-20" style={{ minWidth: '50px' }}>STT</th>
-                  {tableColumns.map((col, colIndex) => (
-                    <th 
-                      key={col.accessor || colIndex} 
+                  {tableColumns.map((col) => (
+                    <th
+                      key={col.accessor}
                       className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r"
                       style={{ minWidth: col.minWidth }}
                     >
@@ -211,41 +233,34 @@ const ExcelImportModal = ({
                 {editedData.map((row, rowIndex) => (
                   <tr key={rowIndex} className={`${Object.keys(validationErrors[rowIndex] || {}).length > 0 ? 'bg-red-50' : ''} hover:bg-gray-50`}>
                     <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-700 border-r sticky left-0 bg-white hover:bg-gray-50 z-10">{rowIndex + 1}</td>
-                    {tableColumns.map((col, colIndex) => {
+                    {tableColumns.map((col) => {
                       const fieldConfig = col.config;
-                      const cellValue = row[col.accessor] || ''; // Đây có thể là ID (nếu đã chọn) hoặc tên (từ Excel)
-                      const error = validationErrors[rowIndex]?.[fieldConfig.name];
-                      const options = (fieldConfig.type === 'select' || fieldConfig.optionsSource === 'users' || fieldConfig.optionsSource === 'approvers') 
-                                      ? getOptionsForField(fieldConfig) 
-                                      : [];
-  
-                      // Luôn hiển thị select cho trường user/approver nếu có lỗi hoặc trống và bắt buộc
-                      // Hoặc nếu giá trị hiện tại không phải là ID hợp lệ trong options
+                      const cellValue = row[col.accessor];
+                      const error = validationErrors[rowIndex]?.[fieldConfig.name] || validationErrors[rowIndex]?.general;
+                      const options = (fieldConfig.type === 'select' || fieldConfig.optionsSource === 'users' || fieldConfig.optionsSource === 'approvers')
+                                      ? getOptionsForField(fieldConfig) : [];
+
                       const isUserOrApproverField = fieldConfig.optionsSource === 'users' || fieldConfig.optionsSource === 'approvers';
-                      const isInvalidUserOrApproverValue = isUserOrApproverField && cellValue && !options.some(opt => opt.value === cellValue);
-                      
-                      const showSelect = (fieldConfig.type === 'select' || isUserOrApproverField) && 
-                                         (error || (fieldConfig.required && !cellValue) || isInvalidUserOrApproverValue);
-  
+                      const currentOption = isUserOrApproverField ? options.find(opt => opt.value === cellValue) : null;
+                      const showSelect = (fieldConfig.type === 'select' || isUserOrApproverField);
+
                       let displayInputValue = cellValue;
-                      if (isUserOrApproverField && !showSelect) { // Chỉ hiển thị tên nếu không phải là select và là ID
-                          const selectedOption = options.find(opt => opt.value === cellValue);
-                          if (selectedOption) {
-                              displayInputValue = selectedOption.label;
-                          }
-                          // Nếu cellValue là tên từ Excel và không có lỗi (không showSelect), vẫn hiển thị tên đó.
-                          // Backend sẽ cố gắng map tên này.
-                      } else if (fieldConfig.type === 'date' && cellValue instanceof Date) {
-                          displayInputValue = cellValue.toISOString().split('T')[0];
+                      if (cellValue instanceof Date) {
+                        displayInputValue = cellValue.toISOString().split('T')[0];
+                      } else if (isUserOrApproverField && currentOption) {
+                        // If it's a user/approver field and we have a valid ID selected,
+                        // the input field (if not select) should show the label.
+                        // The select will handle this via its options.
+                        // This logic is more for when we might render a text input instead of select.
                       }
-  
+
+
                       return (
                         <td key={`${rowIndex}-${col.accessor}`} className="px-1 py-0.5 whitespace-nowrap border-r" style={{ minWidth: col.minWidth }}>
                           {showSelect ? (
                             <select
-                              value={cellValue} // value của select là ID (nếu cellValue là ID) hoặc tên (nếu từ Excel và chưa map)
-                                               // Nếu là tên, nó sẽ không khớp option nào và hiển thị "Chọn..."
-                              onChange={(e) => handleInputChange(rowIndex, fieldConfig.name, e.target.value)} // e.target.value sẽ là ID
+                              value={cellValue || ''}
+                              onChange={(e) => handleInputChange(rowIndex, fieldConfig.name, e.target.value)}
                               className={`w-full p-1 border text-xs rounded ${error ? 'border-red-500' : 'border-gray-300'} focus:ring-blue-500 focus:border-blue-500`}
                             >
                               <option value="">-- Chọn {fieldConfig.label.toLowerCase().replace(' (*)', '')} --</option>
@@ -253,13 +268,9 @@ const ExcelImportModal = ({
                             </select>
                           ) : (
                             <input
-                              type={fieldConfig.type === 'date' ? 'date' : 'text'}
-                              value={displayInputValue}
-                              onChange={(e) => {
-                                // Nếu là trường user/approver và người dùng gõ text, lưu text đó.
-                                // Backend sẽ xử lý việc tìm ID từ text này.
-                                handleInputChange(rowIndex, fieldConfig.name, e.target.value);
-                              }}
+                              type={fieldConfig.type === 'date' ? 'date' : (fieldConfig.numeric ? 'number' : 'text')}
+                              value={displayInputValue || ''}
+                              onChange={(e) => handleInputChange(rowIndex, fieldConfig.name, e.target.value)}
                               className={`w-full p-1 border text-xs rounded ${error ? 'border-red-500' : 'border-gray-300'} focus:ring-blue-500 focus:border-blue-500`}
                             />
                           )}

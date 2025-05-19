@@ -34,6 +34,9 @@ router.post('/login', async (req, res, next) => {
       permissions: userPermissions,
       username: user.username,
       fullName: user.fullName,
+      address: user.address, // Thêm address vào token
+      phoneNumber: user.phoneNumber, // Thêm phoneNumber vào token
+      email: user.email, // Thêm email vào token
       unit: userUnit, // Thêm unit vào payload của token
     }, process.env.JWT_SECRET, { expiresIn: '24h' });
 

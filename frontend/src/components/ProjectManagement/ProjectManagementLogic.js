@@ -4,144 +4,65 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import io from 'socket.io-client';
 import debounce from 'lodash/debounce';
 import { toast } from 'react-toastify';
-import { API_URL } from '../../config'; // API_URL có thể không cần nữa nếu dùng apiClient.defaults.baseURL
 import {
   getProjects,
   createProject,
   updateProject,
-  deleteProject as deleteProjectAPI, // Đổi tên hàm import
-  approveProject as approveProjectAPI,
-  rejectProject as rejectProjectAPI,
-  allocateProject as allocateProjectAPI,
-  assignProject as assignProjectAPI,
+  deleteProject as deleteProjectAPI,
+  approveProject as approveProjectAPI, // Renamed to avoid conflict
+  rejectProject as rejectProjectAPI,   // Renamed to avoid conflict
+  // allocateProject as allocateProjectAPI, // Removed
+  // assignProject as assignProjectAPI,     // Removed
   getRejectedProjects,
   restoreRejectedProject as restoreRejectedProjectAPI,
   permanentlyDeleteRejectedProject as permanentlyDeleteRejectedProjectAPI,
   getAllocatedUnits, getAllocationWaves, getConstructionUnits, getUsers, getProjectTypes,
-  apiClient, // Import apiClient từ apiService
-  importProjects as importProjectsAPI, // API mới
-} from '../../apiService'; // Import các hàm API
+  apiClient,
+  importProjects as importProjectsAPI,
+} from '../../apiService';
 import { generateExcelTemplate, readExcelData } from '../../utils/excelHelper';
 
-const socket = io(apiClient.defaults.baseURL, { // Sử dụng baseURL từ apiClient
+const socket = io(apiClient.defaults.baseURL, {
   transports: ['websocket', 'polling'],
   withCredentials: true,
   autoConnect: false,
 });
 
-function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
+const itemsPerPageGlobal = 10; // Define once globally for the module
+
+// Custom hook for fetching project data
+const useProjectData = (user, type, activeTab, itemsPerPage = itemsPerPageGlobal) => {
+  const queryClient = useQueryClient(); // Get queryClient instance
   const isCategory = type === 'category';
-  const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState('serial_asc');
-  const [showFilter, setShowFilter] = useState(true);
-
-  // Gom nhóm state filter
-  const [filters, setFilters] = useState({
-    status: '',
-    allocatedUnit: '',
-    constructionUnit: '',
-    name: '',
-    minInitialValue: '',
-    maxInitialValue: '',
-    progress: '',
-    allocationWave: '',
-    supervisor: '',
-    estimator: '',
-    reportDate: '',
-  });
-
-  const [formData, setFormData] = useState(null); // Đổi tên newProject thành formData
-  const [editProject, setEditProject] = useState(null);
-
-  const [allocateWaves, setAllocateWaves] = useState({});
-  const [assignPersons, setAssignPersons] = useState({});
-
-  const [showModal, setShowModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('projects');
-
-  // States for Excel Import
-  const [showExcelImportModal, setShowExcelImportModal] = useState(false);
-  const [excelImportData, setExcelImportData] = useState(null);
-  const [excelImportHeaders, setExcelImportHeaders] = useState([]);
+  const [sortOrder, setSortOrder] = useState('serial_asc'); // Default sort
+  const [currentPageRejected, setCurrentPageRejected] = useState(1);
 
   const initialFilters = useMemo(() => ({
-    status: '',
-    allocatedUnit: '',
-    constructionUnit: '',
-    name: '',
-    minInitialValue: '',
-    maxInitialValue: '',
-    progress: '',
-    allocationWave: '',
-    supervisor: '',
-    estimator: '',
-    reportDate: '',
-  }), []);
+    status: '', allocatedUnit: '', constructionUnit: '', name: '',
+    minInitialValue: '', maxInitialValue: '', progress: '',
+    allocationWave: '', supervisor: '', estimator: '', reportDate: '', assignedTo: '',
+    rejectionReason: '', // Added for rejected projects
+    projectType: '', // Added projectType filter for category projects
+  }), []); // Ensure initialFilters is memoized
+  const [filters, setFilters] = useState(initialFilters);
 
-  const initialFormData = useCallback(() => {
-    const baseState = {
-      name: '',
-      allocatedUnit: '',
-      supervisor: '',
-      taskDescription: '',
-      notes: '',
-      approvedBy: '',
-      createdBy: user?._id || '',
-    };
-    if (isCategory) {
-      return {
-        ...baseState,
-        constructionUnit: '',
-        allocationWave: '',
-        location: '',
-        scale: '',
-        initialValue: '',
-        estimator: '',
-        durationDays: '',
-        startDate: '',
-        completionDate: '',
-        contractValue: '',
-        progress: '',
-        feasibility: '',
-        projectType: '',
-        estimatedValue: '',
-        leadershipApproval: '',
-      };
-    } else {
-      return {
-        ...baseState,
-        serial: '',
-        reportDate: '',
-        inspectionDate: '',
-        paymentDate: '',
-        paymentValue: '',
-        location: '',
-        scale: '',
-        leadershipApproval: '',
-      };
-    }
-  }, [isCategory, user]);
-
-  useEffect(() => {
-    // Khởi tạo formData khi component mount hoặc khi initialFormData thay đổi
-    setFormData(initialFormData());
-  }, [initialFormData]);
-
-  // --- QUERIES ---
-  const buildProjectQueryParams = (page, currentSortOrder, currentFilters, isPending) => {
-    const params = { type, page, limit: 10 };
+  const buildProjectQueryParams = useCallback((page, currentSortOrder, currentFilters, isPending) => {
+    const params = { type, page, limit: itemsPerPage };
     const activeApiFilters = {};
+
     if (currentFilters.status) activeApiFilters.status = currentFilters.status;
     if (currentFilters.allocatedUnit) activeApiFilters.allocatedUnit = currentFilters.allocatedUnit;
     if (isCategory && currentFilters.constructionUnit) activeApiFilters.constructionUnit = currentFilters.constructionUnit;
-    if (currentFilters.name) activeApiFilters.search = currentFilters.name;
+    if (isCategory && currentFilters.projectType) activeApiFilters.projectType = currentFilters.projectType; // Add projectType filter for category
+    if (currentFilters.name) activeApiFilters.search = currentFilters.name; // 'search' for name
     if (isCategory && currentFilters.minInitialValue) activeApiFilters.minInitialValue = currentFilters.minInitialValue;
     if (isCategory && currentFilters.maxInitialValue) activeApiFilters.maxInitialValue = currentFilters.maxInitialValue;
     if (isCategory && currentFilters.progress) activeApiFilters.progress = currentFilters.progress;
     if (isCategory && currentFilters.allocationWave) activeApiFilters.allocationWave = currentFilters.allocationWave;
     if (currentFilters.supervisor) activeApiFilters.supervisor = currentFilters.supervisor;
     if (isCategory && currentFilters.estimator) activeApiFilters.estimator = currentFilters.estimator;
+    if (currentFilters.assignedTo) activeApiFilters.assignedTo = currentFilters.assignedTo;
     if (!isCategory && currentFilters.reportDate) activeApiFilters.reportDate = currentFilters.reportDate;
 
     Object.assign(params, activeApiFilters);
@@ -156,10 +77,10 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     if (isPending) {
       params.pending = 'true';
     }
-    return params;
-  };
+    return params; // Return the constructed params object
+  }, [type, isCategory, itemsPerPage]);
 
-  const { data: projectsData, isLoading: isLoadingProjects, isFetching: isFetchingProjects } = useQuery({
+  const { data: projectsData, isLoading: isLoadingProjects, isFetching: isFetchingProjects, refetch: refetchProjects } = useQuery({
     queryKey: ['projects', type, currentPage, sortOrder, filters],
     queryFn: () => getProjects(buildProjectQueryParams(currentPage, sortOrder, filters, false)),
     enabled: !!user && activeTab === 'projects',
@@ -167,557 +88,482 @@ function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách công trình!', { position: "top-center" }),
   });
 
-  const { data: pendingProjectsData, isLoading: isLoadingPending, isFetching: isFetchingPending } = useQuery({
-    queryKey: ['pendingProjects', type, currentPage, sortOrder, filters], // Thêm currentPage và filters
-    queryFn: () => getProjects(buildProjectQueryParams(currentPage, sortOrder, filters, true)), // Sử dụng currentPage và filters
+  const { data: pendingProjectsData, isLoading: isLoadingPending, isFetching: isFetchingPending, refetch: refetchPendingProjects } = useQuery({
+    queryKey: ['pendingProjects', type, currentPage, sortOrder, filters],
+    queryFn: () => getProjects(buildProjectQueryParams(currentPage, sortOrder, filters, true)),
     enabled: !!user && activeTab === 'pending',
+    keepPreviousData: true,
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách chờ duyệt!', { position: "top-center" }),
   });
 
-  const { data: rejectedProjectsData, isLoading: isLoadingRejected, isFetching: isFetchingRejected } = useQuery({
-    queryKey: ['rejectedProjects', type],
-    queryFn: () => getRejectedProjects({ type }), // Giả sử API này không cần phân trang phức tạp trên UI này
+  const buildRejectedProjectQueryParams = useCallback((page, currentFilters) => {
+    const params = { type, page, limit: itemsPerPage };
+    if (currentFilters.name) params.search = currentFilters.name; // Assuming backend supports 'search' for name on rejected
+    if (currentFilters.allocatedUnit) params.allocatedUnit = currentFilters.allocatedUnit;
+    if (currentFilters.rejectionReason) params.rejectionReason = currentFilters.rejectionReason; // Backend needs to support this
+    return params;
+  });
+
+  const { data: rejectedProjectsData, isLoading: isLoadingRejected, isFetching: isFetchingRejected, refetch: refetchRejectedProjects } = useQuery({ // Use useCallback for buildRejectedProjectQueryParams
+    queryKey: ['rejectedProjects', type, currentPageRejected, filters], // Include filters for rejected
+    queryFn: () => getRejectedProjects(buildRejectedProjectQueryParams(currentPageRejected, filters)),
     enabled: !!user && activeTab === 'rejected',
+    keepPreviousData: true,
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách bị từ chối!', { position: "top-center" }),
   });
 
-  const filteredProjects = projectsData?.projects || [];
-  const totalProjectsCount = projectsData?.total || 0;
-  const totalPages = projectsData?.pages || 1;
-  const pendingProjects = pendingProjectsData?.projects || [];
-  const rejectedProjects = rejectedProjectsData?.rejectedProjects || [];
-
-  // Queries for auxiliary data
-  const { data: allocatedUnits = [] } = useQuery({
+  const { data: allocatedUnitsData = [] } = useQuery({
     queryKey: ['allocatedUnits'], queryFn: getAllocatedUnits, enabled: !!user,
-    select: data => data.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)),
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải đơn vị!', { position: "top-center" }),
   });
-  const { data: allocationWavesList = [] } = useQuery({
+  const { data: allocationWavesListData = [] } = useQuery({
     queryKey: ['allocationWaves'], queryFn: getAllocationWaves, enabled: !!user,
-    select: data => data.map(wave => wave.name || String(wave)),
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải đợt phân bổ!', { position: "top-center" }),
   });
-  const { data: constructionUnitsList = [] } = useQuery({
+  const { data: constructionUnitsListData = [] } = useQuery({
     queryKey: ['constructionUnits'], queryFn: getConstructionUnits, enabled: !!user,
-    select: data => data.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)),
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải đơn vị thi công!', { position: "top-center" }),
   });
   const { data: usersData = [] } = useQuery({
-    // Query này cần cho tất cả user có thể truy cập trang này để chọn người
-    // enabled: !!user, // Bỏ điều kiện chỉ admin, cho phép tất cả user đã đăng nhập fetch
-    queryKey: ['users'], queryFn: getUsers, enabled: !!user, // Fetch khi user tồn tại
+    queryKey: ['users'], queryFn: getUsers, enabled: !!user,
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải danh sách người dùng!', { position: "top-center" }),
   });
-  const { data: projectTypesList = [] } = useQuery({
+  const { data: projectTypesListData = [] } = useQuery({
     queryKey: ['projectTypes'], queryFn: getProjectTypes, enabled: !!user,
-    select: data => data.map(pt => pt.name || String(pt)),
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi tải loại công trình!', { position: "top-center" }),
   });
 
-  const usersList = useMemo(() => usersData.map(u => ({ _id: u._id, fullName: u.fullName || u.username || String(u) })), [usersData]);
+  const allocatedUnits = useMemo(() => allocatedUnitsData.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)), [allocatedUnitsData]);
+  const allocationWavesList = useMemo(() => allocationWavesListData.map(wave => wave.name || String(wave)), [allocationWavesListData]);
+  const constructionUnitsList = useMemo(() => constructionUnitsListData.map(unit => typeof unit === 'object' && unit.name ? unit.name : String(unit)), [constructionUnitsListData]);
+  const usersList = useMemo(() => usersData.map(u => ({ _id: u._id, fullName: u.fullName || u.username })), [usersData]); // Ensure fullName or username is used for label
   const approversList = useMemo(() => usersData.filter(u => u.permissions?.approve), [usersData]);
+  const projectTypesList = useMemo(() => projectTypesListData.map(pt => pt.name || String(pt)), [projectTypesListData]);
 
-  const isLoading = isLoadingProjects || isLoadingPending || isLoadingRejected || isFetchingProjects || isFetchingPending || isFetchingRejected;
+  const isLoading = isLoadingProjects || isLoadingPending || isLoadingRejected;
+  const isFetching = isFetchingProjects || isFetchingPending || isFetchingRejected;
 
+  const handleSortChange = useCallback((e) => {
+    setSortOrder(e.target.value);
+    setCurrentPage(1); // Reset page on sort change for main/pending
+    if (activeTab === 'rejected') setCurrentPageRejected(1); // Reset page for rejected
+  }, [activeTab]);
+
+  const handleResetFilters = useCallback(() => {
+    setFilters(initialFilters);
+    setCurrentPage(1);
+    if (activeTab === 'rejected') setCurrentPageRejected(1);
+  }, [initialFilters, activeTab]);
+
+  // Socket listeners for real-time updates
   useEffect(() => {
-    if (!user) return;
-    // Socket listeners
     const invalidateProjectQueries = () => {
       queryClient.invalidateQueries(['projects', type]);
       queryClient.invalidateQueries(['pendingProjects', type]);
     };
-
     const invalidateAllProjectRelatedQueries = () => {
       invalidateProjectQueries();
       queryClient.invalidateQueries(['rejectedProjects', type]);
     };
 
     if (user) {
-      if (!socket.connected) {
-        socket.connect();
-      }
-      socket.on('project_deleted', ({ projectId, projectType: eventProjectType }) => { // Đổi tên ở đây để rõ ràng
-        if (eventProjectType === type) invalidateAllProjectRelatedQueries();
-      });
-      socket.on('project_rejected', ({ projectId, projectType: eventProjectType }) => {
-        if (eventProjectType === type) invalidateAllProjectRelatedQueries();
-      });
-      socket.on('project_rejected_and_removed', ({ projectId, projectType: eventProjectType }) => {
-        if (eventProjectType === type) invalidateAllProjectRelatedQueries();
-      });
-      socket.on('notification_processed', () => {
-        invalidateProjectQueries();
-      });
-      socket.on('project_updated', ({ projectType: eventProjectType }) => {
-        if (eventProjectType === type) invalidateProjectQueries();
-      });
-      socket.on('project_approved', ({ projectType: eventProjectType }) => {
-        if (eventProjectType === type) invalidateProjectQueries();
-      });
-      socket.on('project_allocated', ({ projectType: eventProjectType }) => {
-        if (eventProjectType === type) invalidateProjectQueries();
-      });
-      socket.on('project_assigned', ({ projectType: eventProjectType }) => {
-        if (eventProjectType === type) invalidateProjectQueries();
-      });
+      if (!socket.connected) socket.connect();
+      socket.on('project_deleted', ({ projectType: eventProjectType }) => { if (eventProjectType === type) invalidateAllProjectRelatedQueries(); });
+      socket.on('project_rejected_and_removed', ({ projectType: eventProjectType }) => { if (eventProjectType === type) invalidateAllProjectRelatedQueries(); });
+      socket.on('notification_processed', () => invalidateProjectQueries()); // Could be more specific
+      socket.on('project_updated', ({ projectType: eventProjectType }) => { if (eventProjectType === type) invalidateProjectQueries(); });
+      socket.on('project_approved', ({ projectType: eventProjectType }) => { if (eventProjectType === type) invalidateProjectQueries(); });
+      socket.on('project_allocated', ({ projectType: eventProjectType }) => { if (eventProjectType === type) invalidateProjectQueries(); });
+      socket.on('project_assigned', ({ projectType: eventProjectType }) => { if (eventProjectType === type) invalidateProjectQueries(); });
+      socket.on('project_rejected_restored', ({ projectType: eventProjectType }) => { if (eventProjectType === type) invalidateAllProjectRelatedQueries(); });
+      socket.on('project_rejected_permanently_deleted', ({ projectType: eventProjectType }) => { if (eventProjectType === type) queryClient.invalidateQueries(['rejectedProjects', type]); });
 
       return () => {
         socket.off('project_deleted');
-        socket.off('project_rejected');
         socket.off('project_rejected_and_removed');
         socket.off('notification_processed');
         socket.off('project_updated');
         socket.off('project_approved');
         socket.off('project_allocated');
         socket.off('project_assigned');
+        socket.off('project_rejected_restored');
+        socket.off('project_rejected_permanently_deleted');
       };
     }
   }, [user, type, queryClient]);
 
-  const handleSortChange = (e) => {
-    const newSortOrder = e.target.value;
-    setSortOrder(newSortOrder);
+
+  return {
+    projectsData, pendingProjectsData, rejectedProjectsData,
+    isLoading, isFetching,
+    currentPage, setCurrentPage, currentPageRejected, setCurrentPageRejected,
+    sortOrder, setSortOrder, filters, setFilters, initialFilters,
+    allocatedUnits, allocationWavesList, constructionUnitsList, usersList, approversList, projectTypesList,
+    handleSortChange, handleResetFilters,
+    refetchProjects, refetchPendingProjects, refetchRejectedProjects,
   };
+};
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(initialFilters); // Reset toàn bộ object filters
-  }, [initialFilters]);
+// Custom hook for project mutations and form/modal logic
+const useProjectActions = (user, type, queryClient, addMessage) => {
+  const isCategory = type === 'category';
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState(null);
+  const [editProject, setEditProject] = useState(null);
+  // const [allocateWaves, setAllocateWaves] = useState({}); // Removed
+  // const [assignPersons, setAssignPersons] = useState({}); // Removed
 
-  const openAddNewModal = () => {
+  const [showExcelImportModal, setShowExcelImportModal] = useState(false);
+  const [excelImportData, setExcelImportData] = useState(null);
+  const [excelImportHeaders, setExcelImportHeaders] = useState([]);
+  const [excelImportBackendErrors, setExcelImportBackendErrors] = useState(null);
+
+
+  const initialFormData = useCallback(() => {
+    const baseState = {
+      name: '', allocatedUnit: '', supervisor: '', taskDescription: '', notes: '',
+      approvedBy: '', createdBy: user?._id || '',
+    };
+    if (isCategory) {
+      return {
+        ...baseState, constructionUnit: '', allocationWave: '', location: '', scale: '',
+        initialValue: '', estimator: '', durationDays: '', startDate: '', completionDate: '',
+        contractValue: '', progress: '', feasibility: '', projectType: '', estimatedValue: '',
+        leadershipApproval: '',
+      };
+    } else {
+      return {
+        ...baseState, reportDate: '', inspectionDate: '', paymentDate: '', paymentValue: '',
+        location: '', scale: '', leadershipApproval: '',
+      };
+    }
+  }, [isCategory, user]);
+
+  useEffect(() => {
+    setFormData(initialFormData());
+  }, [initialFormData]);
+
+  const openAddNewModal = useCallback(() => {
     setEditProject(null);
-    setFormData(initialFormData()); // Sử dụng initialFormData
+    setFormData(initialFormData());
     setShowModal(true);
-  };
+  }, [initialFormData]);
 
-  const openEditModal = (project) => {
+  const openEditModal = useCallback((project) => {
     setEditProject(project);
     const formatForInput = (dateStr) => dateStr ? new Date(dateStr).toISOString().split('T')[0] : '';
-    let projectDataToSet = {};
-
-    // Helper function to safely get user ID
-    const getUserId = (userData) => {
-      if (userData && typeof userData === 'object' && userData._id) {
-        return userData._id;
-      }
-      return userData || ''; // Return the string ID or empty string
-    };
+    const getUserId = (userData) => (userData && typeof userData === 'object' && userData._id) ? userData._id : (userData || '');
 
     const baseData = {
-      name: project.name || '',
-      allocatedUnit: project.allocatedUnit || '',
-      supervisor: getUserId(project.supervisor), // Đảm bảo lấy _id nếu là object
-      taskDescription: project.taskDescription || '',
-      notes: project.notes || '',
-      approvedBy: getUserId(project.approvedBy),
-      createdBy: getUserId(project.createdBy) || user?._id || '', // createdBy thường không thay đổi khi edit
+      name: project.name || '', allocatedUnit: project.allocatedUnit || '',
+      supervisor: getUserId(project.supervisor), taskDescription: project.taskDescription || '',
+      notes: project.notes || '', approvedBy: getUserId(project.approvedBy),
+      createdBy: getUserId(project.createdBy) || user?._id || '',
     };
 
+    let projectDataToSet = {};
     if (isCategory) {
       projectDataToSet = {
-        ...baseData,
-        constructionUnit: project.constructionUnit || '',
-        allocationWave: project.allocationWave || '',
-        location: project.location || '',
-        scale: project.scale || '',
-        initialValue: project.initialValue ?? '',
-        estimator: getUserId(project.estimator), // Đảm bảo lấy _id nếu là object
-        durationDays: project.durationDays ?? '',
-        startDate: formatForInput(project.startDate),
-        completionDate: formatForInput(project.completionDate),
-        contractValue: project.contractValue ?? '',
-        progress: project.progress || '',
-        feasibility: project.feasibility || '',
-        projectType: project.projectType || '',
-        estimatedValue: project.estimatedValue ?? '',
-        leadershipApproval: project.leadershipApproval || '',
+        ...baseData, constructionUnit: project.constructionUnit || '',
+        allocationWave: project.allocationWave || '', location: project.location || '',
+        scale: project.scale || '', initialValue: project.initialValue ?? '',
+        estimator: getUserId(project.estimator), durationDays: project.durationDays ?? '',
+        startDate: formatForInput(project.startDate), completionDate: formatForInput(project.completionDate),
+        contractValue: project.contractValue ?? '', progress: project.progress || '',
+        feasibility: project.feasibility || '', projectType: project.projectType || '',
+        estimatedValue: project.estimatedValue ?? '', leadershipApproval: project.leadershipApproval || '',
       };
     } else {
       projectDataToSet = {
-        ...baseData,
-        serial: project.minorRepairSerialNumber || '',
-        reportDate: formatForInput(project.reportDate),
+        ...baseData, reportDate: formatForInput(project.reportDate),
         inspectionDate: formatForInput(project.inspectionDate),
-        paymentDate: formatForInput(project.paymentDate),
-        paymentValue: project.paymentValue ?? '',
-        location: project.location || '',
-        scale: project.scale || '',
+        paymentDate: formatForInput(project.paymentDate), paymentValue: project.paymentValue ?? '',
+        location: project.location || '', scale: project.scale || '',
         leadershipApproval: project.leadershipApproval || '',
       };
     }
-    setFormData(projectDataToSet); // Sử dụng setFormData
+    setFormData(projectDataToSet);
     setShowModal(true);
-  };
-  // --- MUTATIONS ---
+  }, [isCategory, user, initialFormData]);
+
   const saveProjectMutation = useMutation({
     mutationFn: async (projectPayload) => {
-    // Kiểm tra các trường bắt buộc cho cả tạo mới và cập nhật
-    if (isCategory) {
-      if (!formData.name || !formData.allocatedUnit || !formData.projectType || !formData.scale || !formData.location || !formData.approvedBy) {
-        toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên danh mục, Đơn vị phân bổ, Loại công trình, Quy mô, Địa điểm XD, và Người phê duyệt!', { position: "top-center" });
-        return;
-      }
-    } else {
-      // Áp dụng kiểm tra cho cả tạo mới và cập nhật
-      if (!formData.name || !formData.allocatedUnit || !formData.location || !formData.scale || !formData.reportDate || !formData.approvedBy) {
-        toast.error('Vui lòng nhập đầy đủ các trường bắt buộc: Tên công trình, Đơn vị phân bổ, Địa điểm, Quy mô, Ngày xảy ra sự cố, và Người phê duyệt!', { position: "top-center" });
-        return;
-      }
-    }
-    projectPayload = { ...projectPayload, type }; // Add type for API
+      const payload = { ...projectPayload, type };
+      const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue', 'estimatedValue'];
+      const numericFieldsMinor = ['paymentValue'];
+      const fieldsToParse = isCategory ? numericFieldsCategory : numericFieldsMinor;
 
-    const numericFieldsCategory = ['initialValue', 'durationDays', 'contractValue', 'estimatedValue'];
-    const numericFieldsMinor = ['paymentValue'];
-    const fieldsToParse = isCategory ? numericFieldsCategory : numericFieldsMinor;
-
-    fieldsToParse.forEach((field) => {
-      const value = projectPayload[field];
-      if (value === '' || value === null || value === undefined || isNaN(parseFloat(value))) {
-        projectPayload[field] = null;
-      } else {
-        projectPayload[field] = parseFloat(value);
-      }
-    });
-
-    if (projectPayload.durationDays !== null && projectPayload.durationDays !== undefined) {
-      projectPayload.durationDays = parseInt(projectPayload.durationDays, 10) || null;
-    }
-
-    const fieldsToRemove = isCategory
-      ? ['serial', 'reportDate', 'inspectionDate', 'paymentDate', 'paymentValue', 'minorRepairSerialNumber']
-      : ['constructionUnit', 'allocationWave', 'estimator', 'durationDays', 'startDate', 'completionDate', 'contractValue', 'progress', 'feasibility', 'projectType', 'estimatedValue', 'categorySerialNumber'];
-    fieldsToRemove.forEach(field => delete projectPayload[field]);
-
-    if (!isCategory && !editProject) {
-      // Ensure supervisor and estimator are null if empty string
-      if (projectPayload.supervisor === '') {
-          projectPayload.supervisor = null;
-      }
-      if (isCategory && projectPayload.estimator === '') {
-          projectPayload.estimator = null;
+      fieldsToParse.forEach((field) => {
+        const value = payload[field];
+        payload[field] = (value === '' || value === null || value === undefined || isNaN(parseFloat(value))) ? null : parseFloat(value);
+      });
+      if (payload.durationDays !== null && payload.durationDays !== undefined) {
+        payload.durationDays = parseInt(payload.durationDays, 10) || null;
       }
 
+      const fieldsToRemove = isCategory
+        ? ['reportDate', 'inspectionDate', 'paymentDate', 'paymentValue']
+        : ['constructionUnit', 'allocationWave', 'estimator', 'durationDays', 'startDate', 'completionDate', 'contractValue', 'progress', 'feasibility', 'projectType', 'estimatedValue'];
+      fieldsToRemove.forEach(field => delete payload[field]);
 
-      // delete projectPayload.serial; // Backend sẽ tự tạo serial nếu không có
-    }
+      if (payload.supervisor === '') payload.supervisor = null;
+      if (isCategory && payload.estimator === '') payload.estimator = null;
 
-      if (editProject) {
-        return updateProject({ projectId: editProject._id, type, data: projectPayload });
-      } else {
-        return createProject(projectPayload);
-      }
-    },
-    onMutate: (projectPayload) => {
-      // Ensure supervisor and estimator are null if empty string BEFORE sending
-      if (projectPayload.supervisor === '') {
-          projectPayload.supervisor = null;
-      }
-      if (isCategory && projectPayload.estimator === '') {
-          projectPayload.estimator = null;
-      }
+      return editProject ? updateProject({ projectId: editProject._id, type, data: payload }) : createProject(payload);
     },
     onSuccess: (data) => {
       let successMessage = data.message || (editProject ? 'Đã cập nhật công trình!' : 'Đã đăng ký công trình!');
       if (data?.project?.pendingEdit || (!editProject && data?.project?.status === 'Chờ duyệt')) {
         successMessage += ' Công trình đang ở trạng thái "Chờ duyệt".';
       }
-      toast.success(successMessage, { position: "top-center" });
-      setFormData(initialFormData()); // Reset formData
+      addMessage(successMessage, 'success');
+      setFormData(initialFormData());
       queryClient.invalidateQueries(['projects', type]);
       queryClient.invalidateQueries(['pendingProjects', type]);
-      if (!editProject) setCurrentPage(1); // Go to first page on new creation
       setShowModal(false);
     },
-    onError: (err) => {
-      const errorMessage = err.response?.data?.message || 'Lỗi khi lưu công trình!';
-      toast.error(errorMessage, { position: "top-center" });
-    },
+    onError: (err) => addMessage(err.response?.data?.message || 'Lỗi khi lưu công trình!', 'error'),
   });
-  const saveProject = () => saveProjectMutation.mutate(formData);
 
-  const useCreateActionMutation = (mutationFn, { successMsg, confirmMsg, invalidateRejected = false } = {}) => {
+  const saveProject = useCallback(() => {
+    if (isCategory) {
+      if (!formData.name || !formData.allocatedUnit || !formData.projectType || !formData.scale || !formData.location || !formData.approvedBy) {
+        addMessage('Vui lòng nhập đầy đủ các trường bắt buộc: Tên, Đơn vị PB, Loại CT, Quy mô, Địa điểm, Người duyệt!', 'error'); return;
+      }
+    } else {
+      if (!formData.name || !formData.allocatedUnit || !formData.location || !formData.scale || !formData.reportDate || !formData.approvedBy) {
+        addMessage('Vui lòng nhập đầy đủ các trường bắt buộc: Tên, Đơn vị PB, Địa điểm, Quy mô, Ngày SC, Người duyệt!', 'error'); return;
+      }
+    }
+    saveProjectMutation.mutate(formData);
+  }, [saveProjectMutation, formData, isCategory, addMessage]);
+
+  const useGenericActionMutation = (mutationFn, { successMsg, invalidateRejected = false } = {}) => {
     return useMutation({
       mutationFn,
       onSuccess: (data) => {
-        toast.success(data.message || successMsg || "Thao tác thành công!", { position: "top-center" });
+        addMessage(data.message || successMsg || "Thao tác thành công!", 'success');
         queryClient.invalidateQueries(['projects', type]);
         queryClient.invalidateQueries(['pendingProjects', type]);
-        if (invalidateRejected) {
-          queryClient.invalidateQueries(['rejectedProjects', type]);
-        }
+        if (invalidateRejected) queryClient.invalidateQueries(['rejectedProjects', type]);
       },
-      onError: (err) => {
-        toast.error(err.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
-      },
+      onError: (err) => addMessage(err.response?.data?.message || 'Thao tác thất bại!', 'error'),
     });
   };
 
-  const restoreRejectedProjectMutation = useCreateActionMutation(
-    restoreRejectedProjectAPI,
-    { successMsg: 'Công trình đã được khôi phục và duyệt!', invalidateRejected: true }
-  );
-  const restoreRejectedProject = (rejectedId, projectDetails, projectModel, originalProjectId, actionType) => {
-    if (!window.confirm('Bạn có chắc chắn muốn khôi phục công trình này? Công trình sẽ được duyệt và chuyển vào danh sách chính.')) {
-      return;
-    }
-    restoreRejectedProjectMutation.mutate({ rejectedId, projectDetails, projectModel, originalProjectId, actionType });
-  };
-
-  const permanentlyDeleteRejectedProjectMutation = useCreateActionMutation(
-    permanentlyDeleteRejectedProjectAPI,
-    { successMsg: 'Công trình bị từ chối đã được xóa vĩnh viễn.', invalidateRejected: true }
-  );
-  const permanentlyDeleteRejectedProject = (rejectedId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn công trình bị từ chối này? Hành động này không thể hoàn tác.')) {
-      permanentlyDeleteRejectedProjectMutation.mutate(rejectedId);
-    }
-  };
-
-  const handleActionWithConfirm = (mutation, variables, confirmMessage = "Bạn có chắc chắn?") => {
+  const handleActionWithConfirm = useCallback((mutation, variables, confirmMessage = "Bạn có chắc chắn?") => {
     if (window.confirm(confirmMessage)) {
       mutation.mutate(variables);
     }
-  };
+  }, []);
 
-  const deleteProjectMutation = useCreateActionMutation(deleteProjectAPI); // Sử dụng hàm API đã đổi tên
-  const deleteProject = (id) =>
-    handleActionWithConfirm(deleteProjectMutation, { projectId: id, type },
-      "Xác nhận Xóa hoặc gửi Yêu cầu xóa công trình này?"
-    );
+  const deleteProjectMutation = useGenericActionMutation(deleteProjectAPI, { successMsg: 'Yêu cầu xóa/xóa công trình đã được xử lý.'});
+  const deleteProject = (id) => handleActionWithConfirm(deleteProjectMutation, { projectId: id, type }, "Xác nhận Xóa hoặc gửi Yêu cầu xóa công trình này?");
 
-  const approveProjectMutation = useCreateActionMutation(approveProjectAPI);
-  const approveProject = (id) =>
-    handleActionWithConfirm(approveProjectMutation, { projectId: id, type },
-      "Xác nhận DUYỆT công trình này?"
-    );
+  const approveProjectMutation = useGenericActionMutation(approveProjectAPI, { successMsg: 'Công trình đã được duyệt.' });
+  const approveProject = (id) => handleActionWithConfirm(approveProjectMutation, { projectId: id, type }, "Xác nhận DUYỆT công trình này?");
 
-  const rejectProjectMutation = useCreateActionMutation(rejectProjectAPI);
+  const rejectProjectMutation = useGenericActionMutation(rejectProjectAPI, { successMsg: 'Công trình đã bị từ chối.' });
   const rejectProject = (id) => {
     const reason = prompt("Vui lòng nhập lý do từ chối:");
-    if (reason === null) return; // User cancelled
-    if (!reason || reason.trim() === "") {
-      toast.error("Lý do từ chối không được để trống.");
-      return;
-    }
-    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason },
-      "Xác nhận TỪ CHỐI công trình này?"
-    );
-  }
-
-  const allocateProjectMutation = useCreateActionMutation(allocateProjectAPI);
-  const allocateProject = (id) => {
-    const constructionUnit = prompt("Nhập đơn vị thi công:");
-    if (constructionUnit === null) return;
-    if (!constructionUnit || constructionUnit.trim() === "") {
-      toast.error("Đơn vị thi công không được để trống.");
-      return;
-    }
-    const allocationWave = prompt("Nhập đợt phân bổ:");
-    if (allocationWave === null) return;
-    if (!allocationWave || allocationWave.trim() === "") {
-      toast.error("Đợt phân bổ không được để trống.");
-      return;
-    }
-    handleActionWithConfirm(allocateProjectMutation, { projectId: id, type, constructionUnit: constructionUnit.trim(), allocationWave: allocationWave.trim() },
-      `Phân bổ cho ĐVTC "${constructionUnit.trim()}" (Đợt: "${allocationWave.trim()}")?`
-    );
+    if (reason === null) return;
+    if (!reason || reason.trim() === "") { addMessage("Lý do từ chối không được để trống.", 'error'); return; }
+    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason }, "Xác nhận TỪ CHỐI công trình này?");
   };
+  // Removed allocateProject and assignProject
+  // const allocateProjectMutation = useGenericActionMutation(allocateProjectAPI);
+  // const allocateProject = (id) => {
+  //   const constructionUnit = prompt("Nhập đơn vị thi công:");
+  //   if (constructionUnit === null) return;
+  //   if (!constructionUnit || constructionUnit.trim() === "") { addMessage("Đơn vị thi công không được để trống.", 'error'); return; }
+  //   const allocationWave = prompt("Nhập đợt phân bổ:");
+  //   if (allocationWave === null) return;
+  //   if (!allocationWave || allocationWave.trim() === "") { addMessage("Đợt phân bổ không được để trống.", 'error'); return; }
+  //   handleActionWithConfirm(allocateProjectMutation, { projectId: id, type, constructionUnit: constructionUnit.trim(), allocationWave: allocationWave.trim() }, `Phân bổ cho ĐVTC "${constructionUnit.trim()}" (Đợt: "${allocationWave.trim()}")?`);
+  // };
 
-  const assignProjectMutation = useCreateActionMutation(assignProjectAPI);
-  const assignProject = (id) => {
-    const supervisor = prompt("Nhập ID người giám sát:");
-    if (supervisor === null) return;
-    if (!supervisor || supervisor.trim() === "") {
-      toast.error("ID người giám sát không được để trống.");
-      return;
-    }
-    let estimator = null;
-    if (isCategory) {
-      estimator = prompt("Nhập ID người dự toán (nếu có):");
-      if (estimator === null) return; // User cancelled at estimator prompt
-    }
+  // const assignProjectMutation = useGenericActionMutation(assignProjectAPI);
+  // const assignProject = (id) => {
+  //   const supervisor = prompt("Nhập ID người giám sát:");
+  //   if (supervisor === null) return;
+  //   if (!supervisor || supervisor.trim() === "") { addMessage("ID người giám sát không được để trống.", 'error'); return; }
+  //   let estimator = null;
+  //   if (isCategory) {
+  //     estimator = prompt("Nhập ID người dự toán (nếu có):");
+  //     if (estimator === null) return;
+  //   }
+  //   const payload = { supervisor: supervisor.trim() };
+  //   if (isCategory && estimator && estimator.trim() !== "") payload.estimator = estimator.trim();
+  //   handleActionWithConfirm(assignProjectMutation, { projectId: id, type, ...payload }, `Giao việc cho Giám sát ID: "${supervisor.trim()}"` + (isCategory && estimator && estimator.trim() ? ` và Dự toán ID: "${estimator.trim()}"` : "") + "?");
+  // };
 
-    const payload = { supervisor: supervisor.trim() };
-    if (isCategory && estimator && estimator.trim() !== "") {
-      payload.estimator = estimator.trim();
-    }
-    handleActionWithConfirm(assignProjectMutation, { projectId: id, type, ...payload },
-      `Giao việc cho Giám sát ID: "${supervisor.trim()}"` + (isCategory && estimator && estimator.trim() ? ` và Dự toán ID: "${estimator.trim()}"` : "") + "?"
-    );
-  };
-
-  // Approve/Reject Edit/Delete actions use the same approveProjectAPI and rejectProjectAPI
-  // The backend /approve and /reject routes handle pendingEdit and pendingDelete logic.
-  const approveEditProject = (id) =>
-    handleActionWithConfirm(approveProjectMutation, { projectId: id, type },
-      "Xác nhận DUYỆT yêu cầu sửa công trình này?"
-    );
-
+  const approveEditProject = (id) => handleActionWithConfirm(approveProjectMutation, { projectId: id, type }, "Xác nhận DUYỆT yêu cầu sửa công trình này?");
   const rejectEditProject = (id) => {
     const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu sửa:");
     if (reason === null) return;
-    if (!reason || reason.trim() === "") { toast.error("Lý do từ chối không được để trống."); return; }
-    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason },
-      "Xác nhận TỪ CHỐI yêu cầu sửa công trình này?"
-    );
-  }
-
-  const approveDeleteProject = (id) =>
-    handleActionWithConfirm(approveProjectMutation, { projectId: id, type },
-      "Xác nhận DUYỆT yêu cầu xóa công trình này?"
-    );
-
+    if (!reason || reason.trim() === "") { addMessage("Lý do từ chối không được để trống.", 'error'); return; }
+    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason }, "Xác nhận TỪ CHỐI yêu cầu sửa công trình này?");
+  };
+  const approveDeleteProject = (id) => handleActionWithConfirm(approveProjectMutation, { projectId: id, type }, "Xác nhận DUYỆT yêu cầu xóa công trình này?");
   const rejectDeleteProject = (id) => {
     const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu xóa:");
     if (reason === null) return;
-    if (!reason || reason.trim() === "") { toast.error("Lý do từ chối không được để trống."); return; }
-    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason },
-      "Xác nhận TỪ CHỐI yêu cầu xóa công trình này?"
-    );
-  }
-
-  // --- EXCEL IMPORT LOGIC ---
-  const handleDownloadTemplate = () => {
-    try {
-      generateExcelTemplate(type);
-      toast.success("Đã tải file mẫu Excel!", { position: "top-center" });
-    } catch (error) {
-      toast.error("Lỗi khi tạo file mẫu Excel.", { position: "top-center" });
-      console.error("Error generating Excel template:", error);
-    }
+    if (!reason || reason.trim() === "") { addMessage("Lý do từ chối không được để trống.", 'error'); return; }
+    handleActionWithConfirm(rejectProjectMutation, { projectId: id, type, reason }, "Xác nhận TỪ CHỐI yêu cầu xóa công trình này?");
   };
 
-  const handleFileImport = async (event) => {
+  const restoreRejectedProjectMutation = useGenericActionMutation(restoreRejectedProjectAPI, { successMsg: 'Công trình đã được khôi phục và duyệt!', invalidateRejected: true });
+  const restoreRejectedProject = (rejectedId) => {
+    if (!window.confirm('Bạn có chắc chắn muốn khôi phục công trình này? Công trình sẽ được duyệt và chuyển vào danh sách chính.')) return;
+    restoreRejectedProjectMutation.mutate(rejectedId);
+  };
+
+  const permanentlyDeleteRejectedProjectMutation = useGenericActionMutation(permanentlyDeleteRejectedProjectAPI, { successMsg: 'Công trình bị từ chối đã được xóa vĩnh viễn.', invalidateRejected: true });
+  const permanentlyDeleteRejectedProject = (rejectedId) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn công trình bị từ chối này? Hành động này không thể hoàn tác.')) return;
+    permanentlyDeleteRejectedProjectMutation.mutate(rejectedId);
+  };
+
+  const handleDownloadTemplate = useCallback(() => {
+    try {
+      generateExcelTemplate(type);
+      addMessage("Đã tải file mẫu Excel!", 'success');
+    } catch (error) {
+      addMessage("Lỗi khi tạo file mẫu Excel.", 'error');
+      console.error("Error generating Excel template:", error);
+    }
+  }, [type, addMessage]);
+
+  const handleFileImport = useCallback(async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
     if (!file.name.match(/\.(xlsx|xls)$/)) {
-      toast.error("Vui lòng chọn file Excel (.xlsx hoặc .xls).", { position: "top-center" });
-      return;
+      addMessage("Vui lòng chọn file Excel (.xlsx hoặc .xls).", 'error'); return;
     }
-
     try {
       const { jsonData, headerRow } = await readExcelData(file);
       if (!jsonData || jsonData.length === 0) {
-        toast.warn("File Excel rỗng hoặc không có dữ liệu.", { position: "top-center" });
-        return;
+        addMessage("File Excel rỗng hoặc không có dữ liệu.", 'warn'); return;
       }
-      // Cần map headerRow từ file Excel sang cấu hình cột của bạn (fieldName, required, optionsSource)
-      // Đây là một bước quan trọng để modal biết cách hiển thị và validate.
-      // Tạm thời, chúng ta sẽ truyền headerRow và jsonData, modal sẽ cố gắng map.
-      // Lý tưởng nhất là bạn có một hàm map headerRow với formConfig.
-      setExcelImportHeaders(headerRow); // Lưu header gốc từ file
+      setExcelImportHeaders(headerRow);
       setExcelImportData(jsonData);
       setShowExcelImportModal(true);
+      setExcelImportBackendErrors(null); // Clear previous backend errors
     } catch (error) {
-      toast.error(error.message || "Lỗi khi đọc file Excel.", { position: "top-center" });
+      addMessage(error.message || "Lỗi khi đọc file Excel.", 'error');
       console.error("Error processing Excel file:", error);
     }
-  };
+  }, [addMessage]);
 
   const importProjectsMutation = useMutation({
     mutationFn: (projectsToImport) => importProjectsAPI({ projects: projectsToImport, projectType: type }),
     onSuccess: (data) => {
-      // Nếu backend trả về success (nghĩa là tất cả công trình đều hợp lệ và đã được lưu)
-      toast.success(data.message || "Tất cả công trình đã được nhập thành công!", { position: "top-center" });
+      addMessage(data.message || "Tất cả công trình đã được nhập thành công!", 'success');
       queryClient.invalidateQueries(['projects', type]);
       queryClient.invalidateQueries(['pendingProjects', type]);
       setShowExcelImportModal(false);
       setExcelImportData(null);
-      setExcelImportHeaders([]); // Clear headers
+      setExcelImportHeaders([]);
+      setExcelImportBackendErrors(null);
     },
     onError: (error) => {
-      // Nếu backend trả về lỗi (ví dụ: status 400 với danh sách lỗi chi tiết)
       const errorData = error.response?.data;
       if (errorData && errorData.results && Array.isArray(errorData.results)) {
-        toast.error(errorData.message || "Có lỗi trong dữ liệu. Vui lòng kiểm tra lại bảng.", { position: "top-center" });
-        // Không đóng modal, không clear data.
-        // ExcelImportModal sẽ cần một cách để nhận và hiển thị các lỗi này.
-        // Chúng ta có thể truyền một hàm callback vào ExcelImportModal để cập nhật lỗi từ backend,
-        // hoặc ProjectManagementLogic có thể set một state mới chứa lỗi backend và truyền xuống.
-        // Để đơn giản, hiện tại chỉ hiển thị toast chung.
-        // Nâng cao: Cập nhật validationErrors trong ExcelImportModal dựa trên errorData.results
-        // Ví dụ: setExcelImportBackendErrors(errorData.results); // Cần thêm state này và truyền xuống modal
+        addMessage(errorData.message || "Có lỗi trong dữ liệu Excel. Vui lòng kiểm tra lại bảng.", 'error');
+        setExcelImportBackendErrors(errorData.results); // Set backend errors for modal
       } else {
-        toast.error(error.response?.data?.message || "Lỗi không xác định khi nhập công trình từ Excel!", { position: "top-center" });
+        addMessage(error.response?.data?.message || "Lỗi không xác định khi nhập công trình từ Excel!", 'error');
       }
-      // Không đóng modal, không clear data để người dùng sửa
     }
   });
-  const submitExcelData = (processedData) => importProjectsMutation.mutate(processedData);
-  const isSubmitting = saveProjectMutation.isLoading;
-  const isSubmittingAction =
-    deleteProjectMutation.isLoading ||
-    approveProjectMutation.isLoading ||
-    rejectProjectMutation.isLoading ||
-    allocateProjectMutation.isLoading ||
-    assignProjectMutation.isLoading ||
-    restoreRejectedProjectMutation.isLoading ||
-    permanentlyDeleteRejectedProjectMutation.isLoading;
-  
-  const isImportingExcel = importProjectsMutation.isLoading;
+  const submitExcelData = useCallback((processedData) => importProjectsMutation.mutate(processedData), [importProjectsMutation]);
 
-return {
-    filteredProjects,
-    pendingProjects,
-    rejectedProjects,
-    totalPages,
-    currentPage,
-    setCurrentPage,
-    sortOrder,
-    setSortOrder,
-    showFilter,
-    setShowFilter,
-    totalProjectsCount,
-    formData,
-    setFormData,
-    editProject,
-    setEditProject,
-    allocateWaves,
-    setAllocateWaves,
-    assignPersons,
-    setAssignPersons, // Giữ lại setAssignPersons vì nó được dùng trong renderTableActions
-    allocatedUnits,
-    constructionUnitsList,
-    allocationWavesList,
-    usersList,
-    approversList,
-    projectTypesList,
-    showModal,
-    setShowModal,
-    isLoading, // This is the combined loading state
-    isSubmittingAction,
-    isSubmitting,
-    activeTab,
-    setActiveTab,
-    initialFormData,
-    filters,
-    setFilters,
-    handleSortChange,
-    handleResetFilters,
-    openAddNewModal,
-    openEditModal,
-    saveProject,
-    deleteProject,
-    approveProject,
-    rejectProject,
-    allocateProject,
-    assignProject,
-    approveEditProject,
-    rejectEditProject,
-    approveDeleteProject,
-    rejectDeleteProject,
-    restoreRejectedProject,
-    permanentlyDeleteRejectedProject,
-    // Excel import related
-    handleFileImport,
-    handleDownloadTemplate,
-    showExcelImportModal,
-    setShowExcelImportModal,
-    excelImportData, setExcelImportData, // Để modal có thể clear khi đóng
-    excelImportHeaders,
-    submitExcelData,
-    isImportingExcel,
+  return {
+    showModal, setShowModal, formData, setFormData, editProject, setEditProject,
+    // allocateWaves, setAllocateWaves, assignPersons, setAssignPersons, // Removed
+    openAddNewModal, openEditModal, saveProject,
+    deleteProject, approveProject, rejectProject, // allocateProject, assignProject, // Removed
+    approveEditProject, rejectEditProject, approveDeleteProject, rejectDeleteProject,
+    restoreRejectedProject, permanentlyDeleteRejectedProject,
+    showExcelImportModal, setShowExcelImportModal, excelImportData, setExcelImportData,
+    excelImportHeaders, setExcelImportHeaders, handleDownloadTemplate, handleFileImport,
+    submitExcelData, isImportingExcel: importProjectsMutation.isLoading,
+    excelImportBackendErrors, // Expose backend errors
+    isSubmitting: saveProjectMutation.isLoading,
+    isSubmittingAction: deleteProjectMutation.isLoading || approveProjectMutation.isLoading ||
+                        rejectProjectMutation.isLoading || /* allocateProjectMutation.isLoading || */ // Removed
+                        /* assignProjectMutation.isLoading || */ restoreRejectedProjectMutation.isLoading || // Removed
+                        permanentlyDeleteRejectedProjectMutation.isLoading,
+  };
+};
+
+// Main logic hook that combines data fetching and actions
+function ProjectManagementLogic({ user, type, showHeader, addMessage }) {
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState('projects'); // Manage activeTab here
+  const [showFilter, setShowFilter] = useState(true); // Manage showFilter here
+
+  const {
+    projectsData, pendingProjectsData, rejectedProjectsData,
+    isLoading, isFetching,
+    currentPage, setCurrentPage, currentPageRejected, setCurrentPageRejected,
+    sortOrder, setSortOrder, filters, setFilters, initialFilters,
+    allocatedUnits, allocationWavesList, constructionUnitsList, usersList, approversList, projectTypesList,
+    handleSortChange, handleResetFilters: resetDataFilters, // Renamed to avoid conflict
+    refetchProjects, refetchPendingProjects, refetchRejectedProjects,
+  } = useProjectData(user, type, activeTab, itemsPerPageGlobal);
+
+  const {
+    showModal, setShowModal, formData, setFormData, editProject, setEditProject,
+    // allocateWaves, setAllocateWaves, assignPersons, setAssignPersons, // Removed
+    openAddNewModal, openEditModal, saveProject,
+    deleteProject, approveProject, rejectProject, // allocateProject, assignProject, // Removed
+    approveEditProject, rejectEditProject, approveDeleteProject, rejectDeleteProject,
+    restoreRejectedProject, permanentlyDeleteRejectedProject,
+    showExcelImportModal, setShowExcelImportModal, excelImportData, setExcelImportData,
+    excelImportHeaders, setExcelImportHeaders, handleDownloadTemplate, handleFileImport,
+    submitExcelData, isImportingExcel, excelImportBackendErrors,
+    isSubmitting, isSubmittingAction,
+  } = useProjectActions(user, type, queryClient, addMessage);
+
+  const handleResetFilters = useCallback(() => {
+    resetDataFilters(); // Call the reset from useProjectData
+    // Any other reset logic specific to ProjectManagementLogic can go here
+  }, [resetDataFilters]);
+
+  return {
+    // From useProjectData
+    projectsData, pendingProjectsData, rejectedProjectsData,
+    isLoading, isFetching,
+    currentPage, setCurrentPage, currentPageRejected, setCurrentPageRejected,
+    sortOrder, setSortOrder, filters, setFilters, initialFilters,
+    allocatedUnits, allocationWavesList, constructionUnitsList, usersList, approversList, projectTypesList,
+    handleSortChange, handleResetFilters,
+    refetchProjects, refetchPendingProjects, refetchRejectedProjects,
+    // From useProjectActions
+    showModal, setShowModal, formData, setFormData, editProject, setEditProject,
+    // allocateWaves, setAllocateWaves, assignPersons, setAssignPersons, // Removed
+    openAddNewModal, openEditModal, saveProject,
+    deleteProject, approveProject, rejectProject, // allocateProject, assignProject, // Removed
+    approveEditProject, rejectEditProject, approveDeleteProject, rejectDeleteProject,
+    restoreRejectedProject, permanentlyDeleteRejectedProject,
+    showExcelImportModal, setShowExcelImportModal, excelImportData, setExcelImportData,
+    excelImportHeaders, setExcelImportHeaders, handleDownloadTemplate, handleFileImport,
+    submitExcelData, isImportingExcel, excelImportBackendErrors,
+    isSubmitting, isSubmittingAction,
+    // Local state for ProjectManagement
+    activeTab, setActiveTab,
+    showFilter, setShowFilter,
+    // Derived data for UI
+    filteredProjects: projectsData?.projects || [],
+    totalProjectsCount: projectsData?.total || 0,
+    totalPages: projectsData?.pages || 1,
+    pendingProjects: pendingProjectsData?.projects || [],
+    totalPendingCount: pendingProjectsData?.total || 0,
+    totalPagesPending: pendingProjectsData?.pages || 1,
+    rejectedProjects: rejectedProjectsData?.rejectedProjects || [],
+    totalRejectedCount: rejectedProjectsData?.total || 0,
+    totalPagesRejected: rejectedProjectsData?.pages || 1,
   };
 }
 

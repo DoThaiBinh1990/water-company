@@ -20,11 +20,8 @@ function Login({ setUser, initializeAuth }) {
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(user); // Cập nhật state user trong App.js
       toast.success('Đăng nhập thành công!', { position: "top-center" });
-      if (initializeAuth) {
-          // Đảm bảo initializeAuth được gọi sau khi user state đã được cập nhật
-          // Hoặc initializeAuth có thể tự đọc token từ localStorage
-          initializeAuth();
-      }
+      // Không cần gọi initializeAuth ở đây nữa.
+      // App.js sẽ tự động cập nhật user state và các query phụ thuộc khi nó re-render.
       setTimeout(() => navigate('/category'), 1000); // Chuyển hướng sau khi đăng nhập
     },
     onError: (error) => {
@@ -38,7 +35,7 @@ function Login({ setUser, initializeAuth }) {
       toast.error('Vui lòng nhập đầy đủ thông tin!', { position: "top-center" });
       return;
     }
-    loginMutation.mutate({ username, password });
+    loginMutation.mutate({ username: username.trim(), password });
   };
 
   return (

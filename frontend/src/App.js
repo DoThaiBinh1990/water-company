@@ -1,18 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+// d:\CODE\water-company\frontend\src\App.js
+import React, { useState, useEffect, useCallback, Suspense } from 'react'; // Thêm Suspense
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient as useReactQueryClient } from '@tanstack/react-query'; // Đổi tên useQueryClient để tránh xung đột
+import { useQuery, useMutation, useQueryClient as useReactQueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import ProjectManagement from './components/ProjectManagement/ProjectManagement';
-import Settings from './pages/Settings';
-import Login from './pages/Login';
+// import ProjectManagement from './components/ProjectManagement/ProjectManagement'; // Lazy load
+// import Settings from './pages/Settings'; // Lazy load
+// import Login from './pages/Login'; // Lazy load
 import {
-  apiClient, // Sử dụng apiClient đã cấu hình interceptor
+  apiClient,
   getMe,
   getNotificationsByStatus as fetchNotificationsAPI,
-  getProjectStatus, // API để kiểm tra trạng thái trước khi action
-  approveEditProject as approveEditAPI, // Đổi tên để rõ ràng là API call
+  getProjectStatus,
+  approveEditProject as approveEditAPI,
   rejectEditProject as rejectEditAPI,
   approveDeleteProject as approveDeleteAPI,
   rejectDeleteProject as rejectDeleteAPI,
@@ -20,85 +21,116 @@ import {
 import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './toastify-custom.css';
+import './toastify-custom.css'; // Import file CSS tùy chỉnh
 
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
+const ProjectManagement = React.lazy(() => import('./components/ProjectManagement/ProjectManagement'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const Login = React.lazy(() => import('./pages/Login'));
 
-const socket = io(apiClient.defaults.baseURL, { // Sử dụng baseURL từ apiClient
+
+const socket = io(apiClient.defaults.baseURL, {
   transports: ['websocket', 'polling'],
   withCredentials: true,
   autoConnect: false,
 });
 
 function App() {
+  // console.log("App component mounted. Token from localStorage:", localStorage.getItem('token')); // Nên xóa khi production
+
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const queryClientHook = useReactQueryClient(); // Sử dụng tên đã đổi
+  const queryClientHook = useReactQueryClient();
 
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [currentNotificationTab, setCurrentNotificationTab] = useState('pending');
-  const [showHeader, setShowHeader] = useState(true); // Trạng thái ẩn/hiện Header (chỉ trên mobile)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Trạng thái ẩn/hiện Sidebar
+  const [showHeader, setShowHeader] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUser } = useQuery({
+  const {
+    data: currentUserDataResult,
+    isLoading: isLoadingUser,
+    isError: isErrorUser,
+    error: userErrorObject,
+    // refetch: refetchUser, // Hiện không dùng
+  } = useQuery({
     queryKey: ['currentUser'],
     queryFn: getMe,
-    enabled: !!localStorage.getItem('token'), // Chỉ fetch khi có token
-    retry: false, // Không retry nếu lỗi (thường là token invalid)
-    onSuccess: (data) => {
-      if (data && typeof data === 'object') {
-        setUser(data);
+    enabled: !!localStorage.getItem('token'),
+    retry: 1,
+    onSuccess: (userData) => {
+      // console.log("!!!!!! [App.js useQuery currentUser] onSuccess CALLED. UserData:", userData ? typeof userData : String(userData));
+      if (userData && typeof userData === 'object') {
+        const userIdField = userData._id || userData.id;
+        if (userIdField || userData.username) {
+          setUser(userData);
+          // console.log("!!!!!! [App.js useQuery currentUser] onSuccess: setUser CALLED with valid data.");
+        } else {
+          // console.error("!!!!!! [App.js useQuery currentUser] onSuccess: userData is object BUT id/username MISSING. Logging out.", JSON.stringify(userData, null, 2));
+          handleLogout();
+        }
       } else {
-        // Dữ liệu user không hợp lệ, có thể token đã hết hạn ở backend nhưng vẫn hợp lệ ở client
-        console.error("Dữ liệu người dùng không hợp lệ từ server", data);
-        handleLogout(); // Xử lý logout
+        // console.error("!!!!!! [App.js useQuery currentUser] onSuccess: userData is NOT valid object or is null/undefined. Logging out. Received:", userData);
+        handleLogout();
       }
+      // console.log("!!!!!! [App.js useQuery currentUser] onSuccess FINISHED.");
     },
     onError: (error) => {
-      console.error('Lỗi xác thực token (useQuery):', error);
-      handleLogout(); // Xử lý logout nếu có lỗi
+      // console.error('!!!!!! [App.js useQuery currentUser] onError CALLED. Error:', error.response?.data || error.message || error);
+      handleLogout();
+    },
+    onSettled: (data, error) => {
+      // console.log(
+      //   "!!!!!! [App.js useQuery currentUser] onSettled CALLED. Data:", data ? "Exists" : String(data),
+      //   "Error:", error ? "Exists" : String(error)
+      // );
     }
   });
 
+  const handleLogout = useCallback(() => {
+    // console.trace("handleLogout called from:");
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    delete apiClient.defaults.headers.common['Authorization'];
+    setUser(null);
+    setShowNotificationsModal(false);
+    queryClientHook.clear();
+    navigate('/login');
+  }, [navigate, queryClientHook]);
+
   const {
-    data: notifications = [], // Mặc định là mảng rỗng
+    data: notifications = [],
     isLoading: isNotificationsLoading,
-    refetch: refetchNotifications // Hàm để fetch lại notifications
+    refetch: refetchNotifications
   } = useQuery({
-    queryKey: ['notifications', currentNotificationTab],
-    queryFn: () => fetchNotificationsAPI(currentNotificationTab),
-    enabled: !!user && showNotificationsModal, // Chỉ fetch khi user đã login và modal hiển thị
+    queryKey: ['notifications', currentNotificationTab], // Query key phụ thuộc vào tab hiện tại
+    queryFn: () => fetchNotificationsAPI(currentNotificationTab), // Gọi API với status tương ứng
+    enabled: !!user && showNotificationsModal, // Chỉ fetch khi user đăng nhập và modal hiển thị
     onError: (error) => {
       console.error("Lỗi tải thông báo (useQuery):", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Lỗi tải thông báo!', { position: "top-center" });
     }
   });
 
-  const initializeAuth = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Interceptor trong apiService sẽ tự động thêm token.
-      // Đảm bảo apiClient có header nếu token vừa được set bởi Login.js
-      if (!apiClient.defaults.headers.common['Authorization']) {
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
-      await refetchUser(); // Gọi refetch để useQuery currentUser chạy
-    } else {
-      setUser(null); // Nếu không có token, set user là null
-    }
-  }, [refetchUser, navigate]);
-
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+    // console.log("!!!!!! [App.js useEffect for currentUserDataResult] Triggered. isLoadingUser:", isLoadingUser, "isErrorUser:", isErrorUser, "Data:", currentUserDataResult ? "Exists" : String(currentUserDataResult));
+    if (!isLoadingUser) {
+      if (isErrorUser) {
+        // console.error("!!!!!! [App.js useEffect for currentUserDataResult] Error from query. Logging out. Error:", userErrorObject);
+        handleLogout();
+      } else if (currentUserDataResult) {
+        if (typeof currentUserDataResult === 'object' && (currentUserDataResult._id || currentUserDataResult.id || currentUserDataResult.username)) {
+          // console.log("!!!!!! [App.js useEffect for currentUserDataResult] Setting user from useEffect.");
+          setUser(currentUserDataResult);
+        } else {
+          // console.error("!!!!!! [App.js useEffect for currentUserDataResult] Invalid user data structure from query. Logging out.", JSON.stringify(currentUserDataResult, null, 2));
+          handleLogout();
+        }
+      } else if (!currentUserDataResult && localStorage.getItem('token')) {
+        // console.error("!!!!!! [App.js useEffect for currentUserDataResult] No error, but no user data (getMe likely returned null) while token exists. Logging out.");
+        handleLogout();
+      }
+    }
+  }, [isLoadingUser, isErrorUser, currentUserDataResult, userErrorObject, handleLogout]);
 
   useEffect(() => {
     if (user) {
@@ -106,10 +138,7 @@ function App() {
         socket.connect();
       }
       if (showNotificationsModal) {
-        refetchNotifications(); // Fetch lại khi modal mở hoặc tab thay đổi
-      } else if (notifications.length === 0 && user.permissions?.approve) {
-        // Có thể fetch 'pending' notifications ở đây nếu muốn hiển thị badge sớm
-        // queryClientHook.prefetchQuery(['notifications', 'pending'], () => fetchNotificationsAPI('pending'));
+        refetchNotifications();
       }
     } else {
       if (socket.connected) {
@@ -118,21 +147,23 @@ function App() {
     }
 
     const handleNewNotification = (notification) => {
+      // Invalidate query cho tab hiện tại nếu modal đang mở
       if (showNotificationsModal) {
         queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
       }
-      // Luôn invalidate tab 'pending' nếu user có quyền approve và có notif mới dạng pending
+      // Luôn invalidate query cho tab 'pending' nếu user có quyền approve và đó là thông báo pending
       if (user?.permissions?.approve && notification.status === 'pending') {
         queryClientHook.invalidateQueries(['notifications', 'pending']);
-        toast.info(`Có yêu cầu mới: ${notification.message}`, { position: "top-center" });
+        toast.info(`Có yêu cầu mới: ${notification.message}`, { position: "top-right" }); // Chuyển vị trí toast
       }
     };
 
-    const handleNotificationProcessed = () => {
-      if (showNotificationsModal) {
-        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
-      }
-      queryClientHook.invalidateQueries(['notifications', 'pending']); // Invalidate tab pending
+    const handleNotificationProcessed = (notificationId) => {
+      // Invalidate query cho cả hai tab khi một thông báo được xử lý
+      // (vì nó có thể chuyển từ pending sang processed)
+      queryClientHook.invalidateQueries(['notifications', 'pending']);
+      queryClientHook.invalidateQueries(['notifications', 'processed']);
+      // Có thể thêm logic để cập nhật cache trực tiếp nếu muốn tối ưu hơn
     };
 
     socket.on('notification', handleNewNotification);
@@ -142,66 +173,38 @@ function App() {
       socket.off('notification', handleNewNotification);
       socket.off('notification_processed', handleNotificationProcessed);
     };
-  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook, notifications.length]);
+  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    delete apiClient.defaults.headers.common['Authorization'];
-    setUser(null);
-    setShowNotificationsModal(false);
-    queryClientHook.clear(); // Xóa cache của React Query khi logout
-    navigate('/login');
-  };
 
-  // Hook chung cho các mutation liên quan đến project actions từ notification
   const useProjectActionMutation = (mutationFn, successMessageKey) => {
     return useMutation({
       mutationFn,
       onSuccess: (data) => {
-        toast.success(data?.message || successMessageKey || "Thao tác thành công!", { position: "top-center" });
+        toast.success(data?.message || successMessageKey || "Thao tác thành công!", { position: "top-right" });
         queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
-        queryClientHook.invalidateQueries(['notifications', 'pending']); // Luôn làm mới tab pending
-        // Invalidate project list as well
+        queryClientHook.invalidateQueries(['notifications', 'pending']);
         queryClientHook.invalidateQueries(['projects']);
         queryClientHook.invalidateQueries(['pendingProjects']);
+        queryClientHook.invalidateQueries(['rejectedProjects']); // Thêm invalidate cho rejected projects
       },
       onError: (error) => {
         console.error("Lỗi hành động thông báo:", error.response?.data?.message || error.message);
-        toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-center" });
-        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]); // Làm mới để user thấy trạng thái hiện tại
+        toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-right" });
+        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
         queryClientHook.invalidateQueries(['notifications', 'pending']);
       },
     });
   };
 
-  const showNotification = (message, type = 'info') => {
+  const showAppNotification = (message, type = 'info') => { // Đổi tên hàm để tránh trùng
     if (toast[type]) {
-      toast[type](message, { position: "top-center" });
+      toast[type](message, { position: "top-right" }); // Gọi hàm toast với type tương ứng
     } else {
-      toast.info(message, { position: "top-center" }); // Default to info
+      toast.info(message, { position: "top-right" });
     }
   };
 
   const approveEditMutation = useProjectActionMutation(
-    async (projectId) => {
-      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
-      if (!notification) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']); // Refetch để đảm bảo
-        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
-      }
-      const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
-      const statusData = await getProjectStatus({ projectId, type }); // Sử dụng API service
-      if (!statusData.pendingEdit) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
-        throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
-      }
-      return approveEditAPI({ projectId, type }); // Sử dụng API service
-    },
-    'Đã duyệt yêu cầu sửa công trình!'
-  );
-
-  const rejectEditMutation = useProjectActionMutation(
     async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
@@ -214,7 +217,31 @@ function App() {
         await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
-      return rejectEditAPI({ projectId, type });
+      return approveEditAPI({ projectId, type });
+    },
+    'Đã duyệt yêu cầu sửa công trình!'
+  );
+
+  const rejectEditMutation = useProjectActionMutation(
+    async (projectId) => {
+      const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu sửa:");
+      if (reason === null) throw new Error("Hủy bỏ thao tác."); // User cancelled
+      if (!reason || reason.trim() === "") {
+        toast.error("Lý do từ chối không được để trống.", { position: "top-right" });
+        throw new Error("Lý do từ chối không được để trống.");
+      }
+      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
+      if (!notification) {
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
+      }
+      const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
+      const statusData = await getProjectStatus({ projectId, type });
+      if (!statusData.pendingEdit) {
+        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
+      }
+      return rejectEditAPI({ projectId, type, reason }); // Truyền reason
     },
     'Đã từ chối yêu cầu sửa công trình!'
   );
@@ -239,6 +266,12 @@ function App() {
 
   const rejectDeleteMutation = useProjectActionMutation(
     async (projectId) => {
+      const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu xóa:");
+      if (reason === null) throw new Error("Hủy bỏ thao tác.");
+      if (!reason || reason.trim() === "") {
+        toast.error("Lý do từ chối không được để trống.", { position: "top-right" });
+        throw new Error("Lý do từ chối không được để trống.");
+      }
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
       if (!notification) {
         await queryClientHook.refetchQueries(['notifications', 'pending']);
@@ -250,41 +283,48 @@ function App() {
         await queryClientHook.refetchQueries(['notifications', 'pending']);
         throw new Error("Công trình không có yêu cầu xóa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
-      return rejectDeleteAPI({ projectId, type });
+      return rejectDeleteAPI({ projectId, type, reason }); // Truyền reason
     },
     'Đã từ chối yêu cầu xóa công trình!'
   );
 
-  // Các hàm action gọi mutate
   const approveEditAction = (projectId) => approveEditMutation.mutate(projectId);
   const rejectEditAction = (projectId) => rejectEditMutation.mutate(projectId);
   const approveDeleteAction = (projectId) => approveDeleteMutation.mutate(projectId);
   const rejectDeleteAction = (projectId) => rejectDeleteMutation.mutate(projectId);
 
-  // Trạng thái loading chung cho các action từ notification
-  const isProcessingNotificationAction =
-    approveEditMutation.isLoading ||
-    rejectEditMutation.isLoading ||
-    approveDeleteMutation.isLoading ||
-    rejectDeleteMutation.isLoading;
+  const [isProcessingNotificationAction, setIsProcessingNotificationAction] = useState(false);
+  // Cập nhật isProcessingNotificationAction dựa trên trạng thái của các mutation
+  useEffect(() => {
+    const processing = approveEditMutation.isLoading ||
+                       rejectEditMutation.isLoading ||
+                       approveDeleteMutation.isLoading ||
+                       rejectDeleteMutation.isLoading;
+    setIsProcessingNotificationAction(processing);
+  }, [
+    approveEditMutation.isLoading,
+    rejectEditMutation.isLoading,
+    approveDeleteMutation.isLoading,
+    rejectDeleteMutation.isLoading,
+  ]);
 
-  // Hiển thị loading khi đang xác thực token và có token trong localStorage
-  if (isLoadingUser && localStorage.getItem('token')) {
+
+  if (isLoadingUser && localStorage.getItem('token') && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[var(--background)]">
         <div className="flex items-center gap-3 p-4 bg-[var(--card-bg)] rounded-lg shadow-md">
           <div className="spinner"></div>
-          <span className="text-[var(--text-primary)] text-base">Đang tải ứng dụng...</span>
+          <span className="text-[var(--text-primary)] text-base">Đang xác thực...</span>
         </div>
       </div>
     );
   }
 
-  return (    
+  return (
     <>
       <ToastContainer
-        position="top-center"
-        autoClose={5000}
+        position="top-right" // Đổi vị trí
+        autoClose={3000}    // Giảm thời gian
         hideProgressBar={false}
         newestOnTop={true}
         closeOnClick
@@ -292,82 +332,82 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
-        limit={5}
+        theme="light"       // Hoặc "colored"
+        limit={3}           // Giảm giới hạn
       />
-      <div className={`flex min-h-screen ${user ? 'bg-[var(--background)]' : 'justify-center items-center bg-[var(--background)]'}`}>
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Đang tải...</div>}>
         {user ? (
-          <>
-            <Sidebar
-              user={user}
-              onLogout={handleLogout}
-              isSidebarOpen={isSidebarOpen}
-              setIsSidebarOpen={setIsSidebarOpen}
-            />
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <Header
+          <div className="flex min-h-screen bg-[var(--background)]">
+            <>
+              <Sidebar
                 user={user}
-                notifications={notifications}
-                showNotificationsModal={showNotificationsModal}
-                setShowNotificationsModal={setShowNotificationsModal}
-                fetchNotificationsByStatus={refetchNotifications} // Truyền hàm refetch
-                currentNotificationTab={currentNotificationTab}
-                setCurrentNotificationTab={setCurrentNotificationTab}
-                isNotificationsLoading={isNotificationsLoading}
-                approveEditAction={approveEditAction}
-                rejectEditAction={rejectEditAction}
-                approveDeleteAction={approveDeleteAction}
-                rejectDeleteAction={rejectDeleteAction}
-                isProcessingNotificationAction={isProcessingNotificationAction}
-                setIsProcessingNotificationAction={() => {}} // No longer directly setting this state from Header
-                showHeader={showHeader}
-                // toggleHeader={() => setShowHeader(!showHeader)} // This was removed from Header props
+                onLogout={handleLogout}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
               />
-              <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] p-6 md:p-8 lg:p-10 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-16'} ${showHeader ? 'pt-16 md:pt-12' : 'pt-0 md:pt-12'}`}>
-                <Routes>
-                  <Route
-                    path="/category"
-                    element={
-                      <ProjectManagement
-                        user={user}
-                        type="category"
-                        showHeader={showHeader}
-                        addMessage={showNotification}
-                      />
-                    }
-                  />
-                  <Route
-                    path="/minor-repair"
-                    element={
-                      <ProjectManagement
-                        user={user}
-                        type="minor_repair"
-                        showHeader={showHeader}
-                        addMessage={showNotification}
-                      />
-                    }
-                  />
-                  {/* Cho phép tất cả user truy cập /settings. 
-                      Logic hiển thị nội dung trong Settings.js sẽ dựa vào vai trò của user.
-                  */}
-                  <Route path="/settings" element={<Settings user={user} />} />
-                  <Route path="/" element={<Navigate to="/category" replace />} />
-                  <Route path="*" element={<Navigate to="/category" replace />} />
-                </Routes>
-              </main>
-            </div>
-          </>
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <Header
+                  user={user}
+                  notifications={notifications} // Truyền notifications đã fetch
+                  showNotificationsModal={showNotificationsModal}
+                  setShowNotificationsModal={setShowNotificationsModal}
+                  fetchNotificationsByStatus={refetchNotifications} // Truyền hàm refetch
+                  currentNotificationTab={currentNotificationTab}
+                  setCurrentNotificationTab={setCurrentNotificationTab}
+                  isNotificationsLoading={isNotificationsLoading}
+                  approveEditAction={approveEditAction}
+                  rejectEditAction={rejectEditAction}
+                  approveDeleteAction={approveDeleteAction}
+                  rejectDeleteAction={rejectDeleteAction}
+                  isProcessingNotificationAction={isProcessingNotificationAction}
+                  setIsProcessingNotificationAction={setIsProcessingNotificationAction} // Truyền setter
+                  showHeader={showHeader}
+                  isSidebarOpen={isSidebarOpen}
+                  setIsSidebarOpen={setIsSidebarOpen}
+                />
+                <main className={`flex-1 overflow-x-hidden overflow-y-auto bg-[var(--background)] p-6 md:p-8 lg:p-10 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-16'} ${showHeader ? 'pt-16 md:pt-12' : 'pt-0 md:pt-12'}`}>
+                  <Routes>
+                    <Route
+                      path="/category"
+                      element={
+                        <ProjectManagement
+                          user={user}
+                          type="category"
+                          showHeader={showHeader}
+                          addMessage={showAppNotification} // Đổi tên hàm
+                        />
+                      }
+                    />
+                    <Route
+                      path="/minor-repair"
+                      element={
+                        <ProjectManagement
+                          user={user}
+                          type="minor_repair"
+                          showHeader={showHeader}
+                          addMessage={showAppNotification} // Đổi tên hàm
+                        />
+                      }
+                    />
+                    <Route path="/settings" element={<Settings user={user} />} />
+                    <Route path="/" element={<Navigate to="/category" replace />} />
+                    <Route path="*" element={<Navigate to="/category" replace />} /> {/* Hoặc trang 404 */}
+                  </Routes>
+                </main>
+              </div>
+            </>
+          </div>
         ) : (
-          <div className="w-full max-w-md bg-[var(--background)] p-6">
-            <Routes>
-              <Route path="/login" element={<Login setUser={setUser} initializeAuth={initializeAuth} />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
+          <div className="flex min-h-screen justify-center items-center bg-[var(--background)]">
+            <div className="w-full max-w-md p-6">
+              <Routes>
+                <Route path="/login" element={<Login setUser={setUser} />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              </Routes>
+            </div>
           </div>
         )}
-      </div>
+      </Suspense>
       <ReactQueryDevtools initialIsOpen={false} />
     </>
   );

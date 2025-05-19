@@ -52,19 +52,13 @@ userSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, 10);
   }
 
-  // Chỉ set default permissions nếu là user mới hoặc role bị thay đổi,
-  // và client không cung cấp permissions (hoặc role là admin thì luôn set full)
   if (this.isNew || this.isModified('role')) {
-    // Nếu client đã cung cấp permissions cho user mới (và không phải admin), thì không ghi đè ở đây.
-    // Trừ khi là admin, thì luôn đảm bảo full quyền.
     let shouldSetDefaultPermissions = true;
     if (!this.isNew && this.isModified('role') && this.permissions && Object.keys(this.permissions).length > 0 && this.role !== 'admin') {
-        // Nếu role thay đổi nhưng permissions đã được set (ví dụ từ PATCH request), không ghi đè trừ khi là admin
-        // Hoặc có thể bạn muốn reset permissions theo role mới bất kể client gửi gì
+      // Role thay đổi, permissions đã có, không phải admin -> không ghi đè (hoặc reset theo role mới)
     } else if (this.isNew && this.permissions && Object.keys(this.permissions).length > 0 && this.role !== 'admin') {
-        shouldSetDefaultPermissions = false;
+      shouldSetDefaultPermissions = false;
     }
-
 
     if (shouldSetDefaultPermissions || this.role === 'admin') {
         switch (this.role) {
@@ -73,28 +67,28 @@ userSchema.pre('save', async function (next) {
                 break;
             case 'director':
             case 'deputy_director':
-            case 'manager-office': // Quản lý công ty (Phòng/Ban)
+            case 'manager-office':
                 this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true };
                 break;
             case 'deputy_manager-office':
-                 this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true }; // Ví dụ
+                 this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true };
                 break;
-            case 'staff-office': // Nhân viên phòng công ty
-                this.permissions = { add: true, edit: true, delete: true, approve: false, viewRejected: true, allocate: false, assign: false, viewOtherBranchProjects: true }; // Cho phép xem CT bị từ chối và xem tất cả CT
+            case 'staff-office':
+                this.permissions = { add: true, edit: true, delete: true, approve: false, viewRejected: true, allocate: false, assign: false, viewOtherBranchProjects: true };
                 break;
-            case 'manager-branch': // Quản lý chi nhánh
-                this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: false }; // viewOtherBranchProjects có thể được admin set riêng
+            case 'manager-branch':
+                this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: false };
                 break;
             case 'deputy_manager-branch':
-                this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: false }; // Ví dụ
+                this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: false };
                 break;
-            case 'staff-branch': // Nhân viên chi nhánh
+            case 'staff-branch':
                 this.permissions = { add: true, edit: true, delete: true, approve: false, viewRejected: false, allocate: false, assign: false, viewOtherBranchProjects: false };
                 break;
             case 'worker':
                 this.permissions = { add: false, edit: false, delete: false, approve: false, viewRejected: false, allocate: false, assign: false, viewOtherBranchProjects: false };
                 break;
-            default: // Mặc định cho các role chưa được định nghĩa rõ
+            default:
                 this.permissions = { add: false, edit: false, delete: false, approve: false, viewRejected: false, allocate: false, assign: false, viewOtherBranchProjects: false };
         }
     }
@@ -128,21 +122,33 @@ const projectTypeSchema = new mongoose.Schema({
 });
 const ProjectType = mongoose.model('ProjectType', projectTypeSchema);
 
+// Reusable sub-schema for pending edits
+const pendingEditSubSchema = new mongoose.Schema({
+  data: { type: mongoose.Schema.Types.Mixed }, // Store full update data
+  changes: [{ field: { type: String }, oldValue: { type: mongoose.Schema.Types.Mixed }, newValue: { type: mongoose.Schema.Types.Mixed } }], // Store only changes
+  requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User who requested the edit
+  requestedAt: { type: Date }, // Time of request
+}, { _id: false }); // Don't create a separate _id for the subdocument
+
 // CategoryProject Schema (Công trình danh mục)
 const categoryProjectSchema = new mongoose.Schema({
   categorySerialNumber: { type: Number, default: null, sparse: true, index: true },
+  // Common fields
   name: { type: String, required: true, trim: true },
-  allocatedUnit: { type: String, required: true, trim: true, index: true }, // Đơn vị/Chi nhánh quản lý công trình
-  constructionUnit: { type: String, default: '', trim: true },
-  allocationWave: { type: String, default: '', trim: true },
+  allocatedUnit: { type: String, required: true, trim: true, index: true },
   location: { type: String, required: true, trim: true },
   scale: { type: String, required: true, trim: true },
+  projectType: { type: String, default: '', trim: true }, // Có thể dùng cho phân loại nhỏ hơn trong danh mục
+  leadershipApproval: { type: String, default: '', trim: true },
+  // Category specific fields
+  constructionUnit: { type: String, default: '', trim: true },
+  allocationWave: { type: String, default: '', trim: true },
   initialValue: { type: Number, default: 0 },
-  enteredBy: { type: String, required: true, trim: true }, // Username of creator for display
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true }, // ObjectId of creator
+  enteredBy: { type: String, required: true, trim: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   status: { type: String, default: 'Chờ duyệt', index: true },
-  assignedTo: { type: String, default: '', trim: true }, // Could be ObjectId ref: 'User'
+  assignedTo: { type: String, default: '', trim: true },
   estimator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   durationDays: { type: Number, default: 0 },
@@ -153,16 +159,14 @@ const categoryProjectSchema = new mongoose.Schema({
   progress: { type: String, default: '', trim: true },
   feasibility: { type: String, default: '', trim: true },
   notes: { type: String, default: '', trim: true },
-  pendingEdit: { type: Object, default: null }, // { changes: [{field, oldValue, newValue}], requestedBy: ObjectId, requestedAt: Date }
-  pendingDelete: { type: Boolean, default: false },
-  projectType: { type: String, default: '', trim: true },
   estimatedValue: { type: Number, default: 0 },
-  leadershipApproval: { type: String, default: '', trim: true },
-  history: [{ // Thêm 'edited' vào enum
+  pendingEdit: { type: pendingEditSubSchema, default: null },
+  pendingDelete: { type: Boolean, default: false },
+  history: [{
     action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned'], required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     timestamp: { type: Date, default: Date.now },
-    details: { type: mongoose.Schema.Types.Mixed } // Có thể lưu chi tiết thay đổi hoặc lý do
+    details: { type: mongoose.Schema.Types.Mixed }
   }],
 }, { timestamps: true });
 
@@ -187,27 +191,29 @@ const CategoryProject = mongoose.model('CategoryProject', categoryProjectSchema)
 
 // MinorRepairProject Schema (Công trình sửa chữa nhỏ)
 const minorRepairProjectSchema = new mongoose.Schema({
+  // Minor Repair specific fields
   minorRepairSerialNumber: { type: Number, default: null, sparse: true, index: true },
-  name: { type: String, required: true, trim: true },
-  allocatedUnit: { type: String, required: true, trim: true, index: true }, // Đơn vị/Chi nhánh quản lý công trình
-  location: { type: String, required: true, trim: true },
-  scale: { type: String, default: '' },
   reportDate: { type: Date },
   inspectionDate: { type: Date },
   paymentDate: { type: Date },
   paymentValue: { type: Number, default: 0 },
+  // Common fields
+  name: { type: String, required: true, trim: true },
+  allocatedUnit: { type: String, required: true, trim: true, index: true },
+  location: { type: String, required: true, trim: true },
+  scale: { type: String, required: true, trim: true }, // Scale is required for minor repair too
+  taskDescription: { type: String, default: '', trim: true },
   leadershipApproval: { type: String, default: '', trim: true },
-  enteredBy: { type: String, required: true, trim: true }, // Username of creator
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true }, // ObjectId of creator
+  enteredBy: { type: String, required: true, trim: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   status: { type: String, default: 'Chờ duyệt', index: true },
   assignedTo: { type: String, default: '', trim: true },
   supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-  taskDescription: { type: String, default: '', trim: true },
   notes: { type: String, default: '', trim: true },
-  pendingEdit: { type: Object, default: null },
+  pendingEdit: { type: pendingEditSubSchema, default: null },
   pendingDelete: { type: Boolean, default: false },
-  history: [{ // Thêm 'edited' vào enum
+  history: [{
     action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned'], required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     timestamp: { type: Date, default: Date.now },
@@ -241,8 +247,9 @@ const notificationSchema = new mongoose.Schema({
   projectId: { type: mongoose.Schema.Types.ObjectId, refPath: 'projectModel' },
   projectModel: { type: String, required: true, enum: ['CategoryProject', 'MinorRepairProject'] },
   status: { type: String, enum: ['pending', 'processed'], default: 'pending' },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User liên quan đến thông báo (người tạo yêu cầu, hoặc người nhận)
-  originalProjectId: { type: mongoose.Schema.Types.ObjectId }, // ID của project gốc nếu nó bị xóa (ví dụ khi từ chối 'new')
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User tạo yêu cầu
+  recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User nhận thông báo (người cần duyệt)
+  originalProjectId: { type: mongoose.Schema.Types.ObjectId },
   createdAt: { type: Date, default: Date.now },
 });
 const Notification = mongoose.model('Notification', notificationSchema);
@@ -282,7 +289,7 @@ const rejectedProjectSchema = new mongoose.Schema({
   originalCreatedAt: { type: Date },
   originalUpdatedAt: { type: Date },
   actionType: { type: String, enum: ['new', 'edit', 'delete'], default: 'new' },
-  details: { type: mongoose.Schema.Types.Mixed },
+  details: { type: mongoose.Schema.Types.Mixed }, // Lưu trữ toàn bộ object project gốc khi bị từ chối
 }, { timestamps: true });
 
 const RejectedProject = mongoose.model('RejectedProject', rejectedProjectSchema);

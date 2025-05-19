@@ -4,56 +4,52 @@ import Modal from 'react-modal';
 import { toast } from 'react-toastify';
 import { FaSave, FaTimes } from 'react-icons/fa';
 
-Modal.setAppElement('#root'); // Đảm bảo modal hoạt động đúng với accessibility
+Modal.setAppElement('#root');
 
 function GenericFormModal({
   showModal,
   setShowModal,
-  isSubmitting,
+  isSubmitting, // Renamed from isSaving to match ProjectManagementLogic
   editProject,
   formData,
   setFormData,
-  formConfig, // Cấu hình form (tabs, fields)
+  formConfig,
   saveProject,
-  initialFormState, // Hàm để lấy trạng thái form ban đầu
-  // Dữ liệu phụ trợ cho các trường select
+  initialFormState,
   allocatedUnits = [],
-  user, // Thêm user prop
+  user,
   allocationWavesList = [],
   constructionUnitsList = [],
   usersList = [],
   approversList = [],
   projectTypesList = [],
 }) {
-  // Lọc các tab dựa trên quyền của user
   const visibleTabs = useMemo(() => {
     if (!formConfig || !formConfig.tabs) return [];
-    if (!user) return formConfig.tabs; // Hoặc trả về mảng rỗng nếu user không tồn tại và form yêu cầu user
+    if (!user) return []; // No user, no tabs (or handle as per your logic)
 
     return formConfig.tabs.filter(tab => {
-      if (tab.name === 'assignment') { // Tab "Phân công & Chỉ đạo"
-        // Chỉ hiển thị cho admin hoặc các vai trò quản lý công ty hoặc quản lý chi nhánh có quyền allocate hoặc assign
+      if (tab.name === 'assignment') {
         return user.role === 'admin' ||
                user.role === 'director' ||
                user.role === 'deputy_director' ||
                user.role.includes('manager-office') ||
-               (user.role.includes('manager-branch') && (user.permissions?.allocate || user.permissions?.assign));
+               (user.role.includes('manager-branch') && (user.permissions?.allocate || user.permissions?.assign)) ||
+               (user.role.includes('deputy_manager-branch') && (user.permissions?.allocate || user.permissions?.assign));
       }
-      return true; // Các tab khác hiển thị bình thường
+      return true;
     });
   }, [formConfig, user]);
 
   const [activeTab, setActiveTab] = useState(visibleTabs[0]?.name || 'basic');
 
   useEffect(() => {
-    // Reset tab về tab đầu tiên có thể thấy khi visibleTabs thay đổi hoặc formConfig thay đổi
     if (visibleTabs.length > 0 && !visibleTabs.find(tab => tab.name === activeTab)) {
       setActiveTab(visibleTabs[0].name);
     } else if (visibleTabs.length > 0 && !activeTab) {
       setActiveTab(visibleTabs[0].name);
     }
   }, [visibleTabs, activeTab]);
-
 
   const handleInputChange = useCallback((e) => {
     const { name, value, type: inputType, checked } = e.target;
@@ -65,38 +61,47 @@ function GenericFormModal({
 
   const handleNumericInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    // Cho phép số thập phân, số nguyên, hoặc rỗng
     if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   }, [setFormData]);
 
   const handleCloseModal = useCallback(() => {
     setShowModal(false);
     if (typeof initialFormState === 'function') {
-        setFormData(initialFormState()); // Reset form khi đóng
+        setFormData(initialFormState());
     }
-    if (visibleTabs.length > 0) {
-      setActiveTab(visibleTabs[0].name); // Reset về tab đầu tiên có thể thấy
-    }
+    if (visibleTabs.length > 0) setActiveTab(visibleTabs[0].name);
   }, [setShowModal, setFormData, initialFormState, visibleTabs]);
 
   const handleSaveClick = () => {
-    // Kiểm tra các trường bắt buộc chỉ trên các tab hiển thị
     for (const tab of visibleTabs) {
       for (const field of tab.fields) {
         if (field.required && (!formData[field.name] || String(formData[field.name]).trim() === '')) {
           toast.error(`Vui lòng nhập đầy đủ thông tin cho trường "${field.label}".`, { position: "top-center" });
-          setActiveTab(tab.name); // Chuyển đến tab chứa trường lỗi
+          setActiveTab(tab.name);
           return;
         }
       }
     }
     saveProject();
   };
+
+  const isFieldDisabled = (field) => {
+    if (isSubmitting) return true; // Disable all fields while saving/submitting
+
+    // Example: Disable 'approvedBy' if project is already approved and user is not admin
+    if (editProject && field.name === 'approvedBy') {
+        if (editProject.status === 'Đã duyệt' && user.role !== 'admin') {
+            return true;
+        }
+    }
+    // Add more complex logic based on project status, user role/permissions, and field name
+    // For example, if editing an approved project, many fields might be disabled unless it's a pendingEdit flow.
+    // This depends heavily on your business rules for editing.
+    return field.disabled || false; // Use disabled flag from field config if present
+  };
+
 
   const isSaveDisabled = isSubmitting || visibleTabs.some(tab =>
     tab.fields.some(field => field.required && (!formData[field.name] || String(formData[field.name]).trim() === ''))
@@ -107,21 +112,14 @@ function GenericFormModal({
       case 'allocatedUnits': return allocatedUnits.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
       case 'allocationWaves': return allocationWavesList.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
       case 'constructionUnits': return constructionUnitsList.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
-      case 'users':
-        return usersList.map(u => ({ value: u._id, label: u.fullName || u.username }));
-      case 'approvers':
-        return approversList.map(approver => ({
-          value: approver._id,
-          label: approver.fullName || approver.username
-        }));
+      case 'users': return usersList.map(u => ({ value: u._id, label: u.fullName || u.username }));
+      case 'approvers': return approversList.map(approver => ({ value: approver._id, label: approver.fullName || approver.username }));
       case 'projectTypes': return projectTypesList.map(opt => ({ value: typeof opt === 'string' ? opt : opt.name, label: typeof opt === 'string' ? opt : opt.name }));
       default: return field.options || [];
     }
   };
 
-  if (!formConfig || !visibleTabs || visibleTabs.length === 0) {
-    return null;
-  }
+  if (!formConfig || !visibleTabs || visibleTabs.length === 0) return null;
 
   return (
     <Modal
@@ -135,11 +133,9 @@ function GenericFormModal({
         },
         content: {
           position: 'relative', maxWidth: '720px', width: '90%', maxHeight: '90vh',
-          overflowY: 'hidden', /* Let inner div handle scroll */
-          backgroundColor: 'var(--background)', borderRadius: '12px',
+          overflowY: 'hidden', backgroundColor: 'var(--background)', borderRadius: '12px',
           boxShadow: 'var(--shadow)', border: '1px solid var(--border)',
-          padding: '0', zIndex: 1001, inset: 'auto',
-          display: 'flex', flexDirection: 'column', /* Added for flex layout */
+          padding: '0', zIndex: 1001, inset: 'auto', display: 'flex', flexDirection: 'column',
         },
       }}
       contentLabel={editProject ? formConfig.editTitle : formConfig.addTitle}
@@ -154,13 +150,9 @@ function GenericFormModal({
         <div className="flex border-b border-gray-300">
           {visibleTabs.map(tab => (
             <button
-              key={tab.name}
-              onClick={() => setActiveTab(tab.name)}
+              key={tab.name} onClick={() => setActiveTab(tab.name)}
               className={`px-4 py-2 -mb-px text-sm font-medium transition-colors duration-200 ease-in-out
-                ${activeTab === tab.name
-                  ? 'border-b-2 border-blue-500 text-blue-600 bg-white rounded-t-md'
-                  : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                ${activeTab === tab.name ? 'border-b-2 border-blue-500 text-blue-600 bg-white rounded-t-md' : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
               disabled={isSubmitting}
             >
               {tab.label}
@@ -169,7 +161,7 @@ function GenericFormModal({
         </div>
       </div>
 
-      <div className="p-6 bg-white overflow-y-auto flex-grow" /* Added flex-grow */ >
+      <div className="p-6 bg-white overflow-y-auto flex-grow">
         {visibleTabs.map(tab => activeTab === tab.name && (
           <div key={tab.name} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 animate-fadeIn">
             {tab.fields.map(field => (
@@ -180,7 +172,7 @@ function GenericFormModal({
                 {field.type === 'select' ? (
                   <select
                     id={field.name} name={field.name} value={formData[field.name] || ''}
-                    onChange={handleInputChange} required={field.required} disabled={isSubmitting || field.disabled}
+                    onChange={handleInputChange} required={field.required} disabled={isFieldDisabled(field)}
                     className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
                   >
                     <option value="">{field.placeholder || `Chọn ${field.label.toLowerCase()}`}</option>
@@ -189,7 +181,7 @@ function GenericFormModal({
                 ) : field.type === 'textarea' ? (
                   <textarea
                     id={field.name} name={field.name} value={formData[field.name] || ''}
-                    onChange={handleInputChange} required={field.required} disabled={isSubmitting || field.disabled}
+                    onChange={handleInputChange} required={field.required} disabled={isFieldDisabled(field)}
                     rows={field.rows || 3} placeholder={field.placeholder}
                     className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
                   />
@@ -198,7 +190,7 @@ function GenericFormModal({
                     type={field.type || 'text'} id={field.name} name={field.name}
                     value={formData[field.name] || ''}
                     onChange={field.numeric ? handleNumericInputChange : handleInputChange}
-                    required={field.required} disabled={isSubmitting || field.disabled}
+                    required={field.required} disabled={isFieldDisabled(field)}
                     placeholder={field.placeholder}
                     className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
                   />
@@ -211,17 +203,13 @@ function GenericFormModal({
 
       <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 rounded-b-lg">
         <button
-          type="button"
-          onClick={handleCloseModal}
-          disabled={isSubmitting}
+          type="button" onClick={handleCloseModal} disabled={isSubmitting}
           className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
         >
           <FaTimes className="mr-2 h-4 w-4" /> Hủy
         </button>
         <button
-          type="button"
-          onClick={handleSaveClick}
-          disabled={isSaveDisabled}
+          type="button" onClick={handleSaveClick} disabled={isSaveDisabled}
           className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-blue-300"
         >
           <FaSave className="mr-2 h-4 w-4" /> {isSubmitting ? 'Đang lưu...' : (editProject ? 'Cập nhật' : 'Lưu mới')}

@@ -1,3 +1,4 @@
+// d:\CODE\water-company\frontend\src\components\ProjectManagement\GenericFilter.js
 import { FaEye, FaEyeSlash, FaSearch, FaFilter, FaUndo, FaSpinner, FaCalendarAlt } from 'react-icons/fa';
 import { useState, useEffect, useCallback } from 'react';
 import debounce from 'lodash/debounce';
@@ -43,21 +44,16 @@ function GenericFilter({
   };
 
   const getOptionsForField = (field) => {
-    if (field.optionsSource && dataSources[field.optionsSource]) {
+    if (field.optionsSource && dataSources && dataSources[field.optionsSource]) {
       return dataSources[field.optionsSource].map(item => {
         if (typeof item === 'object' && item !== null) {
-          // Xử lý đặc biệt cho usersList (optionsSource: 'usersList')
-          // value sẽ là item._id, label sẽ là item.username
-          if (field.optionsSource === 'usersList' && item._id && item.fullName) {
-            return { value: item._id, label: item.fullName }; // value là _id, label là fullName
+          if ((field.optionsSource === 'usersList' || field.optionsSource === 'approversList') && item._id && (item.fullName || item.username)) {
+            return { value: item._id, label: item.fullName || item.username };
           }
-          // Xử lý chung cho các nguồn khác như allocatedUnits, projectTypes, etc.
-          // Ưu tiên item.name làm value và label, nếu không có thì dùng item._id hoặc item
           const value = item.name || item._id || item.fullName || String(item);
           const label = item.name || item.fullName || String(item);
           return { value, label };
         }
-        // Fallback nếu item là string (ít khả năng xảy ra với usersList đã được cập nhật)
         return { value: String(item), label: String(item) };
       });
     }
@@ -126,7 +122,7 @@ function GenericFilter({
                      style={{ height: '40px' }}
                    />
                 </div>
-              ) : ( // Default to text/search input
+              ) : (
                 <div className="relative">
                   <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={14} />
                   <input

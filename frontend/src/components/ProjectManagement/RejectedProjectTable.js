@@ -1,16 +1,27 @@
+// d:\CODE\water-company\frontend\src\components\ProjectManagement\RejectedProjectTable.js
 import React from 'react';
 import { FaInfoCircle, FaUndo, FaTrash } from 'react-icons/fa';
-import { formatDate } from '../../utils/helpers'; // Import formatDate
-import { toast } from 'react-toastify';
+import { formatDate } from '../../utils/helpers';
+import Pagination from '../Common/Pagination';
 
 function RejectedProjectTable({
   rejectedProjects,
   isLoading,
   user,
-  type,
+  type, // type is used to determine if it's category or minor_repair for display logic if any
   restoreRejectedProject,
   permanentlyDeleteRejectedProject,
+  currentPage,
+  totalPages,
+  setCurrentPage,
+  totalItemsCount,
+  // Filters are now handled by GenericFilter in ProjectManagement.js
+  // filters,
+  // setFilters,
 }) {
+  // The filtering by type and reason is now handled in ProjectManagementLogic/GenericFilter
+  // So, rejectedProjects prop should already be filtered.
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-10">
@@ -20,19 +31,12 @@ function RejectedProjectTable({
     );
   }
 
-  // Lọc dựa trên prop 'type' (category hoặc minor_repair)
-  const filteredRejectedProjects = rejectedProjects.filter(p => {
-    // Backend đã trả về projectType là 'category' hoặc 'minor_repair'
-    if (p.projectType === type) return true;
-    return false;
-  });
-
-
-  if (!filteredRejectedProjects || filteredRejectedProjects.length === 0) {
+  if (!isLoading && (!rejectedProjects || rejectedProjects.length === 0)) {
     return (
       <div className="text-center text-gray-500 py-10 bg-white shadow-md rounded-lg">
         <FaInfoCircle size={48} className="mx-auto text-blue-400 mb-4" />
         <p className="text-xl">Không có công trình nào bị từ chối.</p>
+        {/* Removed filterReason specific message as filters are external now */}
       </div>
     );
   }
@@ -46,67 +50,67 @@ function RejectedProjectTable({
     }
   };
 
+  const getUserName = (userObject) => {
+    if (!userObject) return 'N/A';
+    return userObject.fullName || userObject.username || 'N/A';
+  };
+
   return (
     <div className="flex flex-col mt-4">
-      <div className="table-container" style={{ border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', borderRadius: '8px', overflow: 'auto', maxHeight: 'calc(100vh - 250px)' }}>
-        <table style={{ minWidth: '800px', width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
-          <thead className="bg-gray-50">
+      {/* Filter input is now handled by GenericFilter in ProjectManagement.js */}
+      <div className="table-container-custom">
+        <table className="generic-table w-full" style={{ tableLayout: 'auto' }}> {/* Sử dụng w-full và table-layout: auto */}
+          <thead>
             <tr>
-              <th style={{ width: '50px', backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>STT</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Tên công trình</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Địa điểm</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Quy mô</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Chi nhánh PB</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Loại yêu cầu bị từ chối</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Người yêu cầu</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Người từ chối</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10 }}>Ngày từ chối</th>
-              <th style={{ backgroundColor: '#4A5568', color: 'white', borderRight: '1px solid #2D3748', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, zIndex: 10, minWidth: '200px' }}>Lý do từ chối</th>
-              <th
-                className="sticky-col-last-header"
-                style={{ width: '120px', backgroundColor: '#4A5568', color: 'white', borderBottom: '1px solid #2D3748', padding: '12px 16px', position: 'sticky', top: 0, right: 0, zIndex: 30 }}
-              >
+              <th className="header-cell-custom" style={{ width: '40px' }}>STT</th>
+              <th className="header-cell-custom" style={{ minWidth: '200px', textAlign: 'left' }}>Tên CT</th>
+              <th className="header-cell-custom" style={{ minWidth: '150px', textAlign: 'left' }}>Địa điểm</th>
+              <th className="header-cell-custom" style={{ minWidth: '250px', textAlign: 'left' }}>Quy mô</th>
+              <th className="header-cell-custom" style={{ minWidth: '120px' }}>CNPB</th>
+              <th className="header-cell-custom" style={{ minWidth: '120px' }}>Loại YC</th>
+              <th className="header-cell-custom" style={{ minWidth: '120px' }}>Người YC</th>
+              <th className="header-cell-custom" style={{ minWidth: '120px' }}>Người TC</th>
+              <th className="header-cell-custom" style={{ minWidth: '100px' }}>Ngày TC</th>
+              <th className="header-cell-custom" style={{ minWidth: '150px', textAlign: 'left' }}>Lý do từ chối</th>
+              <th className="header-cell-custom sticky-col-last-header" style={{ width: '120px' }}>
                 Hành động
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredRejectedProjects.map((project, index) => (
-              <tr key={project._id || project.projectId} className="hover:bg-gray-100 transition-colors duration-150">
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{index + 1}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.name || project.details?.name || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.location || project.details?.location || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.scale || project.details?.scale || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{project.allocatedUnit || project.details?.allocatedUnit || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top' }}>{getActionTypeDisplay(project.actionType)}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{project.createdBy?.fullName || project.createdBy?.username || project.enteredBy || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{project.rejectedBy?.fullName || project.rejectedBy?.username || 'N/A'}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>{formatDate(project.rejectedAt)}</td>
-                <td style={{ borderRight: '1px solid #E5E7EB', padding: '10px 12px', verticalAlign: 'top', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{project.rejectionReason || 'N/A'}</td>
-                <td
-                  className="sticky-col-last"
-                  style={{ padding: '8px', textAlign: 'center', position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 20, borderLeft: '1px solid #E5E7EB' }}
-                >
-                  <div className="flex justify-center items-center gap-2"> {/* Increased gap */}
+          <tbody className="divide-y divide-gray-200 text-xs">
+            {rejectedProjects.map((project, index) => (
+              <tr key={project._id || project.originalProjectId || index} className="table-row-custom">
+                <td className="data-cell-custom" style={{ textAlign: 'center' }}>{(currentPage - 1) * 10 + index + 1}</td>
+                <td className="data-cell-custom align-left">{project.name || project.details?.name || 'N/A'}</td>
+                <td className="data-cell-custom align-left">{project.location || project.details?.location || 'N/A'}</td>
+                <td className="data-cell-custom align-left">{project.scale || project.details?.scale || 'N/A'}</td>
+                <td className="data-cell-custom">{project.allocatedUnit || project.details?.allocatedUnit || 'N/A'}</td>
+                <td className="data-cell-custom">{getActionTypeDisplay(project.actionType)}</td>
+                <td className="data-cell-custom">{getUserName(project.createdBy)}</td>
+                <td className="data-cell-custom">{getUserName(project.rejectedBy)}</td>
+                <td className="data-cell-custom">{formatDate(project.rejectedAt)}</td>
+                <td className="data-cell-custom align-left" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{project.rejectionReason || 'N/A'}</td>
+                <td className="data-cell-custom sticky-col-last-data">
+                  <div className="flex justify-center items-center gap-2">
                     {user?.permissions?.approve && restoreRejectedProject && (
                       <div className="action-btn-wrapper" title="Khôi phục công trình">
                         <button
-                          onClick={() => restoreRejectedProject(project._id, project.details, project.projectModel, project.projectId, project.actionType)}
+                          onClick={() => restoreRejectedProject(project._id)}
                           className="btn-icon btn-icon-green"
-                          disabled={isLoading}
+                          disabled={isLoading} // Or a specific mutation loading state
                         >
-                          <FaUndo size={18} /> {/* Increased icon size */}
+                          <FaUndo size={16} />
                         </button>
                       </div>
                     )}
-                    {user?.permissions?.delete && permanentlyDeleteRejectedProject && (
+                    {user?.role === 'admin' && permanentlyDeleteRejectedProject && (
                       <div className="action-btn-wrapper" title="Xóa vĩnh viễn">
                         <button
                           onClick={() => permanentlyDeleteRejectedProject(project._id)}
                           className="btn-icon btn-icon-red"
-                          disabled={isLoading}
+                          disabled={isLoading} // Or a specific mutation loading state
                         >
-                          <FaTrash size={18} /> {/* Increased icon size */}
+                          <FaTrash size={16} />
                         </button>
                       </div>
                     )}
@@ -114,13 +118,24 @@ function RejectedProjectTable({
                 </td>
               </tr>
             ))}
+            {rejectedProjects.length === 0 && (
+              <tr>
+                <td colSpan={11} className="data-cell-custom text-center italic text-gray-500">
+                  Không có công trình nào bị từ chối khớp với bộ lọc.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
-      <div className="flex flex-col items-center mt-4">
-        <div className="text-center text-gray-500 text-sm">
-          Hiển thị {filteredRejectedProjects.length} công trình bị từ chối.
-        </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        isSubmitting={isLoading}
+      />
+      <div className="text-center text-gray-500 text-sm mt-2">
+            Hiển thị trang {currentPage} / {totalPages} (Tổng số: {totalItemsCount} công trình)
       </div>
     </div>
   );

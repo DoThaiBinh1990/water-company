@@ -1,5 +1,6 @@
+// d:\CODE\water-company\frontend\src\components\Header.js
 import React, { useState, useEffect } from 'react';
-import { FaBell, FaCheckCircle, FaTimesCircle, FaUserCircle, FaBars, FaTimes } from 'react-icons/fa';
+import { FaBell, FaCheckCircle, FaTimesCircle, FaUserCircle, FaBars, FaTimes, FaSpinner } from 'react-icons/fa'; // Thêm FaSpinner
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
@@ -9,38 +10,54 @@ function Header({
   notifications,
   showNotificationsModal,
   setShowNotificationsModal,
-  fetchNotificationsByStatus,
+  fetchNotificationsByStatus, // Đây là hàm refetch từ useQuery
   currentNotificationTab,
   setCurrentNotificationTab,
-  isNotificationsLoading,
+  isNotificationsLoading, // Trạng thái loading từ useQuery
   approveEditAction,
   rejectEditAction,
   approveDeleteAction,
   rejectDeleteAction,
-  isProcessingNotificationAction,
-  setIsProcessingNotificationAction,
+  isProcessingNotificationAction, // State từ App.js
+  setIsProcessingNotificationAction, // Setter từ App.js
   isSidebarOpen,
   setIsSidebarOpen,
 }) {
-  const handleAction = async (actionCallback, projectId) => {
+
+  const handleActionWrapper = async (actionCallback, projectId) => {
     if (isProcessingNotificationAction) return;
-    setIsProcessingNotificationAction(true);
+    // setIsProcessingNotificationAction(true); // App.js sẽ tự quản lý state này dựa trên các mutation
     try {
       await actionCallback(projectId);
+      // Không cần gọi fetchNotificationsByStatus ở đây nữa vì App.js sẽ invalidate query
     } catch (error) {
       console.error("Lỗi khi thực hiện hành động thông báo từ Header:", error);
+      // Toast lỗi đã được xử lý trong mutation của App.js
     } finally {
-      setIsProcessingNotificationAction(false);
+      // setIsProcessingNotificationAction(false); // App.js sẽ tự quản lý
     }
   };
 
   const [tabFade, setTabFade] = useState(false);
 
   useEffect(() => {
-    setTabFade(true);
-  }, [currentNotificationTab]);
+    if (showNotificationsModal) {
+        setTabFade(false); // Reset fade
+        setTimeout(() => setTabFade(true), 50); // Kích hoạt fade sau một chút
+    }
+  }, [currentNotificationTab, showNotificationsModal]);
 
   const unreadNotificationsCount = notifications.filter(n => n.status === 'pending').length;
+
+  const handleTabChange = (tab) => {
+    if (isProcessingNotificationAction || isNotificationsLoading) return;
+    setCurrentNotificationTab(tab);
+    // fetchNotificationsByStatus sẽ tự động được gọi do queryKey thay đổi trong App.js
+    // Hoặc nếu bạn muốn fetch ngay lập tức:
+    // queryClientHook.refetchQueries(['notifications', tab]); // Nếu bạn có queryClientHook ở đây
+    // Hoặc truyền hàm refetch cụ thể cho từng tab nếu queryKey không thay đổi
+  };
+
 
   return (
     <>
@@ -72,16 +89,17 @@ function Header({
           <button
             onClick={() => {
               setShowNotificationsModal(true);
+              // Không cần gọi fetchNotificationsByStatus ở đây nữa,
+              // vì `enabled: !!user && showNotificationsModal` trong useQuery của App.js sẽ tự động kích hoạt fetch
+              // hoặc khi tab thay đổi, queryKey thay đổi cũng sẽ fetch.
+              // Nếu muốn đảm bảo tab 'pending' được chọn khi mở:
               if (currentNotificationTab !== 'pending') {
-                setCurrentNotificationTab('pending');
-                fetchNotificationsByStatus('pending');
-              } else {
-                fetchNotificationsByStatus('pending');
+                handleTabChange('pending');
               }
             }}
             className={`relative bell-icon p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 ${unreadNotificationsCount > 0 ? 'has-notifications' : ''}`}
             aria-label="Thông báo"
-            disabled={isNotificationsLoading || isProcessingNotificationAction}
+            disabled={isProcessingNotificationAction} // Chỉ disable khi đang xử lý action, không phải khi loading list
           >
             <FaBell size={18} className="text-white" />
             {unreadNotificationsCount > 0 && (
@@ -98,105 +116,62 @@ function Header({
         onRequestClose={() => { if (!isProcessingNotificationAction) setShowNotificationsModal(false); }}
         style={{
           overlay: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-            zIndex: 1000000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(3px)',
+            zIndex: 1000000, display: 'flex', alignItems: 'center', justifyContent: 'center',
           },
           content: {
-            position: 'relative',
-            maxWidth: '672px',
-            width: '91.666667%',
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
-            border: '1px solid #E5E7EB',
-            padding: '16px',
-            zIndex: 1000001,
-            inset: 'auto',
+            position: 'relative', maxWidth: '600px', width: '90%', maxHeight: '85vh',
+            overflowY: 'hidden', backgroundColor: 'white', borderRadius: '12px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: 'none',
+            padding: '0', zIndex: 1000001, inset: 'auto', display: 'flex', flexDirection: 'column'
           }
         }}
         shouldCloseOnOverlayClick={!isProcessingNotificationAction}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1F2937' }}>
+        <div className="p-5 flex justify-between items-center border-b border-gray-200 bg-gray-50 rounded-t-lg">
+          <h2 className="text-lg font-semibold text-gray-700">
             Trung tâm Thông báo
           </h2>
           <button
             onClick={() => { if (!isProcessingNotificationAction) setShowNotificationsModal(false); }}
-            style={{
-              padding: '8px',
-              borderRadius: '50%',
-              backgroundColor: '#F3F4F6',
-              color: '#6B7280',
-              transition: 'all 0.2s',
-              cursor: isProcessingNotificationAction ? 'not-allowed' : 'pointer',
-              opacity: isProcessingNotificationAction ? 0.5 : 1,
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E5E7EB'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#F3F4F6'}
+            className={`p-2 rounded-full hover:bg-gray-200 text-gray-500 transition-colors ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={isProcessingNotificationAction}
             aria-label="Đóng"
           >
             <FaTimes size={16} />
           </button>
         </div>
-        <div style={{ borderBottom: '1px solid #E5E7EB', marginBottom: '16px' }}>
+        <div className="border-b border-gray-200 px-2 pt-2 bg-gray-50">
           <button
-            onClick={() => { setCurrentNotificationTab('pending'); fetchNotificationsByStatus('pending'); }}
-            style={{
-              padding: '8px 16px',
-              fontWeight: '500',
-              fontSize: '14px',
-              borderBottom: currentNotificationTab === 'pending' ? '2px solid #3B82F6' : '2px solid transparent',
-              color: currentNotificationTab === 'pending' ? '#3B82F6' : '#6B7280',
-              backgroundColor: currentNotificationTab === 'pending' ? '#EFF6FF' : 'transparent',
-              marginRight: '0',
-              transition: 'all 0.2s',
-              cursor: isNotificationsLoading || isProcessingNotificationAction ? 'not-allowed' : 'pointer',
-              opacity: isNotificationsLoading || isProcessingNotificationAction ? 0.5 : 1,
-            }}
-            disabled={isNotificationsLoading || isProcessingNotificationAction}
+            onClick={() => handleTabChange('pending')}
+            className={`py-2 px-4 text-sm font-medium rounded-t-md
+                        ${currentNotificationTab === 'pending' ? 'border-b-2 border-blue-500 text-blue-600 bg-white' : 'text-gray-500 hover:text-blue-500 hover:bg-gray-100'}
+                        ${isProcessingNotificationAction || isNotificationsLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isProcessingNotificationAction || isNotificationsLoading}
           >
             Chưa xử lý ({unreadNotificationsCount})
           </button>
           <button
-            onClick={() => { setCurrentNotificationTab('processed'); fetchNotificationsByStatus('processed'); }}
-            style={{
-              padding: '8px 16px',
-              fontWeight: '500',
-              fontSize: '14px',
-              borderBottom: currentNotificationTab === 'processed' ? '2px solid #3B82F6' : '2px solid transparent',
-              color: currentNotificationTab === 'processed' ? '#3B82F6' : '#6B7280',
-              backgroundColor: currentNotificationTab === 'processed' ? '#EFF6FF' : 'transparent',
-              transition: 'all 0.2s',
-              cursor: isNotificationsLoading || isProcessingNotificationAction ? 'not-allowed' : 'pointer',
-              opacity: isNotificationsLoading || isProcessingNotificationAction ? 0.5 : 1,
-            }}
-            disabled={isNotificationsLoading || isProcessingNotificationAction}
+            onClick={() => handleTabChange('processed')}
+            className={`py-2 px-4 text-sm font-medium rounded-t-md
+                        ${currentNotificationTab === 'processed' ? 'border-b-2 border-blue-500 text-blue-600 bg-white' : 'text-gray-500 hover:text-blue-500 hover:bg-gray-100'}
+                        ${isProcessingNotificationAction || isNotificationsLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isProcessingNotificationAction || isNotificationsLoading}
           >
             Đã xử lý
           </button>
         </div>
 
-        <div style={{ maxHeight: '320px', overflowY: 'auto', paddingRight: '8px', opacity: tabFade ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
+        <div className={`flex-grow overflow-y-auto p-4 bg-white transition-opacity duration-300 ease-in-out ${tabFade ? 'opacity-100' : 'opacity-0'}`}>
           {isNotificationsLoading && (
-            <div style={{ textAlign: 'center', padding: '24px 0', color: '#6B7280' }}>
+            <div className="flex flex-col items-center justify-center py-10 text-gray-500">
+              <FaSpinner className="animate-spin text-2xl mb-2" />
               Đang tải thông báo...
             </div>
           )}
           {!isNotificationsLoading && notifications.filter(n => n.status === currentNotificationTab).length === 0 && (
-            <p style={{ color: '#6B7280', textAlign: 'center', padding: '24px 0' }}>
+            <p className="text-gray-500 text-center py-10">
               Không có thông báo nào.
             </p>
           )}
@@ -206,94 +181,46 @@ function Header({
             .map(notification => (
               <div
                 key={notification._id}
-                style={{
-                  borderBottom: '1px solid #E5E7EB',
-                  padding: '12px 16px',
-                  backgroundColor: '#F9FAFB',
-                  borderRadius: '8px',
-                  marginBottom: '8px',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                  transition: 'box-shadow 0.2s',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'}
+                className="p-3 mb-2 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
               >
-                <p style={{ fontSize: '14px', fontWeight: '500', color: '#1F2937' }}>
+                <p className="text-sm font-medium text-gray-800">
                   {notification.message}
                 </p>
-                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
+                <p className="text-xs text-gray-500 mt-1">
                   {notification.projectId?.name ? `CT: ${notification.projectId.name} (${notification.projectModel === 'CategoryProject' ? 'DM' : 'SCN'})` : 'Thông báo chung'}
                   {' - '}
                   {new Date(notification.createdAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
                 {currentNotificationTab === 'pending' && user?.permissions?.approve && notification.projectId?._id && (
-                  <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                  <div className="flex gap-3 mt-3">
                     <button
-                      onClick={() => handleAction(notification.type === 'edit' ? approveEditAction : approveDeleteAction, notification.projectId._id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        padding: '8px',
-                        borderRadius: '9999px',
-                        color: '#10B981',
-                        backgroundColor: '#DCFCE7',
-                        transition: 'all 0.2s',
-                        cursor: isProcessingNotificationAction ? 'not-allowed' : 'pointer',
-                        opacity: isProcessingNotificationAction ? 0.5 : 1,
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#BBF7D0'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DCFCE7'}
+                      onClick={() => handleActionWrapper(notification.type === 'edit' ? approveEditAction : approveDeleteAction, notification.projectId._id)}
+                      className={`btn-sm btn-success flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={isProcessingNotificationAction}
                     >
-                      <FaCheckCircle size={16} /> {isProcessingNotificationAction ? "Đang..." : "Duyệt"}
+                      <FaCheckCircle size={14} /> {isProcessingNotificationAction ? "Đang..." : "Duyệt"}
                     </button>
                     <button
-                      onClick={() => handleAction(notification.type === 'edit' ? rejectEditAction : rejectDeleteAction, notification.projectId._id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        padding: '8px',
-                        borderRadius: '9999px',
-                        color: '#F59E0B',
-                        backgroundColor: '#FEF3C7',
-                        transition: 'all 0.2s',
-                        cursor: isProcessingNotificationAction ? 'not-allowed' : 'pointer',
-                        opacity: isProcessingNotificationAction ? 0.5 : 1,
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FDE68A'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FEF3C7'}
+                      onClick={() => handleActionWrapper(notification.type === 'edit' ? rejectEditAction : rejectDeleteAction, notification.projectId._id)}
+                      className={`btn-sm btn-warning flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={isProcessingNotificationAction}
                     >
-                      <FaTimesCircle size={16} /> {isProcessingNotificationAction ? "Đang..." : "Từ chối"}
+                      <FaTimesCircle size={14} /> {isProcessingNotificationAction ? "Đang..." : "Từ chối"}
                     </button>
                   </div>
                 )}
               </div>
             ))}
         </div>
-        <button
-          onClick={() => { if (!isProcessingNotificationAction) setShowNotificationsModal(false); }}
-          style={{
-            width: '100%',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '500',
-            backgroundColor: '#6B7280',
-            color: 'white',
-            marginTop: '24px',
-            transition: 'all 0.3s',
-            cursor: isProcessingNotificationAction ? 'not-allowed' : 'pointer',
-            opacity: isProcessingNotificationAction ? 0.5 : 1,
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4B5563'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6B7280'}
-          disabled={isProcessingNotificationAction}
-        >
-          Đóng
-        </button>
+        <div className="p-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+          <button
+            onClick={() => { if (!isProcessingNotificationAction) setShowNotificationsModal(false); }}
+            className={`w-full py-2 px-4 rounded-md text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 transition-colors ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isProcessingNotificationAction}
+          >
+            Đóng
+          </button>
+        </div>
       </Modal>
     </>
   );

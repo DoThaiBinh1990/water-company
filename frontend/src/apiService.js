@@ -9,17 +9,19 @@ export const apiClient = axios.create({
 // Interceptor để tự động thêm token vào header của mỗi request
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Đảm bảo header Authorization luôn được đặt nếu có token
-      // Điều này quan trọng khi ứng dụng tải lại và apiClient được khởi tạo lại
-      // mà không qua luồng đăng nhập (nơi token được set trực tiếp vào defaults).
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    // console.log('API Request Config (from apiService.js):', config); // Bỏ comment để kiểm tra nếu cần
+    const token = localStorage.getItem('token');    
+    // console.log('[Interceptor] Token from localStorage on request:', token); 
+    if (token && token !== 'undefined' && token !== 'null') { // Chỉ đính kèm token nếu nó là một chuỗi hợp lệ
+      config.headers['Authorization'] = `Bearer ${token}`;    
+      // console.log('[Interceptor] Authorization header SET for request to:', config.url);
+    } else {    
+      // console.log('[Interceptor] No valid token found or token is "undefined"/"null" string. Header NOT SET for:', config.url);
+      delete config.headers['Authorization']; 
+    }    
     return config;
   },
   (error) => {
+    // console.error('[Interceptor] Request error:', error);
     return Promise.reject(error);
   }
 );
@@ -31,10 +33,21 @@ export const loginUser = async (credentials) => {
 };
 
 export const getMe = async () => {
-  // console.log('Attempting to fetch /api/auth/me'); // Bỏ comment để kiểm tra nếu cần
-  const { data } = await apiClient.get('/api/auth/me');
-  // console.log('/api/auth/me response data:', data); // Bỏ comment để kiểm tra nếu cần
-  return data.user; // Giả sử API trả về { user: ... }
+  // console.log('[getMe] Attempting to fetch /api/auth/me. Token in localStorage at this moment:', localStorage.getItem('token'));
+  try {
+    const { data } = await apiClient.get('/api/auth/me');
+    // console.log('[getMe] /api/auth/me raw response data:', JSON.stringify(data, null, 2));
+    if (data && data.user && (data.user.username || data.user._id || data.user.id)) { // Kiểm tra data.user và có trường định danh
+        // console.log('[getMe] Returning data.user:', JSON.stringify(data.user, null, 2));
+        return data.user;
+    } else {
+        // console.error('[getMe] /api/auth/me response does NOT contain a valid data.user. Raw data:', JSON.stringify(data, null, 2));
+        return null; // Trả về null để App.js onSuccess xử lý logout
+    }
+  } catch (error) {
+    // console.error('[getMe] Error fetching /api/auth/me:', error.response?.data || error.message);
+    return null; // Trả về null khi có lỗi API để onSuccess của useQuery có thể nhận và xử lý
+  }
 };
 
 // Users (trong Settings)
