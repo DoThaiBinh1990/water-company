@@ -43,6 +43,8 @@ const userSchema = new mongoose.Schema({
     allocate: { type: Boolean, default: false }, // Quyền phân bổ (cho category project)
     assign: { type: Boolean, default: false },   // Quyền giao việc (gán supervisor, estimator)
     viewOtherBranchProjects: { type: Boolean, default: false }, // Quyền xem công trình chi nhánh khác
+    assignProfileTimeline: { type: Boolean, default: false }, // Quyền phân công timeline hồ sơ
+    assignConstructionTimeline: { type: Boolean, default: false }, // Quyền phân công timeline thi công
   },
 });
 
@@ -63,7 +65,7 @@ userSchema.pre('save', async function (next) {
     if (shouldSetDefaultPermissions || this.role === 'admin') {
         switch (this.role) {
             case 'admin':
-                this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true };
+                this.permissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true, assignProfileTimeline: true, assignConstructionTimeline: true };
                 break;
             case 'director':
             case 'deputy_director':
@@ -130,9 +132,36 @@ const pendingEditSubSchema = new mongoose.Schema({
   requestedAt: { type: Date }, // Time of request
 }, { _id: false }); // Don't create a separate _id for the subdocument
 
+// Reusable sub-schema for timeline entries
+const timelineEntrySchema = new mongoose.Schema({
+  // Các trường chung cho cả profile và construction timeline
+  assignedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  assignmentType: { type: String, enum: ['auto', 'manual'], default: 'auto' },
+  startDate: { type: Date },
+  durationDays: { type: Number },
+  endDate: { type: Date },
+  excludeHolidays: { type: Boolean, default: true },
+  order: { type: Number }, // For 'auto' assignment sorting
+  actualStartDate: { type: Date },
+  actualEndDate: { type: Date },
+  progress: { type: Number, min: 0, max: 100, default: 0 },
+  statusNotes: { type: String, trim: true },
+  // Trường dành riêng cho profileTimeline
+  estimator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Chỉ dùng cho profileTimeline
+  // Trường dành riêng cho constructionTimeline
+  constructionUnit: { type: String, trim: true }, // Chỉ dùng cho constructionTimeline
+  supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Người giám sát thi công, chỉ dùng cho constructionTimeline
+}, { _id: false, minimize: false }); // minimize: false để giữ lại các trường rỗng nếu cần
+
+// Tạo schema riêng cho profileTimeline và constructionTimeline để có thể tùy chỉnh nếu cần
+const profileTimelineSubSchema = new mongoose.Schema(timelineEntrySchema.obj, { _id: false, minimize: false });
+const constructionTimelineSubSchema = new mongoose.Schema(timelineEntrySchema.obj, { _id: false, minimize: false });
+
 // CategoryProject Schema (Công trình danh mục)
 const categoryProjectSchema = new mongoose.Schema({
   categorySerialNumber: { type: Number, default: null, sparse: true, index: true },
+  financialYear: { type: Number, required: true, index: true }, // Thêm năm tài chính
+  isCompleted: { type: Boolean, default: false, index: true }, // Thêm trạng thái hoàn thành
   // Common fields
   name: { type: String, required: true, trim: true },
   allocatedUnit: { type: String, required: true, trim: true, index: true },
@@ -160,15 +189,20 @@ const categoryProjectSchema = new mongoose.Schema({
   feasibility: { type: String, default: '', trim: true },
   notes: { type: String, default: '', trim: true },
   estimatedValue: { type: Number, default: 0 },
+  completionMarkedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Người đánh dấu hoàn thành
+  completionMarkedAt: { type: Date, default: null }, // Thời gian đánh dấu hoàn thành
   pendingEdit: { type: pendingEditSubSchema, default: null },
   pendingDelete: { type: Boolean, default: false },
   history: [{
-    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned'], required: true },
+    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned', 'completed_marked', 'year_moved'], required: true }, // Thêm action mới
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     timestamp: { type: Date, default: Date.now },
     details: { type: mongoose.Schema.Types.Mixed }
   }],
+  profileTimeline: profileTimelineSubSchema, // Sử dụng sub-schema riêng
+  constructionTimeline: constructionTimelineSubSchema, // Sử dụng sub-schema riêng
 }, { timestamps: true });
+
 
 categoryProjectSchema.pre('save', async function (next) {
   if (this.isNew) {
@@ -193,6 +227,8 @@ const CategoryProject = mongoose.model('CategoryProject', categoryProjectSchema)
 const minorRepairProjectSchema = new mongoose.Schema({
   // Minor Repair specific fields
   minorRepairSerialNumber: { type: Number, default: null, sparse: true, index: true },
+  financialYear: { type: Number, required: true, index: true }, // Thêm năm tài chính
+  isCompleted: { type: Boolean, default: false, index: true }, // Thêm trạng thái hoàn thành
   reportDate: { type: Date },
   inspectionDate: { type: Date },
   paymentDate: { type: Date },
@@ -211,15 +247,20 @@ const minorRepairProjectSchema = new mongoose.Schema({
   assignedTo: { type: String, default: '', trim: true },
   supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   notes: { type: String, default: '', trim: true },
+  completionMarkedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // Người đánh dấu hoàn thành
+  completionMarkedAt: { type: Date, default: null }, // Thời gian đánh dấu hoàn thành
   pendingEdit: { type: pendingEditSubSchema, default: null },
   pendingDelete: { type: Boolean, default: false },
   history: [{
-    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned'], required: true },
+    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned', 'completed_marked', 'year_moved'], required: true }, // Thêm action mới
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     timestamp: { type: Date, default: Date.now },
     details: { type: mongoose.Schema.Types.Mixed }
   }],
+  // profileTimeline for MinorRepairProject will be developed later
+  constructionTimeline: constructionTimelineSubSchema, // Sử dụng sub-schema riêng
 }, { timestamps: true });
+
 
 minorRepairProjectSchema.pre('save', async function (next) {
   if (this.isNew) {
@@ -294,7 +335,20 @@ const rejectedProjectSchema = new mongoose.Schema({
 
 const RejectedProject = mongoose.model('RejectedProject', rejectedProjectSchema);
 
+// Holiday Schema
+const holidaySchema = new mongoose.Schema({
+  year: { type: Number, required: true, unique: true, index: true },
+  holidays: [{
+    date: { type: Date, required: true }, // Store as Date object
+    description: { type: String, required: true, trim: true }
+  }],
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  lastUpdatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+}, { timestamps: true });
+
+const Holiday = mongoose.model('Holiday', holidaySchema);
+
 module.exports = {
   SerialCounter, User, AllocatedUnit, ConstructionUnit, AllocationWave,
-  ProjectType, CategoryProject, MinorRepairProject, Notification, RejectedProject
+  ProjectType, CategoryProject, MinorRepairProject, Notification, RejectedProject, Holiday // Thêm Holiday vào exports
 };

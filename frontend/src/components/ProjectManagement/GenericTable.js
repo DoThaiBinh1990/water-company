@@ -1,6 +1,5 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\GenericTable.js
 import React from 'react';
-import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { formatDate, formatCurrency, getNestedProperty } from '../../utils/helpers'; // Ensure getNestedProperty is correctly imported
 import Pagination from '../Common/Pagination'; // Import Pagination
 
@@ -27,13 +26,18 @@ function GenericTable({
     let originalValueFromProject = getNestedProperty(project, fieldPath);
 
     const resolveUserValue = (value) => {
+      // Xử lý trường hợp value đã là object (ví dụ: được populate từ backend)
+      if (value && typeof value === 'object' && (value._id || value.name || value.fullName || value.username)) {
+        return value;
+      }
+      // Xử lý trường hợp value là string ID
       if (typeof value === 'string' && currentUsersList && currentUsersList.length > 0) {
         if (value.match(/^[0-9a-fA-F]{24}$/)) {
           const foundUser = currentUsersList.find(u => u._id === value);
-          return foundUser || value;
+          return foundUser || value; // Trả về object user nếu tìm thấy, ngược lại trả về ID
         }
       }
-      return value;
+      return value; // Trả về giá trị gốc nếu không phải ID hoặc không tìm thấy
     };
 
     const resolvedOriginalValueFromProject = resolveUserValue(originalValueFromProject);
@@ -41,10 +45,7 @@ function GenericTable({
     let isChanged = false;
     let resolvedOldValueForDisplay = null;
 
-    if (
-      project.pendingEdit && // No need for isPendingTab check here, pendingEdit implies it's relevant
-      Array.isArray(project.pendingEdit.changes)
-    ) {
+    if (project.pendingEdit && Array.isArray(project.pendingEdit.changes)) {
       const changedField = project.pendingEdit.changes.find(change => change.field === fieldPath);
       if (changedField) {
         displayValue = resolveUserValue(changedField.newValue);
@@ -68,33 +69,19 @@ function GenericTable({
 
     const formatValueForDisplay = (value, formatType) => {
       if (value === null || value === undefined) return 'N/A';
+      // Nếu value là object (ví dụ user đã được resolve), lấy fullName hoặc username
       if (typeof value === 'object') {
-        return value.fullName || value.username || value.name || '[Object]';
+        return value.fullName || value.username || value.name || '[Đối tượng]';
       }
       if (formatType === 'date') return formatDate(value);
       if (formatType === 'currency') return formatCurrency(value);
       return String(value);
     };
 
+    // Nếu có hàm render tùy chỉnh, nó sẽ chịu trách nhiệm hoàn toàn việc hiển thị cũ/mới
     if (colConfig.render) {
-      const customRenderOutput = colConfig.render(project, cellData, isPendingTab, usersList);
-      if (typeof customRenderOutput === 'object' && customRenderOutput !== null && !React.isValidElement(customRenderOutput)) {
-        console.error(`[GenericTable] Custom render for field "${colConfig.field}" returned an invalid OBJECT.`, customRenderOutput, project);
-        return <span className="text-red-500 italic text-xs">[Lỗi render]</span>;
-      }
-      if (cellData.isChanged && (typeof customRenderOutput === 'string' || typeof customRenderOutput === 'number')) {
-        return (
-          <>
-            <span className={'cell-changed-value font-semibold'}>{customRenderOutput}</span>
-            {(originalDisplayValue !== null && originalDisplayValue !== undefined) && (
-              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
-                (Cũ: {formatValueForDisplay(originalDisplayValue, colConfig.format)})
-              </span>
-            )}
-          </>
-        );
-      }
-      return customRenderOutput;
+      // Truyền cellData chứa isChanged, displayValue (mới), originalValue (cũ, đã resolve)
+      return colConfig.render(project, cellData, isPendingTab, usersList);
     }
 
     const contentToRender = formatValueForDisplay(displayValue, colConfig.format);
@@ -104,7 +91,7 @@ function GenericTable({
     }
 
     let finalDisplayElement;
-    if (contentToRender === "N/A" || (typeof contentToRender === 'string' && contentToRender.startsWith("["))) {
+    if (contentToRender === "N/A" || (typeof contentToRender === 'string' && contentToRender.startsWith("["))) { // Kiểm tra cả trường hợp [Đối tượng]
         finalDisplayElement = <span className={`${contentToRender === "N/A" ? "text-gray-400 italic" : "text-red-500 italic"} text-xs`}>{contentToRender}</span>;
     } else {
         finalDisplayElement = contentToRender;

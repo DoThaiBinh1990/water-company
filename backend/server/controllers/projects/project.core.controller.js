@@ -1,6 +1,6 @@
 // d:\CODE\water-company\backend\server\controllers\projects\project.core.controller.js
 const projectService = require('../../services/project.service.js');
-const { populateProjectFields } = require('../../utils');
+// const timelineService = require('../../services/timeline.service.js'); // Import timelineService - No longer needed if projectService aggregates
 const logger = require('../../config/logger');
 const Joi = require('joi'); // Import Joi
 const { CategoryProject, MinorRepairProject, Notification } = require('../../models');
@@ -13,6 +13,101 @@ exports.getProjects = async (req, res, next) => {
     res.json(result);
   } catch (error) {
     logger.error("Lỗi Controller lấy danh sách công trình:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
+  }
+};
+
+exports.getProfileTimelineProjects = async (req, res, next) => {
+  try {
+    // Truyền req.user và các query params vào service
+    const result = await projectService.getProfileTimelineProjectsList({ ...req.query, user: req.user });
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller lấy danh sách công trình cho Timeline Hồ sơ:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
+  }
+};
+
+exports.getConstructionTimelineProjects = async (req, res, next) => {
+  try {
+    const { type } = req.query; // Cần type (category/minor_repair) để service biết lấy model nào
+    if (!type || !['category', 'minor_repair'].includes(type)) {
+       return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
+    }
+    // Truyền req.user và các query params vào service
+    const result = await projectService.getConstructionTimelineProjectsList({ ...req.query, user: req.user });
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller lấy danh sách công trình cho Timeline Thi công:", { path: req.path, method: req.method, message: error.message, stack: error.stack });
+    next(error);
+  }
+};
+
+exports.batchUpdateProfileTimeline = async (req, res, next) => {
+  try {
+    // req.body sẽ chứa: { financialYear, estimatorId, assignments: [{ projectId, startDate, durationDays, ... }] }
+    const result = await projectService.batchUpdateProfileTimeline(req.body, req.user);
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller batch update Timeline Hồ sơ:", { path: req.path, method: req.method, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) return res.status(error.statusCode).json({ message: error.message });
+    next(error);
+  }
+};
+
+exports.batchUpdateConstructionTimeline = async (req, res, next) => {
+  try {
+    // req.body sẽ chứa: { type, financialYear, constructionUnitName, assignments: [...] }
+    const result = await projectService.batchUpdateConstructionTimeline(req.body, req.user);
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller batch update Timeline Thi công:", { path: req.path, method: req.method, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) return res.status(error.statusCode).json({ message: error.message });
+    next(error);
+  }
+};
+
+exports.updateProfileTimelineTask = async (req, res, next) => {
+  try {
+    const projectId = req.params.id;
+    // req.body sẽ chứa các trường cần cập nhật: { startDate, endDate, durationDays, progress, statusNotes }
+    const result = await projectService.updateProfileTimelineTask(projectId, req.body, req.user);
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller cập nhật một task Timeline Hồ sơ:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) return res.status(error.statusCode).json({ message: error.message });
+    next(error);
+  }
+};
+
+exports.updateConstructionTimelineTask = async (req, res, next) => {
+  try {
+    const projectId = req.params.id;
+    const { type } = req.query; // Cần type để service biết model nào
+    if (!type || !['category', 'minor_repair'].includes(type)) {
+       return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
+    }
+    // req.body sẽ chứa các trường cần cập nhật: { startDate, endDate, durationDays, progress, statusNotes }
+    // Truyền type vào updateData để service biết model nào
+    const result = await projectService.updateConstructionTimelineTask(projectId, { ...req.body, type }, req.user);
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller cập nhật một task Timeline Thi công:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) return res.status(error.statusCode).json({ message: error.message });
+    next(error);
+  }
+};
+
+exports.getProjectsForTimelineAssignment = async (req, res, next) => {
+  try {
+    // queryParams sẽ bao gồm: financialYear, timelineType, objectType, estimatorId/constructionUnitName
+    const result = await projectService.getProjectsForTimelineAssignment({ ...req.query, user: req.user });
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller lấy danh sách công trình cho phân công Timeline:", { path: req.path, method: req.method, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     next(error);
   }
 };
@@ -31,6 +126,13 @@ const createProjectSchema = Joi.object({
   location: Joi.string().trim().required().messages({
     'any.required': 'Địa điểm là bắt buộc.',
     'string.empty': 'Địa điểm không được để trống.',
+  }),
+  financialYear: Joi.number().integer().min(2000).max(2100).required().messages({ // Thêm validation cho financialYear
+    'any.required': 'Năm tài chính là bắt buộc.',
+    'number.base': 'Năm tài chính phải là một số.',
+    'number.integer': 'Năm tài chính phải là số nguyên.',
+    'number.min': 'Năm tài chính không hợp lệ.',
+    'number.max': 'Năm tài chính không hợp lệ.',
   }),
   scale: Joi.string().trim().required().messages({ // Scale required for both types
      'any.required': 'Quy mô là bắt buộc.',
@@ -126,6 +228,42 @@ exports.updateProject = async (req, res, next) => {
     res.status(result.pending ? 202 : (result.updated ? 200 : 200)).json(result); // 202 if pending, 200 if updated/no change
   } catch (error) {
     logger.error("Lỗi Controller cập nhật công trình:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+};
+
+exports.markProjectAsCompleted = async (req, res, next) => {
+  try {
+    const { type } = req.query;
+    const projectId = req.params.id;
+    if (!type || !['category', 'minor_repair'].includes(type)) {
+      return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
+    }
+    const result = await projectService.markProjectAsCompleted(projectId, type, req.user, req.io);
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller đánh dấu hoàn thành công trình:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    next(error);
+  }
+};
+
+exports.moveProjectToNextFinancialYear = async (req, res, next) => {
+  try {
+    const { type } = req.query;
+    const projectId = req.params.id;
+    if (!type || !['category', 'minor_repair'].includes(type)) {
+      return res.status(400).json({ message: 'Loại công trình (type) trong query là bắt buộc và hợp lệ.' });
+    }
+    const result = await projectService.moveProjectToNextFinancialYear(projectId, type, req.user, req.io);
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi Controller chuyển công trình sang năm tài chính tiếp theo:", { path: req.path, method: req.method, projectId: req.params.id, message: error.message, stack: error.stack, statusCode: error.statusCode });
     if (error.statusCode) {
       return res.status(error.statusCode).json({ message: error.message });
     }

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { FaSignOutAlt, FaList, FaWrench, FaCog, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaSignOutAlt, FaList, FaWrench, FaCog, FaArrowLeft, FaArrowRight, FaChartBar } from 'react-icons/fa'; // Thêm FaChartBar
 import logo from '../assets/logo.png';
 
 function Sidebar({ user, onLogout, isSidebarOpen, setIsSidebarOpen }) {
@@ -84,6 +84,19 @@ function Sidebar({ user, onLogout, isSidebarOpen, setIsSidebarOpen }) {
               <FaCog className={`${isSidebarOpen ? 'mr-3' : ''}`} size={iconSize} />
               <span className={`transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
                 Thiết lập
+              </span>
+            </Link>
+            {/* Thêm link Timeline */}
+            <Link
+              to="/timeline"
+              className={`flex items-center ${buttonPadding} rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-110 hover:bg-blue-600 hover:shadow-md ${
+                isActive('/timeline') ? 'bg-blue-700 text-white shadow-md' : 'text-white'
+              } ${isSidebarOpen ? '' : 'justify-center bg-blue-700/50 border border-blue-500/50'}`}
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              <FaChartBar className={`${isSidebarOpen ? 'mr-3' : ''}`} size={iconSize} />
+              <span className={`transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
+                Quản lý Timeline
               </span>
             </Link>
           </nav>

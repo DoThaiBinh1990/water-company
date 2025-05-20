@@ -1,6 +1,6 @@
 // d:\CODE\water-company\frontend\src\pages\Settings.js
 import { useState, useEffect } from 'react';
-import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram, FaUserCog, FaKey } from 'react-icons/fa'; // Thêm FaUserCog, FaKey
+import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram, FaUserCog, FaKey, FaCalendarAlt, FaCalendarTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -11,7 +11,8 @@ import {
   getAllocationWaves, createAllocationWave as createAllocationWaveAPI, updateAllocationWave as updateAllocationWaveAPI, deleteAllocationWave as deleteAllocationWaveAPI,
   getProjectTypes, createProjectType as createProjectTypeAPI, updateProjectType as updateProjectTypeAPI, deleteProjectType as deleteProjectTypeAPI,
   updateUserProfile as updateUserProfileAPI, changeUserPassword as changeUserPasswordAPI,
-  syncProjectsData as syncProjectsAPI
+  syncProjectsData as syncProjectsAPI,
+  getHolidaysForYearAPI, createOrUpdateHolidaysForYearAPI, deleteHolidayDateAPI
 } from '../apiService';
 
 const initialNewUserState = {
@@ -19,14 +20,27 @@ const initialNewUserState = {
   address: '', phoneNumber: '', email: '', unit: '',
   permissions: {
     add: true, edit: true, delete: true, approve: false, viewRejected: false,
-    viewOtherBranchProjects: false
-  } // Default cho staff-office, đã bỏ allocate và assign
+    allocate: false, assign: false, // Đã loại bỏ khỏi giao diện chính
+    viewOtherBranchProjects: false,
+    assignProfileTimeline: false, assignConstructionTimeline: false,
+  }
+};
+
+const getInitialActiveTab = () => {
+  const persistedTab = localStorage.getItem('settingsActiveTab');
+  // Danh sách các tab hợp lệ
+  const validTabs = ['profile', 'users', 'allocatedUnits', 'constructionUnits', 'allocationWaves', 'projectTypes', 'syncProjects', 'holidays'];  
+  // console.log('[Settings getInitialActiveTab] Persisted tab from localStorage:', persistedTab);
+  if (persistedTab && validTabs.includes(persistedTab)) {
+    return persistedTab;
+  }
+  // console.log('[Settings getInitialActiveTab] Defaulting to "profile"');
+  return 'profile'; // Tab mặc định
 };
 
 function Settings({ user }) {
   const queryClient = useQueryClient();
-  // Tab mặc định sẽ là 'profile' cho tất cả user, admin có thể chuyển qua các tab khác
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(getInitialActiveTab);
 
   const [newUser, setNewUser] = useState(initialNewUserState);
   const [editingUserId, setEditingUserId] = useState(null);
@@ -48,7 +62,12 @@ function Settings({ user }) {
   });
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
 
-  // --- QUERIES ---
+  const [selectedHolidayYear, setSelectedHolidayYear] = useState(new Date().getFullYear());
+  const [holidaysForSelectedYear, setHolidaysForSelectedYear] = useState([]);
+  const [newHoliday, setNewHoliday] = useState({ date: '', description: '' });
+  const [editingHoliday, setEditingHoliday] = useState(null); // { date: string, description: string }
+  const [editingHolidayDescription, setEditingHolidayDescription] = useState('');
+
   const { data: users = [], isLoading: isLoadingUsers, isFetching: isFetchingUsers } = useQuery({
     queryKey: ['users'],
     queryFn: getUsers,
@@ -84,15 +103,90 @@ function Settings({ user }) {
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải loại công trình!', { position: "top-center" }),
   });
 
+  // eslint-disable-next-line no-unused-vars
+  const { data: holidaysDataFromQuery, isLoading: isLoadingHolidays, isFetching: isFetchingHolidays, refetch: refetchHolidays, status: holidaysQueryStatus } = useQuery({
+    queryKey: ['holidays', selectedHolidayYear],
+    queryFn: async () => {      
+      console.log(`[Settings - holidaysQuery] Running queryFn for year: ${selectedHolidayYear}. User role: ${user?.role}. Active tab: ${activeTab}`);
+      const data = await getHolidaysForYearAPI(selectedHolidayYear);
+      // Log dữ liệu thô từ API TRƯỚC KHI xử lý
+      console.log(`[Settings - holidaysQuery] RAW API response for year ${selectedHolidayYear}:`, JSON.stringify(data, null, 2));
+      return data;
+    },
+    enabled: user?.role === 'admin' && activeTab === 'holidays',
+    keepPreviousData: true,
+    onSuccess: (data) => {
+      console.log(`[Settings - onSuccess] START. For data.year: ${data?.year}. Current selectedHolidayYear: ${selectedHolidayYear}. data.holidays items: ${data?.holidays?.length}`);
+      
+      if (!data || data.year !== selectedHolidayYear) {
+        console.warn(`[Settings - onSuccess] STALE DATA. data.year: ${data?.year}, selectedHolidayYear: ${selectedHolidayYear}. IGNORING.`);
+        return;
+      }
+
+      if (!data || !data.holidays || !Array.isArray(data.holidays)) {
+        console.warn(`[Settings - onSuccess] INVALID STRUCTURE for year ${data.year}. Expected { holidays: [] }. Received:`, data);
+        setHolidaysForSelectedYear([]);
+        return;
+      }
+      console.log(`[Settings - onSuccess] Processing data for year ${data.year}. Raw holidays:`, JSON.stringify(data.holidays, null, 2));
+
+      try {
+        const processedHolidays = data.holidays.map((h, itemIndex) => {
+          if (!h || (!h.date)) {
+            console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} is invalid or missing date:`, h);
+            return null;
+          }
+
+          console.log(`[Settings - map] Processing item ${itemIndex} for year ${data.year}. Raw h.date: "${h.date}", type: ${typeof h.date}`);
+
+          const dateObj = new Date(h.date);
+          const isDateObjectInvalid = isNaN(dateObj.getTime());
+
+          if (isDateObjectInvalid) {
+            console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} - INVALID DATE OBJECT. h.date: "${h.date}". new Date(h.date) resulted in Invalid Date. Original item:`, h);
+            return null;
+          }
+          console.log(`[Settings - map] Item ${itemIndex} for year ${data.year} - Date object OK: ${dateObj.toISOString()}`);
+
+          const dateString = dateObj.toISOString().split('T')[0];
+          const itemYearFromDate = parseInt(dateString.split('-')[0], 10);
+          console.log(`[Settings - map] Item ${itemIndex} for year ${data.year} - Extracted year: ${itemYearFromDate}. API data.year: ${data.year}. dateString: "${dateString}"`);
+
+          if (itemYearFromDate !== data.year) {
+            console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} - YEAR MISMATCH. Extracted year ${itemYearFromDate} from dateString "${dateString}" (from h.date "${h.date}") does not match data.year ${data.year}. Skipping.`);
+            return null;
+          }
+
+          return {
+            _id: h._id,
+            description: h.description,
+            date: dateString,
+          };
+        }).filter(item => item !== null);
+        
+        console.log(`[Settings - onSuccess] FINAL processedHolidays for year ${data.year} (length ${processedHolidays.length}):`, JSON.stringify(processedHolidays, null, 2));
+        setHolidaysForSelectedYear(processedHolidays);
+
+      } catch (mapError) {
+        console.error(`[Settings - onSuccess] CATCH_ERROR during mapping holidays for year ${data.year}:`, mapError);
+        setHolidaysForSelectedYear([]);
+      }
+    },
+    onError: (error) => {
+      console.error(`[Settings - holidaysQuery onError] Error for year ${selectedHolidayYear}:`, error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || `Lỗi tải ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" });
+      setHolidaysForSelectedYear([]);
+    }
+  });
+
   const isLoadingTabData =
     (activeTab === 'users' && (isLoadingUsers || isFetchingUsers)) ||
     (activeTab === 'allocatedUnits' && (isLoadingAllocatedUnits || isFetchingAllocatedUnits)) ||
     (activeTab === 'constructionUnits' && (isLoadingConstructionUnits || isFetchingConstructionUnits)) ||
     (activeTab === 'allocationWaves' && (isLoadingAllocationWaves || isFetchingAllocationWaves)) ||
-    (activeTab === 'projectTypes' && (isLoadingProjectTypes || isFetchingProjectTypes));
-    // Không cần isLoading cho tab 'profile' vì dữ liệu user đã có từ prop
+    (activeTab === 'projectTypes' && (isLoadingProjectTypes || isFetchingProjectTypes)) ||
+    (activeTab === 'holidays' && isLoadingHolidays);
 
-  // --- MUTATIONS ---
   const useCreateGenericMutation = (mutationFn, queryKeyToInvalidate, successAddMsg, successEditMsg, resetFormFn) => {
     return useMutation({
       mutationFn,
@@ -152,8 +246,8 @@ function Settings({ user }) {
       email: userToEdit.email || '',
       unit: userToEdit.unit || '',
       permissions: {
-        ...initialNewUserState.permissions,
-        ...(userToEdit.permissions || {})
+        ...initialNewUserState.permissions, 
+        ...(userToEdit.permissions || {}) 
       }
     });
     setEditingUserId(userToEdit._id);
@@ -242,14 +336,11 @@ function Settings({ user }) {
   });
   const syncProjects = () => syncProjectsMutation.mutate();
 
-  // Mutations cho user tự cập nhật
   const updateUserProfileMutation = useMutation({
     mutationFn: updateUserProfileAPI,
     onSuccess: (data) => {
       toast.success(data.message || 'Cập nhật thông tin thành công!', { position: "top-center" });
-      queryClient.invalidateQueries(['currentUser']); // Làm mới thông tin user ở Header/Sidebar
-      // Cập nhật lại state user trong App.js nếu cần, hoặc để App.js tự fetch lại
-      // Hoặc có thể cập nhật user prop trực tiếp nếu App.js truyền hàm setUser xuống
+      queryClient.invalidateQueries(['currentUser']);
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi cập nhật thông tin!', { position: "top-center" }),
   });
@@ -258,7 +349,7 @@ function Settings({ user }) {
     mutationFn: changeUserPasswordAPI,
     onSuccess: (data) => {
       toast.success(data.message || 'Đổi mật khẩu thành công!', { position: "top-center" });
-      setPasswordData({ currentPassword: '', newPassword: '', confirmNewPassword: '' }); // Reset form
+      setPasswordData({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi đổi mật khẩu!', { position: "top-center" }),
   });
@@ -284,15 +375,85 @@ function Settings({ user }) {
     });
   };
 
-  const anyAdminMutationLoading = // Chỉ các mutation của admin
+  const saveHolidaysMutation = useMutation({
+    mutationFn: createOrUpdateHolidaysForYearAPI,
+    onSuccess: (data, variables) => {
+      toast.success(`Đã lưu ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" });
+      queryClient.invalidateQueries({ queryKey: ['holidays', parseInt(variables.year, 10)] });
+    },
+    onError: (error) => toast.error(error.response?.data?.message || `Lỗi khi lưu ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" }),
+  });
+
+  const deleteHolidayMutation = useMutation({
+    mutationFn: deleteHolidayDateAPI,
+    onSuccess: (data, variables) => {
+      toast.success(data.message || 'Đã xóa ngày nghỉ!', { position: "top-center" });
+      queryClient.invalidateQueries({ queryKey: ['holidays', parseInt(variables.year, 10)] });
+    },
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi xóa ngày nghỉ!', { position: "top-center" }),
+  });
+
+  const handleAddHoliday = () => {
+    if (!newHoliday.date || !newHoliday.description) {
+      toast.error('Vui lòng nhập ngày và mô tả cho ngày nghỉ.', { position: "top-center" });
+      return;
+    }
+    if (holidaysForSelectedYear.some(h => h.date === newHoliday.date)) {
+      toast.error(`Ngày ${newHoliday.date} đã tồn tại trong danh sách.`, { position: "top-center" });
+      return;
+    }
+
+    const parts = newHoliday.date.split('-');
+    const utcDate = new Date(Date.UTC(parseInt(parts[0],10), parseInt(parts[1],10) - 1, parseInt(parts[2],10)));
+    const dayOfWeek = utcDate.getUTCDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      if (!window.confirm(`Ngày ${newHoliday.date} là Thứ ${dayOfWeek === 0 ? 'Chủ Nhật' : 'Bảy'}. Bạn vẫn muốn thêm làm ngày nghỉ lễ?`)) {
+        return;
+      }
+    }
+
+    const currentHolidays = holidaysForSelectedYear.map(h => ({ date: h.date, description: h.description }));
+    const updatedHolidays = [...currentHolidays, { date: newHoliday.date, description: newHoliday.description }];
+    saveHolidaysMutation.mutate({ year: selectedHolidayYear, holidays: updatedHolidays });
+    setNewHoliday({ date: '', description: '' });
+  };
+
+  const handleStartEditHoliday = (holiday) => {
+    setEditingHoliday(holiday);
+    setEditingHolidayDescription(holiday.description);
+  };
+
+  const handleSaveEditedHoliday = () => {
+    if (!editingHoliday || !editingHolidayDescription.trim()) {
+      toast.error('Mô tả không được để trống.', { position: "top-center" });
+      return;
+    }
+    const updatedHolidaysList = holidaysForSelectedYear.map(h =>
+      h.date === editingHoliday.date ? { ...h, description: editingHolidayDescription.trim() } : h
+    );
+    const holidaysToSave = updatedHolidaysList.map(({ date, description }) => ({ date, description }));
+    saveHolidaysMutation.mutate({ year: selectedHolidayYear, holidays: holidaysToSave });
+    setEditingHoliday(null);
+    setEditingHolidayDescription('');
+  };
+
+  const handleDeleteHoliday = (dateString) => {
+    if (window.confirm(`Bạn có chắc muốn xóa ngày nghỉ ${dateString}?`)) {
+      deleteHolidayMutation.mutate({ year: selectedHolidayYear, dateString });
+      if (editingHoliday && editingHoliday.date === dateString) setEditingHoliday(null);
+    }
+  };
+
+  const anyAdminMutationLoading =
     userMutation.isLoading || deleteUserMutation.isLoading ||
     allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading ||
     constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading ||
     allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading ||
-    projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading;
+    projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading ||
+    saveHolidaysMutation.isLoading || deleteHolidayMutation.isLoading;
 
   const anyProfileMutationLoading = updateUserProfileMutation.isLoading || changePasswordMutation.isLoading;
-
 
   const handleRoleChange = (e) => {
     const role = e.target.value;
@@ -300,38 +461,45 @@ function Settings({ user }) {
 
     switch (role) {
       case 'admin':
-        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: true };
+        defaultPermissions = { 
+          add: true, edit: true, delete: true, approve: true, viewRejected: true, 
+          allocate: true, assign: true, 
+          viewOtherBranchProjects: true, 
+          assignProfileTimeline: true, 
+          assignConstructionTimeline: true
+        };
         break;
       case 'director':
       case 'deputy_director':
       case 'manager-office':
-        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: true };
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true, assignProfileTimeline: true, assignConstructionTimeline: true };
         break;
       case 'deputy_manager-office':
-        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: true };
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: true, assignProfileTimeline: true, assignConstructionTimeline: true };
         break;
       case 'staff-office':
-        defaultPermissions = { add: true, edit: true, delete: true, approve: false, viewRejected: true, /*allocate: false, assign: false,*/ viewOtherBranchProjects: true };
+        defaultPermissions = { add: true, edit: true, delete: true, approve: false, viewRejected: true, allocate: false, assign: false, viewOtherBranchProjects: true, assignProfileTimeline: false, assignConstructionTimeline: false };
         break;
       case 'manager-branch':
-        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: false };
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: false, assignProfileTimeline: true, assignConstructionTimeline: true };
         break;
       case 'deputy_manager-branch':
-        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, /*allocate: true, assign: true,*/ viewOtherBranchProjects: false };
+        defaultPermissions = { add: true, edit: true, delete: true, approve: true, viewRejected: true, allocate: true, assign: true, viewOtherBranchProjects: false, assignProfileTimeline: true, assignConstructionTimeline: true };
         break;
       case 'staff-branch':
-        defaultPermissions = { add: true, edit: true, delete: true, approve: false, viewRejected: false, /*allocate: false, assign: false,*/ viewOtherBranchProjects: false };
+        defaultPermissions = { add: true, edit: true, delete: true, approve: false, viewRejected: false, allocate: false, assign: false, viewOtherBranchProjects: false, assignProfileTimeline: false, assignConstructionTimeline: false };
         break;
       case 'worker':
-        defaultPermissions = { add: false, edit: false, delete: false, approve: false, viewRejected: false, /*allocate: false, assign: false,*/ viewOtherBranchProjects: false };
+        defaultPermissions = { add: false, edit: false, delete: false, approve: false, viewRejected: false, allocate: false, assign: false, viewOtherBranchProjects: false, assignProfileTimeline: false, assignConstructionTimeline: false };
         break;
       default:
-        defaultPermissions = { add: false, edit: false, delete: false, approve: false, viewRejected: false, /*allocate: false, assign: false,*/ viewOtherBranchProjects: false };
+        defaultPermissions = { ...initialNewUserState.permissions };
     }
-    // Loại bỏ allocate và assign khỏi defaultPermissions nếu chúng không còn trong initialNewUserState.permissions
-    const finalPermissions = {};
-    for (const key in initialNewUserState.permissions) {
-        finalPermissions[key] = defaultPermissions[key] !== undefined ? defaultPermissions[key] : false;
+    const finalPermissions = { ...initialNewUserState.permissions };
+    for (const key in defaultPermissions) {
+        if (finalPermissions.hasOwnProperty(key)) {
+            finalPermissions[key] = defaultPermissions[key];
+        }
     }
     setNewUser(prev => ({ ...prev, role, permissions: finalPermissions }));
   };
@@ -345,6 +513,9 @@ function Settings({ user }) {
     });
   }, [user]);
 
+  useEffect(() => {
+    localStorage.setItem('settingsActiveTab', activeTab);
+  }, [activeTab]);
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
@@ -372,6 +543,7 @@ function Settings({ user }) {
             <button onClick={() => setActiveTab('allocationWaves')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'allocationWaves' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaList /> Quản lý đợt PB</button>
             <button onClick={() => setActiveTab('projectTypes')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projectTypes' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaProjectDiagram /> Quản lý loại CT</button>
             <button onClick={() => setActiveTab('syncProjects')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'syncProjects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaSync /> Đồng bộ dữ liệu</button>
+            <button onClick={() => setActiveTab('holidays')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'holidays' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={anyAdminMutationLoading || anyProfileMutationLoading || syncProjectsMutation.isLoading || isLoadingTabData}><FaCalendarAlt /> Quản lý Ngày nghỉ</button>
           </>
         )}
       </div>
@@ -442,9 +614,9 @@ function Settings({ user }) {
           </div>
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 mb-2">Phân quyền chi tiết</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4"> {/* Giảm số cột để dễ nhìn hơn */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {Object.keys(initialNewUserState.permissions)
-                .filter(permKey => permKey !== 'allocate' && permKey !== 'assign') // Loại bỏ allocate và assign
+                .filter(permKey => permKey !== 'allocate' && permKey !== 'assign')
                 .map(permKey => (
                 <label key={permKey} className="flex items-center">
                   <input type="checkbox" checked={newUser.permissions[permKey] || false} onChange={(e) => setNewUser(prev => ({ ...prev, permissions: { ...prev.permissions, [permKey]: e.target.checked } }))} className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" disabled={userMutation.isLoading || newUser.role === 'admin'} />
@@ -452,8 +624,9 @@ function Settings({ user }) {
                   {permKey === 'edit' && 'Sửa CT'}
                   {permKey === 'delete' && 'Xóa CT'}
                   {permKey === 'approve' && 'Duyệt CT'}
-                  {permKey === 'viewRejected' && 'Xem CT từ chối'}
-                  {/* Bỏ hiển thị allocate và assign */}
+                  {permKey === 'viewRejected' && 'Xem CT Từ Chối'}
+                  {permKey === 'assignProfileTimeline' && 'Phân công TL Hồ sơ'}
+                  {permKey === 'assignConstructionTimeline' && 'Phân công TL Thi công'}
                   {permKey === 'viewOtherBranchProjects' && 'Xem CT chi nhánh khác'}
                 </label>
               ))}
@@ -490,10 +663,10 @@ function Settings({ user }) {
                         {Object.entries(u.permissions || {})
                           .filter(([, value]) => value)
                           .map(([key]) => ({
-                            add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'XemTừChối',
-                            // allocate: 'PhânBổ', assign: 'GiaoViệc', // Bỏ hiển thị
+                            add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'Xem TC',
+                            assignProfileTimeline: 'PCTL HS', assignConstructionTimeline: 'PCTL TC',
                             viewOtherBranchProjects: 'XemCNKhác'
-                          }[key] || key))
+                          }[key] || key.replace('assign', 'PC').replace('Timeline','TL').replace('Profile','HS').replace('Construction','TC')))
                           .join(', ')}
                       </td>
                       <td className="p-4 flex gap-2">
@@ -514,6 +687,102 @@ function Settings({ user }) {
       {activeTab === 'allocationWaves' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label> <input type="text" placeholder="Nhập tên đợt phân bổ" value={newAllocationWaveName} onChange={(e) => setNewAllocationWaveName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocationWaveMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveAllocationWave} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}><FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'}</button> {editAllocationWave && (<button onClick={() => { setNewAllocationWaveName(''); setEditAllocationWave(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {allocationWaves.map(wave => (<tr key={wave._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{wave.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewAllocationWaveName(wave.name); setEditAllocationWave(wave);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteAllocationWaveHandler(wave._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
       {activeTab === 'projectTypes' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý loại công trình</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên loại công trình</label> <input type="text" placeholder="Nhập tên loại công trình" value={newProjectTypeName} onChange={(e) => setNewProjectTypeName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={projectTypeMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveProjectType} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}><FaPlus /> {editProjectType ? 'Cập nhật' : 'Thêm'}</button> {editProjectType && (<button onClick={() => { setNewProjectTypeName(''); setEditProjectType(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên loại công trình</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {projectTypes.map(type => (<tr key={type._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{type.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewProjectTypeName(type.name); setEditProjectType(type);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteProjectTypeHandler(type._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
       {activeTab === 'syncProjects' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Đồng bộ dữ liệu công trình</h2> <p className="text-gray-600 mb-4"> Chức năng này sẽ đồng bộ dữ liệu công trình từ collection cũ (<code>projects</code>) sang các collection mới (<code>categoryprojects</code> và <code>minorrepairprojects</code>). <br /> <strong>Lưu ý:</strong> Hành động này sẽ cập nhật hoặc thêm mới các công trình dựa trên dữ liệu cũ, giữ nguyên các công trình đã có trong collection mới nếu không có thay đổi. </p> <button onClick={() => { if (window.confirm('Bạn có chắc chắn muốn đồng bộ dữ liệu công trình?')) { syncProjects(); } }} className={`bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 flex items-center gap-2 shadow-md ${syncProjectsMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={syncProjectsMutation.isLoading}><FaSync /> Đồng bộ dữ liệu công trình</button> </div>)}
+      
+      {activeTab === 'holidays' && user?.role === 'admin' && (
+        <div className="bg-white p-8 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý Ngày nghỉ Lễ</h2>
+          <div className="mb-6">
+            <label className="block text-gray-700 mb-2">Chọn năm tài chính:</label>
+            <select 
+              value={selectedHolidayYear} 
+              onChange={(e) => setSelectedHolidayYear(parseInt(e.target.value, 10))} 
+              className="w-full md:w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              disabled={saveHolidaysMutation.isLoading || deleteHolidayMutation.isLoading || isLoadingHolidays}
+            >
+              {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i).map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label className="block text-gray-700 mb-1">Ngày (YYYY-MM-DD)</label>
+              <input 
+                type="date" 
+                value={newHoliday.date} 
+                onChange={(e) => setNewHoliday(prev => ({ ...prev, date: e.target.value }))} 
+                className="w-full border border-gray-300 p-2 rounded-lg" 
+                disabled={saveHolidaysMutation.isLoading} 
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-gray-700 mb-1">Mô tả</label>
+              <input 
+                type="text" 
+                placeholder="Mô tả ngày nghỉ" 
+                value={newHoliday.description} 
+                onChange={(e) => setNewHoliday(prev => ({ ...prev, description: e.target.value }))} 
+                className="w-full border border-gray-300 p-2 rounded-lg" 
+                disabled={saveHolidaysMutation.isLoading} 
+              />
+            </div>
+          </div>
+          <button 
+            onClick={handleAddHoliday} 
+            className={`bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 flex items-center gap-2 mb-6 ${saveHolidaysMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} 
+            disabled={saveHolidaysMutation.isLoading}
+          >
+            <FaPlus /> Thêm ngày nghỉ
+          </button>
+
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">Danh sách ngày nghỉ năm {selectedHolidayYear}</h3>
+          {isLoadingHolidays && <p>Đang tải ngày nghỉ...</p>}
+          {!isLoadingHolidays && holidaysForSelectedYear.length === 0 && (
+            <p className="text-gray-500">
+              Chưa có ngày nghỉ nào được thiết lập cho năm {selectedHolidayYear}.
+              (Raw API items: {holidaysDataFromQuery?.holidays?.length || 0}, Processed items: {holidaysForSelectedYear.length})
+            </p>
+          )}
+          {!isLoadingHolidays && holidaysForSelectedYear.length > 0 && (
+            <ul className="space-y-2">
+              {holidaysForSelectedYear.map((holiday, index) => (
+                <li key={holiday._id || holiday.date || index} className="p-3 bg-gray-50 rounded-md border">
+                  {editingHoliday && editingHoliday.date === holiday.date ? (
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-800">{new Date(holiday.date + "T00:00:00Z").toLocaleDateString('vi-VN')} - </span>
+                      <input
+                        type="text"
+                        value={editingHolidayDescription}
+                        onChange={(e) => setEditingHolidayDescription(e.target.value)}
+                        className="form-input text-sm flex-grow rounded-md"
+                        disabled={saveHolidaysMutation.isLoading}
+                      />
+                      <button onClick={handleSaveEditedHoliday} className="btn btn-success btn-sm" disabled={saveHolidaysMutation.isLoading}>Lưu</button>
+                      <button onClick={() => setEditingHoliday(null)} className="btn btn-secondary btn-sm" disabled={saveHolidaysMutation.isLoading}>Hủy</button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="font-medium text-gray-800">{new Date(holiday.date + "T00:00:00Z").toLocaleDateString('vi-VN')}</span>
+                        <span className="text-gray-600 ml-2">- {holiday.description}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleStartEditHoliday(holiday)} className="text-blue-500 hover:text-blue-700 disabled:opacity-50" disabled={deleteHolidayMutation.isLoading || saveHolidaysMutation.isLoading}>
+                          <FaEdit size={16} />
+                        </button>
+                        <button onClick={() => handleDeleteHoliday(holiday.date)} className="text-red-500 hover:text-red-700 disabled:opacity-50" disabled={deleteHolidayMutation.isLoading || saveHolidaysMutation.isLoading}>
+                          <FaCalendarTimes size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

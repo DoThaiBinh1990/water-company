@@ -18,8 +18,11 @@ const authenticate = (req, res, next) => {
         delete: true,
         approve: true,
         viewRejected: true,
-        allocate: true,
-        assign: true,
+        allocate: true, // Giữ lại hoặc bỏ đi tùy theo quyết định dọn dẹp
+        assign: true,   // Giữ lại hoặc bỏ đi tùy theo quyết định dọn dẹp
+        viewOtherBranchProjects: true,
+        assignProfileTimeline: true,
+        assignConstructionTimeline: true,
       };
     }
     req.user = decoded;

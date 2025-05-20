@@ -1,0 +1,774 @@
+2025-05-20 00:01:22 info: Người dùng đã ngắt kết nối: _pL4_-ULnkZcOk1gAAAN
+2025-05-20 00:01:22 info: Người dùng đã ngắt kết nối: 2Vdf2-8O9JgRBzdlAAAL
+2025-05-20 00:01:22 info: Một người dùng đã kết nối: Y9fMkcy0iUrDnE3PAAAP
+2025-05-20 00:01:22 info: Một người dùng đã kết nối: qJ9AeOOTIWu-gY_3AAAR
+2025-05-20 00:06:21 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 00:06:21 info: Một người dùng đã kết nối: spNwIBXElpUxnwUnAAAB
+2025-05-20 00:06:21 info: MongoDB đã kết nối thành công.
+2025-05-20 00:06:21 info: Một người dùng đã kết nối: 69kVmvaqG5q1uHLOAAAD
+2025-05-20 00:08:32 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 00:08:32 info: Một người dùng đã kết nối: esn1Yxm5r9xeGgOgAAAB
+2025-05-20 00:08:32 info: Một người dùng đã kết nối: ctIOoEYn8RNqJgO3AAAD
+2025-05-20 00:08:32 info: MongoDB đã kết nối thành công.
+2025-05-20 00:14:31 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 00:14:32 info: Một người dùng đã kết nối: 2U6uEv87TyORv9c8AAAB
+2025-05-20 00:14:32 info: Một người dùng đã kết nối: 4EhYhvZNQ0LUbyOcAAAD
+2025-05-20 00:14:32 info: MongoDB đã kết nối thành công.
+2025-05-20 00:23:16 info: Một người dùng đã kết nối: BDaf3rywc7ZIs-KdAAAF
+2025-05-20 00:31:40 info: Người dùng đã ngắt kết nối: 4EhYhvZNQ0LUbyOcAAAD
+2025-05-20 00:31:40 info: Người dùng đã ngắt kết nối: 2U6uEv87TyORv9c8AAAB
+2025-05-20 00:31:40 info: Người dùng đã ngắt kết nối: BDaf3rywc7ZIs-KdAAAF
+2025-05-20 00:31:49 info: Một người dùng đã kết nối: RoNhvEDY262TgSlfAAAH
+2025-05-20 00:31:50 info: Một người dùng đã kết nối: xCpGgU3OLyVquc2fAAAJ
+2025-05-20 00:52:14 info: Người dùng đã ngắt kết nối: RoNhvEDY262TgSlfAAAH
+2025-05-20 00:52:14 info: Người dùng đã ngắt kết nối: xCpGgU3OLyVquc2fAAAJ
+2025-05-20 00:52:21 info: Một người dùng đã kết nối: HCAJ1XxdNwHagUwuAAAL
+2025-05-20 00:52:21 info: Một người dùng đã kết nối: VEnjL2zK65oYkIaZAAAN
+2025-05-20 00:53:35 info: Người dùng đã ngắt kết nối: HCAJ1XxdNwHagUwuAAAL
+2025-05-20 00:53:35 info: Người dùng đã ngắt kết nối: VEnjL2zK65oYkIaZAAAN
+2025-05-20 00:53:35 info: Một người dùng đã kết nối: LEnSoZDYM1yc2HSoAAAP
+2025-05-20 00:53:35 info: Một người dùng đã kết nối: byhSsb-z1CSnoTVSAAAR
+2025-05-20 00:57:59 info: Người dùng đã ngắt kết nối: LEnSoZDYM1yc2HSoAAAP
+2025-05-20 00:57:59 info: Người dùng đã ngắt kết nối: byhSsb-z1CSnoTVSAAAR
+2025-05-20 01:26:46 info: Một người dùng đã kết nối: 62T9VsvivB8G6D7PAAAT
+2025-05-20 01:26:46 info: Một người dùng đã kết nối: 3BErDvaCUoKTlszKAAAV
+2025-05-20 01:27:23 info: Một người dùng đã kết nối: 9rIkIZiuUo9eLgmgAAAX
+2025-05-20 01:27:23 info: Một người dùng đã kết nối: M6irLuw1bktbK6OaAAAZ
+2025-05-20 01:32:17 info: Người dùng đã ngắt kết nối: 9rIkIZiuUo9eLgmgAAAX
+2025-05-20 01:32:17 info: Người dùng đã ngắt kết nối: M6irLuw1bktbK6OaAAAZ
+2025-05-20 01:32:18 info: Người dùng đã ngắt kết nối: 62T9VsvivB8G6D7PAAAT
+2025-05-20 01:32:18 info: Người dùng đã ngắt kết nối: 3BErDvaCUoKTlszKAAAV
+2025-05-20 01:32:24 info: Một người dùng đã kết nối: VdZDnO38PR9gjySiAAAb
+2025-05-20 01:32:24 info: Một người dùng đã kết nối: 2pSvjeDy_kio7snzAAAd
+2025-05-20 01:40:21 info: Một người dùng đã kết nối: itBx_c--sGaDgUYKAAAf
+2025-05-20 01:40:21 info: Một người dùng đã kết nối: RoZzshSTDlaz4QCgAAAh
+2025-05-20 01:40:24 info: Người dùng đã ngắt kết nối: VdZDnO38PR9gjySiAAAb
+2025-05-20 01:40:24 info: Người dùng đã ngắt kết nối: 2pSvjeDy_kio7snzAAAd
+2025-05-20 01:42:30 info: Người dùng đã ngắt kết nối: itBx_c--sGaDgUYKAAAf
+2025-05-20 01:42:30 info: Người dùng đã ngắt kết nối: RoZzshSTDlaz4QCgAAAh
+2025-05-20 01:42:30 info: Một người dùng đã kết nối: YPkuNyNMpOCzShXSAAAj
+2025-05-20 01:42:30 info: Một người dùng đã kết nối: bn5C254KFv5iffMRAAAl
+2025-05-20 01:46:40 info: Người dùng đã ngắt kết nối: YPkuNyNMpOCzShXSAAAj
+2025-05-20 01:46:40 info: Người dùng đã ngắt kết nối: bn5C254KFv5iffMRAAAl
+2025-05-20 01:46:41 info: Một người dùng đã kết nối: _As1v5SN1dvBrQddAAAn
+2025-05-20 01:46:41 info: Một người dùng đã kết nối: whqVD-2lA5wZO7hmAAAp
+2025-05-20 01:49:24 info: Người dùng đã ngắt kết nối: _As1v5SN1dvBrQddAAAn
+2025-05-20 01:49:32 info: Một người dùng đã kết nối: P9K86waZmgjhWrT6AAAr
+2025-05-20 01:49:32 info: Một người dùng đã kết nối: DSxsc43EvbKwCFY3AAAs
+2025-05-20 01:54:24 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 01:54:24 info: Một người dùng đã kết nối: kKCCEpMlv9aBuktQAAAB
+2025-05-20 01:54:24 info: Một người dùng đã kết nối: ZumSObW5bka9rF2mAAAD
+2025-05-20 01:54:25 info: MongoDB đã kết nối thành công.
+2025-05-20 02:01:10 info: Một người dùng đã kết nối: IZs2m9k4sqegUvWgAAAF
+2025-05-20 02:04:20 info: Người dùng đã ngắt kết nối: kKCCEpMlv9aBuktQAAAB
+2025-05-20 02:04:20 info: Người dùng đã ngắt kết nối: IZs2m9k4sqegUvWgAAAF
+2025-05-20 02:04:20 info: Người dùng đã ngắt kết nối: ZumSObW5bka9rF2mAAAD
+2025-05-20 02:04:20 info: Một người dùng đã kết nối: 6VabP7IuuYXR-yjBAAAH
+2025-05-20 02:04:20 info: Một người dùng đã kết nối: Yrl7ZZR_B0P_gB6UAAAJ
+2025-05-20 02:04:41 info: Người dùng đã ngắt kết nối: Yrl7ZZR_B0P_gB6UAAAJ
+2025-05-20 02:04:41 info: Người dùng đã ngắt kết nối: 6VabP7IuuYXR-yjBAAAH
+2025-05-20 02:04:42 info: Một người dùng đã kết nối: F7bORx0jQOP3zcVHAAAL
+2025-05-20 02:04:42 info: Một người dùng đã kết nối: kwqHay-u-tq5umW8AAAN
+2025-05-20 02:07:00 info: Người dùng đã ngắt kết nối: F7bORx0jQOP3zcVHAAAL
+2025-05-20 02:07:00 info: Người dùng đã ngắt kết nối: kwqHay-u-tq5umW8AAAN
+2025-05-20 02:07:00 info: Một người dùng đã kết nối: P9iWfrYdxzqJEPX2AAAP
+2025-05-20 02:07:00 info: Một người dùng đã kết nối: E0bhZuUeiu8v2JegAAAR
+2025-05-20 02:07:44 info: Người dùng đã ngắt kết nối: P9iWfrYdxzqJEPX2AAAP
+2025-05-20 02:07:44 info: Người dùng đã ngắt kết nối: E0bhZuUeiu8v2JegAAAR
+2025-05-20 02:07:44 info: Một người dùng đã kết nối: ojy0P5YhPhqeAHikAAAT
+2025-05-20 02:07:44 info: Một người dùng đã kết nối: A6remeLBZ6ahLcMLAAAV
+2025-05-20 02:10:47 info: Người dùng đã ngắt kết nối: ojy0P5YhPhqeAHikAAAT
+2025-05-20 02:10:54 info: Một người dùng đã kết nối: SnZ-ssBYrv547JWTAAAX
+2025-05-20 02:12:57 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 02:12:57 info: MongoDB đã kết nối thành công.
+2025-05-20 02:12:57 info: Một người dùng đã kết nối: DsAWeUabXHmIL0faAAAB
+2025-05-20 02:12:57 info: Một người dùng đã kết nối: 8xCs8O0x-RoZqf9zAAAD
+2025-05-20 02:13:02 info: Người dùng đã ngắt kết nối: DsAWeUabXHmIL0faAAAB
+2025-05-20 02:13:02 info: Người dùng đã ngắt kết nối: 8xCs8O0x-RoZqf9zAAAD
+2025-05-20 02:13:02 info: Một người dùng đã kết nối: x3xGhs1K8iHwB4ePAAAF
+2025-05-20 02:13:03 info: Một người dùng đã kết nối: XRohJcPvnj3EnRGKAAAH
+2025-05-20 02:13:43 info: Người dùng đã ngắt kết nối: x3xGhs1K8iHwB4ePAAAF
+2025-05-20 02:13:50 info: Một người dùng đã kết nối: EsAiqI3k3abqi8XxAAAJ
+2025-05-20 02:15:03 error: Lỗi Controller batch update Timeline Hồ sơ: Schema hasn't been registered for model "Holiday".
+Use mongoose.model(name, schema)
+2025-05-20 02:15:03 error: Lỗi không xác định: Schema hasn't been registered for model "Holiday".
+Use mongoose.model(name, schema)
+2025-05-20 02:15:15 info: Người dùng đã ngắt kết nối: EsAiqI3k3abqi8XxAAAJ
+2025-05-20 02:15:22 info: Một người dùng đã kết nối: GtEMsAWHZon8qJjLAAAL
+2025-05-20 02:17:25 info: Người dùng đã ngắt kết nối: GtEMsAWHZon8qJjLAAAL
+2025-05-20 02:17:31 info: Một người dùng đã kết nối: iEPVjSKAtadcRlqGAAAN
+2025-05-20 02:17:31 info: Người dùng đã ngắt kết nối: iEPVjSKAtadcRlqGAAAN
+2025-05-20 02:17:32 info: Một người dùng đã kết nối: 8P8JYG67qM2bialbAAAP
+2025-05-20 02:23:37 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 02:23:37 info: Một người dùng đã kết nối: jOend6T4UROPb93IAAAB
+2025-05-20 02:23:37 info: Một người dùng đã kết nối: 0AtHOWr_h0ONtpWkAAAD
+2025-05-20 02:23:37 info: MongoDB đã kết nối thành công.
+2025-05-20 02:23:44 info: Người dùng đã ngắt kết nối: jOend6T4UROPb93IAAAB
+2025-05-20 02:23:44 info: Người dùng đã ngắt kết nối: 0AtHOWr_h0ONtpWkAAAD
+2025-05-20 02:23:44 info: Một người dùng đã kết nối: K_8jqyJYvXJxN1ahAAAF
+2025-05-20 02:23:44 info: Một người dùng đã kết nối: JmYH7W5QimWQZUuNAAAH
+2025-05-20 02:24:12 error: Lỗi Controller batch update Timeline Hồ sơ: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:24:12 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:24:22 error: Lỗi Controller batch update Timeline Hồ sơ: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:24:22 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:24:52 error: Lỗi Controller batch update Timeline Hồ sơ: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:24:52 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:28:56 error: Lỗi Controller batch update Timeline Hồ sơ: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:28:56 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 02:30:14 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 02:30:22 info: Người dùng đã ngắt kết nối: K_8jqyJYvXJxN1ahAAAF
+2025-05-20 02:30:22 info: Người dùng đã ngắt kết nối: JmYH7W5QimWQZUuNAAAH
+2025-05-20 02:30:22 info: Một người dùng đã kết nối: 7WpOFLflC-QohFH1AAAJ
+2025-05-20 02:30:22 info: Một người dùng đã kết nối: vlSRq8DQTXORkGdKAAAL
+2025-05-20 02:33:04 info: Người dùng đã ngắt kết nối: 7WpOFLflC-QohFH1AAAJ
+2025-05-20 02:33:04 info: Người dùng đã ngắt kết nối: vlSRq8DQTXORkGdKAAAL
+2025-05-20 02:33:04 info: Một người dùng đã kết nối: sPKSiIzqeT9RLDluAAAN
+2025-05-20 02:33:04 info: Một người dùng đã kết nối: wvdqIZB5bJEHQyGaAAAP
+2025-05-20 02:34:54 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 02:34:54 info: Một người dùng đã kết nối: 3C2FHUKGC0X14_MsAAAB
+2025-05-20 02:34:54 info: Một người dùng đã kết nối: 67iLYlKYKofCUV6jAAAD
+2025-05-20 02:34:54 info: MongoDB đã kết nối thành công.
+2025-05-20 02:35:39 info: Người dùng đã ngắt kết nối: 67iLYlKYKofCUV6jAAAD
+2025-05-20 02:35:39 info: Người dùng đã ngắt kết nối: 3C2FHUKGC0X14_MsAAAB
+2025-05-20 02:35:40 info: Một người dùng đã kết nối: -nS9ECRrfwmiQHZ2AAAF
+2025-05-20 02:35:40 info: Một người dùng đã kết nối: 1H0RX_cMlIok0TuVAAAH
+2025-05-20 02:42:34 info: Người dùng đã ngắt kết nối: -nS9ECRrfwmiQHZ2AAAF
+2025-05-20 02:42:34 info: Người dùng đã ngắt kết nối: 1H0RX_cMlIok0TuVAAAH
+2025-05-20 02:42:35 info: Một người dùng đã kết nối: 3l3SwPVJd0UtOYn_AAAJ
+2025-05-20 02:42:35 info: Một người dùng đã kết nối: UquZzjczKwVJwMEmAAAL
+2025-05-20 02:42:41 info: Người dùng đã ngắt kết nối: 3l3SwPVJd0UtOYn_AAAJ
+2025-05-20 02:42:49 info: Một người dùng đã kết nối: 3dmvyJ4JH-g0qLCDAAAN
+2025-05-20 02:42:49 info: Người dùng đã ngắt kết nối: 3dmvyJ4JH-g0qLCDAAAN
+2025-05-20 02:42:50 info: Một người dùng đã kết nối: RsJbC_vEdNvwNoGjAAAP
+2025-05-20 02:48:16 info: Người dùng đã ngắt kết nối: RsJbC_vEdNvwNoGjAAAP
+2025-05-20 02:48:16 info: Một người dùng đã kết nối: VVo9lQ6S3RO2rnpDAAAR
+2025-05-20 02:48:39 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 02:48:39 info: Một người dùng đã kết nối: 4TKJnlBT5heKsLv6AAAB
+2025-05-20 02:48:39 info: Một người dùng đã kết nối: aGUlYvRLiPYKYyAYAAAD
+2025-05-20 02:48:39 info: MongoDB đã kết nối thành công.
+2025-05-20 02:48:56 info: Người dùng đã ngắt kết nối: 4TKJnlBT5heKsLv6AAAB
+2025-05-20 02:48:56 info: Người dùng đã ngắt kết nối: aGUlYvRLiPYKYyAYAAAD
+2025-05-20 02:48:57 info: Một người dùng đã kết nối: N6eBiBpPUJxGAs9dAAAF
+2025-05-20 02:48:57 info: Một người dùng đã kết nối: RjJ4QluGXYA-PjHLAAAH
+2025-05-20 02:49:57 info: Người dùng đã ngắt kết nối: N6eBiBpPUJxGAs9dAAAF
+2025-05-20 02:49:57 info: Người dùng đã ngắt kết nối: RjJ4QluGXYA-PjHLAAAH
+2025-05-20 02:49:57 info: Một người dùng đã kết nối: Ta0nkO7VySDHE02iAAAJ
+2025-05-20 02:49:57 info: Một người dùng đã kết nối: HJghodk6sRscU-86AAAL
+2025-05-20 02:52:18 error: Lỗi khi lưu công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Ngũ Lão" từ Excel (sau validate): CategoryProject validation failed: financialYear: Path `financialYear` is required.
+2025-05-20 02:52:18 error: Lỗi Controller nhập công trình từ Excel: Lỗi nghiêm trọng khi lưu công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Ngũ Lão" đã validate: CategoryProject validation failed: financialYear: Path `financialYear` is required.
+2025-05-20 02:55:01 info: Người dùng đã ngắt kết nối: Ta0nkO7VySDHE02iAAAJ
+2025-05-20 02:55:01 info: Người dùng đã ngắt kết nối: HJghodk6sRscU-86AAAL
+2025-05-20 02:55:01 info: Một người dùng đã kết nối: -B8d_XKzOXB0EC9eAAAN
+2025-05-20 02:55:01 info: Một người dùng đã kết nối: BWQSi5Elp9WY0t9SAAAP
+2025-05-20 02:59:31 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 02:59:31 info: Một người dùng đã kết nối: 2DETY08bR3N2KlA_AAAB
+2025-05-20 02:59:31 info: Một người dùng đã kết nối: Hs9BFWDAo13KH-eLAAAD
+2025-05-20 02:59:32 info: MongoDB đã kết nối thành công.
+2025-05-20 02:59:41 info: Người dùng đã ngắt kết nối: Hs9BFWDAo13KH-eLAAAD
+2025-05-20 02:59:41 info: Người dùng đã ngắt kết nối: 2DETY08bR3N2KlA_AAAB
+2025-05-20 02:59:44 info: Một người dùng đã kết nối: dV5L_5Ec-oQw8Z2zAAAF
+2025-05-20 02:59:44 info: Một người dùng đã kết nối: DUx15b_rMOq4gZ6dAAAH
+2025-05-20 02:59:49 info: Người dùng đã ngắt kết nối: dV5L_5Ec-oQw8Z2zAAAF
+2025-05-20 03:00:02 info: Một người dùng đã kết nối: E9XjhJVnWxkzt0M_AAAJ
+2025-05-20 03:01:55 error: Lỗi Controller batch update Timeline Hồ sơ: Schema hasn't been registered for model "Holiday".
+Use mongoose.model(name, schema)
+2025-05-20 03:01:55 error: Lỗi không xác định: Schema hasn't been registered for model "Holiday".
+Use mongoose.model(name, schema)
+2025-05-20 03:02:03 error: Lỗi Controller batch update Timeline Hồ sơ: Schema hasn't been registered for model "Holiday".
+Use mongoose.model(name, schema)
+2025-05-20 03:02:03 error: Lỗi không xác định: Schema hasn't been registered for model "Holiday".
+Use mongoose.model(name, schema)
+2025-05-20 03:02:11 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 03:02:23 info: Người dùng đã ngắt kết nối: DUx15b_rMOq4gZ6dAAAH
+2025-05-20 03:02:23 info: Người dùng đã ngắt kết nối: E9XjhJVnWxkzt0M_AAAJ
+2025-05-20 03:02:23 info: Một người dùng đã kết nối: p66nbA92c5-epZ2AAAAL
+2025-05-20 03:02:23 info: Một người dùng đã kết nối: zmp6OIUGFeBg2x0vAAAN
+2025-05-20 03:02:37 error: Lỗi API duyệt công trình: Không tìm thấy công trình
+2025-05-20 03:02:37 error: Lỗi không xác định: Không tìm thấy công trình
+2025-05-20 03:09:16 info: Người dùng đã ngắt kết nối: p66nbA92c5-epZ2AAAAL
+2025-05-20 03:09:24 info: Một người dùng đã kết nối: 6hdPn31DS9fLvuSsAAAP
+2025-05-20 03:09:24 info: Một người dùng đã kết nối: 6HaMaw7A6o0tmdOPAAAQ
+2025-05-20 03:16:56 info: Một người dùng đã kết nối: K9sXfTpg4pblSyvLAAAS
+2025-05-20 03:17:36 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 03:17:36 info: Một người dùng đã kết nối: m2UsHdfDywVmnVdBAAAB
+2025-05-20 03:17:36 info: Một người dùng đã kết nối: J9yBchyOT2JQmEQOAAAD
+2025-05-20 03:17:36 info: Một người dùng đã kết nối: E5zw2soLiTs0mpRtAAAF
+2025-05-20 03:17:37 info: MongoDB đã kết nối thành công.
+2025-05-20 03:17:46 info: Một người dùng đã kết nối: gZSzjGhf60jhQZ9yAAAH
+2025-05-20 03:17:46 info: Một người dùng đã kết nối: 0MLpej6djYzgxLapAAAJ
+2025-05-20 03:17:47 info: Người dùng đã ngắt kết nối: J9yBchyOT2JQmEQOAAAD
+2025-05-20 03:17:47 info: Người dùng đã ngắt kết nối: E5zw2soLiTs0mpRtAAAF
+2025-05-20 03:17:47 info: Người dùng đã ngắt kết nối: m2UsHdfDywVmnVdBAAAB
+2025-05-20 03:17:55 info: Người dùng đã ngắt kết nối: gZSzjGhf60jhQZ9yAAAH
+2025-05-20 03:18:01 info: Một người dùng đã kết nối: nEI_inStkK2Q6xSVAAAL
+2025-05-20 03:20:07 info: Người dùng đã ngắt kết nối: 0MLpej6djYzgxLapAAAJ
+2025-05-20 03:20:07 info: Người dùng đã ngắt kết nối: nEI_inStkK2Q6xSVAAAL
+2025-05-20 03:20:07 info: Một người dùng đã kết nối: H2VV2_1NHsRlghbaAAAN
+2025-05-20 03:20:07 info: Một người dùng đã kết nối: vm1G6m_XuyFvk4_IAAAP
+2025-05-20 07:45:32 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 07:45:33 info: MongoDB đã kết nối thành công.
+2025-05-20 07:46:15 info: Một người dùng đã kết nối: c5rI6x2UfaOgsPp6AAAB
+2025-05-20 07:46:15 info: Một người dùng đã kết nối: ylerybhUi1GmyybJAAAD
+2025-05-20 07:48:54 info: Một người dùng đã kết nối: sITLSlzwddvSejxSAAAF
+2025-05-20 07:49:15 info: Người dùng đã ngắt kết nối: c5rI6x2UfaOgsPp6AAAB
+2025-05-20 07:49:15 info: Người dùng đã ngắt kết nối: sITLSlzwddvSejxSAAAF
+2025-05-20 07:49:15 info: Người dùng đã ngắt kết nối: ylerybhUi1GmyybJAAAD
+2025-05-20 07:49:16 info: Một người dùng đã kết nối: jAvIodytO2_tZxG4AAAH
+2025-05-20 07:49:16 info: Một người dùng đã kết nối: 5OsGYyOLNxMh2upVAAAJ
+2025-05-20 07:49:40 info: Người dùng đã ngắt kết nối: jAvIodytO2_tZxG4AAAH
+2025-05-20 07:49:44 info: Một người dùng đã kết nối: arLF8NkNBNvW5K1EAAAL
+2025-05-20 07:50:14 info: Người dùng đã ngắt kết nối: arLF8NkNBNvW5K1EAAAL
+2025-05-20 07:50:17 info: Một người dùng đã kết nối: fGgLKetoxd8f9RA4AAAN
+2025-05-20 07:53:09 info: Người dùng đã ngắt kết nối: fGgLKetoxd8f9RA4AAAN
+2025-05-20 07:53:09 info: Người dùng đã ngắt kết nối: 5OsGYyOLNxMh2upVAAAJ
+2025-05-20 07:53:16 info: Một người dùng đã kết nối: U4T8TLmM31-8ToDfAAAP
+2025-05-20 07:53:16 info: Một người dùng đã kết nối: ee-4Y9fC3ufw3aluAAAR
+2025-05-20 08:08:05 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 08:08:06 info: Một người dùng đã kết nối: T2jaBCQnVbPPq0e2AAAB
+2025-05-20 08:08:06 info: MongoDB đã kết nối thành công.
+2025-05-20 08:08:08 info: Một người dùng đã kết nối: V9M0fjFnDlcDQn0bAAAD
+2025-05-20 08:08:16 info: Người dùng đã ngắt kết nối: T2jaBCQnVbPPq0e2AAAB
+2025-05-20 08:08:16 info: Người dùng đã ngắt kết nối: V9M0fjFnDlcDQn0bAAAD
+2025-05-20 08:08:17 info: Một người dùng đã kết nối: y4yIUKMvWb0bs44PAAAF
+2025-05-20 08:08:17 info: Một người dùng đã kết nối: QUgGs6fr-U3lbmNwAAAH
+2025-05-20 08:09:15 info: Người dùng đã ngắt kết nối: y4yIUKMvWb0bs44PAAAF
+2025-05-20 08:09:15 info: Người dùng đã ngắt kết nối: QUgGs6fr-U3lbmNwAAAH
+2025-05-20 08:09:15 info: Một người dùng đã kết nối: 6PZOEcDAxtPe0scUAAAJ
+2025-05-20 08:09:15 info: Một người dùng đã kết nối: GqNIpTeOsqxorTNWAAAL
+2025-05-20 08:09:20 info: Người dùng đã ngắt kết nối: 6PZOEcDAxtPe0scUAAAJ
+2025-05-20 08:09:20 info: Người dùng đã ngắt kết nối: GqNIpTeOsqxorTNWAAAL
+2025-05-20 08:09:21 info: Một người dùng đã kết nối: 6aw_oCTR9tXKFOxlAAAN
+2025-05-20 08:09:21 info: Một người dùng đã kết nối: uy_Q3MPLTGGAcqMpAAAP
+2025-05-20 08:10:21 info: Người dùng đã ngắt kết nối: 6aw_oCTR9tXKFOxlAAAN
+2025-05-20 08:10:25 info: Một người dùng đã kết nối: YQ9hrTvU6HAgykChAAAR
+2025-05-20 08:10:25 info: Người dùng đã ngắt kết nối: YQ9hrTvU6HAgykChAAAR
+2025-05-20 08:10:25 info: Một người dùng đã kết nối: 151wZK6Qb4lc42tpAAAT
+2025-05-20 08:18:25 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 08:18:26 info: Một người dùng đã kết nối: MBXIS-DgMKxQTrN9AAAC
+2025-05-20 08:18:26 info: Một người dùng đã kết nối: EttfJoucWjuAzxBeAAAD
+2025-05-20 08:18:26 info: MongoDB đã kết nối thành công.
+2025-05-20 08:18:58 info: Người dùng đã ngắt kết nối: MBXIS-DgMKxQTrN9AAAC
+2025-05-20 08:18:58 info: Người dùng đã ngắt kết nối: EttfJoucWjuAzxBeAAAD
+2025-05-20 08:18:59 info: Một người dùng đã kết nối: hhHzdTjXf66W3XdBAAAF
+2025-05-20 08:18:59 info: Một người dùng đã kết nối: TH_MJi0JfT6wdOVTAAAH
+2025-05-20 08:19:07 info: Người dùng đã ngắt kết nối: hhHzdTjXf66W3XdBAAAF
+2025-05-20 08:19:11 info: Một người dùng đã kết nối: yPr406Qxz6VuVgygAAAJ
+2025-05-20 08:19:50 info: Người dùng đã ngắt kết nối: yPr406Qxz6VuVgygAAAJ
+2025-05-20 08:19:55 info: Một người dùng đã kết nối: qB4klJCbGlUWdK2YAAAL
+2025-05-20 08:23:43 info: Một người dùng đã kết nối: RfZlUYuE0tnFY5oGAAAN
+2025-05-20 08:24:18 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 08:24:18 info: Một người dùng đã kết nối: WVbmeqz9I4IiRWaoAAAB
+2025-05-20 08:24:18 info: Một người dùng đã kết nối: wX229_MpPlZtmnumAAAE
+2025-05-20 08:24:18 info: Một người dùng đã kết nối: G7V04tH2Vvw0SyqaAAAF
+2025-05-20 08:24:19 info: MongoDB đã kết nối thành công.
+2025-05-20 08:24:23 info: Người dùng đã ngắt kết nối: WVbmeqz9I4IiRWaoAAAB
+2025-05-20 08:24:23 info: Người dùng đã ngắt kết nối: G7V04tH2Vvw0SyqaAAAF
+2025-05-20 08:24:23 info: Người dùng đã ngắt kết nối: wX229_MpPlZtmnumAAAE
+2025-05-20 08:24:24 info: Một người dùng đã kết nối: dZgn7PAC_TauyrMuAAAH
+2025-05-20 08:24:24 info: Một người dùng đã kết nối: w_QNDa3c6ggK-y-2AAAJ
+2025-05-20 08:24:28 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:28 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:29 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:29 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:31 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:31 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:35 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:35 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:41 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:41 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:42 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:42 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:44 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:44 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:48 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:48 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:24:53 info: Người dùng đã ngắt kết nối: dZgn7PAC_TauyrMuAAAH
+2025-05-20 08:24:53 info: Người dùng đã ngắt kết nối: w_QNDa3c6ggK-y-2AAAJ
+2025-05-20 08:24:53 info: Một người dùng đã kết nối: islZZfNr6xmur42pAAAL
+2025-05-20 08:24:53 info: Một người dùng đã kết nối: sgtcTzPfToTIwEfZAAAN
+2025-05-20 08:24:59 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:24:59 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:25:00 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:25:00 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:25:02 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:25:02 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:25:06 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:25:06 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:27:13 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:27:13 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:27:14 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:27:14 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:27:16 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:27:16 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:35:58 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 08:35:58 info: Một người dùng đã kết nối: l-eqARQ9XQSKlZ25AAAB
+2025-05-20 08:35:58 info: Một người dùng đã kết nối: uxwa2zsRpda1-cSFAAAD
+2025-05-20 08:35:59 info: MongoDB đã kết nối thành công.
+2025-05-20 08:36:00 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:36:00 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:36:02 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:36:02 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:36:03 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:36:03 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:36:05 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:36:05 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:36:07 info: Người dùng đã ngắt kết nối: l-eqARQ9XQSKlZ25AAAB
+2025-05-20 08:36:07 info: Người dùng đã ngắt kết nối: uxwa2zsRpda1-cSFAAAD
+2025-05-20 08:36:07 info: Một người dùng đã kết nối: DCR0hLXpUioVJy8bAAAF
+2025-05-20 08:36:07 info: Một người dùng đã kết nối: xAjrRMzEsnIDGopeAAAH
+2025-05-20 08:36:11 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:36:11 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:36:12 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:36:12 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:36:14 error: Lỗi Controller lấy ngày nghỉ:
+2025-05-20 08:36:14 error: Lỗi không xác định: Cannot read properties of undefined (reading 'findOne')
+2025-05-20 08:39:11 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 08:39:11 info: Một người dùng đã kết nối: ff6vbeO1y2hPHn8sAAAB
+2025-05-20 08:39:11 info: Một người dùng đã kết nối: psKXL7tV12bt5GoZAAAD
+2025-05-20 08:39:12 info: MongoDB đã kết nối thành công.
+2025-05-20 08:41:25 info: Người dùng đã ngắt kết nối: ff6vbeO1y2hPHn8sAAAB
+2025-05-20 08:41:25 info: Người dùng đã ngắt kết nối: psKXL7tV12bt5GoZAAAD
+2025-05-20 08:41:26 info: Một người dùng đã kết nối: VfmwkhQGTAar6ianAAAF
+2025-05-20 08:41:26 info: Một người dùng đã kết nối: T_R93Z-DtntKBZpKAAAH
+2025-05-20 08:43:45 info: Người dùng đã ngắt kết nối: T_R93Z-DtntKBZpKAAAH
+2025-05-20 08:43:45 info: Người dùng đã ngắt kết nối: VfmwkhQGTAar6ianAAAF
+2025-05-20 08:43:45 info: Một người dùng đã kết nối: 8yVj1G6TQj6LJmjcAAAJ
+2025-05-20 08:43:45 info: Một người dùng đã kết nối: rtP_g_GbXUdqfFDGAAAL
+2025-05-20 09:01:51 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 09:02:15 info: Người dùng đã ngắt kết nối: 8yVj1G6TQj6LJmjcAAAJ
+2025-05-20 09:02:15 info: Người dùng đã ngắt kết nối: rtP_g_GbXUdqfFDGAAAL
+2025-05-20 09:02:15 info: Một người dùng đã kết nối: p_WaujQvBWusYl9vAAAN
+2025-05-20 09:02:15 info: Một người dùng đã kết nối: V3kp3Eip4GET6hchAAAP
+2025-05-20 09:02:35 info: Người dùng đã ngắt kết nối: p_WaujQvBWusYl9vAAAN
+2025-05-20 09:02:40 info: Một người dùng đã kết nối: RZWgAE6bxla_81SqAAAR
+2025-05-20 09:02:40 info: Một người dùng đã kết nối: MvoLKaWigB8hezaLAAAS
+2025-05-20 09:03:03 error: Lỗi khi lưu công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Ngũ Lão" từ Excel (sau validate): CategoryProject validation failed: financialYear: Path `financialYear` is required.
+2025-05-20 09:03:03 error: Lỗi Controller nhập công trình từ Excel: Lỗi nghiêm trọng khi lưu công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Ngũ Lão" đã validate: CategoryProject validation failed: financialYear: Path `financialYear` is required.
+2025-05-20 09:07:49 info: Người dùng đã ngắt kết nối: V3kp3Eip4GET6hchAAAP
+2025-05-20 09:07:49 info: Người dùng đã ngắt kết nối: RZWgAE6bxla_81SqAAAR
+2025-05-20 09:07:49 info: Người dùng đã ngắt kết nối: MvoLKaWigB8hezaLAAAS
+2025-05-20 09:07:50 info: Một người dùng đã kết nối: CJzZrE1wZHg205uRAAAU
+2025-05-20 09:07:50 info: Một người dùng đã kết nối: 8fQuT2Oo_IvvVi9ZAAAW
+2025-05-20 09:07:59 info: Người dùng đã ngắt kết nối: CJzZrE1wZHg205uRAAAU
+2025-05-20 09:08:04 info: Một người dùng đã kết nối: uooLGgEVbGixwkDuAAAY
+2025-05-20 09:08:50 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:09:00 info: Người dùng đã ngắt kết nối: 8fQuT2Oo_IvvVi9ZAAAW
+2025-05-20 09:09:00 info: Người dùng đã ngắt kết nối: uooLGgEVbGixwkDuAAAY
+2025-05-20 09:09:00 info: Một người dùng đã kết nối: 21fk_3pqYLm6OPdsAAAa
+2025-05-20 09:09:00 info: Một người dùng đã kết nối: M6sloy0gy_e_v9JgAAAc
+2025-05-20 09:10:55 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:11:01 info: Người dùng đã ngắt kết nối: 21fk_3pqYLm6OPdsAAAa
+2025-05-20 09:11:01 info: Người dùng đã ngắt kết nối: M6sloy0gy_e_v9JgAAAc
+2025-05-20 09:11:01 info: Một người dùng đã kết nối: IkKCRXr-_iq0dy5hAAAe
+2025-05-20 09:11:01 info: Một người dùng đã kết nối: mbubX3HtAODGyZGOAAAg
+2025-05-20 09:15:00 info: Người dùng đã ngắt kết nối: IkKCRXr-_iq0dy5hAAAe
+2025-05-20 09:15:00 info: Người dùng đã ngắt kết nối: mbubX3HtAODGyZGOAAAg
+2025-05-20 09:15:00 info: Một người dùng đã kết nối: b2WQ1hxpT8kxld03AAAi
+2025-05-20 09:15:00 info: Một người dùng đã kết nối: DeSkO6ao3bSdVmpZAAAk
+2025-05-20 09:29:19 info: Người dùng đã ngắt kết nối: b2WQ1hxpT8kxld03AAAi
+2025-05-20 09:29:19 info: Người dùng đã ngắt kết nối: DeSkO6ao3bSdVmpZAAAk
+2025-05-20 09:29:19 info: Một người dùng đã kết nối: ZF9P9BfllC8jLJYVAAAm
+2025-05-20 09:29:19 info: Một người dùng đã kết nối: ILoAvBTwXC--bvYyAAAo
+2025-05-20 09:29:43 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:29:50 info: Ngày nghỉ 2025-05-28 cho năm 2025 đã được xóa bởi admin
+2025-05-20 09:30:18 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:30:36 info: Người dùng đã ngắt kết nối: ZF9P9BfllC8jLJYVAAAm
+2025-05-20 09:30:36 info: Người dùng đã ngắt kết nối: ILoAvBTwXC--bvYyAAAo
+2025-05-20 09:30:36 info: Một người dùng đã kết nối: d1Jk1JPYgG928zWEAAAq
+2025-05-20 09:30:36 info: Một người dùng đã kết nối: WvU3eAkmzOYanFcdAAAs
+2025-05-20 09:31:03 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:31:57 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:32:07 info: Người dùng đã ngắt kết nối: d1Jk1JPYgG928zWEAAAq
+2025-05-20 09:32:07 info: Người dùng đã ngắt kết nối: WvU3eAkmzOYanFcdAAAs
+2025-05-20 09:32:07 info: Một người dùng đã kết nối: 4E0ECk3rybOyzaWaAAAu
+2025-05-20 09:32:07 info: Một người dùng đã kết nối: 2FmeDMeeqXPACfhgAAAw
+2025-05-20 09:36:36 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:40:04 info: Người dùng đã ngắt kết nối: 4E0ECk3rybOyzaWaAAAu
+2025-05-20 09:40:04 info: Người dùng đã ngắt kết nối: 2FmeDMeeqXPACfhgAAAw
+2025-05-20 09:40:05 info: Một người dùng đã kết nối: yodR4K_PXyxJLdC8AAAy
+2025-05-20 09:40:05 info: Một người dùng đã kết nối: DUZpsUiMIHhUxencAAA0
+2025-05-20 09:54:39 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:54:42 info: Người dùng đã ngắt kết nối: yodR4K_PXyxJLdC8AAAy
+2025-05-20 09:54:42 info: Người dùng đã ngắt kết nối: DUZpsUiMIHhUxencAAA0
+2025-05-20 09:54:43 info: Một người dùng đã kết nối: 49TPlI6WoS2o4yIPAAA2
+2025-05-20 09:54:43 info: Một người dùng đã kết nối: iSBgjxx_eS3sAiBYAAA4
+2025-05-20 09:55:15 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 09:55:19 info: Người dùng đã ngắt kết nối: 49TPlI6WoS2o4yIPAAA2
+2025-05-20 09:55:19 info: Người dùng đã ngắt kết nối: iSBgjxx_eS3sAiBYAAA4
+2025-05-20 09:55:19 info: Một người dùng đã kết nối: cTmc2Owhn6z9jqYdAAA6
+2025-05-20 09:55:19 info: Một người dùng đã kết nối: 6ElL0_rSaHuga7RMAAA8
+2025-05-20 10:11:11 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:11:19 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:11:39 info: Người dùng đã ngắt kết nối: cTmc2Owhn6z9jqYdAAA6
+2025-05-20 10:11:39 info: Người dùng đã ngắt kết nối: 6ElL0_rSaHuga7RMAAA8
+2025-05-20 10:11:40 info: Một người dùng đã kết nối: 7PVJ7PLaExYYOyXaAAA-
+2025-05-20 10:11:40 info: Một người dùng đã kết nối: o7qGD5R2g9zzuivlAABA
+2025-05-20 10:17:22 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 10:17:23 info: Một người dùng đã kết nối: 5IUlXYeg0QrCevm3AAAB
+2025-05-20 10:17:23 info: Một người dùng đã kết nối: P5Xy-0OBcuufKkiOAAAD
+2025-05-20 10:17:23 info: MongoDB đã kết nối thành công.
+2025-05-20 10:17:44 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:17:47 info: Người dùng đã ngắt kết nối: 5IUlXYeg0QrCevm3AAAB
+2025-05-20 10:17:47 info: Người dùng đã ngắt kết nối: P5Xy-0OBcuufKkiOAAAD
+2025-05-20 10:17:47 info: Một người dùng đã kết nối: 7E5rj-cFRIGcyovoAAAF
+2025-05-20 10:17:47 info: Một người dùng đã kết nối: ELqw2Zm06Hc1QsFhAAAH
+2025-05-20 10:23:12 info: Người dùng đã ngắt kết nối: 7E5rj-cFRIGcyovoAAAF
+2025-05-20 10:23:12 info: Người dùng đã ngắt kết nối: ELqw2Zm06Hc1QsFhAAAH
+2025-05-20 10:23:12 info: Một người dùng đã kết nối: TPq7HcE1Up6WiTj7AAAJ
+2025-05-20 10:23:12 info: Một người dùng đã kết nối: 8pSa1y_IlIgWK0omAAAL
+2025-05-20 10:23:46 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:23:51 info: Người dùng đã ngắt kết nối: TPq7HcE1Up6WiTj7AAAJ
+2025-05-20 10:23:51 info: Người dùng đã ngắt kết nối: 8pSa1y_IlIgWK0omAAAL
+2025-05-20 10:23:51 info: Một người dùng đã kết nối: WXSgH2DxaGZNEufyAAAN
+2025-05-20 10:23:51 info: Một người dùng đã kết nối: Po2S6R7zLU5-HDKzAAAP
+2025-05-20 10:27:19 info: Người dùng đã ngắt kết nối: WXSgH2DxaGZNEufyAAAN
+2025-05-20 10:27:19 info: Người dùng đã ngắt kết nối: Po2S6R7zLU5-HDKzAAAP
+2025-05-20 10:27:19 info: Một người dùng đã kết nối: ymQ-LSw4K6CsN36eAAAR
+2025-05-20 10:27:19 info: Một người dùng đã kết nối: s4s9sa8uxHktARnNAAAT
+2025-05-20 10:27:38 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:27:40 info: Người dùng đã ngắt kết nối: ymQ-LSw4K6CsN36eAAAR
+2025-05-20 10:27:40 info: Người dùng đã ngắt kết nối: s4s9sa8uxHktARnNAAAT
+2025-05-20 10:27:40 info: Một người dùng đã kết nối: lSESYiHOa2-cPU0lAAAV
+2025-05-20 10:27:40 info: Một người dùng đã kết nối: aDX9NRNS8QbD8JMTAAAX
+2025-05-20 10:27:49 info: Người dùng đã ngắt kết nối: lSESYiHOa2-cPU0lAAAV
+2025-05-20 10:27:51 info: Một người dùng đã kết nối: fZz-0rFKMiIpOS8XAAAZ
+2025-05-20 10:30:30 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 10:30:30 info: Một người dùng đã kết nối: E2mUAgY4dCH7DaSWAAAB
+2025-05-20 10:30:30 info: Một người dùng đã kết nối: ZkRkh7BgWzLHhIUhAAAD
+2025-05-20 10:30:30 info: MongoDB đã kết nối thành công.
+2025-05-20 10:30:47 info: Người dùng đã ngắt kết nối: ZkRkh7BgWzLHhIUhAAAD
+2025-05-20 10:30:47 info: Người dùng đã ngắt kết nối: E2mUAgY4dCH7DaSWAAAB
+2025-05-20 10:30:51 info: Một người dùng đã kết nối: E23laIrqQqnvs5StAAAF
+2025-05-20 10:30:51 info: Một người dùng đã kết nối: 6TRDkUVJmhE1yuVtAAAH
+2025-05-20 10:31:05 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:36:16 info: Người dùng đã ngắt kết nối: E23laIrqQqnvs5StAAAF
+2025-05-20 10:36:16 info: Người dùng đã ngắt kết nối: 6TRDkUVJmhE1yuVtAAAH
+2025-05-20 10:36:16 info: Một người dùng đã kết nối: 7_di-CDXaphoc0ttAAAJ
+2025-05-20 10:36:16 info: Một người dùng đã kết nối: Ab09VCg1cctgEQ6TAAAL
+2025-05-20 10:38:53 info: Người dùng đã ngắt kết nối: 7_di-CDXaphoc0ttAAAJ
+2025-05-20 10:38:53 info: Người dùng đã ngắt kết nối: Ab09VCg1cctgEQ6TAAAL
+2025-05-20 10:38:54 info: Một người dùng đã kết nối: h3hc5V2iqSN9dl6qAAAN
+2025-05-20 10:38:54 info: Một người dùng đã kết nối: tu7sriYPxXdKgwJZAAAP
+2025-05-20 10:38:57 info: Người dùng đã ngắt kết nối: h3hc5V2iqSN9dl6qAAAN
+2025-05-20 10:38:57 info: Người dùng đã ngắt kết nối: tu7sriYPxXdKgwJZAAAP
+2025-05-20 10:38:57 info: Một người dùng đã kết nối: N28J_Y9OzOWOJ9XiAAAR
+2025-05-20 10:38:58 info: Một người dùng đã kết nối: HULRGIelzE-8AlnnAAAT
+2025-05-20 10:39:41 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:39:56 info: Người dùng đã ngắt kết nối: N28J_Y9OzOWOJ9XiAAAR
+2025-05-20 10:39:56 info: Người dùng đã ngắt kết nối: HULRGIelzE-8AlnnAAAT
+2025-05-20 10:39:57 info: Một người dùng đã kết nối: GqkI421xoS6b070wAAAV
+2025-05-20 10:39:57 info: Một người dùng đã kết nối: vio3awzlJsCyZ9U_AAAX
+2025-05-20 10:40:13 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:41:50 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:44:33 info: Người dùng đã ngắt kết nối: GqkI421xoS6b070wAAAV
+2025-05-20 10:44:33 info: Người dùng đã ngắt kết nối: vio3awzlJsCyZ9U_AAAX
+2025-05-20 10:44:34 info: Một người dùng đã kết nối: Bd5rUBR3OuhEd-d7AAAZ
+2025-05-20 10:44:34 info: Một người dùng đã kết nối: VNLq41FQOP4idh1TAAAb
+2025-05-20 10:44:50 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:48:38 info: Người dùng đã ngắt kết nối: Bd5rUBR3OuhEd-d7AAAZ
+2025-05-20 10:48:38 info: Người dùng đã ngắt kết nối: VNLq41FQOP4idh1TAAAb
+2025-05-20 10:48:39 info: Một người dùng đã kết nối: T6GfmDCooeJhyy8YAAAd
+2025-05-20 10:48:39 info: Một người dùng đã kết nối: E1fe2boQGySVa-ilAAAf
+2025-05-20 10:48:55 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 10:54:05 info: Người dùng đã ngắt kết nối: T6GfmDCooeJhyy8YAAAd
+2025-05-20 10:54:05 info: Người dùng đã ngắt kết nối: E1fe2boQGySVa-ilAAAf
+2025-05-20 10:54:05 info: Một người dùng đã kết nối: Of8AoA6w_biCfR-RAAAh
+2025-05-20 10:54:05 info: Một người dùng đã kết nối: sHeKM5hMz_bc0S6uAAAj
+2025-05-20 10:54:15 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 11:01:26 info: Người dùng đã ngắt kết nối: Of8AoA6w_biCfR-RAAAh
+2025-05-20 11:01:26 info: Người dùng đã ngắt kết nối: sHeKM5hMz_bc0S6uAAAj
+2025-05-20 11:01:26 info: Một người dùng đã kết nối: kJne-AnhAgP8B_CbAAAl
+2025-05-20 11:01:26 info: Một người dùng đã kết nối: kF_DidIqsjmeUh4kAAAn
+2025-05-20 11:01:39 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 11:01:42 info: Người dùng đã ngắt kết nối: kJne-AnhAgP8B_CbAAAl
+2025-05-20 11:01:42 info: Người dùng đã ngắt kết nối: kF_DidIqsjmeUh4kAAAn
+2025-05-20 11:01:43 info: Một người dùng đã kết nối: EaMyJtQ-a9wtE5BOAAAp
+2025-05-20 11:01:43 info: Một người dùng đã kết nối: LnzpPoPXy9u1kF1OAAAr
+2025-05-20 11:12:32 info: Người dùng đã ngắt kết nối: EaMyJtQ-a9wtE5BOAAAp
+2025-05-20 11:12:32 info: Người dùng đã ngắt kết nối: LnzpPoPXy9u1kF1OAAAr
+2025-05-20 11:12:33 info: Một người dùng đã kết nối: w5vY0tBjB6Splu8kAAAt
+2025-05-20 11:12:33 info: Một người dùng đã kết nối: 1_UZFlnY3cQ_yH-mAAAv
+2025-05-20 11:12:45 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 11:12:49 info: Người dùng đã ngắt kết nối: w5vY0tBjB6Splu8kAAAt
+2025-05-20 11:12:49 info: Người dùng đã ngắt kết nối: 1_UZFlnY3cQ_yH-mAAAv
+2025-05-20 11:12:50 info: Một người dùng đã kết nối: WlpyFTN3wc7Lwkk_AAAx
+2025-05-20 11:12:50 info: Một người dùng đã kết nối: D6MShswsfmVgFTdcAAAz
+2025-05-20 11:12:57 info: Người dùng đã ngắt kết nối: WlpyFTN3wc7Lwkk_AAAx
+2025-05-20 11:12:57 info: Người dùng đã ngắt kết nối: D6MShswsfmVgFTdcAAAz
+2025-05-20 11:12:57 info: Một người dùng đã kết nối: p5Q5IhEZXBIqnP-2AAA1
+2025-05-20 11:12:57 info: Một người dùng đã kết nối: bT4dxyvcOnRk39iRAAA3
+2025-05-20 11:16:08 info: Người dùng đã ngắt kết nối: p5Q5IhEZXBIqnP-2AAA1
+2025-05-20 11:16:08 info: Người dùng đã ngắt kết nối: bT4dxyvcOnRk39iRAAA3
+2025-05-20 11:16:09 info: Một người dùng đã kết nối: OYGJZgR1700vTz4bAAA5
+2025-05-20 11:16:09 info: Một người dùng đã kết nối: rJSqpJOWcf-38UcIAAA7
+2025-05-20 11:16:23 info: Ngày nghỉ cho năm 2025 đã được cập nhật bởi admin
+2025-05-20 11:24:49 info: Người dùng đã ngắt kết nối: OYGJZgR1700vTz4bAAA5
+2025-05-20 11:24:49 info: Người dùng đã ngắt kết nối: rJSqpJOWcf-38UcIAAA7
+2025-05-20 11:24:50 info: Một người dùng đã kết nối: TGpKs87Vr5plqSRtAAA9
+2025-05-20 11:24:50 info: Một người dùng đã kết nối: 3ymfv6HnFfwbdjfAAAA_
+2025-05-20 11:25:00 info: Người dùng đã ngắt kết nối: TGpKs87Vr5plqSRtAAA9
+2025-05-20 11:25:00 info: Người dùng đã ngắt kết nối: 3ymfv6HnFfwbdjfAAAA_
+2025-05-20 11:25:00 info: Một người dùng đã kết nối: rwaBXrjoXnzcyHR3AABB
+2025-05-20 11:25:01 info: Một người dùng đã kết nối: PIgq7WpcE76QXeYMAABD
+2025-05-20 11:25:48 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 11:25:49 info: Một người dùng đã kết nối: CtjtNo6UoWjSJmmMAAAB
+2025-05-20 11:25:49 info: Một người dùng đã kết nối: tj-D5PYGSyOUu81rAAAD
+2025-05-20 11:25:49 info: MongoDB đã kết nối thành công.
+2025-05-20 11:25:51 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:25:51 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:25:53 info: Người dùng đã ngắt kết nối: CtjtNo6UoWjSJmmMAAAB
+2025-05-20 11:25:53 info: Người dùng đã ngắt kết nối: tj-D5PYGSyOUu81rAAAD
+2025-05-20 11:25:53 info: Một người dùng đã kết nối: JvK9JNYV-IOTNcO4AAAF
+2025-05-20 11:25:53 info: Một người dùng đã kết nối: _LT_F0Setpn8z1a_AAAH
+2025-05-20 11:25:55 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:25:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:30:54 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:30:54 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:31:02 info: [getHolidays] Attempting to fetch holidays for year: 2021
+2025-05-20 11:31:02 info: [getHolidays] No holiday document found for year 2021. Returning empty list.
+2025-05-20 11:31:06 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:31:06 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:31:15 info: [getHolidays] Attempting to fetch holidays for year: 2026
+2025-05-20 11:31:15 info: [getHolidays] No holiday document found for year 2026. Returning empty list.
+2025-05-20 11:31:19 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:31:20 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:34:29 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:34:29 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:35:14 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:35:14 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:35:16 info: Người dùng đã ngắt kết nối: JvK9JNYV-IOTNcO4AAAF
+2025-05-20 11:35:16 info: Người dùng đã ngắt kết nối: _LT_F0Setpn8z1a_AAAH
+2025-05-20 11:35:17 info: Một người dùng đã kết nối: bjjcKB0FXkLVFKGvAAAJ
+2025-05-20 11:35:18 info: Một người dùng đã kết nối: NfXxbgcSHFXSQ2iCAAAL
+2025-05-20 11:35:21 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:35:21 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:37:31 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:37:31 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:37:55 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:37:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:38:01 info: Người dùng đã ngắt kết nối: bjjcKB0FXkLVFKGvAAAJ
+2025-05-20 11:38:01 info: Người dùng đã ngắt kết nối: NfXxbgcSHFXSQ2iCAAAL
+2025-05-20 11:38:01 info: Một người dùng đã kết nối: W2PD55564TfcUIVTAAAN
+2025-05-20 11:38:02 info: Một người dùng đã kết nối: 5JKOETUwSLTRs7UgAAAP
+2025-05-20 11:38:05 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:38:05 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:38:14 info: [getHolidays] Attempting to fetch holidays for year: 2024
+2025-05-20 11:38:14 info: [getHolidays] No holiday document found for year 2024. Returning empty list.
+2025-05-20 11:38:18 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:38:18 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:38:31 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:38:31 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:39:21 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:39:21 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:39:24 info: Người dùng đã ngắt kết nối: W2PD55564TfcUIVTAAAN
+2025-05-20 11:39:24 info: Người dùng đã ngắt kết nối: 5JKOETUwSLTRs7UgAAAP
+2025-05-20 11:39:29 info: Một người dùng đã kết nối: WtyKOdDdukIOBLfqAAAR
+2025-05-20 11:39:29 info: Một người dùng đã kết nối: 7koQZ8DO0skSDYCaAAAT
+2025-05-20 11:39:38 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:39:38 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:39:41 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:39:41 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:39:43 info: [getHolidays] Attempting to fetch holidays for year: 2023
+2025-05-20 11:39:43 info: [getHolidays] No holiday document found for year 2023. Returning empty list.
+2025-05-20 11:39:45 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:39:45 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:42:38 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:42:38 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:42:49 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:42:49 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:42:54 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:42:54 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:42:57 info: [getHolidays] Attempting to fetch holidays for year: 2024
+2025-05-20 11:42:57 info: [getHolidays] No holiday document found for year 2024. Returning empty list.
+2025-05-20 11:42:59 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:43:00 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:53:48 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:53:48 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:53:53 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:53:54 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:53:57 info: Người dùng đã ngắt kết nối: WtyKOdDdukIOBLfqAAAR
+2025-05-20 11:53:57 info: Người dùng đã ngắt kết nối: 7koQZ8DO0skSDYCaAAAT
+2025-05-20 11:53:58 info: Một người dùng đã kết nối: ecihUNVbINbIyqLYAAAV
+2025-05-20 11:53:58 info: Một người dùng đã kết nối: eBA3zNc2zsdnCaboAAAX
+2025-05-20 11:54:00 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:54:00 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:54:05 info: [getHolidays] Attempting to fetch holidays for year: 2023
+2025-05-20 11:54:05 info: [getHolidays] No holiday document found for year 2023. Returning empty list.
+2025-05-20 11:54:11 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:54:11 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:55:04 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:55:04 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:55:10 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:55:11 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:56:33 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:56:33 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:59:22 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:59:22 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:59:44 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:59:44 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:59:49 info: Người dùng đã ngắt kết nối: ecihUNVbINbIyqLYAAAV
+2025-05-20 11:59:49 info: Người dùng đã ngắt kết nối: eBA3zNc2zsdnCaboAAAX
+2025-05-20 11:59:49 info: Một người dùng đã kết nối: ibpAMMwMo3Bk9OfYAAAZ
+2025-05-20 11:59:50 info: Một người dùng đã kết nối: vtP0mb0xlWMUrI_PAAAb
+2025-05-20 11:59:53 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 11:59:53 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 11:59:58 info: [getHolidays] Attempting to fetch holidays for year: 2023
+2025-05-20 11:59:58 info: [getHolidays] No holiday document found for year 2023. Returning empty list.
+2025-05-20 12:00:00 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 12:00:00 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 13:49:13 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 13:49:14 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 13:50:09 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 13:50:09 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 13:55:35 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 13:55:36 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 13:59:29 info: Một người dùng đã kết nối: cSCuvBAyWDa-uznHAAAd
+2025-05-20 14:06:02 info: Người dùng đã ngắt kết nối: ibpAMMwMo3Bk9OfYAAAZ
+2025-05-20 14:06:02 info: Người dùng đã ngắt kết nối: cSCuvBAyWDa-uznHAAAd
+2025-05-20 14:06:02 info: Người dùng đã ngắt kết nối: vtP0mb0xlWMUrI_PAAAb
+2025-05-20 14:06:03 info: Một người dùng đã kết nối: 7oXomx7ENd8RGW9DAAAf
+2025-05-20 14:06:04 info: Một người dùng đã kết nối: muJQ7bFzmorMede0AAAh
+2025-05-20 14:06:06 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:06:07 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:07:49 info: Người dùng đã ngắt kết nối: 7oXomx7ENd8RGW9DAAAf
+2025-05-20 14:07:49 info: Người dùng đã ngắt kết nối: muJQ7bFzmorMede0AAAh
+2025-05-20 14:07:50 info: Một người dùng đã kết nối: qS2ycYFLOBxmN03NAAAj
+2025-05-20 14:07:50 info: Một người dùng đã kết nối: IPumWaub2cZgd5kxAAAl
+2025-05-20 14:09:20 info: Người dùng đã ngắt kết nối: qS2ycYFLOBxmN03NAAAj
+2025-05-20 14:09:20 info: Một người dùng đã kết nối: ze0-2TgPAsrwXdQgAAAn
+2025-05-20 14:09:33 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:09:33 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:09:54 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 14:09:54 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:09:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:09:55 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:09:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:10:08 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 14:10:08 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:10:09 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:10:09 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:10:09 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:11:24 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:11:24 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:20:53 info: Một người dùng đã kết nối: vVTERGl7YBEmvpUAAAAp
+2025-05-20 14:21:12 info: Người dùng đã ngắt kết nối: IPumWaub2cZgd5kxAAAl
+2025-05-20 14:21:12 info: Người dùng đã ngắt kết nối: vVTERGl7YBEmvpUAAAAp
+2025-05-20 14:21:12 info: Người dùng đã ngắt kết nối: ze0-2TgPAsrwXdQgAAAn
+2025-05-20 14:21:12 info: Một người dùng đã kết nối: i3xfKhw11HDQrgUNAAAr
+2025-05-20 14:21:13 info: Một người dùng đã kết nối: 0lK9X3z61LNd750CAAAt
+2025-05-20 14:21:22 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:21:22 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:23:40 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:23:41 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:23:43 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:23:43 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:23:59 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:23:59 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:37:24 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 14:37:24 info: Một người dùng đã kết nối: GcreVz1NkBuDerwxAAAC
+2025-05-20 14:37:24 info: Một người dùng đã kết nối: Rh5qjvSX8YipjdWiAAAD
+2025-05-20 14:37:25 info: MongoDB đã kết nối thành công.
+2025-05-20 14:37:31 info: Người dùng đã ngắt kết nối: GcreVz1NkBuDerwxAAAC
+2025-05-20 14:37:31 info: Người dùng đã ngắt kết nối: Rh5qjvSX8YipjdWiAAAD
+2025-05-20 14:37:32 info: Một người dùng đã kết nối: xF5IvjDXSiQfwRrDAAAF
+2025-05-20 14:37:32 info: Một người dùng đã kết nối: R58KzGh8OJrOKez7AAAH
+2025-05-20 14:38:30 info: Người dùng đã ngắt kết nối: R58KzGh8OJrOKez7AAAH
+2025-05-20 14:38:30 info: Người dùng đã ngắt kết nối: xF5IvjDXSiQfwRrDAAAF
+2025-05-20 14:38:49 info: Một người dùng đã kết nối: EeyLPUd_Nf65SNvGAAAJ
+2025-05-20 14:38:49 info: Một người dùng đã kết nối: fW63EkHx5jxmH-72AAAL
+2025-05-20 14:39:32 info: Một người dùng đã kết nối: 46i50_I66k2uceXAAAAN
+2025-05-20 14:39:35 info: Người dùng đã ngắt kết nối: EeyLPUd_Nf65SNvGAAAJ
+2025-05-20 14:39:35 info: Người dùng đã ngắt kết nối: 46i50_I66k2uceXAAAAN
+2025-05-20 14:39:35 info: Người dùng đã ngắt kết nối: fW63EkHx5jxmH-72AAAL
+2025-05-20 14:39:35 info: Một người dùng đã kết nối: vSND3MQgb4iGkCoSAAAP
+2025-05-20 14:39:36 info: Một người dùng đã kết nối: oNIn18cFyWxqcpfJAAAR
+2025-05-20 14:39:45 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:39:46 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:40:18 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 14:40:18 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:40:18 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:40:18 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:40:18 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:43:11 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 14:43:11 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:43:11 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:43:11 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:43:11 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:44:03 info: Người dùng đã ngắt kết nối: vSND3MQgb4iGkCoSAAAP
+2025-05-20 14:44:03 info: Người dùng đã ngắt kết nối: oNIn18cFyWxqcpfJAAAR
+2025-05-20 14:44:03 info: Một người dùng đã kết nối: E28ubowBn7X9uTW4AAAT
+2025-05-20 14:44:03 info: Một người dùng đã kết nối: Es2efA8FHmog8X1lAAAV
+2025-05-20 14:44:09 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:44:09 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:44:35 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-20 14:44:35 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:44:35 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:44:35 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:44:36 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:45:43 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:45:43 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:48:37 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:48:37 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:48:54 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:48:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:53:37 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:53:37 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 14:53:41 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 14:53:41 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 15:01:06 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 15:01:06 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 15:01:08 info: Người dùng đã ngắt kết nối: E28ubowBn7X9uTW4AAAT
+2025-05-20 15:01:08 info: Người dùng đã ngắt kết nối: Es2efA8FHmog8X1lAAAV
+2025-05-20 15:01:08 info: Một người dùng đã kết nối: XKQWQsMn7fyC7GCIAAAX
+2025-05-20 15:01:08 info: Một người dùng đã kết nối: VFZl8sEu7s2y6aoAAAAZ
+2025-05-20 15:01:17 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 15:01:17 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 15:03:06 info: Batch update construction timeline result for type category, unit Công ty Xây dựng 1, year 2025:
+2025-05-20 15:03:06 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 15:03:06 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 15:03:06 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 15:03:06 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 15:10:09 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 15:10:11 info: MongoDB đã kết nối thành công.
+2025-05-20 15:12:43 info: Một người dùng đã kết nối: GvfAusjLRi2JsS_-AAAB
+2025-05-20 15:12:44 info: Một người dùng đã kết nối: x1G4yAVhrixdtmV1AAAD
+2025-05-20 15:37:03 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 15:37:04 info: MongoDB đã kết nối thành công.
+2025-05-20 15:37:04 info: Một người dùng đã kết nối: qMLIRU9XjrPf8kTPAAAB
+2025-05-20 15:37:08 info: Một người dùng đã kết nối: YROBlxDHXh416GuSAAAD
+2025-05-20 15:37:14 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 15:37:15 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 15:37:17 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 15:37:17 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 15:53:40 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 15:53:41 info: Một người dùng đã kết nối: 407y3VF2C_PBBvFRAAAC
+2025-05-20 15:53:41 info: Một người dùng đã kết nối: MaInZCRdWBtaJc6WAAAD
+2025-05-20 15:53:41 info: MongoDB đã kết nối thành công.
+2025-05-20 15:53:57 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 15:53:58 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:07:39 info: Máy chủ đang chạy trên cổng 5000
+2025-05-20 16:07:39 info: Một người dùng đã kết nối: F1mzDcUdRfOv6pE6AAAB
+2025-05-20 16:07:39 info: MongoDB đã kết nối thành công.
+2025-05-20 16:07:40 info: Một người dùng đã kết nối: ZtbrTDHLBuST-ApLAAAD
+2025-05-20 16:07:43 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:07:43 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:11:04 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:11:04 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:17:54 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:17:54 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:17:55 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:17:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:18:04 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:18:04 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:19:54 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:19:54 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:19:57 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:19:57 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:20:31 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:20:31 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-20 16:42:00 info: Người dùng đã ngắt kết nối: F1mzDcUdRfOv6pE6AAAB
+2025-05-20 16:42:00 info: Người dùng đã ngắt kết nối: ZtbrTDHLBuST-ApLAAAD
+2025-05-20 16:42:00 info: Một người dùng đã kết nối: 8I4ZKPZOpriex9v8AAAF
+2025-05-20 16:42:01 info: Một người dùng đã kết nối: fJPTv9IIJ3OKVBrQAAAH
+2025-05-20 16:42:06 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-20 16:42:06 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1

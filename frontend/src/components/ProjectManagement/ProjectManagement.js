@@ -18,25 +18,21 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
     // Data and State from useProjectData
     filteredProjects, pendingProjects, rejectedProjects,
     totalPages, totalProjectsCount,
-    totalPagesPending, totalPendingCount, // Added for pending tab
-    totalPagesRejected, totalRejectedCount,
-    currentPage, setCurrentPage,
-    currentPageRejected, setCurrentPageRejected,
-    sortOrder, setSortOrder, // Keep setSortOrder for handleSortChange
-    filters, setFilters, initialFilters,
+    totalPagesPending, totalPendingCount,
+    totalPagesRejected, totalRejectedCount, // Added for rejected tab
+    currentPage, setCurrentPage, currentPageRejected, setCurrentPageRejected,
+    filters, setFilters,
     allocatedUnits, constructionUnitsList, allocationWavesList,
     usersList, approversList, projectTypesList,
     isLoading, isFetching,
-    handleSortChange, handleResetFilters,
+    handleResetFilters,
     // Actions and Modal State from useProjectActions
     showModal, setShowModal, formData, setFormData, editProject,
-    // allocateWaves, setAllocateWaves, assignPersons, setAssignPersons, // Removed
-    openAddNewModal, openEditModal, saveProject,
+    openAddNewModal, openEditModal, saveProject, initialFormData, // Added initialFormData for GenericFormModal
     deleteProject, approveProject, rejectProject, // allocateProject, assignProject, // Removed
-    approveEditProject, rejectEditProject, approveDeleteProject, rejectDeleteProject,
+    approveEditProject, rejectEditProject, approveDeleteProject, rejectDeleteProject, // markProjectAsCompleted, moveProjectToNextYear sẽ được lấy trực tiếp từ logicProps
     restoreRejectedProject, permanentlyDeleteRejectedProject,
-    showExcelImportModal, setShowExcelImportModal, excelImportData, setExcelImportData,
-    excelImportHeaders, handleDownloadTemplate, handleFileImport,
+    showExcelImportModal, setShowExcelImportModal, excelImportData, excelImportHeaders, handleDownloadTemplate, handleFileImport, // setExcelImportData removed as unused
     submitExcelData, isImportingExcel, excelImportBackendErrors,
     isSubmitting, isSubmittingAction,
     // Local state from ProjectManagementLogic main function
@@ -80,6 +76,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
       rejectEditProject={rejectEditProject}
       approveDeleteProject={approveDeleteProject}
       rejectDeleteProject={rejectDeleteProject}
+      markProjectAsCompleted={logicProps.markProjectAsCompleted} // Lấy từ logicProps
+      moveProjectToNextYear={logicProps.moveProjectToNextYear} // Lấy từ logicProps
       // allocateProject={allocateProject} // Removed
       // assignProject={assignProject} // Removed
       // allocateWaves={allocateWaves} // Removed
@@ -148,8 +146,8 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
           showModal={showModal} setShowModal={setShowModal}
           isSubmitting={isSubmitting} editProject={editProject}
           formData={formData} setFormData={setFormData}
-          formConfig={currentFormConfig} saveProject={saveProject}
-          initialFormState={logicProps.initialFormData} // Pass the function itself directly
+          formConfig={currentFormConfig} saveProject={saveProject} // Pass initialFormData from logicProps
+          initialFormState={initialFormData} // Pass the function itself directly
           allocatedUnits={allocatedUnits}
           allocationWavesList={allocationWavesList}
           constructionUnitsList={constructionUnitsList}

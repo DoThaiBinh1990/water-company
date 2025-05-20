@@ -1,6 +1,6 @@
 // d:\CODE\water-company\frontend\src\config\tableConfigs.js
-import { FaUser, FaCalendarAlt, FaWrench } from 'react-icons/fa';
-import { formatDate, formatCurrency, getStatusDisplay } from '../utils/helpers';
+import { FaUser } from 'react-icons/fa'; // Loại bỏ các icon không dùng trực tiếp ở đây
+import { formatDate, getStatusDisplay, getBaseStatusInfo } from '../utils/helpers'; // Import getBaseStatusInfo
 import React from 'react'; // Import React để sử dụng JSX trong render functions
 
 const commonFields = {
@@ -24,18 +24,30 @@ const commonFields = {
     field: 'supervisor', // Backend nên trả về object user đã populate (với fullName) hoặc string ID
     width: '160px',
     minWidth: '120px',
-    render: (project) => {
-      const supervisor = project.supervisor;
-      if (supervisor) {
-        if (typeof supervisor === 'object' && (supervisor.fullName || supervisor.username)) {
-          return supervisor.fullName || supervisor.username; // Ưu tiên fullName
-        } else if (typeof supervisor === 'string') {
-          // Nếu là string, có thể là ID hoặc tên chưa được populate đầy đủ.
-          // GenericTable sẽ cố gắng resolve nếu usersList được truyền vào.
-          return supervisor;
+    render: (project, cellData) => { // cellData chứa isChanged, displayValue, originalValue
+      const getUserDisplay = (value) => {
+        if (value && typeof value === 'object') {
+          return value.fullName || value.username || 'N/A';
         }
+        return typeof value === 'string' && value ? value : 'N/A'; // Hiển thị ID nếu không resolve được
+      };
+
+      const currentDisplay = getUserDisplay(cellData.displayValue);
+
+      if (cellData.isChanged) {
+        const originalDisplay = getUserDisplay(cellData.originalValue);
+        return (
+          <>
+            <span className="cell-changed-value font-semibold">{currentDisplay}</span>
+            {cellData.originalValue !== undefined && (
+              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
+                (Cũ: {originalDisplay})
+              </span>
+            )}
+          </>
+        );
       }
-      return 'N/A';
+      return currentDisplay;
     }
   },
   leadershipApproval: { header: 'Bút phê LĐ', field: 'leadershipApproval', width: '250px', minWidth: '200px', align: 'left', className: 'align-left break-words' },
@@ -47,40 +59,56 @@ const commonFields = {
     minWidth: '150px',
     align: 'center',
     render: (project, cellData, isPendingTab) => {
-      // Sử dụng cellData.displayValue (giá trị mới) để lấy thông tin hiển thị status
-      const statusInfo = getStatusDisplay(project, isPendingTab, cellData.displayValue);
-      const assignedTo = project.assignedTo; // Giả sử assignedTo cũng được populate với fullName nếu là object
+      // 1. Lấy thông tin hiển thị trạng thái tổng thể của dự án (ví dụ: "Đang YC sửa", "Chờ duyệt mới")
+      const overallStatusInfo = getStatusDisplay(project, isPendingTab);
+
+      const assignedTo = project.assignedTo;
       let assignedToDisplay = 'N/A';
       if (assignedTo) {
         if (typeof assignedTo === 'object' && (assignedTo.fullName || assignedTo.username)) {
           assignedToDisplay = assignedTo.fullName || assignedTo.username;
         } else if (typeof assignedTo === 'string') {
-          assignedToDisplay = assignedTo;
+          // GenericTable sẽ cố gắng resolve nếu usersList được truyền vào và assignedTo là ID
+          // Nếu không, nó sẽ là một chuỗi tên.
+          assignedToDisplay = assignedTo; 
         }
       }
 
-      let originalStatusDisplay = null;
-      if (cellData.isChanged && cellData.originalValue !== null && cellData.originalValue !== undefined) {
-        const oldStatusInfo = getStatusDisplay({ status: cellData.originalValue }, false, cellData.originalValue);
-        originalStatusDisplay = oldStatusInfo.text;
+      // 2. Nếu trường 'status' cụ thể đang được sửa đổi trong pendingEdit
+      let specificStatusChangeDisplay = null;
+      if (cellData.isChanged) {
+        // cellData.displayValue là giá trị status mới được đề xuất (ví dụ: "Hoàn thành")
+        // cellData.originalValue là giá trị status cũ (ví dụ: "Đang thực hiện")
+        const newStatusInfo = getBaseStatusInfo(cellData.displayValue);
+        const oldStatusInfo = getBaseStatusInfo(cellData.originalValue);
+
+        specificStatusChangeDisplay = (
+          <div className="mt-1 text-center">
+            <span className="cell-changed-value font-semibold block text-xs">
+              Mới: <span className={`inline-flex items-center px-1 py-0.5 rounded-full text-xs ${newStatusInfo.colorClass}`}>{newStatusInfo.icon}{newStatusInfo.text}</span>
+            </span>
+            {cellData.originalValue !== undefined && (
+              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
+                (Cũ: <span className={`inline-flex items-center px-1 py-0.5 rounded-full text-xs ${oldStatusInfo.colorClass}`}>{oldStatusInfo.icon}{oldStatusInfo.text}</span>)
+              </span>
+            )}
+          </div>
+        );
       }
 
       return (
-        <div> {/* Bọc trong div để các span có thể là block */}
-          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusInfo.colorClass} ${cellData.isChanged ? 'cell-changed-value' : ''}`}>
-            {statusInfo.text} {/* Hiển thị giá trị mới */}
-            {assignedTo && !isPendingTab && ( // Chỉ hiển thị assignedTo ở tab projects
+        <div>
+          {/* Hiển thị trạng thái tổng thể của dự án */}
+          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${overallStatusInfo.colorClass} flex items-center justify-center`}>
+            {overallStatusInfo.text}
+            {assignedTo && !isPendingTab && project.status !== 'Chờ duyệt' && !project.pendingEdit && !project.pendingDelete && (
               <span className="ml-2 flex items-center text-purple-600" title={`Phụ trách: ${assignedToDisplay}`}>
                 <FaUser size={12} className="mr-0.5" />
                 {typeof assignedToDisplay === 'string' ? assignedToDisplay.split(' ')[0] : 'N/A'}
               </span>
             )}
           </span>
-          {cellData.isChanged && originalStatusDisplay && (
-            <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
-              (Cũ: {originalStatusDisplay})
-            </span>
-          )}
+          {specificStatusChangeDisplay}
         </div>
       );
     }
@@ -121,25 +149,43 @@ const commonFields = {
       tooltipLines.unshift(`Người duyệt hiện tại: ${currentApprover}`);
       return tooltipLines.join('\n');
     },
-    render: (project) => {
-      // Hiển thị người duyệt gần nhất từ history nếu có hành động duyệt
-      const lastApprovalAction = project.history?.filter(h => h.action === 'approved' || h.action === 'edit_approved').pop();
-      if (lastApprovalAction && lastApprovalAction.user) {
-        const user = lastApprovalAction.user;
-        if (typeof user === 'object' && (user.fullName || user.username)) {
-          return user.fullName || user.username;
+    render: (project, cellData) => { // cellData chứa isChanged, displayValue, originalValue
+      const getUserDisplay = (value) => {
+        if (value && typeof value === 'object') {
+          return value.fullName || value.username || 'N/A';
+        }
+        return typeof value === 'string' && value ? value : 'N/A';
+      };
+
+      let currentDisplayValue = cellData.displayValue;
+      // Ưu tiên hiển thị người duyệt từ history nếu không có thay đổi đang chờ duyệt cho trường này
+      if (!cellData.isChanged) {
+        const lastApprovalAction = project.history?.filter(h => h.action === 'approved' || h.action === 'edit_approved').pop();
+        if (lastApprovalAction && lastApprovalAction.user) {
+          currentDisplayValue = lastApprovalAction.user; // Đây là object user đã populate
         }
       }
-      // Fallback về project.approvedBy nếu không có trong history hoặc user không được populate
-      const approvedBy = project.approvedBy;
-      if (approvedBy) {
-        if (typeof approvedBy === 'object' && (approvedBy.fullName || approvedBy.username)) {
-          return approvedBy.fullName || approvedBy.username;
-        } else if (typeof approvedBy === 'string') {
-          return approvedBy; // ID
-        }
+      // Nếu cellData.isChanged, currentDisplayValue đã là giá trị mới (ID hoặc object đã resolve)
+
+      const currentDisplay = getUserDisplay(currentDisplayValue);
+
+      if (cellData.isChanged) {
+        const originalDisplay = getUserDisplay(cellData.originalValue);
+        return (
+          <>
+            <span className="cell-changed-value font-semibold">{currentDisplay}</span>
+            {cellData.originalValue !== undefined && (
+              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
+                (Cũ: {originalDisplay})
+              </span>
+            )}
+          </>
+        );
       }
-      return 'N/A';
+      if (currentDisplay === 'N/A' && project.approvedBy) { // Fallback nếu history không có và cellData không đổi
+        return getUserDisplay(project.approvedBy);
+        }
+      return currentDisplay;
     }
   },
   createdBy: {
@@ -228,17 +274,31 @@ const commonFields = {
     field: 'estimator',
     width: '160px',
     minWidth: '120px',
-    align: 'center',
-    render: (project) => {
-      const estimator = project.estimator;
-      if (estimator) {
-        if (typeof estimator === 'object' && (estimator.fullName || estimator.username)) {
-          return estimator.fullName || estimator.username; // Ưu tiên fullName
-        } else if (typeof estimator === 'string') {
-          return estimator;
+    align: 'center', // Giữ align center
+    render: (project, cellData) => { // cellData chứa isChanged, displayValue, originalValue
+      const getUserDisplay = (value) => {
+        if (value && typeof value === 'object') {
+          return value.fullName || value.username || 'N/A';
         }
+        return typeof value === 'string' && value ? value : 'N/A'; // Hiển thị ID nếu không resolve được
+      };
+
+      const currentDisplay = getUserDisplay(cellData.displayValue);
+
+      if (cellData.isChanged) {
+        const originalDisplay = getUserDisplay(cellData.originalValue);
+        return (
+          <>
+            <span className="cell-changed-value font-semibold">{currentDisplay}</span>
+            {cellData.originalValue !== undefined && (
+              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
+                (Cũ: {originalDisplay})
+              </span>
+            )}
+          </>
+        );
       }
-      return 'N/A';
+      return currentDisplay;
     }
   },
   startDate: { header: 'Ngày BĐ', field: 'startDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' },

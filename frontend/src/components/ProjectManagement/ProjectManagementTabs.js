@@ -1,5 +1,3 @@
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-
 function ProjectManagementTabs({
   activeTab,
   setActiveTab,

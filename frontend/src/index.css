@@ -261,3 +261,107 @@ body {
   font-style: italic;
   text-decoration: line-through;
 }
+
+/* Thêm vào file CSS của bạn (ví dụ: src/index.css) */
+.cell-changed-value {
+  /* Tailwind đã có font-semibold, bạn có thể thêm màu nếu muốn */
+  /* color: #your_new_value_color; */
+}
+
+.cell-changed-original-value {
+  /* Tailwind đã có text-xs, text-gray-500, italic, mt-0.5, block */
+}
+
+/* Áp dụng cho thẻ <td> nếu có thay đổi để làm nổi bật nền */
+.data-cell-custom.cell-changed {
+  background-color: #fef3c7; /* Tailwind: bg-amber-100 - một màu vàng nhạt hơn */
+  /* Hoặc bạn có thể dùng một màu khác:
+     background-color: #fef9c3; /* Tailwind: bg-yellow-100 */
+  /*   background-color: #ecfdf5; /* Tailwind: bg-emerald-50 */
+  /* */
+}
+
+/* CSS cho table sticky header và column (nếu chưa có hoặc cần điều chỉnh) */
+.table-container-custom {
+  overflow-x: auto;
+  max-height: 70vh; /* Hoặc một giá trị phù hợp */
+  border: 1px solid #e5e7eb; /* Tailwind: border-gray-200 */
+  border-radius: 0.5rem; /* Tailwind: rounded-lg */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Tailwind: shadow-md */
+}
+
+.generic-table {
+  border-collapse: separate; /* Quan trọng cho sticky header/column với border */
+  border-spacing: 0;
+  /* table-layout: fixed; */ /* Cân nhắc dùng 'fixed' nếu muốn độ rộng cột được tôn trọng tuyệt đối */
+}
+
+.header-cell-custom {
+  background-color: #1d4ed8; /* Tailwind: bg-blue-700 - Darker blue */
+  color: #ffffff; /* Tailwind: text-white - White text */
+  font-weight: 600; /* Tailwind: font-semibold */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e5e7eb; /* Tailwind: border-gray-200 */
+  border-right: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem; /* Tailwind: py-3 px-4 */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-cell-custom:last-child {
+  border-right: none;
+}
+
+.data-cell-custom {
+  border-bottom: 1px solid #e5e7eb; /* Tailwind: border-gray-200 */
+  border-right: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem; /* Tailwind: py-3 px-4 */
+  background-color: white; /* Nền trắng cho các ô dữ liệu */
+}
+.data-cell-custom:last-child {
+  border-right: none;
+}
+
+.table-row-custom:last-child .data-cell-custom {
+  border-bottom: none;
+}
+
+.sticky-col-1-header, .sticky-col-1-data {
+  position: sticky;
+  left: 0;
+  z-index: 5; /* Thấp hơn header chính */
+}
+.sticky-col-1-header { z-index: 15 !important; } /* Cao hơn header thường, thấp hơn header của action */
+.sticky-col-1-data { background-color: white; } /* Đảm bảo nền cho sticky column */
+
+
+.sticky-col-2-header, .sticky-col-2-data {
+  position: sticky;
+  /* left: 50px; /* Điều chỉnh dựa trên độ rộng của cột STT */
+  z-index: 4;
+}
+.sticky-col-2-header { z-index: 14 !important; }
+.sticky-col-2-data { background-color: white; }
+
+
+.sticky-col-last-header, .sticky-col-last-data {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+}
+.sticky-col-last-header { z-index: 15 !important; }
+.sticky-col-last-data { background-color: white; }
+
+/* Đảm bảo các header sticky có nền che phủ */
+.sticky-col-1-header, .sticky-col-2-header, .sticky-col-last-header {
+  background-color: #1d4ed8; /* Tailwind: bg-blue-700 - Synchronize with normal header */
+}
+
+.align-left {
+  text-align: left !important;
+}
+.break-words {
+  word-break: break-word;
+  white-space: normal; /* Cho phép xuống dòng */
+}

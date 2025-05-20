@@ -27,7 +27,7 @@ export const generateExcelTemplate = (projectType) => {
   const headersConfig = getHeadersFromFormConfig(formConfig);
 
   // Tạo một dòng dữ liệu mẫu (có thể để trống hoặc có gợi ý)
-  const sampleData = [{}]; // Bắt đầu với một object rỗng để XLSX tạo header
+  // const sampleData = [{}]; // Unused: Bắt đầu với một object rỗng để XLSX tạo header
   // headersConfig.forEach(hc => {
   //   sampleData[0][hc.header] = ''; // Để trống các cột
   // });

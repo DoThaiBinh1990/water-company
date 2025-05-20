@@ -1,6 +1,6 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\GenericFilter.js
-import { FaEye, FaEyeSlash, FaSearch, FaFilter, FaUndo, FaSpinner, FaCalendarAlt } from 'react-icons/fa';
-import { useState, useEffect, useCallback } from 'react';
+import { FaEye, FaEyeSlash, FaSearch, FaFilter, FaUndo, FaSpinner, FaCalendarAlt } from 'react-icons/fa'; // Add useMemo
+import { useState, useEffect, useMemo } from 'react';
 import debounce from 'lodash/debounce';
 
 function GenericFilter({
@@ -25,8 +25,9 @@ function GenericFilter({
     setLocalTextFilters(initialLocalTextFilters);
   }, [filterConfig, filters]);
 
-  const debouncedSetFilter = useCallback(
-    debounce((name, value) => {
+  // Memoize the debounced function itself
+  const debouncedSetFilters = useMemo(
+    () => debounce((name, value) => {
       setFilters(prev => ({ ...prev, [name]: value }));
     }, 500),
     [setFilters]
@@ -35,7 +36,7 @@ function GenericFilter({
   const handleTextFilterChange = (e) => {
     const { name, value } = e.target;
     setLocalTextFilters(prev => ({ ...prev, [name]: value }));
-    debouncedSetFilter(name, value);
+    debouncedSetFilters(name, value);
   };
 
   const handleOtherFilterChange = (e) => {

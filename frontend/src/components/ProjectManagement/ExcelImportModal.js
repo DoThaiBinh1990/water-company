@@ -110,9 +110,9 @@ const ExcelImportModal = ({
                 }
             }
         });
-        setValidationErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) setValidationErrors(newErrors); // Only set if there are new errors to merge
     }
-  }, [backendValidationErrors]);
+  }, [backendValidationErrors, validationErrors]);
 
 
   const handleInputChange = (rowIndex, fieldName, value) => {

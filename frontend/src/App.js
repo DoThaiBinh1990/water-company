@@ -26,6 +26,7 @@ import './toastify-custom.css'; // Import file CSS tùy chỉnh
 const ProjectManagement = React.lazy(() => import('./components/ProjectManagement/ProjectManagement'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const Login = React.lazy(() => import('./pages/Login'));
+const TimelineManagement = React.lazy(() => import('./components/TimelineManagement/TimelineManagement')); // Thêm Timeline Module
 
 
 const socket = io(apiClient.defaults.baseURL, {
@@ -43,7 +44,7 @@ function App() {
 
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [currentNotificationTab, setCurrentNotificationTab] = useState('pending');
-  const [showHeader, setShowHeader] = useState(true);
+  const [showHeader, ] = useState(true); // setShowHeader was unused
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const {
@@ -390,6 +391,7 @@ function App() {
                       }
                     />
                     <Route path="/settings" element={<Settings user={user} />} />
+                    <Route path="/timeline/*" element={<TimelineManagement user={user} addMessage={showAppNotification} />} /> {/* Thêm Route cho Timeline */}
                     <Route path="/" element={<Navigate to="/category" replace />} />
                     <Route path="*" element={<Navigate to="/category" replace />} /> {/* Hoặc trang 404 */}
                   </Routes>

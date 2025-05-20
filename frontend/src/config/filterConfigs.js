@@ -1,5 +1,16 @@
 // d:\CODE\water-company\frontend\src\config\filterConfigs.js
+const currentYear = new Date().getFullYear();
+const financialYearOptions = Array.from({ length: 10 }, (_, i) => ({
+  value: currentYear - 5 + i,
+  label: (currentYear - 5 + i).toString(),
+}));
+
 export const categoryFilterConfig = [
+  { name: 'financialYear', label: 'Năm tài chính', type: 'select', options: financialYearOptions },
+  { name: 'isCompleted', label: 'Trạng thái HT', type: 'select', options: [
+      { value: 'false', label: 'Chưa hoàn thành' },
+      { value: 'true', label: 'Đã hoàn thành' },
+  ]},
   { name: 'name', label: 'Tên công trình', type: 'search', placeholder: 'Nhập tên công trình...' },
   { name: 'allocatedUnit', label: 'Đơn vị phân bổ', type: 'select', optionsSource: 'allocatedUnits' },
   { name: 'constructionUnit', label: 'Đơn vị thi công', type: 'select', optionsSource: 'constructionUnitsList' },
@@ -13,6 +24,11 @@ export const categoryFilterConfig = [
 ];
 
 export const minorRepairFilterConfig = [
+  { name: 'financialYear', label: 'Năm tài chính', type: 'select', options: financialYearOptions },
+  { name: 'isCompleted', label: 'Trạng thái HT', type: 'select', options: [
+    { value: 'false', label: 'Chưa hoàn thành' },
+    { value: 'true', label: 'Đã hoàn thành' },
+  ]},
   { name: 'name', label: 'Tên công trình', type: 'search', placeholder: 'Nhập tên công trình...' },
   { name: 'allocatedUnit', label: 'Đơn vị phân bổ', type: 'select', optionsSource: 'allocatedUnits' },
   { name: 'supervisor', label: 'Người theo dõi', type: 'select', optionsSource: 'usersList' },
@@ -21,7 +37,22 @@ export const minorRepairFilterConfig = [
 ];
 
 export const rejectedProjectFilterConfig = [
+  { name: 'financialYear', label: 'Năm tài chính (YC)', type: 'select', options: financialYearOptions },
+  // Không cần isCompleted cho rejected projects
   { name: 'name', label: 'Tên công trình', type: 'search', placeholder: 'Nhập tên công trình...' },
   { name: 'allocatedUnit', label: 'Đơn vị phân bổ', type: 'select', optionsSource: 'allocatedUnits' },
-  { name: 'rejectionReason', label: 'Lý do từ chối', type: 'search', placeholder: 'Nhập lý do từ chối...' },
+  {
+    name: 'requestedBy',
+    label: 'Người YC/Tạo',
+    type: 'select',
+    optionsSource: 'usersList', // Sử dụng danh sách người dùng
+    placeholder: 'Chọn người yêu cầu/tạo',
+  },
+  {
+    name: 'rejectedBy',
+    label: 'Người từ chối',
+    type: 'select',
+    optionsSource: 'usersList', // Sử dụng danh sách người dùng
+    placeholder: 'Chọn người từ chối',
+  },
 ];

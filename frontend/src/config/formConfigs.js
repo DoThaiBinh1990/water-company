@@ -7,6 +7,7 @@ export const categoryFormConfig = {
       label: 'Thông tin Cơ bản',
       fields: [
         { name: 'name', label: 'Tên danh mục công trình', type: 'text', required: true, placeholder: 'Nhập tên công trình' },
+        { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
         { name: 'allocatedUnit', label: 'Đơn vị phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
         { name: 'projectType', label: 'Loại công trình', type: 'select', required: true, optionsSource: 'projectTypes' },
         { name: 'scale', label: 'Quy mô', type: 'text', required: true, placeholder: 'VD: Tuyến ống D100, Nâng cấp TBA...' },
@@ -52,6 +53,7 @@ export const minorRepairFormConfig = {
       label: 'Thông tin Cơ bản',
       fields: [
         { name: 'name', label: 'Tên công trình/Sự cố', type: 'text', required: true, placeholder: 'Nhập tên hoặc mô tả sự cố' },
+        { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
         { name: 'allocatedUnit', label: 'Đơn vị quản lý/phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
         { name: 'location', label: 'Địa điểm xảy ra sự cố', type: 'text', required: true, placeholder: 'Nhập địa điểm cụ thể' },
         { name: 'scale', label: 'Quy mô/Hiện trạng', type: 'textarea', rows: 2, required: true, placeholder: 'Mô tả quy mô hoặc hiện trạng sự cố' },

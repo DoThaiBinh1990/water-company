@@ -1,6 +1,7 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\ProjectTableActions.js
 import React from 'react';
-import { FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaWrench, FaUser, FaSpinner } from 'react-icons/fa';
+// Đảm bảo activeTab được truyền vào nếu bạn muốn sử dụng nó ở đây
+import { FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaSpinner, FaCheckSquare, FaArrowCircleRight } from 'react-icons/fa'; // Thêm icon mới
 
 function ProjectTableActions({
   project,
@@ -15,21 +16,26 @@ function ProjectTableActions({
   rejectEditProject,
   approveDeleteProject,
   rejectDeleteProject,
+  markProjectAsCompleted, // Action mới
+  moveProjectToNextYear, // Action mới
   // allocateProject, // Removed
   // assignProject, // Removed
   // allocateWaves, // Removed
   // setAllocateWaves, // Removed
   // allocationWavesList, // Removed
   // assignPersons, // Removed
+  // activeTab, // Thêm activeTab nếu bạn cần nó để kiểm tra điều kiện hiển thị nút
   // setAssignPersons, // Removed
   isCategoryProject,
 }) {
   const canEdit = user?.permissions?.edit;
   const canDelete = user?.permissions?.delete;
-  const canApprove = user?.permissions?.approve;
-  const canAllocate = user?.permissions?.allocate && isCategoryProject;
-  const canAssign = user?.permissions?.assign;
-
+  const canApprove = user?.permissions?.approve; 
+  const canMarkComplete = user?.role === 'admin' || user?.role.includes('manager') || user?.role.includes('director'); // Ví dụ quyền
+  const canMoveNextYear = user?.role === 'admin' || user?.role.includes('manager') || user?.role.includes('director'); // Ví dụ quyền
+  // const canAllocate = user?.permissions?.allocate && isCategoryProject; // Unused
+  // const canAssign = user?.permissions?.assign; // Unused
+ 
   const hasPendingAction = !!project.pendingEdit || !!project.pendingDelete;
 
   // const currentAllocateWave = allocateWaves && project._id ? allocateWaves[project._id] : ''; // Removed
@@ -58,6 +64,30 @@ function ProjectTableActions({
                 disabled={isSubmitting || hasPendingAction}
               >
                 <FaTrash size={18} />
+              </button>
+            </div>
+          )}
+          {/* Nút Đánh dấu hoàn thành và Chuyển năm */}
+          {/* Giả sử activeTab được truyền vào props nếu cần */}
+          {canMarkComplete && !project.isCompleted && !hasPendingAction && (!isPendingTab) && (
+            <div className="action-btn-wrapper" title="Đánh dấu hoàn thành">
+              <button
+                onClick={() => markProjectAsCompleted(project._id)}
+                className={`btn-icon btn-icon-emerald ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSubmitting}
+              >
+                <FaCheckSquare size={18} />
+              </button>
+            </div>
+          )}
+          {canMoveNextYear && !project.isCompleted && !hasPendingAction && (!isPendingTab) &&( // Chỉ cho phép chuyển năm nếu chưa hoàn thành và không ở tab pending
+            <div className="action-btn-wrapper" title="Chuyển sang năm sau">
+              <button
+                onClick={() => moveProjectToNextYear(project._id)}
+                className={`btn-icon btn-icon-sky ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSubmitting}
+              >
+                <FaArrowCircleRight size={18} />
               </button>
             </div>
           )}

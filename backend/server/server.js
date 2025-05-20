@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes'); // File route gốc
 const projectCoreRoutes = require('./routes/projects/projects.core.routes'); // Import route mới
 const syncRoutes = require('./routes/syncRoutes');
+const holidayRoutes = require('./routes/holidayRoutes'); // Thêm route ngày nghỉ
 
 dotenv.config();
 connectDB();
@@ -52,6 +53,7 @@ app.use('/api', authRoutes);
 app.use('/api/projects', projectCoreRoutes);
 app.use('/api', projectRoutes);
 app.use('/api', syncRoutes);
+app.use('/api/holidays', holidayRoutes); // Đăng ký route ngày nghỉ
 
 // Global error handler (ví dụ cơ bản)
 app.use((err, req, res, next) => {

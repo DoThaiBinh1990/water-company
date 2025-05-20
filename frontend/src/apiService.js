@@ -249,8 +249,9 @@ export const assignProject = async ({ projectId, type, supervisor, estimator }) 
   return data;
 };
 
-export const getRejectedProjects = async ({ type, page = 1, limit = 10 }) => {
-  const { data } = await apiClient.get('/api/rejected-projects', { params: { type, page, limit } });
+export const getRejectedProjects = async (params) => {
+  // params sẽ là một object chứa các trường như: { type, page, limit, search, allocatedUnit, requestedBy, rejectedBy }
+  const { data } = await apiClient.get('/api/rejected-projects', { params });
   return data;
 };
 
@@ -267,5 +268,78 @@ export const permanentlyDeleteRejectedProject = async (rejectedId) => {
 // Excel Import
 export const importProjects = async ({ projects, projectType }) => {
   const { data } = await apiClient.post(`/api/projects/import?type=${projectType}`, { projects });
+  return data;
+};
+
+// API to mark project as completed
+export const markProjectAsCompletedAPI = async ({ projectId, type }) => {
+  const { data } = await apiClient.patch(`/api/projects/${projectId}/complete?type=${type}`);
+  return data;
+};
+
+export const moveProjectToNextFinancialYearAPI = async ({ projectId, type }) => {
+  const { data } = await apiClient.patch(`/api/projects/${projectId}/move-next-year?type=${type}`);
+  return data;
+};
+
+// API to fetch profile timeline data for category projects
+export const fetchProfileTimelineCategoryAPI = async (params) => {
+  // params: { financialYear, estimatorId }
+  const { data } = await apiClient.get('/api/projects/timeline/profile-category', { params });
+  return data;
+};
+
+// API to fetch construction timeline data
+export const fetchConstructionTimelineAPI = async (params) => {
+  // params: { type ('category' or 'minor_repair'), financialYear, constructionUnitName }
+  const { data } = await apiClient.get('/api/projects/timeline/construction', { params });
+  return data;
+};
+
+// API to update a single profile timeline task
+export const updateProfileTimelineTaskAPI = async ({ projectId, updateData }) => {
+  // updateData: { startDate, endDate, durationDays, progress, statusNotes }
+  const { data } = await apiClient.patch(`/api/projects/timeline/profile-category/${projectId}`, updateData);
+  return data;
+};
+
+// API to update a single construction timeline task
+export const updateConstructionTimelineTaskAPI = async ({ projectId, type, updateData }) => {
+  const { data } = await apiClient.patch(`/api/projects/timeline/construction/${projectId}?type=${type}`, updateData);
+  return data;
+};
+// API to batch update profile timeline
+export const batchUpdateProfileTimelineAPI = async (payload) => {
+  // payload: { financialYear, estimatorId, assignments: [{ projectId, startDate, durationDays, ... }] }
+  const { data } = await apiClient.patch('/api/projects/timeline/profile-category/batch-update', payload);
+  return data;
+};
+
+export const batchUpdateConstructionTimelineAPI = async (payload) => {
+  // payload: { type, financialYear, constructionUnitName, assignments: [...] }
+  const { data } = await apiClient.patch('/api/projects/timeline/construction/batch-update', payload);
+  return data;
+};
+
+// API to fetch projects for timeline assignment
+export const fetchProjectsForTimelineAssignmentAPI = async (params) => {
+  const { data } = await apiClient.get('/api/projects/timeline/for-assignment', { params });
+  return data; // Should be an array of projects
+};
+
+// Holiday Management APIs
+export const getHolidaysForYearAPI = async (year) => {
+  const { data } = await apiClient.get(`/api/holidays/${year}`);
+  return data; // Expects { year, holidays: [{ date, description }] } or { year, holidays: [] }
+};
+
+export const createOrUpdateHolidaysForYearAPI = async ({ year, holidays }) => {
+  // holidays should be an array of { date: 'YYYY-MM-DD', description: '...' }
+  const { data } = await apiClient.post('/api/holidays', { year, holidays });
+  return data;
+};
+
+export const deleteHolidayDateAPI = async ({ year, dateString }) => {
+  const { data } = await apiClient.delete(`/api/holidays/${year}/date/${dateString}`);
   return data;
 };
