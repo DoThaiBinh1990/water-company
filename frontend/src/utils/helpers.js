@@ -1,33 +1,6 @@
 import { FaCheckCircle, FaClock, FaEdit, FaExclamationTriangle, FaHourglassHalf, FaTimesCircle, FaTrash, FaWrench, FaUser } from 'react-icons/fa'; // Đảm bảo các icons này được dùng trong file này hoặc các hàm nó export
 import React from 'react'; // Import React để sử dụng JSX trong icon
 
-export const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  try {
-    // Cố gắng parse theo ISO 8601 hoặc các định dạng phổ biến khác
-    const date = new Date(dateString);
-
-    // Kiểm tra xem date có hợp lệ không
-    if (isNaN(date.getTime())) {
-        // Nếu không phải ngày tháng hợp lệ, thử parse theo định dạng YYYY-MM-DD
-        const parts = dateString.split('-');
-        if (parts.length === 3) {
-            const year = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) -1; // Tháng trong JS là 0-indexed
-            const day = parseInt(parts[2], 10);
-            const parsedDate = new Date(year, month, day);
-            if (!isNaN(parsedDate.getTime())) {
-                return parsedDate.toLocaleDateString('vi-VN');
-            }
-        }
-        return dateString; // Trả về chuỗi gốc nếu không parse được
-    }
-    return date.toLocaleDateString('vi-VN');
-  } catch (error) {
-    return dateString; // Trả về chuỗi gốc nếu có lỗi
-  }
-};
-
 export const formatCurrency = (value) => {
   if (value === null || value === undefined || isNaN(Number(value))) {
     return 'N/A';

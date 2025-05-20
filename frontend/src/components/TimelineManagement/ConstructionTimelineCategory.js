@@ -61,45 +61,49 @@ const ConstructionTimelineCategory = ({ user, addMessage }) => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Timeline Thi công - Công trình Danh mục</h2>
-      <div className="mb-4 p-4 bg-gray-50 rounded-lg shadow border flex flex-wrap items-end gap-4">
-        <div>
-          <label htmlFor="financialYear" className="block text-sm font-medium text-gray-700 mb-1">Năm tài chính</label>
-          <select
-            id="financialYear"
-            value={financialYear}
-            onChange={(e) => setFinancialYear(parseInt(e.target.value))}
-            className="form-select rounded-md shadow-sm"
-            disabled={isLoading || isUpdatingTimelineTask}
-          >
-            {financialYearOptions.map(year => <option key={year} value={year}>{year}</option>)}
-          </select>
+    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+      <div className="bg-white p-6 rounded-xl shadow-xl mb-6 border border-gray-200">
+        <h2 className="text-2xl font-bold text-blue-700 mb-1">Timeline Thi công - Công trình Danh mục</h2>
+        <p className="text-sm text-gray-500 mb-6">Quản lý và theo dõi tiến độ thi công cho các công trình danh mục.</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div className="md:col-span-1">
+            <label htmlFor="financialYear" className="block text-sm font-medium text-gray-700 mb-1">Năm tài chính</label>
+            <select
+              id="financialYear"
+              value={financialYear}
+              onChange={(e) => setFinancialYear(parseInt(e.target.value))}
+              className="form-select w-full rounded-lg shadow-md border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150"
+              disabled={isLoading || isUpdatingTimelineTask}
+            >
+              {financialYearOptions.map(year => <option key={year} value={year}>{year}</option>)}
+            </select>
+          </div>
+          <div className="md:col-span-1">
+            <label htmlFor="constructionUnitFilter" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <FaHardHat className="mr-1 text-gray-600"/> Đơn vị thi công
+            </label>
+            <select
+              id="constructionUnitFilter"
+              value={selectedConstructionUnit}
+              onChange={(e) => setSelectedConstructionUnit(e.target.value)}
+              className="form-select w-full rounded-lg shadow-md border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150"
+              disabled={isLoading || isUpdatingTimelineTask || constructionUnitsList.length === 0}
+            >
+              <option value="">Tất cả đơn vị TC</option>
+              {constructionUnitsList.map(unit => <option key={unit._id || unit.name} value={unit.name}>{unit.name}</option>)}
+            </select>
+          </div>
+          {user?.permissions?.assignConstructionTimeline && (
+            <button
+              onClick={handleOpenAssignmentModal}
+              className="btn btn-primary md:col-span-1 flex items-center justify-center gap-2 text-sm h-10 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              disabled={isLoading || isUpdatingTimelineTask || isLoadingProjectsToAssign || !selectedConstructionUnit}
+            >
+              <FaCalendarPlus /> Phân công Timeline
+            </button>
+          )}
         </div>
-        <div>
-          <label htmlFor="constructionUnitFilter" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-            <FaHardHat className="mr-1 text-gray-600"/> Đơn vị thi công
-          </label>
-          <select
-            id="constructionUnitFilter"
-            value={selectedConstructionUnit}
-            onChange={(e) => setSelectedConstructionUnit(e.target.value)}
-            className="form-select rounded-md shadow-sm"
-            disabled={isLoading || isUpdatingTimelineTask || constructionUnitsList.length === 0}
-          >
-            <option value="">Tất cả đơn vị TC</option>
-            {constructionUnitsList.map(unit => <option key={unit._id || unit.name} value={unit.name}>{unit.name}</option>)}
-          </select>
-        </div>
-        {user?.permissions?.assignConstructionTimeline && (
-          <button
-            onClick={handleOpenAssignmentModal}
-            className="btn btn-primary flex items-center gap-2 self-end"
-            disabled={isLoading || isUpdatingTimelineTask || isLoadingProjectsToAssign || !selectedConstructionUnit}
-          >
-            <FaCalendarPlus /> Phân công Timeline
-          </button>
-        )}
       </div>
 
       {showAssignmentModal && selectedConstructionUnit && (
@@ -111,23 +115,26 @@ const ConstructionTimelineCategory = ({ user, addMessage }) => {
           assignToObject={{ constructionUnitName: selectedConstructionUnit }}
           financialYear={financialYear}
           onSaveAssignments={saveTimelineAssignments}
-          isSaving={isUpdatingTimelineTask} // Hoặc isSavingAssignments nếu có state riêng
+          isSaving={isUpdatingTimelineTask}
           timelineType="construction"
           objectType="category"
           holidays={holidaysForModal}
         />
       )}
 
-      {isLoading && <div className="text-center py-10">Đang tải dữ liệu timeline...</div>}
+      {isLoading && <div className="text-center py-10 text-gray-600">Đang tải dữ liệu timeline...</div>}
       {!isLoading && (
-        <TimelineGanttChart
-          key={financialYear} 
-          tasks={timelineTasks}
-          viewMode="Week" 
-          onTaskClick={handleTaskClick}
-          onDateChange={handleDateChange} 
-          onProgressChange={handleProgressChange} 
-        />
+        <div className="bg-white p-1 rounded-xl shadow-xl border border-gray-200">
+          <TimelineGanttChart
+            key={`${financialYear}-${selectedConstructionUnit}`}
+            tasks={timelineTasks}
+            viewMode="Week"
+            onTaskClick={handleTaskClick}
+            onDateChange={handleDateChange}
+            onProgressChange={handleProgressChange}
+            timelineType="construction"
+          />
+        </div>
       )}
     </div>
   );

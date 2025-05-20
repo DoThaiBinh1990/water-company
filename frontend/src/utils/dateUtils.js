@@ -32,3 +32,29 @@ export const calculateEndDateClientSide = (startDate, durationDays, holidays = [
   }
   return currentDate;
 };
+
+/**
+ * Formats a date string or Date object into 'DD/MM/YYYY' format for Vietnamese locale.
+ * Handles YYYY-MM-DD strings specifically if new Date() fails.
+ * @param {Date|string} dateString - The date to format.
+ * @returns {string} The formatted date string or 'N/A' if invalid or input is falsy.
+ */
+export const formatDateToLocale = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      // Nếu new Date() không parse được, thử kiểm tra xem có phải dạng 'YYYY-MM-DD' không
+      if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+      }
+      // Nếu không phải dạng YYYY-MM-DD và cũng không parse được, trả về 'N/A'
+      return 'N/A'; // Hoặc trả về dateString gốc nếu muốn: return String(dateString);
+    }
+    return date.toLocaleDateString('vi-VN');
+  } catch (error) {
+    return 'N/A'; // Hoặc trả về dateString gốc: return String(dateString);
+  }
+};

@@ -1,5 +1,6 @@
 // d:\CODE\water-company\backend\server\models.js
 const mongoose = require('mongoose');
+const logger = require('./config/logger'); // Thêm import logger
 const bcrypt = require('bcrypt'); // Đảm bảo đã import bcrypt
 
 // SerialCounter Schema
@@ -214,7 +215,7 @@ categoryProjectSchema.pre('save', async function (next) {
       );
       this.categorySerialNumber = counter.currentSerial;
     } catch (error) {
-      console.error(`Lỗi khi tạo số thứ tự cho công trình danh mục:`, error);
+      logger.error(`Lỗi khi tạo số thứ tự cho công trình danh mục:`, { message: error.message, stack: error.stack });
       return next(new Error(`Không thể tạo số thứ tự cho công trình danh mục: ${error.message}`));
     }
   }
@@ -272,7 +273,7 @@ minorRepairProjectSchema.pre('save', async function (next) {
       );
       this.minorRepairSerialNumber = counter.currentSerial;
     } catch (error) {
-      console.error(`Lỗi khi tạo số thứ tự cho công trình sửa chữa nhỏ:`, error);
+      logger.error(`Lỗi khi tạo số thứ tự cho công trình sửa chữa nhỏ:`, { message: error.message, stack: error.stack });
       return next(new Error(`Không thể tạo số thứ tự cho công trình sửa chữa nhỏ: ${error.message}`));
     }
   }

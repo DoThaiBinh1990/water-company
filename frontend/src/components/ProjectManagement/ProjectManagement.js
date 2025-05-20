@@ -8,6 +8,7 @@ import GenericFormModal from './GenericFormModal';
 import ExcelImportModal from './ExcelImportModal';
 import GenericTable from './GenericTable';
 import { categoryProjectColumns, minorRepairProjectColumns } from '../../config/tableConfigs';
+import { formatDateToLocale } from '../../utils/dateUtils'; // Import formatDateToLocale
 import { categoryFormConfig, minorRepairFormConfig } from '../../config/formConfigs';
 import RejectedProjectTable from './RejectedProjectTable';
 import ProjectTableActions from './ProjectTableActions'; // Import ProjectTableActions
@@ -197,6 +198,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
             data={filteredProjects} columns={currentTableColumns}
             user={user} usersList={usersList}
             isSubmitting={isSubmittingAction} isPendingTab={false}
+            formatDateToLocale={formatDateToLocale} // Truyền hàm format date
             totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage}
             totalItemsCount={totalProjectsCount} itemsPerPage={itemsPerPage}
             isLoading={isLoading} isFetching={isFetching}
@@ -210,6 +212,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
             data={pendingProjects} columns={currentTableColumns}
             user={user} usersList={usersList}
             isSubmitting={isSubmittingAction} isPendingTab={true}
+            formatDateToLocale={formatDateToLocale} // Truyền hàm format date
             totalPages={totalPagesPending} currentPage={currentPage} setCurrentPage={setCurrentPage}
             totalItemsCount={totalPendingCount} itemsPerPage={itemsPerPage}
             isLoading={isLoading} isFetching={isFetching}

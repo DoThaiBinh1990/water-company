@@ -21,6 +21,7 @@ import {
 import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './App.css'; // <<<< THÊM DÒNG NÀY ĐỂ IMPORT APP.CSS
 import './toastify-custom.css'; // Import file CSS tùy chỉnh
 
 const ProjectManagement = React.lazy(() => import('./components/ProjectManagement/ProjectManagement'));

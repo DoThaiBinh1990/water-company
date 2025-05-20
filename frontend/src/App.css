@@ -1,493 +1,325 @@
-:root {
-  --primary: #3b82f6; /* blue-500 */
-  --primary-hover: #2563eb; /* blue-600 */
-  --secondary: #6b7280; /* gray-500 */
-  --secondary-hover: #4b5563; /* gray-600 */
-  --background: #f9fafb; /* gray-50 */
-  --card-bg: #ffffff; /* white */
-  --text-primary: #1f2937; /* gray-800 */
-  --text-secondary: #6b7280; /* gray-500 */
-  --success: #10b981; /* green-500 */
-  --error: #ef4444; /* red-500 */
-  --warning: #f59e0b; /* amber-500 */
-  --border: #e5e7eb; /* gray-200 */
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
+/* d:\CODE\water-company\frontend\src\App.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  /* === Typography === */
-  .text-heading {
-    @apply text-2xl md:text-3xl font-semibold text-[var(--text-primary)];
-  }
-  .text-subheading {
-    @apply text-lg font-medium text-[var(--text-primary)];
-  }
-  .text-body {
-    @apply text-sm text-[var(--text-secondary)];
-  }
+/* 
+  =======================================================================
+  VARIABLES & BASE STYLES
+  =======================================================================
+*/
+:root {
+  --primary: #3b82f6; /* blue-500 */
+  --primary-hover: #2563eb; /* blue-600 */
+  --primary-light: #dbeafe; /* blue-100 for lighter backgrounds */
+  --secondary: #6b7280; /* gray-500 */
+  --secondary-hover: #4b5563; /* gray-600 */
+  --background: #f3f4f6; /* gray-100 - Slightly darker than gray-50 for more contrast */
+  --card-bg: #ffffff; /* white */
+  --text-primary: #1f2937; /* gray-800 */
+  --text-secondary: #6b7280; /* gray-500 */
+  --text-on-primary: #ffffff; /* white for text on primary background */
+  --success: #10b981; /* green-500 */
+  --error: #ef4444; /* red-500 */
+  --warning: #f59e0b; /* amber-500 */
+  --border: #e5e7eb; /* gray-200 */
+  --border-strong: #d1d5db; /* gray-300 for stronger borders */
 
-  /* === Form Styles === */
-  .form-label {
-    @apply block text-sm font-semibold text-[var(--text-primary)] mb-2;
-  }
-  .form-input,
-  .form-select,
-  .form-textarea {
-    @apply w-full px-4 py-2.5 border border-[var(--border)] rounded-lg bg-white text-[var(--text-primary)] text-sm placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-300 shadow-sm;
-  }
-  .form-input.error,
-  .form-select.error,
-  .form-textarea.error {
-    @apply border-[var(--error)] ring-2 ring-[var(--error)]/30 animate-pulse;
-  }
-  .form-textarea {
-    @apply resize-vertical min-h-[100px];
-  }
-  .form-input[readonly],
-  .form-select[readonly],
-  .form-textarea[readonly],
-  .form-input:disabled,
-  .form-select:disabled,
-  .form-textarea:disabled {
-    @apply bg-gray-100 border-[var(--border)] cursor-not-allowed text-[var(--text-secondary)] opacity-70;
-  }
-  .form-error {
-    @apply text-[var(--error)] text-sm mt-1.5 flex items-center gap-1;
-  }
-  .form-error::before {
-    content: "⚠";
-    @apply text-[var(--error)];
-  }
-  .input-with-icon {
-    @apply relative;
-  }
-  .input-icon {
-    @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none;
-  }
-  .form-input.pl-10 {
-    @apply pl-10;
-  }
+  /* Toastify specific colors (moved from index.css for consistency) */
+  --success-bg: #DCFCE7;
+  --success-text: #166534;
+  --error-bg: #FEE2E2;
+  --error-text: #B91C1C;
+  --info-bg: #DBEAFE;
+  --info-text: #1E40AF;
+  --warning-bg: #FEF3C7;
+  --warning-text: #92400E;
 
-  /* === Button Styles === */
-  .btn {
-    @apply px-4 py-2 rounded-md text-sm font-medium flex items-center gap-1.5 transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-50;
-  }
-  .btn:disabled {
-    @apply opacity-50 cursor-not-allowed pointer-events-none;
-  }
-  .btn-primary {
-    @apply bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] focus:ring-[var(--primary)]/50;
-  }
-  .btn-secondary {
-    @apply bg-[var(--secondary)] text-white hover:bg-[var(--secondary-hover)] focus:ring-[var(--secondary)]/50;
-  }
-  .btn-danger {
-    @apply bg-[var(--error)] text-white hover:bg-red-600 focus:ring-red-500;
-  }
-  .btn-reset {
-    @apply bg-gray-200 text-[var(--text-primary)] hover:bg-gray-300 focus:ring-gray-400;
-  }
-  .btn-icon {
-    @apply p-2 rounded-full transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-opacity-50;
-  }
-  .btn-icon:disabled {
-    @apply opacity-50 cursor-not-allowed scale-100;
-  }
-  .btn-icon-green {
-    @apply text-[var(--success)] hover:bg-green-100 hover:text-green-700;
-  }
-  .btn-icon-orange {
-    @apply text-[var(--warning)] hover:bg-orange-100 hover:text-orange-700;
-  }
-  .btn-icon-blue {
-    @apply text-[var(--primary)] hover:bg-blue-100 hover:text-[var(--primary-hover)];
-  }
-  .btn-icon-red {
-    @apply text-[var(--error)] hover:bg-red-100 hover:text-red-700;
-  }
-  .btn-icon-purple {
-    @apply text-purple-600 hover:bg-purple-100 hover:text-purple-700;
-  }
-  .btn-icon-teal {
-    @apply text-teal-600 hover:bg-teal-100 hover:text-teal-700;
-  }
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Tailwind shadow-md */
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); /* Tailwind shadow-lg */
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); /* Tailwind shadow-xl */
+  --shadow-inner-top: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  /* === Tab Styles === */
-  .tab {
-    @apply py-2 px-4 font-medium text-sm transition-all duration-200 border-b-2 whitespace-nowrap;
-  }
-  .tab:disabled {
-    @apply opacity-50 cursor-not-allowed text-gray-400;
-  }
-  .tab-active {
-    @apply border-[var(--primary)] text-[var(--primary)] bg-[var(--card-bg)] font-semibold;
-  }
-  .tab-inactive {
-    @apply border-transparent text-[var(--text-secondary)] hover:text-[var(--primary)] hover:border-[var(--primary)]/50 hover:bg-gray-50;
-  }
-
-  /* === Card Styles === */
-  .card {
-    @apply bg-[var(--card-bg)] rounded-lg shadow-md border border-[var(--border)];
-  }
-
-  /* === Table Styles === */
-  .table-container {
-    @apply block overflow-x-auto overflow-y-auto max-h-[calc(100vh-300px)] custom-scrollbar relative border border-[var(--border)] rounded-lg shadow-sm;
-    width: 100%;
-  }
-  .table-fixed {
-    @apply w-full border-collapse;
-    min-width: 2000px;
-  }
-  .table-fixed th {
-    @apply px-4 py-3 bg-[var(--primary)] text-white text-left text-xs font-semibold uppercase tracking-wider sticky top-0 z-20 border-r border-[var(--primary-hover)];
-  }
-  .table-fixed th:last-child {
-    @apply border-r-0;
-  }
-  .table-fixed td {
-    @apply px-4 py-3 border-b border-[var(--border)] text-sm text-[var(--text-primary)] border-r border-[var(--border)];
-    vertical-align: middle;
-  }
-  .table-fixed td:last-child {
-    @apply border-r-0;
-  }
-  .table-fixed tbody tr:nth-child(even) {
-    @apply bg-gray-100;
-  }
-  .table-fixed tbody tr.row-selected {
-    @apply bg-[var(--primary)]/10;
-  }
-  .table-fixed tbody tr:not(.row-selected):hover {
-    @apply bg-[var(--primary)]/20 transition-all duration-200;
-  }
-  .table-fixed .text-right {
-    @apply text-right;
-  }
-  .table-fixed .text-center {
-    @apply text-center;
-  }
-
-  /* Cột cố định trên PC */
-  .table-fixed th.sticky-col-1,
-  .table-fixed td.sticky-col-1 {
-    @apply sticky left-0 z-30;
-  }
-  .table-fixed th.sticky-col-1 {
-    @apply bg-[var(--primary)];
-  }
-  .table-fixed td.sticky-col-1 {
-    @apply bg-white;
-  }
-  .table-fixed tr:nth-child(even) td.sticky-col-1 {
-    @apply bg-gray-100;
-  }
-  .table-fixed tr.row-selected td.sticky-col-1 {
-    @apply bg-[var(--primary)]/10;
-  }
-
-  .table-fixed th.sticky-col-2,
-  .table-fixed td.sticky-col-2 {
-    @apply sticky z-20;
-    left: 40px;
-  }
-  .table-fixed th.sticky-col-2 {
-    @apply bg-[var(--primary)];
-  }
-  .table-fixed td.sticky-col-2 {
-    @apply bg-white;
-  }
-  .table-fixed tr:nth-child(even) td.sticky-col-2 {
-    @apply bg-gray-100;
-  }
-  .table-fixed tr.row-selected td.sticky-col-2 {
-    @apply bg-[var(--primary)]/10;
-  }
-
-  .table-fixed th.sticky-col-last,
-  .table-fixed td.sticky-col-last {
-    @apply sticky right-0 z-10;
-  }
-  .table-fixed th.sticky-col-last {
-    @apply bg-[var(--primary)] z-20;
-  }
-  .table-fixed td.sticky-col-last {
-    @apply bg-white;
-  }
-  .table-fixed tr:nth-child(even) td.sticky-col-last {
-    @apply bg-gray-100;
-  }
-  .table-fixed tr.row-selected td.sticky-col-last {
-    @apply bg-[var(--primary)]/10;
-  }
-
-  .table-fixed th.sticky-col-1,
-  .table-fixed td.sticky-col-1,
-  .table-fixed th.sticky-col-2,
-  .table-fixed td.sticky-col-2 {
-    box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.15);
-    transition: background-color 0.3s ease;
-  }
-  .table-fixed th.sticky-col-last,
-  .table-fixed td.sticky-col-last {
-    box-shadow: -4px 0 8px -2px rgba(0, 0, 0, 0.15);
-    transition: background-color 0.3s ease;
-  }
-
-  .table-fixed th.checkbox-col,
-  .table-fixed td.checkbox-col {
-    @apply w-12 text-center;
-  }
-
-  .project-name-link {
-    @apply font-medium text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors duration-200;
-  }
-
-  /* === Tooltip Styles === */
-  .tooltip {
-    @apply absolute z-50 bg-gray-800 text-white text-xs rounded-md py-1 px-2 whitespace-nowrap bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 invisible transition-all duration-200 pointer-events-none;
-  }
-  .action-btn-wrapper:hover .tooltip {
-    @apply opacity-100 visible translate-y-0;
-  }
-
-  /* === Status Badge Styles === */
-  .status-icon {
-    @apply inline-flex items-center justify-center w-4 h-4 mr-1;
-  }
-  .status-badge {
-    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
-  }
-  .status-badge-yellow {
-    @apply bg-yellow-100 text-yellow-800;
-  }
-  .status-badge-green {
-    @apply bg-green-100 text-green-800;
-  }
-  .status-badge-red {
-    @apply bg-red-100 text-red-800;
-  }
-  .status-badge-gray {
-    @apply bg-gray-100 text-gray-800;
-  }
-  .status-badge-orange {
-    @apply bg-orange-100 text-orange-800;
-  }
-  .status-badge-pink {
-    @apply bg-pink-100 text-pink-800;
-  }
-  .status-badge-sub {
-    @apply ml-1 px-1.5 py-0.5 text-[10px] rounded-full;
-  }
-
-  /* === Skeleton Loading === */
-  .skeleton {
-    @apply bg-gray-200 animate-pulse rounded;
-  }
-
-  /* === Expandable Row Styles === */
-  .expandable-row {
-    @apply cursor-pointer transition-all duration-200;
-  }
-  .expandable-content {
-    @apply bg-gray-50 p-3 rounded-b-lg shadow cues-inner;
-  }
-  .expandable-content table {
-    @apply w-full border-collapse;
-  }
-  .expandable-content td {
-    @apply py-1.5 px-2 text-sm text-[var(--text-primary)] border-b border-[var(--border)];
-  }
-  .expandable-content tr:last-child td {
-    @apply border-b-0;
-  }
-  .expandable-content td:first-child {
-    @apply font-medium w-2/5 text-[var(--text-primary)];
-  }
-  .expandable-content td:last-child {
-    @apply w-3/5 text-[var(--text-secondary)];
-  }
-
-  /* === Responsive Table Styles === */
-  @media (max-width: 768px) {
-    .table-container {
-      @apply overflow-x-auto;
-    }
-    .table-fixed {
-      @apply block w-full;
-      min-width: 0;
-    }
-    .table-fixed thead {
-      @apply hidden;
-    }
-    .table-fixed tbody {
-      @apply block w-full;
-    }
-    .table-fixed tr {
-      @apply block bg-white rounded-lg shadow-md mb-4 p-4;
-    }
-    .table-fixed tr.expandable-row:not(:last-child) {
-      @apply mb-4;
-    }
-    .table-fixed tr.expandable-row:last-child {
-      @apply mb-0;
-    }
-    .table-fixed td {
-      @apply hidden;
-    }
-    .table-fixed td.mobile-header-cell {
-      display: flex !important;
-      @apply flex justify-between items-center p-4 border-b border-[var(--border)] bg-gray-50 font-semibold;
-    }
-    .table-fixed td.mobile-action-cell {
-      display: flex !important;
-      @apply flex justify-center items-center gap-3 p-3 bg-gray-50 rounded-b-lg shadow-inner;
-    }
-    .table-fixed td.mobile-expand-cell {
-      display: block !important;
-      padding: 0 !important;
-      border: 0 !important;
-    }
-    .pagination-mobile {
-      @apply flex flex-wrap justify-center gap-2 p-3 bg-white rounded-b-lg shadow-md mt-3 border-t border-[var(--border)];
-    }
-    .pagination-mobile button,
-    .pagination-mobile span {
-      @apply text-xs px-2.5 py-1.5;
-    }
-    .pagination-mobile button.bg-[var(--primary)] {
-      @apply bg-[var(--primary)] text-white border-[var(--primary)];
-    }
-
-    /* Bỏ cố định cột trên mobile */
-    .table-fixed th.sticky-col-1,
-    .table-fixed td.sticky-col-1 {
-      position: static !important;
-      left: auto !important;
-      z-index: auto !important;
-      box-shadow: none !important;
-    }
-    .table-fixed th.sticky-col-2,
-    .table-fixed td.sticky-col-2 {
-      position: static !important;
-      left: auto !important;
-      z-index: auto !important;
-      box-shadow: none !important;
-    }
-    .table-fixed th.sticky-col-last,
-    .table-fixed td.sticky-col-last {
-      position: static !important;
-      right: auto !important;
-      z-index: auto !important;
-      box-shadow: none !important;
-    }
-  }
-
-  /* === Modal Styles (For ProjectForm) === */
-  .modal-header {
-    @apply flex justify-between items-center p-6 border-b border-[var(--border)];
-  }
-  .modal-body {
-    @apply flex-grow overflow-y-auto p-6 custom-scrollbar;
-  }
-  .modal-footer {
-    @apply p-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center sm:justify-end gap-3;
-  }
-
-  /* === Animation Styles === */
-  @keyframes slideIn {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  .animate-slideIn {
-    animation: slideIn 0.3s ease-out forwards;
-  }
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  .spinner {
-    @apply w-6 h-6 border-3 border-t-transparent border-[var(--primary)] rounded-full animate-spin;
-  }
-  @keyframes bellRing {
-    0% {
-      transform: rotate(0);
-    }
-    25% {
-      transform: rotate(15deg);
-    }
-    50% {
-      transform: rotate(-15deg);
-    }
-    75% {
-      transform: rotate(10deg);
-    }
-    100% {
-      transform: rotate(0);
-    }
-  }
-  .bell-icon.has-notifications {
-    animation: bellRing 1s ease-in-out infinite;
-  }
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .filter-container {
-    animation: slideDown 0.3s ease-out forwards;
-  }
+  /* Sticky Table Column Variables */
+  --sticky-col-1-width: 5rem; /* Default width for the first sticky column (e.g., STT). ADJUST AS NEEDED. */
 }
 
-/* === Global Styles === */
 body {
-  @apply bg-[var(--background)] text-[var(--text-primary)];
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  @apply bg-[var(--background)] text-[var(--text-primary)] font-sans antialiased;
+  font-family: 'Inter', sans-serif; /* Đảm bảo font được áp dụng */
 }
 
-main,
-.sidebar {
-  @apply transition-all duration-300 ease-in-out;
-}
-header {
-  @apply bg-white shadow-md border-b border-[var(--border)] text-[var(--text-primary)];
-}
-.header-username {
-  @apply font-medium text-sm md:text-base;
-}
-
+/* 
+  =======================================================================
+  CUSTOM SCROLLBAR (Optional, but improves look of scrollable elements)
+  =======================================================================
+*/
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   @apply bg-gray-100 rounded-full;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 rounded-full;
+  @apply bg-gray-400 rounded-full hover:bg-gray-500;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+
+/* 
+  =======================================================================
+  GENERAL UI COMPONENTS (Buttons, Forms, Cards, etc.)
+  =======================================================================
+*/
+@layer components {
+  /* === Buttons === */
+  .btn {
+    @apply px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 transform active:scale-95;
+  }
+  .btn:disabled {
+    @apply opacity-60 cursor-not-allowed pointer-events-none shadow-none transform-none;
+  }
+  .btn-primary {
+    @apply bg-[var(--primary)] text-[var(--text-on-primary)] hover:bg-[var(--primary-hover)] focus:ring-[var(--primary)];
+  }
+  .btn-secondary {
+    @apply bg-[var(--secondary)] text-[var(--text-on-primary)] hover:bg-[var(--secondary-hover)] focus:ring-[var(--secondary)];
+  }
+  .btn-success {
+    @apply bg-[var(--success)] text-white hover:bg-green-600 focus:ring-green-500;
+  }
+  .btn-danger, .btn-error {
+    @apply bg-[var(--error)] text-white hover:bg-red-600 focus:ring-red-500;
+  }
+  .btn-warning {
+    @apply bg-[var(--warning)] text-white hover:bg-amber-600 focus:ring-amber-500;
+  }
+  .btn-icon {
+    @apply p-2 rounded-full transition-colors duration-150 ease-in-out hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-icon-green { @apply text-green-600 hover:bg-green-100; }
+  .btn-icon-red { @apply text-red-600 hover:bg-red-100; }
+  .btn-icon-blue { @apply text-blue-600 hover:bg-blue-100; }
+  .btn-icon-yellow { @apply text-yellow-600 hover:bg-yellow-100; }
+  .btn-icon-teal { @apply text-teal-600 hover:bg-teal-100; }
+  .btn-icon-purple { @apply text-purple-600 hover:bg-purple-100; }
+  .btn-icon-sky { @apply text-sky-600 hover:bg-sky-100; }
+  .btn-icon-emerald { @apply text-emerald-600 hover:bg-emerald-100; }
+  .btn-icon-gray { @apply text-gray-600 hover:bg-gray-200; }
+
+  /* === Forms === */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply w-full px-3 py-2 border border-[var(--border-strong)] rounded-lg bg-white text-[var(--text-primary)] text-sm placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200 shadow-sm hover:border-gray-400;
+  }
+  .form-select {
+    @apply pr-8; /* Space for dropdown arrow */
+  }
+  .form-checkbox {
+    @apply h-5 w-5 rounded text-[var(--primary)] border-[var(--border-strong)] shadow-sm focus:ring-offset-0 focus:ring-2 focus:ring-[var(--primary)] transition-all duration-150 cursor-pointer;
+  }
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* === Cards === */
+  .card {
+    @apply bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border)];
+  }
+
+  /* 
+    =======================================================================
+    TABLE STYLES
+    =======================================================================
+  */
+  .table-container {
+    @apply overflow-auto shadow-lg rounded-xl border border-[var(--border-strong)] bg-[var(--card-bg)];
+    max-height: calc(100vh - 280px); /* Adjust as needed, leaves space for header, pagination etc. */
+  }
+  /* Apply custom scrollbar to table container */
+  .table-container {
+    @apply custom-scrollbar;
+  }
+
+  .table-fixed {
+    @apply min-w-full divide-y divide-[var(--border)];
+    border-collapse: separate; /* Crucial for sticky headers/columns with borders */
+    table-layout: fixed; /* Helps with consistent column widths and text wrapping */
+    border-spacing: 0;
+  }
+
+  .table-fixed thead tr {
+    /* Background color for header row is applied directly in GenericTable.js */
+    /* e.g., className="bg-[var(--primary)] text-white" */
+  }
+
+  .table-fixed th {
+    @apply px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center; /* Increased padding, default alignment */
+    position: sticky;
+    top: 0; /* Stick to the top */    
+    background-clip: padding-box; /* Prevents background from overlapping borders */
+    /* Border right for all th except last, border bottom for all th */
+    @apply border-b-2 border-[var(--border-strong)];
+    background-color: theme('colors.gray.50'); /* Default background for TH to ensure opacity */
+    z-index: 15; /* Default z-index for general headers */
+  }
+  .table-fixed th:not(:last-child) {
+    @apply border-r border-[var(--border)];
+  }
+
+  /* Ensure th inside a thead with primary background gets that background */
+  .table-fixed thead.bg-\[var\(--primary\)\] th {
+    background-color: var(--primary) !important; /* Ensures primary background overrides default */
+    /* z-index for these will be set higher by specific sticky-col rules */
+  }
+
+  .table-fixed td {
+    @apply px-4 py-3 text-xs text-[var(--text-primary)]; /* Increased padding, default alignment: left */
+    @apply border-b border-[var(--border)]; /* Horizontal lines for rows */
+    vertical-align: middle;
+    overflow-wrap: break-word; /* Ensure long words break and wrap */
+    /* word-break: break-all; /* Removed: break-all can break words mid-character undesirably. Rely on overflow-wrap. */
+    white-space: normal !important; /* Force normal white-space handling to override potential nowrap */
+  }
+  .table-fixed td:not(:last-child) {
+    @apply border-r border-[var(--border)]; /* Vertical lines for columns */
+  }
+
+  .table-fixed tr:last-child td {
+     border-bottom: none; /* Remove bottom border for the last row */
+  }
+  .table-fixed tr.hover\:bg-gray-50:hover td { /* Ensure hover applies to td */
+    @apply bg-gray-50;
+  }
+  /* Ensure sticky column hover is consistent */
+  .table-fixed tr.hover\:bg-gray-50:hover td.sticky-col-1,
+  .table-fixed tr.hover\:bg-gray-50:hover td.sticky-col-last {
+    @apply bg-gray-100; /* Slightly different hover for sticky data cells if needed */
+  }
+
+
+  /* === Sticky Columns for Table === */
+  /* First sticky column (e.g., STT) */
+  .table-fixed th.sticky-col-1, 
+  .table-fixed td.sticky-col-1 {
+    @apply sticky left-0;
+    width: var(--sticky-col-1-width);
+    min-width: var(--sticky-col-1-width);
+    max-width: var(--sticky-col-1-width);
+    background-clip: padding-box;
+  }
+  .table-fixed td.sticky-col-1 { @apply bg-[var(--card-bg)]; } /* Ensure background for data cell */
+  .table-fixed tr:hover td.sticky-col-1 { @apply bg-gray-100; } /* Hover state consistency */
+  /* z-index for sticky-col-1 data cells */
+  .table-fixed td.sticky-col-1 { z-index: 25; } /* z-index for data cell of first sticky column */
+
+  /* Ensure sticky header for first column maintains header background */
+  .table-fixed thead.bg-\[var\(--primary\)\] th.sticky-col-1 {
+    /* background-color is handled by the more general '.table-fixed thead.bg-\[var\(--primary)\] th' rule */
+    z-index: 40; /* Highest z-index for top-left sticky header */
+  }
+
+  /* Second sticky column (e.g., Tên công trình) - if you use it */
+  /* You'll need to set 'left' style dynamically based on first column width */
+  .table-fixed th.sticky-col-2, 
+  .table-fixed td.sticky-col-2 {
+    @apply sticky;
+    left: var(--sticky-col-1-width); /* Automatically uses the width of the first sticky column */
+    background-clip: padding-box;
+  }
+  .table-fixed td.sticky-col-2 { @apply bg-[var(--card-bg)]; }
+  .table-fixed tr:hover td.sticky-col-2 { @apply bg-gray-100; }
+  /* z-index for sticky-col-2 data cells */
+  .table-fixed td.sticky-col-2 { z-index: 20; } /* z-index for data cell of second sticky column, behind first */
+  /* z-index for sticky-col-2 header cells */
+  .table-fixed thead.bg-\[var\(--primary\)\] th.sticky-col-2 {
+    /* background-color is handled by the more general '.table-fixed thead.bg-\[var\(--primary)\] th' rule */
+    z-index: 35; /* Header z-index for second sticky column */
+  }
+
+  /* Last sticky column (e.g., Hành động) */
+  .table-fixed th.sticky-col-last, 
+  .table-fixed td.sticky-col-last {
+    @apply sticky right-0;
+    background-clip: padding-box;
+    /* width, min-width, max-width can be set here if needed for the last column */
+  }
+  .table-fixed td.sticky-col-last { @apply bg-[var(--card-bg)]; }
+  .table-fixed tr:hover td.sticky-col-last { @apply bg-gray-100; }
+  /* z-index for sticky-col-last data and header cells */
+  .table-fixed td.sticky-col-last { z-index: 25; } /* z-index for data cell of last sticky column */
+  .table-fixed thead.bg-\[var\(--primary\)\] th.sticky-col-last {
+    /* background-color is handled by the more general '.table-fixed thead.bg-\[var\(--primary)\] th' rule */
+    z-index: 40; /* Ensure header is on top */
+  }
+
+  /* === Cell Changed Indication === */
+  .cell-changed { /* Applied to td */
+    @apply bg-amber-50; /* Lighter amber for background */
+  }
+  .cell-changed .cell-changed-value { /* Applied to span inside td */
+    @apply font-semibold text-amber-700;
+  }
+  .cell-changed .cell-changed-original-value { /* Applied to span inside td */
+    @apply block text-xs text-stone-600 mt-0.5 italic;
+    /* text-decoration: line-through; */ /* Optional: line-through for original value */
+  }
+  /* Ensure sticky column still shows changed background */
+  .table-fixed td.sticky-col-1.cell-changed, 
+  .table-fixed td.sticky-col-2.cell-changed,  /* Added sticky-col-2 for changed state */
+  .table-fixed td.sticky-col-last.cell-changed {
+     @apply bg-amber-100; /* Slightly darker amber for sticky changed cells to ensure visibility */
+  }
+
+  /* === Alignment & Whitespace Utilities (can be applied directly or via colConfig) === */
+  .text-left { text-align: left !important; } /* Use !important if needed to override other styles */
+  .text-center { text-align: center !important; }
+  .text-right { text-align: right !important; }
+
+  .whitespace-nowrap { white-space: nowrap; }
+  .whitespace-normal { white-space: normal; }
+  .whitespace-pre-wrap { white-space: pre-wrap; }
+  .break-words { word-break: break-words; }
+
+} /* End @layer components */
+
+/* 
+  =======================================================================
+  SPECIFIC COMPONENT STYLES (If not covered by general components)
+  =======================================================================
+*/
+/* Example: Specific styles for Header notifications if needed */
+.header-username {
+  /* max-width: 100px; */
+  /* white-space: nowrap; */
+  /* overflow: hidden; */
+  /* text-overflow: ellipsis; */
+}
+
+.bell-icon.has-notifications::after {
+  /* content: ''; */
+  /* position: absolute; */
+  /* top: 2px; */
+  /* right: 2px; */
+  /* width: 8px; */
+  /* height: 8px; */
+  /* background-color: var(--error); */
+  /* border-radius: 50%; */
+  /* border: 1px solid white; */
+}
+
+/* Spinner for loading states */
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: var(--primary);
+  animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

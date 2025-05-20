@@ -1,13 +1,14 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\GenericTable.js
 import React from 'react';
-import { formatDate, formatCurrency, getNestedProperty } from '../../utils/helpers'; // Ensure getNestedProperty is correctly imported
-import Pagination from '../Common/Pagination'; // Import Pagination
+import { formatCurrency, getNestedProperty } from '../../utils/helpers';
+import { formatDateToLocale } from '../../utils/dateUtils';
+import Pagination from '../Common/Pagination';
 
 function GenericTable({
   data,
   columns,
-  user, // User object for permission checks if needed by renderActions
-  isSubmitting, // General submitting state for actions
+  user,
+  isSubmitting,
   isPendingTab,
   totalPages,
   currentPage,
@@ -15,29 +16,26 @@ function GenericTable({
   totalItemsCount,
   renderActions,
   isLoading,
-  isFetching, // For skeleton loading
+  isFetching,
   tableWidth = '100%',
   itemsPerPage = 10,
   usersList = [],
-  // backendValidationErrors = {}, // Example: { projectId: { fieldName: "Error" } }
 }) {
 
   const getCellDisplayData = (project, fieldPath, currentUsersList) => {
     let originalValueFromProject = getNestedProperty(project, fieldPath);
 
     const resolveUserValue = (value) => {
-      // Xử lý trường hợp value đã là object (ví dụ: được populate từ backend)
       if (value && typeof value === 'object' && (value._id || value.name || value.fullName || value.username)) {
         return value;
       }
-      // Xử lý trường hợp value là string ID
       if (typeof value === 'string' && currentUsersList && currentUsersList.length > 0) {
         if (value.match(/^[0-9a-fA-F]{24}$/)) {
           const foundUser = currentUsersList.find(u => u._id === value);
-          return foundUser || value; // Trả về object user nếu tìm thấy, ngược lại trả về ID
+          return foundUser || value;
         }
       }
-      return value; // Trả về giá trị gốc nếu không phải ID hoặc không tìm thấy
+      return value;
     };
 
     const resolvedOriginalValueFromProject = resolveUserValue(originalValueFromProject);
@@ -69,18 +67,15 @@ function GenericTable({
 
     const formatValueForDisplay = (value, formatType) => {
       if (value === null || value === undefined) return 'N/A';
-      // Nếu value là object (ví dụ user đã được resolve), lấy fullName hoặc username
       if (typeof value === 'object') {
         return value.fullName || value.username || value.name || '[Đối tượng]';
       }
-      if (formatType === 'date') return formatDate(value);
+      if (formatType === 'date') return formatDateToLocale ? formatDateToLocale(value) : (value ? String(value) : 'N/A');
       if (formatType === 'currency') return formatCurrency(value);
       return String(value);
     };
 
-    // Nếu có hàm render tùy chỉnh, nó sẽ chịu trách nhiệm hoàn toàn việc hiển thị cũ/mới
     if (colConfig.render) {
-      // Truyền cellData chứa isChanged, displayValue (mới), originalValue (cũ, đã resolve)
       return colConfig.render(project, cellData, isPendingTab, usersList);
     }
 
@@ -91,7 +86,7 @@ function GenericTable({
     }
 
     let finalDisplayElement;
-    if (contentToRender === "N/A" || (typeof contentToRender === 'string' && contentToRender.startsWith("["))) { // Kiểm tra cả trường hợp [Đối tượng]
+    if (contentToRender === "N/A" || (typeof contentToRender === 'string' && contentToRender.startsWith("["))) {
         finalDisplayElement = <span className={`${contentToRender === "N/A" ? "text-gray-400 italic" : "text-red-500 italic"} text-xs`}>{contentToRender}</span>;
     } else {
         finalDisplayElement = contentToRender;
@@ -99,11 +94,11 @@ function GenericTable({
 
     return (
       <>
-        <span className={`${cellData.isChanged ? 'cell-changed-value font-semibold' : ''}`}>
+        <span className={`${cellData.isChanged ? 'cell-changed-value' : ''}`}>
           {finalDisplayElement}
         </span>
         {cellData.isChanged && (originalDisplayValue !== null && originalDisplayValue !== undefined) && (
-          <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
+          <span className="cell-changed-original-value">
             (Cũ: {formattedOriginalValue})
           </span>
         )}
@@ -112,14 +107,14 @@ function GenericTable({
   };
 
   if ((isLoading || isFetching) && (!data || data.length === 0)) {
-    const skeletonCols = columns.length + 2;
+    const skeletonCols = columns.length + 2; // +2 for STT and Actions
     return (
-      <div className="table-container-custom mt-4">
-        <table className="generic-table" style={{ width: tableWidth }}>
-          <thead>
+      <div className="table-container mt-4">
+        <table className="table-fixed" style={{ width: tableWidth }}>
+          <thead className="bg-[var(--primary)] text-white">
             <tr>
               {Array(skeletonCols).fill(0).map((_, idx) => (
-                <th key={idx} className="header-cell-custom p-2">
+                <th key={idx} className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wider">
                   <div className="bg-gray-300 animate-pulse h-4 w-full rounded"></div>
                 </th>
               ))}
@@ -129,7 +124,7 @@ function GenericTable({
             {Array(itemsPerPage).fill(0).map((_, rowIndex) => (
               <tr key={`skeleton-${rowIndex}`}>
                 {Array(skeletonCols).fill(0).map((_, colIndex) => (
-                  <td key={`skeleton-${rowIndex}-${colIndex}`} className="data-cell-custom p-2">
+                  <td key={`skeleton-${rowIndex}-${colIndex}`} className="px-3 py-2.5 border-b border-[var(--border)]">
                     <div className="bg-gray-200 animate-pulse h-4 w-full rounded"></div>
                   </td>
                 ))}
@@ -143,48 +138,48 @@ function GenericTable({
 
   return (
     <div className="flex flex-col mt-4">
-      <div className="table-container-custom">
-        <table className="generic-table table-auto" style={{ width: tableWidth }}>
-          <thead>
+      <div className="table-container">
+        <table className="table-fixed" style={{ width: tableWidth }}>
+          <thead className="bg-[var(--primary)] text-white">
             <tr>
-              <th className="header-cell-custom sticky-col-1-header text-xs" style={{ width: '40px', padding: '0.5rem 0.5rem' }}>
+              <th className="sticky-col-1 px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-center" style={{ width: '40px' }}>
                 STT
               </th>
               {columns.map((col, index) => (
                 <th
                   key={col.field || `header-${index}`}
-                  className={`header-cell-custom ${col.sticky && col.left ? 'sticky-header' : ''} ${col.headerClassName || ''}`}
+                  className={`${col.sticky && col.left ? `sticky-col-${col.sticky}` : ''} ${col.headerClassName || ''} ${col.align ? `text-${col.align}` : 'text-center'} px-3 py-2.5 text-xs font-semibold uppercase tracking-wider`}
                   style={{
                     width: col.width, minWidth: col.minWidth || col.width,
-                    textAlign: 'center', left: col.sticky ? col.left : undefined,
-                    padding: '0.5rem 0.75rem', fontSize: '0.75rem', ...col.headerStyle,
+                    left: col.sticky ? col.left : undefined, // For sticky-col-2 if used
+                    ...col.headerStyle,
                   }}
                 >
-                  <div className="flex items-center justify-center">
+                  <div className={`flex items-center ${col.align === 'left' ? 'justify-start' : col.align === 'right' ? 'justify-end' : 'justify-center'} h-full`}>
                     {col.header}
                   </div>
                 </th>
               ))}
-              <th className="header-cell-custom sticky-col-last-header text-xs" style={{ width: '120px', textAlign: 'center', padding: '0.5rem 0.75rem' }}>
+              <th className="sticky-col-last px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-center" style={{ width: '120px' }}>
                 Hành động
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 text-xs">
+          <tbody className="text-xs"> {/* Removed divide-y, relying on td border-b */}
             {data.map((project, index) => (
-              <tr key={project._id} className="table-row-custom hover:bg-blue-50 transition-colors duration-150">
-                <td className="data-cell-custom sticky-col-1-data" style={{ textAlign: 'center', padding: '0.5rem 0.5rem' }}>
+              <tr key={project._id} className="hover:bg-gray-50">
+                <td className="sticky-col-1 text-center px-3 py-2.5 whitespace-nowrap">
                   {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>
                 {columns.map((col, colIndex) => {
-                  const cellDataForTd = getCellDisplayData(project, col.field, usersList); // Pass usersList
+                  const cellDataForTd = getCellDisplayData(project, col.field, usersList);
                   return (
                     <td
                       key={`${project._id}-${col.field || `col-${colIndex}`}`}
-                      className={`data-cell-custom ${col.sticky && col.left ? 'sticky-data' : ''} ${cellDataForTd.isChanged ? 'cell-changed' : ''} ${col.className || ''}`}
+                      className={`${col.sticky && col.left ? `sticky-col-${col.sticky}` : ''} ${cellDataForTd.isChanged ? 'cell-changed' : ''} ${col.className || ''} ${col.align ? `text-${col.align}` : 'text-left'} ${col.breakWords ? 'whitespace-pre-wrap break-words' : 'whitespace-nowrap'} px-3 py-2.5`}
                       style={{
-                        textAlign: col.align || 'left', left: col.sticky ? col.left : undefined,
-                        padding: '0.5rem 0.75rem', ...col.cellStyle,
+                        left: col.sticky ? col.left : undefined, // For sticky-col-2 if used
+                        ...col.cellStyle,
                       }}
                       title={col.tooltipRender ? col.tooltipRender(project) : undefined}
                     >
@@ -192,8 +187,8 @@ function GenericTable({
                     </td>
                   );
                 })}
-                <td className="data-cell-custom sticky-col-last-data" style={{ textAlign: 'center', padding: '0.5rem 0.5rem' }}>
-                  {renderActions && renderActions(project, isPendingTab)} {/* Pass isPendingTab to renderActions */}
+                <td className="sticky-col-last text-center px-3 py-2.5 whitespace-nowrap">
+                  {renderActions && renderActions(project, isPendingTab)}
                 </td>
               </tr>
             ))}

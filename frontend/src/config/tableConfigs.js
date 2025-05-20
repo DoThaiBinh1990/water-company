@@ -1,6 +1,7 @@
 // d:\CODE\water-company\frontend\src\config\tableConfigs.js
 import { FaUser } from 'react-icons/fa'; // Loại bỏ các icon không dùng trực tiếp ở đây
-import { formatDate, getStatusDisplay, getBaseStatusInfo } from '../utils/helpers'; // Import getBaseStatusInfo
+import { getStatusDisplay, getBaseStatusInfo } from '../utils/helpers'; // Remove formatDate import
+import { formatDateToLocale } from '../utils/dateUtils'; // Import formatDateToLocale
 import React from 'react'; // Import React để sử dụng JSX trong render functions
 
 const commonFields = {
@@ -31,7 +32,7 @@ const commonFields = {
         }
         return typeof value === 'string' && value ? value : 'N/A'; // Hiển thị ID nếu không resolve được
       };
-
+      // formatDateToLocale sẽ được truyền vào GenericTable và sử dụng ở đó
       const currentDisplay = getUserDisplay(cellData.displayValue);
 
       if (cellData.isChanged) {
@@ -140,9 +141,9 @@ const commonFields = {
         else if (h.action === 'edit_approved') actionText = 'Duyệt sửa';
         else if (h.action === 'rejected') actionText = 'Từ chối mới';
         else if (h.action === 'edit_rejected') actionText = 'Từ chối sửa';
-        else if (h.action === 'delete_approved') actionText = 'Duyệt xóa';
-        else if (h.action === 'delete_rejected') actionText = 'Từ chối xóa';
-        return `${actionText} bởi ${userName} (${formatDate(h.timestamp)})`;
+        else if (h.action === 'delete_approved') actionText = 'Duyệt xóa'; // Giữ nguyên
+        else if (h.action === 'delete_rejected') actionText = 'Từ chối xóa';        
+        return `${actionText} bởi ${userName} (${formatDateToLocale(h.timestamp)})`;
       });
       
       const currentApprover = project.approvedBy ? (project.approvedBy.fullName || project.approvedBy.username) : 'Chưa có người duyệt';
@@ -199,20 +200,20 @@ const commonFields = {
       const creationAction = project.history?.find(h => h.action === 'created');
       if (creationAction && creationAction.user) {
         const creator = creationAction.user;
-        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDate(creationAction.timestamp)})`);
+        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDateToLocale(creationAction.timestamp)})`);
       } else if (project.createdBy) { 
         const creator = project.createdBy;
-        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDate(project.createdAt)})`);
-      } else {
-        tooltipLines.push(`Người tạo: ${project.enteredBy || 'N/A'} (${formatDate(project.createdAt)})`);
+        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDateToLocale(project.createdAt)})`);
+      } else if (project.createdAt && project.enteredBy) {
+        tooltipLines.push(`Người tạo: ${project.enteredBy || 'N/A'} (${formatDateToLocale(project.createdAt)})`);
       }
 
       const editRequestActions = project.history?.filter(h => h.action === 'edit_requested');
       if (editRequestActions && editRequestActions.length > 0) {
         tooltipLines.push("--- Yêu cầu sửa ---");
         editRequestActions.forEach(h => {
-          const requester = h.user;
-          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDate(h.timestamp)})`);
+          const requester = h.user; // Giữ nguyên
+          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDateToLocale(h.timestamp)})`); // Sửa ở đây
         });
       }
 
@@ -220,8 +221,8 @@ const commonFields = {
       if (deleteRequestActions && deleteRequestActions.length > 0) {
         tooltipLines.push("--- Yêu cầu xóa ---");
         deleteRequestActions.forEach(h => {
-          const requester = h.user;
-          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDate(h.timestamp)})`);
+          const requester = h.user; // Giữ nguyên
+          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDateToLocale(h.timestamp)})`); // Sửa ở đây
         });
       }
       return tooltipLines.join('\n');
@@ -301,12 +302,12 @@ const commonFields = {
       return currentDisplay;
     }
   },
-  startDate: { header: 'Ngày BĐ', field: 'startDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' },
-  completionDate: { header: 'Ngày HT', field: 'completionDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' },
+  startDate: { header: 'Ngày BĐ', field: 'startDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' }, // format: 'date' sẽ được GenericTable xử lý
+  completionDate: { header: 'Ngày HT', field: 'completionDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' }, // format: 'date' sẽ được GenericTable xử lý
   initialValue: { header: 'Giá trị PB', field: 'initialValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
   estimatedValue: { header: 'Giá trị DT', field: 'estimatedValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
   contractValue: { header: 'Giá trị GK', field: 'contractValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
-  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '160px', minWidth: '130px', align: 'center' }, // Changed to center
+  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '160px', minWidth: '130px', align: 'center' }, 
   progress: { header: 'Tiến độ TC', field: 'progress', width: '180px', minWidth: '150px', align: 'left' },
   feasibility: { header: 'Khả năng TH', field: 'feasibility', width: '180px', minWidth: '150px', align: 'left' },
   durationDays: { header: 'Số ngày TH', field: 'durationDays', width: '120px', minWidth: '100px', align: 'center' }, // Changed to center
@@ -341,6 +342,16 @@ export const categoryProjectColumns = [
   commonFields.approvedBy,
   commonFields.createdBy,
 ];
+
+// Cần thêm import formatDateToLocale vào RejectedProjectTable.js
+// và GenericTable.js để sử dụng hàm này cho các cột format: 'date'
+// GenericTable.js đã được sửa để nhận formatDateToLocale qua props
+// RejectedProjectTable.js cần import trực tiếp
+
+// File RejectedProjectTable.js cần import formatDateToLocale từ dateUtils
+// File GenericTable.js cần được truyền formatDateToLocale từ component cha (ProjectManagement.js)
+// File tableConfigs.js không cần import formatDate nữa vì logic format đã chuyển vào GenericTable.js
+
 
 export const minorRepairProjectColumns = [
   commonFields.name,

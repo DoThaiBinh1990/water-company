@@ -1,32 +1,19 @@
+/* d:\CODE\water-company\frontend\src\index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Định nghĩa các biến CSS toàn cục */
-:root {
-  --primary: #3b82f6; /* Tailwind blue-500 */
-  --primary-hover: #2563eb; /* Tailwind blue-600 */
-  --secondary: #6b7280; /* Tailwind gray-500 */
-  --secondary-hover: #4b5563; /* Tailwind gray-600 */
-  --background: #f9fafb; /* Tailwind gray-50 */
-  --card-bg: #ffffff; /* white */
-  --text-primary: #1f2937; /* Tailwind gray-800 */
-  --text-secondary: #6b7280; /* Tailwind gray-500 */
-  --success: #10b981; /* Tailwind green-500 */
-  --error: #ef4444; /* Tailwind red-500 */
-  --warning: #f59e0b; /* Tailwind amber-500 */
-  --border: #e5e7eb; /* Tailwind gray-200 */
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Example shadow consistent with Tailwind */
+/* Import CSS của thư viện bên thứ ba (ví dụ: frappe-gantt) */
+@import "../node_modules/frappe-gantt/dist/frappe-gantt.css";
 
-  --success-bg: #DCFCE7; /* green-100 */
-  --success-text: #166534; /* green-800 */
-  --error-bg: #FEE2E2;   /* red-100 */
-  --error-text: #B91C1C;   /* red-700 */
-  --info-bg: #DBEAFE;    /* blue-100 */
-  --info-text: #1E40AF;    /* blue-800 */
-  --warning-bg: #FEF3C7;  /* amber-100 */
-  --warning-text: #92400E;  /* amber-700 */
-}
+/* 
+  Các biến CSS toàn cục và các class UI chung (như .btn, .table-container, th, td)
+  ĐƯỢC định nghĩa trong App.css sử dụng @layer components của Tailwind CSS
+  để đảm bảo tính nhất quán và dễ quản lý.
+  
+  File index.css này chủ yếu để import các file CSS toàn cục 
+  và các override cơ bản nhất cho html, body nếu cần.
+*/
 
 html {
   box-sizing: border-box;
@@ -40,21 +27,22 @@ html {
 }
 
 body {
-  @apply bg-[var(--background)] text-[var(--text-primary)];
-  font-family: 'Inter', sans-serif;
+  /* Màu nền và màu chữ mặc định cho body được đặt trong App.css */
+  font-family: 'Inter', sans-serif; /* Đảm bảo font chữ được áp dụng */
   margin: 0;
   padding: 0;
-  min-height: 100%; /* Đảm bảo body chiếm ít nhất toàn bộ chiều cao của html */
+  min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
-  min-height: 100vh; /* Đảm bảo #root chiếm toàn bộ chiều cao khung nhìn */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/* Animation fadeIn (có thể giữ lại ở đây nếu là animation toàn cục) */
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -68,300 +56,18 @@ body {
   }
 }
 
-/* Thêm hoặc cập nhật các class này trong file CSS của bạn */
+/* 
+  LƯU Ý: 
+  Tất cả các class tùy chỉnh cho bảng như .table-container-custom, .header-cell-custom, .data-cell-custom, .sticky-col-* 
+  đã được loại bỏ khỏi file này. 
+  Các component GenericTable.js và RejectedProjectTable.js cần được cập nhật để sử dụng 
+  các class tiện ích từ App.css (ví dụ: .table-container, .table-fixed, và các class Tailwind cho th, td).
+*/
 
-/* Container cho bảng, giúp quản lý scroll và bo góc */
-.table-container-custom {
-  border: 1px solid #e2e8f0; /* cool-gray-200 or similar */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
-  border-radius: 0.5rem; /* rounded-lg */
-  overflow: auto; /* Quan trọng cho scrolling */
-  max-height: calc(100vh - 300px); /* Điều chỉnh nếu cần, để bảng không quá dài */
-  background-color: white; /* Nền trắng cho container */
+/* Nếu bạn cần override style của frappe-gantt, hãy thêm vào đây */
+/* Ví dụ: */
+/*
+.gantt .bar-progress {
+  fill: blue !important; 
 }
-
-.generic-table {
-  min-width: 100%;
-  border-collapse: separate; /* Cho phép border-spacing và bo góc cho table */
-  border-spacing: 0;
-}
-
-/* --- STYLING CHO HEADER --- */
-.header-cell-custom {
-  padding: 0.75rem 1rem; /* py-3 px-4 */
-  border-bottom: 2px solid #cbd5e1; /* cool-gray-300, đường kẻ dưới đậm hơn */
-  background-color: var(--primary); /* Sử dụng màu primary cho nền header */
-  color: white; /* Màu chữ trắng để tương phản với nền xanh */
-  font-weight: 600; /* semibold */
-  text-transform: uppercase;
-  font-size: 0.75rem; /* text-xs */
-  letter-spacing: 0.05em; /* tracking-wider */
-  text-align: center; /* Mặc định căn giữa cho tiêu đề */
-  position: sticky;
-  top: 0;
-  z-index: 10; /* z-index cơ bản cho header */
-}
-
-/* Căn giữa cho header nếu cột đó yêu cầu */
-.header-cell-custom[style*="text-align: center"] {
-  /* Đã mặc định là center, không cần ghi đè trừ khi muốn style khác */
-}
-.header-cell-custom[style*="text-align: right"] {
-  /* Giữ nguyên nếu có cột header cần căn phải */
-}
-
-/* Loại bỏ border phải cho cột cuối cùng của header để tránh double border với container */
-.header-cell-custom:last-child {
-    border-right: none;
-}
-/* Thêm border phải cho các cột không phải cuối cùng */
-.header-cell-custom:not(:last-child) {
-    border-right: 1px solid #e2e8f0; /* cool-gray-200 */
-}
-
-
-/* --- STYLING CHO DATA CELL --- */
-.data-cell-custom {
-  padding: 0.75rem 1rem; /* py-3 px-4 */
-  background-color: white;
-  font-size: 0.875rem; /* text-sm */
-  color: #475569; /* cool-gray-600 */
-  vertical-align: middle; /* Căn giữa theo chiều dọc */
-  text-align: center; /* Mặc định căn giữa cho ô dữ liệu */
-  border-bottom: 1px solid #e2e8f0; /* cool-gray-200, đường kẻ dưới cho mỗi hàng */
-}
-/* Loại bỏ border phải cho cột cuối cùng của data cell */
-/* Class để căn trái cho các ô dữ liệu cụ thể */
-.data-cell-custom.align-left {
-  text-align: left;
-}
-.data-cell-custom:last-child {
-    border-right: none;
-}
-/* Thêm border phải cho các data cell không phải cuối cùng */
-.data-cell-custom:not(:last-child) {
-    border-right: 1px solid #e2e8f0; /* cool-gray-200 */
-}
-
-
-/* Hiệu ứng hover cho hàng */
-.table-row-custom:hover .data-cell-custom {
-  background-color: #f1f5f9; /* cool-gray-100, màu nền khi hover */
-}
-/* Đảm bảo màu nền của cột sticky không bị ảnh hưởng bởi hover của row */
-.table-row-custom:hover .sticky-col-1-data,
-.table-row-custom:hover .sticky-col-2-data,
-.table-row-custom:hover .sticky-col-last-data,
-.table-row-custom:hover .sticky-data {
-  /* Giữ nguyên màu nền của cột sticky hoặc đặt một màu hover riêng nếu muốn */
-   background-color: #f8fafc; /* cool-gray-50, hoặc màu bạn muốn cho sticky khi hover */
-}
-
-
-/* --- STICKY COLUMN STYLING --- */
-/* Cột STT (cột đầu tiên) */
-.sticky-col-1-header {
-  position: sticky;
-  left: 0;
-  z-index: 40 !important;
-  background-color: var(--primary-hover); /* Màu xanh đậm hơn một chút cho sticky header */
-}
-.sticky-col-1-data {
-  position: sticky;
-  left: 0;
-  z-index: 20 !important;
-  background-color: #f8fafc; /* cool-gray-50, nền sáng hơn cho sticky data */
-}
-
-/* Cột Tên công trình (cột thứ hai, nếu sticky) */
-.sticky-col-2-header {
-  position: sticky;
-  /* left: được xác định bởi style inline từ config */
-  z-index: 30 !important;
-  background-color: var(--primary-hover); /* Màu xanh đậm hơn một chút */
-}
-.sticky-col-2-data {
-  position: sticky;
-  /* left: được xác định bởi style inline từ config */
-  z-index: 20 !important;
-  background-color: #f8fafc; /* cool-gray-50 */
-}
-
-/* Cột Hành động (cột cuối cùng) */
-.sticky-col-last-header {
-  position: sticky;
-  right: 0;
-  z-index: 40 !important;
-  background-color: var(--primary-hover); /* Màu xanh đậm hơn một chút */
-  /* border-left: 1px solid #cbd5e1; /* cool-gray-300 */
-}
-.sticky-col-last-data {
-  position: sticky;
-  right: 0;
-  z-index: 20 !important;
-  background-color: #f8fafc; /* cool-gray-50 */
-  /* border-left: 1px solid #e2e8f0; /* cool-gray-200 */
-}
-
-/* Class chung cho các header cell sticky (nếu có thêm cột sticky ở giữa) */
-.sticky-header {
-  position: sticky;
-  top: 0;
-  background-color: var(--primary-hover); /* Màu xanh đậm hơn một chút */
-  z-index: 15;
-}
-
-/* Class chung cho các data cell sticky (nếu có thêm cột sticky ở giữa) */
-.sticky-data {
-  position: sticky;
-  background-color: #f8fafc; /* cool-gray-50, hoặc màu data cell chính */
-  z-index: 5;
-}
-
-
-/* --- CELL CHANGED INDICATION --- */
-.cell-changed {
-  /* background-color: #fef9c3 !important; /* yellow-100, !important để ghi đè hover */
-  /* box-shadow: inset 2px 0 0 #facc15; /* yellow-400, đường kẻ trái */
-}
-.cell-changed .cell-changed-value {
-  font-weight: 600; /* semibold */
-  color: #ca8a04; /* yellow-600 */
-}
-.cell-changed .cell-changed-original-value {
-  display: block;
-  font-size: 0.7rem;
-  color: #71717a; /* zinc-500 */
-  margin-top: 2px;
-  font-style: italic;
-}
-
-/* --- PAGINATION --- */
-.pagination-controls {
-  /* Thêm style cho pagination nếu cần */
-}
-.pagination-controls button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Trong index.css hoặc file CSS toàn cục của bạn */
-.cell-changed {
-  background-color: #fef3c7 !important; /* Tailwind amber-100 hoặc một màu bạn thích */
-}
-.cell-changed .cell-changed-value {
-  font-weight: 600;
-  color: #b45309; /* Tailwind amber-700 */
-}
-.cell-changed .cell-changed-original-value {
-  display: block;
-  font-size: 0.75rem;
-  color: #78716c; /* Tailwind stone-500 */
-  margin-top: 0.125rem;
-  font-style: italic;
-  text-decoration: line-through;
-}
-
-/* Thêm vào file CSS của bạn (ví dụ: src/index.css) */
-.cell-changed-value {
-  /* Tailwind đã có font-semibold, bạn có thể thêm màu nếu muốn */
-  /* color: #your_new_value_color; */
-}
-
-.cell-changed-original-value {
-  /* Tailwind đã có text-xs, text-gray-500, italic, mt-0.5, block */
-}
-
-/* Áp dụng cho thẻ <td> nếu có thay đổi để làm nổi bật nền */
-.data-cell-custom.cell-changed {
-  background-color: #fef3c7; /* Tailwind: bg-amber-100 - một màu vàng nhạt hơn */
-  /* Hoặc bạn có thể dùng một màu khác:
-     background-color: #fef9c3; /* Tailwind: bg-yellow-100 */
-  /*   background-color: #ecfdf5; /* Tailwind: bg-emerald-50 */
-  /* */
-}
-
-/* CSS cho table sticky header và column (nếu chưa có hoặc cần điều chỉnh) */
-.table-container-custom {
-  overflow-x: auto;
-  max-height: 70vh; /* Hoặc một giá trị phù hợp */
-  border: 1px solid #e5e7eb; /* Tailwind: border-gray-200 */
-  border-radius: 0.5rem; /* Tailwind: rounded-lg */
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Tailwind: shadow-md */
-}
-
-.generic-table {
-  border-collapse: separate; /* Quan trọng cho sticky header/column với border */
-  border-spacing: 0;
-  /* table-layout: fixed; */ /* Cân nhắc dùng 'fixed' nếu muốn độ rộng cột được tôn trọng tuyệt đối */
-}
-
-.header-cell-custom {
-  background-color: #1d4ed8; /* Tailwind: bg-blue-700 - Darker blue */
-  color: #ffffff; /* Tailwind: text-white - White text */
-  font-weight: 600; /* Tailwind: font-semibold */
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 2px solid #e5e7eb; /* Tailwind: border-gray-200 */
-  border-right: 1px solid #e5e7eb;
-  padding: 0.75rem 1rem; /* Tailwind: py-3 px-4 */
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-.header-cell-custom:last-child {
-  border-right: none;
-}
-
-.data-cell-custom {
-  border-bottom: 1px solid #e5e7eb; /* Tailwind: border-gray-200 */
-  border-right: 1px solid #e5e7eb;
-  padding: 0.75rem 1rem; /* Tailwind: py-3 px-4 */
-  background-color: white; /* Nền trắng cho các ô dữ liệu */
-}
-.data-cell-custom:last-child {
-  border-right: none;
-}
-
-.table-row-custom:last-child .data-cell-custom {
-  border-bottom: none;
-}
-
-.sticky-col-1-header, .sticky-col-1-data {
-  position: sticky;
-  left: 0;
-  z-index: 5; /* Thấp hơn header chính */
-}
-.sticky-col-1-header { z-index: 15 !important; } /* Cao hơn header thường, thấp hơn header của action */
-.sticky-col-1-data { background-color: white; } /* Đảm bảo nền cho sticky column */
-
-
-.sticky-col-2-header, .sticky-col-2-data {
-  position: sticky;
-  /* left: 50px; /* Điều chỉnh dựa trên độ rộng của cột STT */
-  z-index: 4;
-}
-.sticky-col-2-header { z-index: 14 !important; }
-.sticky-col-2-data { background-color: white; }
-
-
-.sticky-col-last-header, .sticky-col-last-data {
-  position: sticky;
-  right: 0;
-  z-index: 5;
-}
-.sticky-col-last-header { z-index: 15 !important; }
-.sticky-col-last-data { background-color: white; }
-
-/* Đảm bảo các header sticky có nền che phủ */
-.sticky-col-1-header, .sticky-col-2-header, .sticky-col-last-header {
-  background-color: #1d4ed8; /* Tailwind: bg-blue-700 - Synchronize with normal header */
-}
-
-.align-left {
-  text-align: left !important;
-}
-.break-words {
-  word-break: break-word;
-  white-space: normal; /* Cho phép xuống dòng */
-}
+*/
