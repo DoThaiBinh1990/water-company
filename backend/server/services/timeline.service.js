@@ -458,15 +458,8 @@ const getProjectsForTimelineAssignment = async (queryParams) => {
   if (timelineType === 'profile' && objectType === 'category') {
     Model = CategoryProject;
     if (estimatorId && mongoose.Types.ObjectId.isValid(estimatorId)) {
-      const validEstimatorId = new mongoose.Types.ObjectId(estimatorId);
-      // Lấy công trình đã gán cho estimatorId này (bất kể manual hay auto)
-      // HOẶC chưa gán cho ai (estimator là null/không tồn tại hoặc profileTimeline chưa có)
-      query.$or = [
-        { 'profileTimeline.estimator': validEstimatorId },
-        { profileTimeline: { $exists: false } },
-        { 'profileTimeline.estimator': { $exists: false } },
-        { 'profileTimeline.estimator': null }
-      ];
+      // Chỉ lấy các công trình đã được phân công cho estimatorId này.
+      query['profileTimeline.estimator'] = new mongoose.Types.ObjectId(estimatorId);
     } else if (estimatorId === 'unassigned') {
       // Lấy các công trình chưa có profileTimeline hoặc estimator là null/không tồn tại
       query.$or = [
@@ -481,15 +474,8 @@ const getProjectsForTimelineAssignment = async (queryParams) => {
   } else if (timelineType === 'construction') {
     Model = objectType === 'category' ? CategoryProject : MinorRepairProject;
     if (constructionUnitName && constructionUnitName !== 'unassigned') {
-      // Lấy công trình đã gán cho constructionUnitName này (bất kể manual hay auto)
-      // HOẶC chưa gán cho đơn vị nào
-      query.$or = [
-        { 'constructionTimeline.constructionUnit': constructionUnitName },
-        { constructionTimeline: { $exists: false } },
-        { 'constructionTimeline.constructionUnit': { $exists: false } },
-        { 'constructionTimeline.constructionUnit': null },
-        { 'constructionTimeline.constructionUnit': '' }
-      ];
+      // Chỉ lấy các công trình đã được phân công cho constructionUnitName này.
+      query['constructionTimeline.constructionUnit'] = constructionUnitName;
     } else if (constructionUnitName === 'unassigned') {
         // Lấy các công trình chưa có constructionTimeline hoặc constructionUnit là null/rỗng/không tồn tại
         query.$or = [

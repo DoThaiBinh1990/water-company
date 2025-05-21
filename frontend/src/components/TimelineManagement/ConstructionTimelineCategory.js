@@ -126,16 +126,18 @@ const ConstructionTimelineCategory = ({ user, addMessage }) => {
       {!isLoading && (
         <div className="bg-white p-1 rounded-xl shadow-xl border border-gray-200">
           <TimelineGanttChart
-            key={`${financialYear}-${selectedConstructionUnit}`}
+            // key={`${financialYear}-${selectedConstructionUnit}`} // Đã xóa key ở đây
             tasks={timelineTasks}
             viewMode="Week"
             onTaskClick={handleTaskClick}
             onDateChange={handleDateChange}
             onProgressChange={handleProgressChange}
             timelineType="construction"
+            holidays={holidaysForModal} // Pass holidays
           />
         </div>
       )}
+
     </div>
   );
 };

@@ -84,6 +84,12 @@ export const useTimelineData = ({ user, timelineType, objectType, initialYear, f
   // Hàm xử lý onDateChange từ Gantt chart
   const handleDateChange = useCallback((taskId, newStartDate, newEndDate) => {
       // newStartDate và newEndDate là Date objects từ frappe-gantt
+      // taskId ở đây thực chất là taskGantt._originalTask từ TimelineGanttChart
+      const projectId = taskId?._id || taskId?.id; // Lấy ID từ object công trình gốc
+      if (!projectId) {
+          toast.error('Lỗi: Không tìm thấy ID công trình để cập nhật ngày tháng.', { position: "top-center" });
+          return;
+      }
       const updateData = {
           startDate: newStartDate.toISOString().split('T')[0],
           endDate: newEndDate.toISOString().split('T')[0],
@@ -91,13 +97,18 @@ export const useTimelineData = ({ user, timelineType, objectType, initialYear, f
       };
       // console.log(`[TimelineLogic] handleDateChange called for task ${taskId}`, updateData);
       if (timelineType === 'profile') updateProfileTimelineTaskMutation.mutate({ projectId: taskId, updateData });
-      else if (timelineType === 'construction') updateConstructionTimelineTaskMutation.mutate({ projectId: taskId, type: objectType, updateData });
+      else if (timelineType === 'construction') updateConstructionTimelineTaskMutation.mutate({ projectId, type: objectType, updateData });
   }, [timelineType, objectType, updateProfileTimelineTaskMutation, updateConstructionTimelineTaskMutation]);
 
   // Hàm xử lý onProgressChange từ Gantt chart
   const handleProgressChange = useCallback((taskId, newProgress) => {
       const updateData = {
           progress: parseInt(newProgress, 10) || 0, // Đảm bảo progress là số
+      };
+      // taskId ở đây thực chất là taskGantt._originalTask từ TimelineGanttChart
+      const projectId = taskId?._id || taskId?.id; // Lấy ID từ object công trình gốc
+      if (!projectId) {
+          toast.error('Lỗi: Không tìm thấy ID công trình để cập nhật tiến độ.', { position: "top-center" });
       };
       // console.log(`[TimelineLogic] handleProgressChange called for task ${taskId}`, updateData);
       if (timelineType === 'profile') updateProfileTimelineTaskMutation.mutate({ projectId: taskId, updateData });

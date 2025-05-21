@@ -4,8 +4,8 @@ import { useTimelineData } from './TimelineLogic';
 import TimelineGanttChart from './TimelineGanttChart';
 import TimelineAssignmentModal from './TimelineAssignmentModal'; // Import modal
 import { FaUserTie, FaCalendarPlus } from 'react-icons/fa'; // Thêm icon
-import { toast } from 'react-toastify'; // Thêm import toast
-import { useQuery, useQueryClient } from '@tanstack/react-query'; // Thêm useQueryClient
+import { toast } from 'react-toastify';
+import { useQuery } from '@tanstack/react-query';
 import { getUsers, getHolidaysForYearAPI } from '../../apiService';
 
 const ProfileTimelineCategory = ({ user, addMessage }) => {
@@ -134,16 +134,18 @@ const ProfileTimelineCategory = ({ user, addMessage }) => {
       {!isLoading && (
     <div className="bg-white p-1 rounded-xl shadow-xl border border-gray-200">
           <TimelineGanttChart
-            key={`${financialYear}-${selectedEstimator}`} // Key nên bao gồm cả filter để re-render khi filter thay đổi
+            // key={`${financialYear}-${selectedEstimator}`} // Đã xóa key ở đây
             tasks={timelineTasks}
             viewMode="Week"
             onTaskClick={handleTaskClick}
             onDateChange={handleDateChange}
             onProgressChange={handleProgressChange}
             timelineType="profile" // Truyền timelineType xuống
+            holidays={holidaysForModal} // Pass holidays
           />
         </div>
       )}
+
     </div>
   );
 };

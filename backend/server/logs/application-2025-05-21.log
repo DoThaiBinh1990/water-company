@@ -680,3 +680,237 @@
 2025-05-21 17:04:17 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
 2025-05-21 17:04:24 info: Người dùng đã ngắt kết nối: qngjYDN16QhatX23AAAH
 2025-05-21 17:04:24 info: Người dùng đã ngắt kết nối: OXvkielPIL_9SusGAAAF
+2025-05-21 17:55:03 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 17:55:04 info: MongoDB đã kết nối thành công.
+2025-05-21 17:55:29 info: Một người dùng đã kết nối: FuqbkbxyP6SMVNyDAAAB
+2025-05-21 17:55:29 info: Một người dùng đã kết nối: ufwed-vH2QCEc90BAAAD
+2025-05-21 17:55:36 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 17:55:36 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 17:57:07 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-21 17:57:07 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 17:57:07 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 17:57:07 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 17:57:07 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 17:57:20 info: Người dùng đã ngắt kết nối: FuqbkbxyP6SMVNyDAAAB
+2025-05-21 17:57:20 info: Người dùng đã ngắt kết nối: ufwed-vH2QCEc90BAAAD
+2025-05-21 17:57:21 info: Một người dùng đã kết nối: 4WQfp5MEsaSid0-NAAAF
+2025-05-21 17:57:21 info: Một người dùng đã kết nối: zt71XSFP3V7OmoGsAAAH
+2025-05-21 17:57:24 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 17:57:24 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 18:41:40 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 18:41:41 info: Một người dùng đã kết nối: zPF7f0U3k4kPY3z4AAAB
+2025-05-21 18:41:41 info: Một người dùng đã kết nối: qKOfvuLaSTgSELD9AAAD
+2025-05-21 18:41:41 info: MongoDB đã kết nối thành công.
+2025-05-21 18:41:44 info: Người dùng đã ngắt kết nối: zPF7f0U3k4kPY3z4AAAB
+2025-05-21 18:41:44 info: Người dùng đã ngắt kết nối: qKOfvuLaSTgSELD9AAAD
+2025-05-21 18:41:44 info: Một người dùng đã kết nối: tXk3PPpAGXZ5aXcHAAAF
+2025-05-21 18:41:45 info: Một người dùng đã kết nối: PopjdcjGIc9dk7rBAAAH
+2025-05-21 18:41:50 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 18:41:50 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 18:41:54 info: Người dùng đã ngắt kết nối: tXk3PPpAGXZ5aXcHAAAF
+2025-05-21 18:41:54 info: Người dùng đã ngắt kết nối: PopjdcjGIc9dk7rBAAAH
+2025-05-21 18:41:55 info: Một người dùng đã kết nối: MUZtaAzy8yzjzKMlAAAJ
+2025-05-21 18:41:55 info: Một người dùng đã kết nối: 82MPev39bMX53U1oAAAL
+2025-05-21 18:46:35 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 18:46:35 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 19:00:49 info: Một người dùng đã kết nối: b3yXAtp7QF3RJqmiAAAN
+2025-05-21 19:00:49 info: Một người dùng đã kết nối: sErbku6YJZdTd7FjAAAP
+2025-05-21 19:02:38 error: Lỗi API duyệt công trình: Không có yêu cầu nào đang chờ xử lý cho công trình này.
+2025-05-21 19:02:38 error: Lỗi không xác định: Không có yêu cầu nào đang chờ xử lý cho công trình này.
+2025-05-21 19:03:01 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 19:03:01 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 19:05:55 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 19:05:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 19:15:55 info: Batch update profile timeline result for estimator 6824441608ab772b765f4d88, year 2025:
+2025-05-21 19:15:55 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 19:15:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 19:15:55 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 19:15:55 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 19:16:03 info: Người dùng đã ngắt kết nối: MUZtaAzy8yzjzKMlAAAJ
+2025-05-21 19:16:03 info: Người dùng đã ngắt kết nối: 82MPev39bMX53U1oAAAL
+2025-05-21 19:16:03 info: Một người dùng đã kết nối: RgrYwfXjkiPFwyX0AAAR
+2025-05-21 19:16:04 info: Một người dùng đã kết nối: Iy4uXizLWOAM7XLeAAAT
+2025-05-21 19:16:09 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 19:16:09 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 19:35:14 info: Người dùng đã ngắt kết nối: RgrYwfXjkiPFwyX0AAAR
+2025-05-21 19:35:23 info: Một người dùng đã kết nối: lwQf5BCcA2klvB_MAAAV
+2025-05-21 19:38:46 info: Người dùng đã ngắt kết nối: Iy4uXizLWOAM7XLeAAAT
+2025-05-21 19:38:46 info: Người dùng đã ngắt kết nối: lwQf5BCcA2klvB_MAAAV
+2025-05-21 19:38:46 info: Một người dùng đã kết nối: _pj3p8-7FMotZPCiAAAX
+2025-05-21 19:38:46 info: Một người dùng đã kết nối: _dn2jYvVpwTzLkr4AAAZ
+2025-05-21 19:41:49 info: Batch update profile timeline result for estimator 682dc129d251bb6a04b6776a, year 2025:
+2025-05-21 19:43:01 info: Batch update profile timeline result for estimator 6824441608ab772b765f4d88, year 2025:
+2025-05-21 19:53:12 info: Người dùng đã ngắt kết nối: _pj3p8-7FMotZPCiAAAX
+2025-05-21 19:53:12 info: Người dùng đã ngắt kết nối: _dn2jYvVpwTzLkr4AAAZ
+2025-05-21 19:53:12 info: Một người dùng đã kết nối: CutVF4Hi-Wlw9RTvAAAb
+2025-05-21 19:53:12 info: Một người dùng đã kết nối: YnEtgkYqnWEMMZmsAAAd
+2025-05-21 20:29:17 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 20:29:17 info: Một người dùng đã kết nối: GU8z_Ppe8Dfelp04AAAB
+2025-05-21 20:29:17 info: Một người dùng đã kết nối: 52LZ5dZPyueb6yRzAAAD
+2025-05-21 20:29:17 info: Một người dùng đã kết nối: 25E2_Xga8tv3IqGLAAAF
+2025-05-21 20:29:18 info: Một người dùng đã kết nối: rBXQmn3TTl9fD2WqAAAH
+2025-05-21 20:29:18 info: MongoDB đã kết nối thành công.
+2025-05-21 20:29:30 info: Người dùng đã ngắt kết nối: 25E2_Xga8tv3IqGLAAAF
+2025-05-21 20:29:30 info: Người dùng đã ngắt kết nối: rBXQmn3TTl9fD2WqAAAH
+2025-05-21 20:29:30 info: Một người dùng đã kết nối: 5pEylFk4DNM2vH9WAAAJ
+2025-05-21 20:29:31 info: Một người dùng đã kết nối: _cM7noR5abggpYOvAAAL
+2025-05-21 20:29:31 info: Người dùng đã ngắt kết nối: GU8z_Ppe8Dfelp04AAAB
+2025-05-21 20:29:31 info: Người dùng đã ngắt kết nối: 52LZ5dZPyueb6yRzAAAD
+2025-05-21 20:30:42 info: Người dùng đã ngắt kết nối: 5pEylFk4DNM2vH9WAAAJ
+2025-05-21 20:30:42 info: Người dùng đã ngắt kết nối: _cM7noR5abggpYOvAAAL
+2025-05-21 20:30:42 info: Một người dùng đã kết nối: r5VwXOXG_tSwgn0nAAAN
+2025-05-21 20:30:42 info: Một người dùng đã kết nối: tBC85Xvi3HYGNczCAAAP
+2025-05-21 20:35:40 info: Người dùng đã ngắt kết nối: r5VwXOXG_tSwgn0nAAAN
+2025-05-21 20:35:40 info: Người dùng đã ngắt kết nối: tBC85Xvi3HYGNczCAAAP
+2025-05-21 20:35:40 info: Một người dùng đã kết nối: 9RcAYVpaU64su672AAAR
+2025-05-21 20:35:40 info: Một người dùng đã kết nối: 0ByDqC-Pnf_bJ87iAAAT
+2025-05-21 20:38:13 info: Người dùng đã ngắt kết nối: 9RcAYVpaU64su672AAAR
+2025-05-21 20:38:13 info: Người dùng đã ngắt kết nối: 0ByDqC-Pnf_bJ87iAAAT
+2025-05-21 20:38:13 info: Một người dùng đã kết nối: Hx0KYCLNb6d2MXc3AAAV
+2025-05-21 20:38:13 info: Một người dùng đã kết nối: TELFhWWgC1VzYgBSAAAX
+2025-05-21 20:43:52 info: Một người dùng đã kết nối: wyDa1Yu_L1S6OckXAAAZ
+2025-05-21 20:43:52 info: Một người dùng đã kết nối: Ox5CVh-vWol25W5tAAAb
+2025-05-21 20:43:53 info: Người dùng đã ngắt kết nối: Hx0KYCLNb6d2MXc3AAAV
+2025-05-21 20:43:53 info: Người dùng đã ngắt kết nối: TELFhWWgC1VzYgBSAAAX
+2025-05-21 20:46:20 info: Người dùng đã ngắt kết nối: wyDa1Yu_L1S6OckXAAAZ
+2025-05-21 20:46:20 info: Người dùng đã ngắt kết nối: Ox5CVh-vWol25W5tAAAb
+2025-05-21 20:46:21 info: Một người dùng đã kết nối: 8PaljSOTEODtaQW3AAAd
+2025-05-21 20:46:21 info: Một người dùng đã kết nối: XK1wnRzM8GYnx63rAAAf
+2025-05-21 20:49:56 info: Người dùng đã ngắt kết nối: 8PaljSOTEODtaQW3AAAd
+2025-05-21 20:49:56 info: Người dùng đã ngắt kết nối: XK1wnRzM8GYnx63rAAAf
+2025-05-21 20:49:56 info: Một người dùng đã kết nối: rQewfqwcxlA7IVXjAAAh
+2025-05-21 20:49:56 info: Một người dùng đã kết nối: yHubAOEIXPcY8LoUAAAj
+2025-05-21 20:51:29 info: Người dùng đã ngắt kết nối: rQewfqwcxlA7IVXjAAAh
+2025-05-21 20:51:29 info: Người dùng đã ngắt kết nối: yHubAOEIXPcY8LoUAAAj
+2025-05-21 20:51:29 info: Một người dùng đã kết nối: Khi7hVfj-7BzAIkOAAAl
+2025-05-21 20:51:29 info: Một người dùng đã kết nối: f3kT0HuC6iMVRiykAAAn
+2025-05-21 20:51:32 info: Người dùng đã ngắt kết nối: Khi7hVfj-7BzAIkOAAAl
+2025-05-21 20:51:32 info: Người dùng đã ngắt kết nối: f3kT0HuC6iMVRiykAAAn
+2025-05-21 20:51:32 info: Một người dùng đã kết nối: wBY40iNsNgPvrV03AAAp
+2025-05-21 20:51:32 info: Một người dùng đã kết nối: cbR9k95ayqQSI82GAAAr
+2025-05-21 21:13:43 info: Người dùng đã ngắt kết nối: wBY40iNsNgPvrV03AAAp
+2025-05-21 21:13:43 info: Người dùng đã ngắt kết nối: cbR9k95ayqQSI82GAAAr
+2025-05-21 21:13:43 info: Một người dùng đã kết nối: 1DgePnHmPnYxqQVaAAAt
+2025-05-21 21:13:43 info: Một người dùng đã kết nối: TZh6uU6-Gx4yLb56AAAv
+2025-05-21 21:14:56 info: Người dùng đã ngắt kết nối: 1DgePnHmPnYxqQVaAAAt
+2025-05-21 21:14:56 info: Người dùng đã ngắt kết nối: TZh6uU6-Gx4yLb56AAAv
+2025-05-21 21:14:57 info: Một người dùng đã kết nối: 5b7eTzQCTCp7VaGAAAAx
+2025-05-21 21:14:57 info: Một người dùng đã kết nối: zCUPpvU7huw8LEFpAAAz
+2025-05-21 21:15:28 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:15:28 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:06 info: Người dùng đã ngắt kết nối: 5b7eTzQCTCp7VaGAAAAx
+2025-05-21 21:16:06 info: Người dùng đã ngắt kết nối: zCUPpvU7huw8LEFpAAAz
+2025-05-21 21:16:06 info: Một người dùng đã kết nối: i4z5fY_a_20UuBLyAAA1
+2025-05-21 21:16:06 info: Một người dùng đã kết nối: ferj6mnzAqeE5g1sAAA3
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:55 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi Controller cập nhật một task Timeline Hồ sơ: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:16:56 error: Lỗi không xác định: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "CategoryProject"
+2025-05-21 21:19:41 info: Người dùng đã ngắt kết nối: i4z5fY_a_20UuBLyAAA1
+2025-05-21 21:19:41 info: Người dùng đã ngắt kết nối: ferj6mnzAqeE5g1sAAA3
+2025-05-21 21:19:42 info: Một người dùng đã kết nối: Ztdx-Jd5GFbWQffxAAA5
+2025-05-21 21:19:42 info: Một người dùng đã kết nối: A6LeS1CoMNbNnPuoAAA7
+2025-05-21 21:26:18 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 21:26:18 info: Một người dùng đã kết nối: lbOj-X04bawUNotfAAAB
+2025-05-21 21:26:18 info: Một người dùng đã kết nối: Chao1voAi0E5QQivAAAD
+2025-05-21 21:26:19 info: MongoDB đã kết nối thành công.
+2025-05-21 21:26:37 info: Người dùng đã ngắt kết nối: lbOj-X04bawUNotfAAAB
+2025-05-21 21:26:37 info: Người dùng đã ngắt kết nối: Chao1voAi0E5QQivAAAD
+2025-05-21 21:27:38 info: Một người dùng đã kết nối: NeZstSyvY36cYcKPAAAF
+2025-05-21 21:27:38 info: Một người dùng đã kết nối: BYEHy99xVLuRv9dHAAAH
+2025-05-21 21:37:09 info: Người dùng đã ngắt kết nối: NeZstSyvY36cYcKPAAAF
+2025-05-21 21:37:09 info: Người dùng đã ngắt kết nối: BYEHy99xVLuRv9dHAAAH
+2025-05-21 21:37:09 info: Một người dùng đã kết nối: IwHcg2Hv_NDyfEOWAAAJ
+2025-05-21 21:37:09 info: Một người dùng đã kết nối: sr9JMZGpTIE9gvEaAAAL
+2025-05-21 21:37:37 info: Người dùng đã ngắt kết nối: IwHcg2Hv_NDyfEOWAAAJ
+2025-05-21 21:37:37 info: Người dùng đã ngắt kết nối: sr9JMZGpTIE9gvEaAAAL
+2025-05-21 21:37:37 info: Một người dùng đã kết nối: qpR7_nenITOnIIrjAAAN
+2025-05-21 21:37:37 info: Một người dùng đã kết nối: xMaAVLWjdO3cX4noAAAP
+2025-05-21 21:37:49 info: Người dùng đã ngắt kết nối: qpR7_nenITOnIIrjAAAN
+2025-05-21 21:37:49 info: Người dùng đã ngắt kết nối: xMaAVLWjdO3cX4noAAAP
+2025-05-21 21:37:49 info: Một người dùng đã kết nối: 57f4fG95ZqM-7c9aAAAR
+2025-05-21 21:37:49 info: Một người dùng đã kết nối: UGDts2Mn_AR6SjCHAAAT
+2025-05-21 21:38:41 info: Người dùng đã ngắt kết nối: 57f4fG95ZqM-7c9aAAAR
+2025-05-21 21:38:41 info: Người dùng đã ngắt kết nối: UGDts2Mn_AR6SjCHAAAT
+2025-05-21 21:38:41 info: Một người dùng đã kết nối: AY6teY-7zUtO_dn4AAAV
+2025-05-21 21:38:41 info: Một người dùng đã kết nối: bfj1I4KBYmabBNiLAAAX
+2025-05-21 21:39:11 info: Người dùng đã ngắt kết nối: AY6teY-7zUtO_dn4AAAV
+2025-05-21 21:39:11 info: Người dùng đã ngắt kết nối: bfj1I4KBYmabBNiLAAAX
+2025-05-21 21:39:11 info: Một người dùng đã kết nối: _5qqhGkhvzJ0baSgAAAZ
+2025-05-21 21:39:11 info: Một người dùng đã kết nối: kLznmMyus8ZM5E7nAAAb
+2025-05-21 21:39:55 info: Người dùng đã ngắt kết nối: _5qqhGkhvzJ0baSgAAAZ
+2025-05-21 21:39:55 info: Người dùng đã ngắt kết nối: kLznmMyus8ZM5E7nAAAb
+2025-05-21 21:39:55 info: Một người dùng đã kết nối: -KvxkKRtn1XlcqZxAAAd
+2025-05-21 21:39:55 info: Một người dùng đã kết nối: OsWH8AVCmKxPzkVrAAAf
+2025-05-21 21:43:38 info: Người dùng đã ngắt kết nối: -KvxkKRtn1XlcqZxAAAd
+2025-05-21 21:43:38 info: Người dùng đã ngắt kết nối: OsWH8AVCmKxPzkVrAAAf
+2025-05-21 21:43:39 info: Một người dùng đã kết nối: qlBP0zCrCzcy-eOLAAAh
+2025-05-21 21:43:39 info: Một người dùng đã kết nối: Xjm2qfuHp8iKEHa9AAAj
+2025-05-21 21:58:13 info: Người dùng đã ngắt kết nối: qlBP0zCrCzcy-eOLAAAh
+2025-05-21 21:58:13 info: Người dùng đã ngắt kết nối: Xjm2qfuHp8iKEHa9AAAj
+2025-05-21 21:58:13 info: Một người dùng đã kết nối: RqYUCzXSAjLLDCLXAAAl
+2025-05-21 21:58:13 info: Một người dùng đã kết nối: tm_gRqseehBO0Q0xAAAn
+2025-05-21 21:58:41 info: Người dùng đã ngắt kết nối: RqYUCzXSAjLLDCLXAAAl
+2025-05-21 21:58:41 info: Người dùng đã ngắt kết nối: tm_gRqseehBO0Q0xAAAn
+2025-05-21 21:58:41 info: Một người dùng đã kết nối: qwqeoD04QhEFNzDGAAAp
+2025-05-21 21:58:41 info: Một người dùng đã kết nối: gA0XSz5tymbatkBfAAAr
+2025-05-21 22:02:58 info: Người dùng đã ngắt kết nối: qwqeoD04QhEFNzDGAAAp
+2025-05-21 22:02:58 info: Người dùng đã ngắt kết nối: gA0XSz5tymbatkBfAAAr
+2025-05-21 22:02:59 info: Một người dùng đã kết nối: JYqF2ZDAhUuef_FTAAAt
+2025-05-21 22:02:59 info: Một người dùng đã kết nối: vEKnuiPUWrUaOV3zAAAv
+2025-05-21 22:05:11 info: Người dùng đã ngắt kết nối: JYqF2ZDAhUuef_FTAAAt
+2025-05-21 22:05:11 info: Người dùng đã ngắt kết nối: vEKnuiPUWrUaOV3zAAAv
+2025-05-21 22:05:11 info: Một người dùng đã kết nối: 1qTVe8ddlC-kxvVzAAAx
+2025-05-21 22:05:11 info: Một người dùng đã kết nối: imgmHm-nhAyEOnbmAAAz

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import logo from '../assets/logo.png'; // Import logo
 import { loginUser, apiClient } from '../apiService';
 
 function Login({ setUser, initializeAuth }) {
@@ -42,11 +43,14 @@ function Login({ setUser, initializeAuth }) {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="animate-fadeIn bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4">
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-3xl font-bold">WC</span>
-          </div>
+          {/* Thay thế div chữ WC bằng logo */}
+          <img
+            src={logo}
+            alt="LAWASUCO Logo"
+            className="w-24 h-24 object-contain" // Điều chỉnh kích thước nếu cần
+          />
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Water Company</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Công ty cổ phần cấp nước tỉnh Lào Cai</h1>
         <p className="text-gray-600 mb-8 text-center">Hệ thống quản lý công trình</p>
         {loginMutation.isError && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
