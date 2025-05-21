@@ -32,21 +32,32 @@ const commonFields = {
       };
       // formatDateToLocale sẽ được truyền vào GenericTable và sử dụng ở đó
       const currentDisplay = getUserDisplay(cellData.displayValue);
+      const isCurrentNA = currentDisplay === 'N/A';
 
       if (cellData.isChanged) {
         const originalDisplay = getUserDisplay(cellData.originalValue);
+        const isOriginalNA = originalDisplay === 'N/A';
         return (
           <>
-            <span className="cell-changed-value font-semibold">{currentDisplay}</span>
+            {isCurrentNA ? (
+              <span className="text-gray-400 italic text-xs">{currentDisplay}</span>
+            ) : (
+              <span className="cell-changed-value font-semibold">{currentDisplay}</span>
+            )}
             {cellData.originalValue !== undefined && (
-              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
-                (Cũ: {originalDisplay})
-              </span>
+               isOriginalNA ? (
+                <span className="cell-changed-original-value block text-xs text-gray-400 mt-0.5 italic">(Cũ: {originalDisplay})</span>
+               ) : (
+                <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">(Cũ: {originalDisplay})</span>
+               )
             )}
           </>
         );
       }
-      return currentDisplay;
+      if (isCurrentNA) {
+        return <span className="text-gray-400 italic text-xs">{currentDisplay}</span>;
+      }
+      return currentDisplay; // Return plain if not N/A and not changed
     }
   },
   leadershipApproval: { header: 'Bút phê LĐ', field: 'leadershipApproval', width: '250px', minWidth: '200px', align: 'left', className: 'align-left break-words' },
@@ -283,21 +294,32 @@ const commonFields = {
       };
 
       const currentDisplay = getUserDisplay(cellData.displayValue);
+      const isCurrentNA = currentDisplay === 'N/A';
 
       if (cellData.isChanged) {
         const originalDisplay = getUserDisplay(cellData.originalValue);
+        const isOriginalNA = originalDisplay === 'N/A';
         return (
           <>
-            <span className="cell-changed-value font-semibold">{currentDisplay}</span>
+            {isCurrentNA ? (
+              <span className="text-gray-400 italic text-xs">{currentDisplay}</span>
+            ) : (
+              <span className="cell-changed-value font-semibold">{currentDisplay}</span>
+            )}
             {cellData.originalValue !== undefined && (
-              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
-                (Cũ: {originalDisplay})
-              </span>
+               isOriginalNA ? (
+                <span className="cell-changed-original-value block text-xs text-gray-400 mt-0.5 italic">(Cũ: {originalDisplay})</span>
+               ) : (
+                <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">(Cũ: {originalDisplay})</span>
+               )
             )}
           </>
         );
       }
-      return currentDisplay;
+      if (isCurrentNA) {
+        return <span className="text-gray-400 italic text-xs">{currentDisplay}</span>;
+      }
+      return currentDisplay; // Return plain if not N/A and not changed
     }
   },
   startDate: { header: 'Ngày BĐ', field: 'startDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' }, // format: 'date' sẽ được GenericTable xử lý

@@ -26,81 +26,126 @@ const TimelineAssignmentModal = ({
 
   useEffect(() => {
     if (projectsToAssign && projectsToAssign.length > 0) {
-      setAssignments(
-        projectsToAssign.map((p, index) => {
-          let initialAssignmentType = 'auto';
-          let initialStartDate = '';
-          let initialDurationDays = '';
-          let initialEndDate = '';
+      const initialAssignments = projectsToAssign.map((p, index) => {
+        const timelineDetails = timelineType === 'profile' ? p.profileTimeline : p.constructionTimeline;
 
-          // Ưu tiên lấy từ profileTimeline nếu có và là manual, sau đó mới đến trường gốc của project
-          if (timelineType === 'profile' && p.profileTimeline?.assignmentType === 'manual') {
-            initialAssignmentType = 'manual';
-            initialStartDate = p.profileTimeline.startDate ? new Date(p.profileTimeline.startDate).toISOString().split('T')[0] : '';
-            initialDurationDays = p.profileTimeline.durationDays || '';
-            initialEndDate = p.profileTimeline.endDate ? new Date(p.profileTimeline.endDate).toISOString().split('T')[0] : '';
-          } else if (timelineType === 'profile' && p.startDate && p.durationDays) { // Lấy từ trường gốc của CategoryProject cho profile timeline
-            initialAssignmentType = 'manual'; // Nếu có ngày ở gốc, coi như manual
-            initialStartDate = p.startDate ? new Date(p.startDate).toISOString().split('T')[0] : '';
-            initialDurationDays = p.durationDays || '';
-            initialEndDate = p.completionDate ? new Date(p.completionDate).toISOString().split('T')[0] : '';
+        let initialAssignmentType = timelineDetails?.assignmentType || 'auto';
+        let initialStartDate = timelineDetails?.startDate ? new Date(timelineDetails.startDate).toISOString().split('T')[0] : '';
+        let initialDurationDays = timelineDetails?.durationDays || '';
+        let initialEndDate = timelineDetails?.endDate ? new Date(timelineDetails.endDate).toISOString().split('T')[0] : '';
+        let initialExcludeHolidays = timelineDetails?.excludeHolidays !== undefined ? timelineDetails.excludeHolidays : true;
+        // Ưu tiên order từ timelineDetails, nếu không có thì dùng index làm order ban đầu
+        let initialOrder = (timelineDetails?.order !== undefined && timelineDetails?.order !== null) ? timelineDetails.order : index;
+
+        // Nếu là manual và không có ngày từ timelineDetails, thử lấy từ gốc (chỉ cho profile category)
+        if (initialAssignmentType === 'manual' && timelineType === 'profile' && objectType === 'category') {
+          if (!initialStartDate && p.startDate) {
+            initialStartDate = new Date(p.startDate).toISOString().split('T')[0];
           }
-          // (Không áp dụng logic này cho constructionTimeline từ trường gốc)
+          if (!initialDurationDays && p.durationDays) {
+            initialDurationDays = String(p.durationDays); // Ensure string for input
+          }
+          if (!initialEndDate && p.completionDate) {
+            initialEndDate = new Date(p.completionDate).toISOString().split('T')[0];
+          }
+        }
 
-          return {
-            projectId: p._id,
-            projectName: p.name,
-            assignmentType: initialAssignmentType,
-            startDate: initialStartDate,
-            durationDays: initialDurationDays,
-            endDate: initialEndDate,
-            excludeHolidays: p.profileTimeline?.excludeHolidays !== undefined ? p.profileTimeline.excludeHolidays : (p.constructionTimeline?.excludeHolidays !== undefined ? p.constructionTimeline.excludeHolidays : true),
-            order: index,
-          };
-        })
-      );
+        return {
+          projectId: p._id,
+          projectName: p.name,
+          allocatedUnit: p.allocatedUnit || 'N/A',
+          assignmentType: initialAssignmentType,
+          startDate: initialStartDate,
+          durationDays: initialDurationDays,
+          endDate: initialEndDate,
+          excludeHolidays: initialExcludeHolidays,
+          order: initialOrder, // Gán order đã xác định
+        };
+      }).sort((a, b) => (a.order || 0) - (b.order || 0)); // Sắp xếp theo order
+
+      setAssignments(initialAssignments);
     } else {
       setAssignments([]);
     }
-    setCommonStartDate(''); // Reset common start date when projects change
-  }, [projectsToAssign, timelineType]); // Thêm timelineType vào dependency
+    // Không reset commonStartDate ở đây để giữ giá trị người dùng đã nhập nếu modal mở lại với cùng projectsToAssign
+  }, [projectsToAssign, timelineType, objectType]); // Bỏ commonStartDate khỏi đây
 
   // useEffect để tự động tính toán lại ngày khi assignments, commonStartDate, hoặc holidays thay đổi
   useEffect(() => {
     if (assignments.length === 0) return;
 
-    let previousAutoTaskEndDate = null;
-    const updatedAssignments = assignments.map(assign => {
-      let newAssign = { ...assign };
-      if (newAssign.assignmentType === 'auto') {
-        let currentTaskStartDate = newAssign.startDate ? new Date(newAssign.startDate) : null;
+    let lastValidAutoTaskEndDate = null; // Chỉ theo dõi ngày kết thúc của task TỰ ĐỘNG hợp lệ gần nhất
 
-        if (!currentTaskStartDate && previousAutoTaskEndDate) {
-          // Nối tiếp từ task auto trước đó
-          currentTaskStartDate = new Date(previousAutoTaskEndDate);
-          currentTaskStartDate.setDate(currentTaskStartDate.getDate() + 1); // Bắt đầu ngày tiếp theo
-          // Cần bỏ qua cuối tuần/ngày nghỉ cho startDate nối tiếp
-          while (currentTaskStartDate.getDay() === 0 || currentTaskStartDate.getDay() === 6 || holidays.includes(currentTaskStartDate.toISOString().split('T')[0])) {
-            currentTaskStartDate.setDate(currentTaskStartDate.getDate() + 1);
-          }
-          newAssign.startDate = currentTaskStartDate.toISOString().split('T')[0];
+    const updatedAssignments = assignments.map((assign, index) => {
+      let newAssign = { ...assign };
+
+      if (newAssign.assignmentType === 'auto') {
+        let currentTaskStartDate = null;
+
+        // Xác định startDate cho task 'auto'
+        if (lastValidAutoTaskEndDate) { // Nếu có task 'auto' hợp lệ trước đó
+            currentTaskStartDate = new Date(lastValidAutoTaskEndDate);
+            currentTaskStartDate.setDate(currentTaskStartDate.getDate() + 1); // Bắt đầu vào ngày kế tiếp
+        } else { // Đây là task 'auto' đầu tiên trong chuỗi 'auto' hợp lệ, hoặc không có task 'auto' hợp lệ nào trước đó
+            // Nếu là task đầu tiên trong danh sách tổng thể VÀ commonStartDate có giá trị
+            if (index === 0 && commonStartDate && commonStartDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                currentTaskStartDate = new Date(commonStartDate);
+            } else if (newAssign.startDate && newAssign.startDate.match(/^\d{4}-\d{2}-\d{2}$/)) { // Có startDate hợp lệ từ trước
+                currentTaskStartDate = new Date(newAssign.startDate);
+            }
+            // Nếu không, currentTaskStartDate sẽ là null
         }
 
-        if (newAssign.startDate && newAssign.durationDays) {
-          const calculatedEnd = calculateEndDateClientSide(newAssign.startDate, parseInt(newAssign.durationDays, 10), holidays);
+        if (currentTaskStartDate) {
+          let tempStartDate = new Date(currentTaskStartDate);
+          if (newAssign.excludeHolidays) {
+            while (currentTaskStartDate.getDay() === 0 || currentTaskStartDate.getDay() === 6 || holidays.includes(currentTaskStartDate.toISOString().split('T')[0])) {
+                currentTaskStartDate.setDate(currentTaskStartDate.getDate() + 1);
+            }
+          }
+          newAssign.startDate = tempStartDate.toISOString().split('T')[0];
+        } else {
+          newAssign.startDate = ''; // Không xác định được ngày bắt đầu
+        }
+
+        // Tính toán endDate dựa trên startDate và durationDays mới
+        if (newAssign.startDate && newAssign.durationDays && parseInt(newAssign.durationDays, 10) > 0) {
+          const calculatedEnd = calculateEndDateClientSide(
+            newAssign.startDate,
+            parseInt(newAssign.durationDays, 10),
+            newAssign.excludeHolidays, // Cờ này sẽ quyết định có bỏ qua cuối tuần và holidays không
+            holidays // Danh sách ngày nghỉ lễ
+          );
           if (calculatedEnd) {
             newAssign.endDate = calculatedEnd.toISOString().split('T')[0];
-            previousAutoTaskEndDate = new Date(newAssign.endDate);
+            lastValidAutoTaskEndDate = new Date(newAssign.endDate); // Cập nhật cho task 'auto' hợp lệ tiếp theo
           } else {
             newAssign.endDate = ''; // Clear if calculation fails
+            lastValidAutoTaskEndDate = null; // Reset vì task 'auto' này không hợp lệ
           }
-        } else if (newAssign.endDate) {
-          previousAutoTaskEndDate = new Date(newAssign.endDate);
-        } else { // Nếu không có startDate, duration, endDate, reset để task auto tiếp theo không bị ảnh hưởng sai
-            previousAutoTaskEndDate = null;
+        } else { // Nếu không có startDate hoặc durationDays hợp lệ
+          newAssign.endDate = '';
+          lastValidAutoTaskEndDate = null; // Reset vì task 'auto' này không hợp lệ
         }
       } else { // Manual task
-        previousAutoTaskEndDate = null; // Reset for manual tasks
+        // Ngày của manual task được giữ nguyên như người dùng nhập,
+        // NGOẠI TRỪ trường hợp startDate và durationDays được cung cấp, thì tính endDate
+        if (newAssign.startDate && newAssign.startDate.match(/^\d{4}-\d{2}-\d{2}$/) &&
+            newAssign.durationDays && parseInt(newAssign.durationDays, 10) > 0) {
+          
+          const calculatedEnd = calculateEndDateClientSide(
+            newAssign.startDate,
+            parseInt(newAssign.durationDays, 10),
+            newAssign.excludeHolidays, // Sử dụng cờ excludeHolidays của chính task manual
+            holidays
+          );
+          if (calculatedEnd) {
+            newAssign.endDate = calculatedEnd.toISOString().split('T')[0];
+          } else {
+            newAssign.endDate = ''; // Nếu không tính được endDate, xóa đi
+          }
+        }
+        // Quan trọng: KHÔNG cập nhật lastValidAutoTaskEndDate cho manual task
       }
       return newAssign;
     });
@@ -115,35 +160,69 @@ const TimelineAssignmentModal = ({
 
   const handleAssignmentChange = (index, field, value) => {
     const newAssignments = [...assignments];
-    newAssignments[index][field] = value;
+    const assignmentAtIndex = newAssignments[index];
+    const oldAssignmentType = assignmentAtIndex.assignmentType;
+
+    assignmentAtIndex[field] = value;
+
+    // Nếu thay đổi assignmentType từ manual sang auto, xóa ngày để tính lại
+    if (field === 'assignmentType' && oldAssignmentType === 'manual' && value === 'auto') {
+        assignmentAtIndex.startDate = '';
+        assignmentAtIndex.endDate = '';
+        // durationDays có thể giữ lại hoặc xóa tùy yêu cầu. Hiện tại giữ lại.
+    }
+    // Nếu thay đổi durationDays, excludeHolidays hoặc startDate của task auto, xóa endDate để tính lại
+    if (assignmentAtIndex.assignmentType === 'auto' && 
+        (field === 'durationDays' || field === 'excludeHolidays' || field === 'startDate')) {
+        assignmentAtIndex.endDate = '';
+    }
+
+    // Nếu thay đổi startDate, durationDays, hoặc excludeHolidays của task MANUAL, xóa endDate để tính lại
+    if (assignmentAtIndex.assignmentType === 'manual' && 
+        (field === 'startDate' || field === 'durationDays' || field === 'excludeHolidays')) {
+        assignmentAtIndex.endDate = ''; 
+    }
+
     setAssignments(newAssignments);
   };
 
   const handleApplyCommonStartDate = () => {
-    if (!commonStartDate) {
-      toast.warn('Vui lòng chọn ngày bắt đầu chung.', { position: "top-center" });
+    if (!commonStartDate || !commonStartDate.match(/^\d{4}-\d{2}-\d{2}$/)) { // Thêm kiểm tra định dạng
+      toast.warn('Vui lòng chọn ngày bắt đầu chung hợp lệ.', { position: "top-center" });
       return;
     }
-    // Áp dụng cho tất cả các task 'auto'
-    const newAssignments = assignments.map(assign => {
-      if (assign.assignmentType === 'auto') {
-        return { ...assign, startDate: commonStartDate };
+    // Tìm task auto đầu tiên trong danh sách hiện tại
+    let firstAutoTaskIndex = -1;
+    for(let i=0; i < assignments.length; i++) {
+        if (assignments[i].assignmentType === 'auto') {
+            firstAutoTaskIndex = i;
+            break;
+        }
+    }
+
+    if (firstAutoTaskIndex !== -1) {
+        const newAssignments = assignments.map((assign, index) => {
+          if (index === firstAutoTaskIndex) { // Chỉ áp dụng cho task auto đầu tiên tìm thấy
+            return { ...assign, startDate: commonStartDate, endDate: '' }; // Reset endDate để tính lại
+          }
+          return assign;
+        });
+        setAssignments(newAssignments); // Điều này sẽ trigger useEffect ở trên để tính toán lại
+        toast.success('Đã áp dụng ngày bắt đầu chung cho công trình "Tự động" đầu tiên.', { position: "top-center" });
+    } else {
+        toast.info('Không có công trình "Tự động" nào trong danh sách để áp dụng ngày bắt đầu chung.', { position: "top-center" });
       }
-      return assign;
-    });
-    setAssignments(newAssignments);
-    toast.success('Đã áp dụng ngày bắt đầu chung cho các công trình "Tự động".', { position: "top-center" });
   };
 
-  const handleSave = () => {
-    const payloadAssignments = assignments.map(a => ({
+  const handleSave = async () => {
+    const payloadAssignments = assignments.map((a, idx) => ({ // Thêm idx để lấy order nếu cần
       projectId: a.projectId,
       assignmentType: a.assignmentType,
       startDate: a.startDate,
       durationDays: a.durationDays ? parseInt(a.durationDays, 10) : null,
       endDate: a.endDate,
       excludeHolidays: a.excludeHolidays,
-      order: a.assignmentType === 'auto' ? a.order : undefined, // Chỉ gửi order cho auto
+      order: a.order, // Luôn gửi order đã được cập nhật sau drag-drop
     }));
 
     const payload = {
@@ -157,7 +236,14 @@ const TimelineAssignmentModal = ({
       payload.type = objectType;
       payload.constructionUnitName = assignToObject.constructionUnitName;
     }
-    onSaveAssignments(payload);
+    try {
+      await onSaveAssignments(payload); // Giả sử onSaveAssignments là một hàm async (mutateAsync)
+      // Toast success đã được xử lý trong TimelineLogic
+      onRequestClose(); // Đóng modal nếu lưu thành công
+    } catch (error) {
+      // Toast error đã được xử lý trong TimelineLogic
+      // Không cần làm gì thêm ở đây, modal sẽ không đóng
+    }
   };
 
   const onDragEnd = (result) => {
@@ -191,7 +277,7 @@ const TimelineAssignmentModal = ({
           justifyContent: 'center',
         },
         content: {
-          position: 'relative', margin: 'auto', width: '95%', maxWidth: '1100px', // Tăng kích thước
+          position: 'relative', margin: 'auto', width: '95%', maxWidth: '1250px', // Tăng kích thước tối đa
           maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
           padding: '0', border: 'none', borderRadius: '12px', 
           boxShadow: '0 10px 25px rgba(0,0,0,0.2)', // Shadow lớn hơn
@@ -228,13 +314,13 @@ const TimelineAssignmentModal = ({
               <table className="min-w-full divide-y divide-gray-200 border">
                 <thead className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-t-lg">
                   <tr>
-                    {/* Thêm cột cho handle kéo thả */}
-                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider" style={{ width: '40px' }}></th>
-                    <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider">Tên Công trình</th>
-                    <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{minWidth: '100px'}}>Loại</th>
-                    <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{minWidth: '130px'}}>Ngày BĐ</th>
-                    <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{minWidth: '90px'}}>Số ngày</th>
-                    <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{minWidth: '130px'}}>Ngày KT</th>
+                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{ width: '40px' }}></th>
+                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '250px'}}>Tên Công trình</th>
+                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '140px'}}>Đơn vị PB</th> 
+                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '160px'}}>Loại</th> {/* Tăng minWidth lên 160px */}
+                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '130px'}}>Ngày BĐ</th>
+                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '100px'}}>Số ngày</th>
+                    <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '130px'}}>Ngày KT</th>
                     <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider">Loại trừ nghỉ</th>
                   </tr>
                 </thead>
@@ -255,20 +341,50 @@ const TimelineAssignmentModal = ({
                                 {...provided.dragHandleProps}
                                 className={`table-row-custom ${snapshot.isDragging ? 'bg-blue-100 shadow-lg' : 'hover:bg-gray-50'}`}
                               >
-                                {/* Cột handle kéo thả */}
-                                <td className="px-3 py-2 text-center text-gray-500 cursor-grab hover:text-blue-600 transition-colors">⠿</td>
-                                <td className="px-3 py-2 whitespace-normal text-sm text-gray-800 font-medium">{assign.projectName}</td>
-                                <td className="px-3 py-2 whitespace-nowrap">
-                                  <select value={assign.assignmentType} onChange={(e) => handleAssignmentChange(index, 'assignmentType', e.target.value)} className="form-select text-sm rounded-lg shadow-sm border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full transition-all duration-150">
+                                <td className="px-3 py-2 text-center text-gray-500 cursor-grab hover:text-blue-600 transition-colors border-r border-gray-300 align-middle">⠿</td>
+                                <td className="px-3 py-2 whitespace-normal text-sm text-gray-800 font-medium border-r border-gray-300 align-middle">{assign.projectName}</td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-700 border-r border-gray-300 align-middle">{assign.allocatedUnit}</td>
+                                <td className="px-3 py-2 border-r border-gray-300 align-middle"> {/* Bỏ whitespace-nowrap */}
+                                  <select value={assign.assignmentType} onChange={(e) => handleAssignmentChange(index, 'assignmentType', e.target.value)} className="form-select pl-2 pr-8 text-sm rounded-lg shadow-sm border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full transition-all duration-150">
                                     <option value="auto">Tự động</option>
                                     <option value="manual">Thủ công</option>
                                   </select>
                                 </td>
-                                <td className="px-3 py-2"><input type="date" value={assign.startDate} onChange={(e) => handleAssignmentChange(index, 'startDate', e.target.value)} className="form-input text-sm rounded-lg shadow-sm w-full border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150" /></td>
-                                <td className="px-3 py-2"><input type="number" placeholder="Số ngày" value={assign.durationDays} onChange={(e) => handleAssignmentChange(index, 'durationDays', e.target.value)} className="form-input text-sm rounded-lg shadow-sm w-full border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150" /></td>
-                                <td className="px-3 py-2"><input type="date" value={assign.endDate} onChange={(e) => handleAssignmentChange(index, 'endDate', e.target.value)} className="form-input text-sm rounded-lg shadow-sm w-full border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150" disabled={assign.assignmentType === 'auto' && !!assign.durationDays && !!assign.startDate} /></td>
-                                <td className="px-3 py-2 text-center">
-                              <input type="checkbox" checked={assign.excludeHolidays} onChange={(e) => handleAssignmentChange(index, 'excludeHolidays', e.target.checked)} className="form-checkbox h-5 w-5 rounded text-blue-600 border-gray-400 shadow-sm focus:ring-offset-0 focus:ring-2 focus:ring-blue-400 transition-all duration-150 cursor-pointer" />
+                                <td className="px-3 py-2 border-r border-gray-300 align-middle">
+                                  <input 
+                                    type="date" 
+                                    value={assign.startDate} 
+                                    onChange={(e) => handleAssignmentChange(index, 'startDate', e.target.value)} 
+                                    className="form-input text-sm rounded-lg shadow-sm w-full border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150"
+                                    disabled={assign.assignmentType === 'auto' && !!assign.startDate && index > 0 && assignments[index-1].assignmentType === 'auto'}
+                                  />
+                                </td>
+                                <td className="px-3 py-2 border-r border-gray-300 align-middle">
+                                  <input 
+                                    type="number" 
+                                    placeholder="Số ngày" 
+                                    value={assign.durationDays} 
+                                    onChange={(e) => handleAssignmentChange(index, 'durationDays', e.target.value)} 
+                                    className="form-input text-sm rounded-lg shadow-sm w-full border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150"
+                                  />
+                                </td>
+                                <td className="px-3 py-2 border-r border-gray-300 align-middle">
+                                  <input 
+                                    type="date" 
+                                    value={assign.endDate} 
+                                    onChange={(e) => handleAssignmentChange(index, 'endDate', e.target.value)} 
+                                    className="form-input text-sm rounded-lg shadow-sm w-full border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 transition-all duration-150" 
+                                    disabled={assign.assignmentType === 'auto' && !!assign.durationDays && !!assign.startDate}
+                                    readOnly={assign.assignmentType === 'auto'} // Luôn readOnly nếu là auto
+                                  />
+                                </td>
+                                <td className="px-3 py-2 text-center align-middle">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={assign.excludeHolidays} 
+                                    onChange={(e) => handleAssignmentChange(index, 'excludeHolidays', e.target.checked)} 
+                                    className="form-checkbox h-5 w-5 rounded text-blue-600 border-gray-400 shadow-sm focus:ring-offset-0 focus:ring-2 focus:ring-blue-400 transition-all duration-150 cursor-pointer align-middle" 
+                                  />
                                 </td>
                               </tr>
                             )}

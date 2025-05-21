@@ -115,63 +115,58 @@ function Settings({ user }) {
     },
     enabled: user?.role === 'admin' && activeTab === 'holidays',
     keepPreviousData: true,
-    onSuccess: (data) => {
-      console.log(`[Settings - onSuccess] START. For data.year: ${data?.year}. Current selectedHolidayYear: ${selectedHolidayYear}. data.holidays items: ${data?.holidays?.length}`);
-      
-      if (!data || data.year !== selectedHolidayYear) {
-        console.warn(`[Settings - onSuccess] STALE DATA. data.year: ${data?.year}, selectedHolidayYear: ${selectedHolidayYear}. IGNORING.`);
-        return;
-      }
-
-      if (!data || !data.holidays || !Array.isArray(data.holidays)) {
-        console.warn(`[Settings - onSuccess] INVALID STRUCTURE for year ${data.year}. Expected { holidays: [] }. Received:`, data);
-        setHolidaysForSelectedYear([]);
-        return;
-      }
-      console.log(`[Settings - onSuccess] Processing data for year ${data.year}. Raw holidays:`, JSON.stringify(data.holidays, null, 2));
-
-      try {
-        const processedHolidays = data.holidays.map((h, itemIndex) => {
-          if (!h || (!h.date)) {
-            console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} is invalid or missing date:`, h);
-            return null;
+        onSuccess: (data) => {
+          console.log(`[Settings - onSuccess] START. For data.year: ${data?.year}. Current selectedHolidayYear: ${selectedHolidayYear}. data.holidays items: ${data?.holidays?.length}`);
+          
+          // Check for stale data based on year
+          if (!data || data.year !== selectedHolidayYear) { 
+            console.warn(`[Settings - onSuccess] STALE DATA. data.year: ${data?.year}, selectedHolidayYear: ${selectedHolidayYear}. IGNORING.`);
+            return;
           }
-
-          console.log(`[Settings - map] Processing item ${itemIndex} for year ${data.year}. Raw h.date: "${h.date}", type: ${typeof h.date}`);
-
-          const dateObj = new Date(h.date);
-          const isDateObjectInvalid = isNaN(dateObj.getTime());
-
-          if (isDateObjectInvalid) {
-            console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} - INVALID DATE OBJECT. h.date: "${h.date}". new Date(h.date) resulted in Invalid Date. Original item:`, h);
-            return null;
+    
+          if (!data || !data.holidays || !Array.isArray(data.holidays)) {
+            console.warn(`[Settings - onSuccess] INVALID STRUCTURE for year ${data.year}. Expected { holidays: [] }. Received:`, data);
+            setHolidaysForSelectedYear([]);
+            return;
           }
-          console.log(`[Settings - map] Item ${itemIndex} for year ${data.year} - Date object OK: ${dateObj.toISOString()}`);
+          console.log(`[Settings - onSuccess] Processing data for year ${data.year}. Raw holidays:`, JSON.stringify(data.holidays, null, 2));
+    
+          try {
+            // Ensure h.date is a valid Date object before processing
+            const processedHolidays = data.holidays.map((h, itemIndex) => {
+              const dateStringFromAPI = h?.date; // h.date is an ISO string from API
 
-          const dateString = dateObj.toISOString().split('T')[0];
-          const itemYearFromDate = parseInt(dateString.split('-')[0], 10);
-          console.log(`[Settings - map] Item ${itemIndex} for year ${data.year} - Extracted year: ${itemYearFromDate}. API data.year: ${data.year}. dateString: "${dateString}"`);
+              if (!h || !dateStringFromAPI) {
+                console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} is invalid or missing 'date' field:`, h);
+                return null;
+              }
 
-          if (itemYearFromDate !== data.year) {
-            console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} - YEAR MISMATCH. Extracted year ${itemYearFromDate} from dateString "${dateString}" (from h.date "${h.date}") does not match data.year ${data.year}. Skipping.`);
-            return null;
+              const dateObj = new Date(dateStringFromAPI);
+              if (isNaN(dateObj.getTime())) {
+                console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} has an invalid date string '${dateStringFromAPI}':`, h);
+                return null;
+              }
+              
+              // Convert the valid Date object to YYYY-MM-DD string for state
+              const formattedDateString = dateObj.toISOString().split('T')[0];
+              // We assume the backend query correctly filtered by year.
+              // No need to re-check the year here unless there's a known backend issue.
+    
+              return {
+                _id: h._id,
+                description: h.description,
+                date: formattedDateString, // Store as YYYY-MM-DD string
+              };
+            }).filter(item => item !== null);
+    
+            console.log(`[Settings - onSuccess] FINAL processedHolidays for year ${data.year} (length ${processedHolidays.length}):`, JSON.stringify(processedHolidays, null, 2));
+            setHolidaysForSelectedYear(processedHolidays);
+    
+          } catch (mapError) {
+            console.error(`[Settings - onSuccess] CATCH_ERROR during mapping holidays for year ${data.year}:`, mapError);
+            setHolidaysForSelectedYear([]);
           }
-
-          return {
-            _id: h._id,
-            description: h.description,
-            date: dateString,
-          };
-        }).filter(item => item !== null);
-        
-        console.log(`[Settings - onSuccess] FINAL processedHolidays for year ${data.year} (length ${processedHolidays.length}):`, JSON.stringify(processedHolidays, null, 2));
-        setHolidaysForSelectedYear(processedHolidays);
-
-      } catch (mapError) {
-        console.error(`[Settings - onSuccess] CATCH_ERROR during mapping holidays for year ${data.year}:`, mapError);
-        setHolidaysForSelectedYear([]);
-      }
-    },
+        },
     onError: (error) => {
       console.error(`[Settings - holidaysQuery onError] Error for year ${selectedHolidayYear}:`, error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || `Lỗi tải ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" });

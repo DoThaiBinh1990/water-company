@@ -31,8 +31,8 @@ function RejectedProjectTable({
   if (!isLoading && (!rejectedProjects || rejectedProjects.length === 0)) {
     return (
       <div className="text-center text-gray-500 py-10 mt-4 bg-white shadow-md rounded-lg card">
-        <FaInfoCircle size={40} className="mx-auto text-blue-400 mb-3" />
-        <p className="text-lg">Không có công trình nào bị từ chối.</p>
+        <FaInfoCircle size={32} className="mx-auto text-blue-400 mb-2" /> {/* Giảm size icon và margin bottom */}
+        <p className="text-base">Không có công trình nào bị từ chối.</p> {/* Giảm size chữ */}
       </div>
     );
   }
