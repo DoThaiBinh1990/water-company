@@ -41,7 +41,7 @@
   --shadow-inner-top: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
   /* Sticky Table Column Variables */
-  --sticky-col-1-width: 5rem; /* Default width for the first sticky column (e.g., STT). ADJUST AS NEEDED. */
+  --sticky-col-1-width: 3rem; /* Default width for the first sticky column (e.g., STT). ADJUST AS NEEDED. */
 }
 
 body {
@@ -170,7 +170,7 @@ body {
   /* Ensure th inside a thead with primary background gets that background */
   .table-fixed thead.bg-\[var\(--primary\)\] th {
     background-color: var(--primary) !important; /* Ensures primary background overrides default */
-    /* z-index for these will be set higher by specific sticky-col rules */
+    /* z-index for non-sticky headers with primary background will be lower than sticky ones */
   }
 
   .table-fixed td {
@@ -216,7 +216,7 @@ body {
   /* Ensure sticky header for first column maintains header background */
   .table-fixed thead.bg-\[var\(--primary\)\] th.sticky-col-1 {
     /* background-color is handled by the more general '.table-fixed thead.bg-\[var\(--primary)\] th' rule */
-    z-index: 40; /* Highest z-index for top-left sticky header */
+    z-index: 45; /* Highest z-index for top-left sticky header */
   }
 
   /* Second sticky column (e.g., Tên công trình) - if you use it */
@@ -234,7 +234,7 @@ body {
   /* z-index for sticky-col-2 header cells */
   .table-fixed thead.bg-\[var\(--primary\)\] th.sticky-col-2 {
     /* background-color is handled by the more general '.table-fixed thead.bg-\[var\(--primary)\] th' rule */
-    z-index: 35; /* Header z-index for second sticky column */
+    z-index: 40; /* Header z-index for second sticky column, higher than general headers, lower than first sticky */
   }
 
   /* Last sticky column (e.g., Hành động) */
@@ -250,7 +250,7 @@ body {
   .table-fixed td.sticky-col-last { z-index: 25; } /* z-index for data cell of last sticky column */
   .table-fixed thead.bg-\[var\(--primary\)\] th.sticky-col-last {
     /* background-color is handled by the more general '.table-fixed thead.bg-\[var\(--primary)\] th' rule */
-    z-index: 40; /* Ensure header is on top */
+    z-index: 45; /* Ensure header is on top, same as first sticky header if it's also a corner */
   }
 
   /* === Cell Changed Indication === */

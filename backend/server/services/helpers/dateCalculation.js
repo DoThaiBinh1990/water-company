@@ -1,5 +1,5 @@
 // d:\CODE\water-company\backend\server\services\helpers\dateCalculation.js
-const { Holiday } = require('../../models'); // Import Holiday model
+// const { Holiday } = require('../../models'); // REMOVE THIS
 
 /**
  * Calculates the end date based on a start date, duration in days,
@@ -7,30 +7,23 @@ const { Holiday } = require('../../models'); // Import Holiday model
  * Weekends (Saturday, Sunday) are also excluded if excludeHolidays is true.
  * @param {Date} startDate - The start date (Date object).
  * @param {number} durationDays - The duration in days.
- * @param {boolean} excludeHolidays - Whether to exclude weekends and holidays.
- * @param {number} financialYear - The financial year to fetch holidays for.
+ * @param {boolean} excludeHolidaysFlag - Whether to exclude weekends and holidays.
+ * @param {string[]} holidaysList - Array of holiday date strings in 'YYYY-MM-DD' format.
  * @returns {Date|null} The calculated end date, or null if inputs are invalid.
  */
-const calculateEndDate = async (startDate, durationDays, excludeHolidays, financialYear) => {
+const calculateEndDate = async (startDate, durationDays, excludeHolidaysFlag, holidaysList = []) => { // Renamed excludeHolidays to avoid conflict with holidaysList
   if (!startDate || !durationDays || durationDays <= 0) {
     return startDate; // Or null, or throw error
   }
   let currentDate = new Date(startDate);
   let daysAdded = 0;
-  let holidays = [];
-
-  if (excludeHolidays && financialYear) {
-    const holidayDoc = await Holiday.findOne({ year: financialYear });
-    if (holidayDoc && holidayDoc.holidays) {
-      holidays = holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]);
-    }
-  }
+  // holidaysList is now passed directly
 
   while (daysAdded < durationDays) {
     const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
     const dateString = currentDate.toISOString().split('T')[0];
 
-    if (excludeHolidays && (dayOfWeek === 0 || dayOfWeek === 6 || holidays.includes(dateString))) {
+    if (excludeHolidaysFlag && (dayOfWeek === 0 || dayOfWeek === 6 || holidaysList.includes(dateString))) {
       // It's a weekend or holiday, skip
     } else {
       daysAdded++;
@@ -47,33 +40,23 @@ const calculateEndDate = async (startDate, durationDays, excludeHolidays, financ
  * excluding weekends and holidays if excludeHolidays is true.
  * @param {Date} startDate - The start date (Date object).
  * @param {Date} endDate - The end date (Date object).
- * @param {boolean} excludeHolidays - Whether to exclude weekends and holidays.
- * @param {number} financialYear - The financial year to fetch holidays for.
+ * @param {boolean} excludeHolidaysFlag - Whether to exclude weekends and holidays.
+ * @param {string[]} holidaysList - Array of holiday date strings in 'YYYY-MM-DD' format.
  * @returns {number|null} The number of working days, or null if inputs are invalid.
  */
-const calculateDurationDays = async (startDate, endDate, excludeHolidays, financialYear) => {
+const calculateDurationDays = async (startDate, endDate, excludeHolidaysFlag, holidaysList = []) => {
   if (!startDate || !endDate || new Date(startDate) > new Date(endDate)) {
     return null; // Invalid dates
   }
-  // Re-use calculateEndDate logic to count days
-  // This is a simplified approach; a more robust one might iterate and count.
-  // For now, let's implement the iteration approach directly.
   let currentDate = new Date(startDate);
   let count = 0;
-  let holidays = [];
-
-  if (excludeHolidays && financialYear) {
-    const holidayDoc = await Holiday.findOne({ year: financialYear });
-    if (holidayDoc && holidayDoc.holidays) {
-      holidays = holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]);
-    }
-  }
+  // holidaysList is now passed directly
 
   while (currentDate <= new Date(endDate)) {
     const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
     const dateString = currentDate.toISOString().split('T')[0];
 
-    if (excludeHolidays && (dayOfWeek === 0 || dayOfWeek === 6 || holidays.includes(dateString))) {
+    if (excludeHolidaysFlag && (dayOfWeek === 0 || dayOfWeek === 6 || holidaysList.includes(dateString))) {
       // Skip weekends and holidays
     } else {
       count++;

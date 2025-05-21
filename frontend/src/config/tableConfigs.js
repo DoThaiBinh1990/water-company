@@ -8,12 +8,10 @@ const commonFields = {
   name: {
     header: 'Tên công trình',
     field: 'name',
-    width: '300px', // Tăng độ rộng
-    minWidth: '250px', // Tăng độ rộng tối thiểu
-    sticky: true,
-    left: '50px',
-    headerClassName: 'sticky-col-2-header',
-    className: 'sticky-col-2-data align-left', // Ensure class sets text-align: left
+    width: '300px',
+    minWidth: '250px',
+    sticky: '2', // Use '2' to match .sticky-col-2 in App.css
+    // 'left' is handled by .sticky-col-2 CSS using var(--sticky-col-1-width)
     align: 'left', // Explicit align for style prop
     tooltipRender: (project) => `Tên: ${project.name}\nLoại: ${project.projectType || 'N/A'}`
   },

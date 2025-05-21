@@ -202,6 +202,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
             totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage}
             totalItemsCount={totalProjectsCount} itemsPerPage={itemsPerPage}
             isLoading={isLoading} isFetching={isFetching}
+            emptyMessage={`Không có công trình ${isCategory ? 'danh mục' : 'sửa chữa nhỏ'} nào.`}
             tableWidth={isCategory ? '3500px' : '2300px'}
             renderActions={(project) => renderTableActionsComponent(project, false)}
           />
@@ -215,6 +216,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
             formatDateToLocale={formatDateToLocale} // Truyền hàm format date
             totalPages={totalPagesPending} currentPage={currentPage} setCurrentPage={setCurrentPage}
             totalItemsCount={totalPendingCount} itemsPerPage={itemsPerPage}
+            emptyMessage={`Không có công trình nào đang chờ duyệt.`}
             isLoading={isLoading} isFetching={isFetching}
             tableWidth={isCategory ? '3500px' : '2300px'}
             renderActions={(project) => renderTableActionsComponent(project, true)}
@@ -228,6 +230,7 @@ function ProjectManagement({ user, type, showHeader, addMessage }) {
           restoreRejectedProject={restoreRejectedProject}
           permanentlyDeleteRejectedProject={permanentlyDeleteRejectedProject}
           currentPage={currentPageRejected} totalPages={totalPagesRejected}
+          itemsPerPage={itemsPerPage} // <<<< THÊM DÒNG NÀY
           setCurrentPage={setCurrentPageRejected} totalItemsCount={totalRejectedCount}
           // Filters are now handled by GenericFilter above
         />

@@ -1,9 +1,9 @@
 // d:\CODE\water-company\frontend\src\App.js
 import React, { useState, useEffect, useCallback, Suspense } from 'react'; // Thêm Suspense
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'; // Thêm useLocation vào đây
 import { useQuery, useMutation, useQueryClient as useReactQueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import Sidebar from './components/Sidebar';
+import Sidebar from './components/Sidebar'; // useLocation is used here, but we need it in App.js too
 import Header from './components/Header';
 // import ProjectManagement from './components/ProjectManagement/ProjectManagement'; // Lazy load
 // import Settings from './pages/Settings'; // Lazy load
@@ -21,7 +21,7 @@ import {
 import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './App.css'; // <<<< THÊM DÒNG NÀY ĐỂ IMPORT APP.CSS
+import './App.css'; // Import App.css
 import './toastify-custom.css'; // Import file CSS tùy chỉnh
 
 const ProjectManagement = React.lazy(() => import('./components/ProjectManagement/ProjectManagement'));
@@ -38,6 +38,7 @@ const socket = io(apiClient.defaults.baseURL, {
 
 function App() {
   // console.log("App component mounted. Token from localStorage:", localStorage.getItem('token')); // Nên xóa khi production
+  const location = useLocation(); // Lấy đối tượng location hiện tại
 
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -57,28 +58,20 @@ function App() {
   } = useQuery({
     queryKey: ['currentUser'],
     queryFn: getMe,
-    enabled: !!localStorage.getItem('token'),
+    enabled: (() => {
+      const token = localStorage.getItem('token');
+      // Chỉ enabled query nếu token tồn tại và không phải là chuỗi "null" hoặc "undefined"
+      return !!(token && token !== 'null' && token !== 'undefined');
+    })(),
     retry: 1,
     onSuccess: (userData) => {
+      // Logic setUser sẽ được xử lý trong useEffect bên dưới
+      // để đảm bảo xử lý nhất quán cả khi query thành công hoặc có dữ liệu từ cache.
       // console.log("!!!!!! [App.js useQuery currentUser] onSuccess CALLED. UserData:", userData ? typeof userData : String(userData));
-      if (userData && typeof userData === 'object') {
-        const userIdField = userData._id || userData.id;
-        if (userIdField || userData.username) {
-          setUser(userData);
-          // console.log("!!!!!! [App.js useQuery currentUser] onSuccess: setUser CALLED with valid data.");
-        } else {
-          // console.error("!!!!!! [App.js useQuery currentUser] onSuccess: userData is object BUT id/username MISSING. Logging out.", JSON.stringify(userData, null, 2));
-          handleLogout();
-        }
-      } else {
-        // console.error("!!!!!! [App.js useQuery currentUser] onSuccess: userData is NOT valid object or is null/undefined. Logging out. Received:", userData);
-        handleLogout();
-      }
-      // console.log("!!!!!! [App.js useQuery currentUser] onSuccess FINISHED.");
     },
     onError: (error) => {
+      // Logic logout cũng sẽ được xử lý trong useEffect
       // console.error('!!!!!! [App.js useQuery currentUser] onError CALLED. Error:', error.response?.data || error.message || error);
-      handleLogout();
     },
     onSettled: (data, error) => {
       // console.log(
@@ -89,7 +82,6 @@ function App() {
   });
 
   const handleLogout = useCallback(() => {
-    // console.trace("handleLogout called from:");
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     delete apiClient.defaults.headers.common['Authorization'];
@@ -127,8 +119,8 @@ function App() {
           // console.error("!!!!!! [App.js useEffect for currentUserDataResult] Invalid user data structure from query. Logging out.", JSON.stringify(currentUserDataResult, null, 2));
           handleLogout();
         }
-      } else if (!currentUserDataResult && localStorage.getItem('token')) {
-        // console.error("!!!!!! [App.js useEffect for currentUserDataResult] No error, but no user data (getMe likely returned null) while token exists. Logging out.");
+      } else if (!currentUserDataResult && localStorage.getItem('token') && (localStorage.getItem('token') !== 'null' && localStorage.getItem('token') !== 'undefined')) {
+        // console.error("!!!!!! [App.js useEffect for currentUserDataResult] No error, but no user data (getMe likely returned null or invalid) while token exists. Logging out.");
         handleLogout();
       }
     }
@@ -136,7 +128,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      if (!socket.connected) {
+      if (!socket.connected) { // Đảm bảo socket chỉ connect khi có user
         socket.connect();
       }
       if (showNotificationsModal) {
@@ -175,7 +167,31 @@ function App() {
       socket.off('notification', handleNewNotification);
       socket.off('notification_processed', handleNotificationProcessed);
     };
-  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook]);
+  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook]); // Thêm user vào dependency array
+
+  // Effect để cập nhật tiêu đề tab trình duyệt dựa trên route
+  useEffect(() => {
+    const baseTitle = "Lawasuco"; // Tiêu đề gốc
+    let pageTitle = "";
+
+    // Ánh xạ đường dẫn tới tiêu đề trang
+    if (location.pathname === '/' || location.pathname.startsWith('/category')) {
+        pageTitle = "Công trình Danh mục";
+    } else if (location.pathname.startsWith('/minor-repair')) {
+        pageTitle = "Sửa chữa nhỏ";
+    } else if (location.pathname.startsWith('/timeline')) {
+        pageTitle = "Quản lý Timeline";
+    } else if (location.pathname.startsWith('/settings')) {
+        pageTitle = "Thiết lập";
+    } else if (location.pathname.startsWith('/login')) {
+        pageTitle = "Đăng nhập";
+    }
+    // Thêm các đường dẫn khác nếu có
+
+    // Cập nhật tiêu đề document
+    document.title = pageTitle ? `${pageTitle} - ${baseTitle}` : baseTitle;
+
+  }, [location.pathname]); // Chạy lại effect mỗi khi đường dẫn thay đổi
 
 
   const useProjectActionMutation = (mutationFn, successMessageKey) => {

@@ -35,18 +35,16 @@ export const loginUser = async (credentials) => {
 export const getMe = async () => {
   // console.log('[getMe] Attempting to fetch /api/auth/me. Token in localStorage at this moment:', localStorage.getItem('token'));
   try {
-    const { data } = await apiClient.get('/api/auth/me');
+    const { data } = await apiClient.get('/api/auth/me'); // apiClient sẽ throw error cho non-2xx responses
     // console.log('[getMe] /api/auth/me raw response data:', JSON.stringify(data, null, 2));
     if (data && data.user && (data.user.username || data.user._id || data.user.id)) { // Kiểm tra data.user và có trường định danh
         // console.log('[getMe] Returning data.user:', JSON.stringify(data.user, null, 2));
         return data.user;
     } else {
-        // console.error('[getMe] /api/auth/me response does NOT contain a valid data.user. Raw data:', JSON.stringify(data, null, 2));
-        return null; // Trả về null để App.js onSuccess xử lý logout
+        throw new Error("Dữ liệu người dùng không hợp lệ từ API /me."); // Throw error nếu cấu trúc user không đúng
     }
   } catch (error) {
-    // console.error('[getMe] Error fetching /api/auth/me:', error.response?.data || error.message);
-    return null; // Trả về null khi có lỗi API để onSuccess của useQuery có thể nhận và xử lý
+    throw error; // Re-throw lỗi để useQuery onError có thể bắt
   }
 };
 

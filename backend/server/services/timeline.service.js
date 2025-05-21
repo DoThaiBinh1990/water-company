@@ -1,6 +1,6 @@
 // d:\CODE\water-company\backend\server\services\timeline.service.js
 const mongoose = require('mongoose');
-const { CategoryProject, MinorRepairProject, User, Holiday } = require('../models');
+const { CategoryProject, MinorRepairProject, User, Holiday } = require('../models'); // Holiday is already imported
 const { populateProjectFields } = require('../utils');
 const logger = require('../config/logger');
 const { calculateEndDate, calculateDurationDays } = require('./helpers/dateCalculation');
@@ -121,6 +121,9 @@ const batchUpdateProfileTimeline = async (payload, user) => {
     throw { statusCode: 400, message: 'Dữ liệu không hợp lệ để cập nhật timeline hồ sơ.' };
   }
 
+  const holidayDoc = await Holiday.findOne({ year: parseInt(financialYear, 10) });
+  const holidaysList = holidayDoc && holidayDoc.holidays ? holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]) : [];
+
   const bulkOps = [];
   const sortedAssignments = [...assignments].sort((a, b) => (a.order || 0) - (b.order || 0));
   let previousAutoTaskEndDate = null;
@@ -140,7 +143,7 @@ const batchUpdateProfileTimeline = async (payload, user) => {
 
     let calculatedEndDate = endDate;
     if (durationDays && !endDate) {
-      calculatedEndDate = await calculateEndDate(new Date(currentStartDate), parseInt(durationDays, 10), excludeHolidays, parseInt(financialYear, 10));
+      calculatedEndDate = await calculateEndDate(new Date(currentStartDate), parseInt(durationDays, 10), excludeHolidays, holidaysList);
     }
 
     if (assignmentType === 'auto' && calculatedEndDate) {
@@ -188,6 +191,9 @@ const batchUpdateConstructionTimeline = async (payload, user) => {
     throw { statusCode: 400, message: 'Dữ liệu không hợp lệ để cập nhật timeline thi công.' };
   }
 
+  const holidayDoc = await Holiday.findOne({ year: parseInt(financialYear, 10) });
+  const holidaysList = holidayDoc && holidayDoc.holidays ? holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]) : [];
+
   const bulkOps = [];
   const sortedAssignments = [...assignments].sort((a, b) => (a.order || 0) - (b.order || 0));
   let previousAutoTaskEndDate = null;
@@ -207,7 +213,7 @@ const batchUpdateConstructionTimeline = async (payload, user) => {
 
     let calculatedEndDate = endDate;
     if (durationDays && !endDate) {
-      calculatedEndDate = await calculateEndDate(new Date(currentStartDate), parseInt(durationDays, 10), excludeHolidays, parseInt(financialYear, 10));
+      calculatedEndDate = await calculateEndDate(new Date(currentStartDate), parseInt(durationDays, 10), excludeHolidays, holidaysList);
     }
 
     if (assignmentType === 'auto' && calculatedEndDate) {
@@ -253,6 +259,9 @@ const updateProfileTimelineTask = async (projectId, updateData, user) => {
   if (!project) throw { statusCode: 404, message: 'Không tìm thấy công trình danh mục.' };
   if (user.role !== 'admin' && !user.permissions.assignProfileTimeline) throw { statusCode: 403, message: 'Bạn không có quyền cập nhật timeline hồ sơ.' };
 
+  const holidayDoc = await Holiday.findOne({ year: project.financialYear });
+  const holidaysList = holidayDoc && holidayDoc.holidays ? holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]) : [];
+
   const allowedFields = ['startDate', 'endDate', 'durationDays', 'progress', 'statusNotes', 'assignmentType', 'excludeHolidays'];
   const updatePayload = {};
   allowedFields.forEach(field => {
@@ -274,7 +283,7 @@ const updateProfileTimelineTask = async (projectId, updateData, user) => {
     const newEndDate = updatePayload['profileTimeline.endDate'];
     const excludeHolidays = updateData.hasOwnProperty('excludeHolidays') ? updateData.excludeHolidays : (project.profileTimeline?.excludeHolidays ?? true);
     if (newStartDate && newEndDate) {
-      updatePayload['profileTimeline.durationDays'] = await calculateDurationDays(newStartDate, newEndDate, excludeHolidays, project.financialYear);
+      updatePayload['profileTimeline.durationDays'] = await calculateDurationDays(newStartDate, newEndDate, excludeHolidays, holidaysList);
     }
   }
   updatePayload['profileTimeline.assignedBy'] = user.id;
@@ -288,6 +297,9 @@ const updateConstructionTimelineTask = async (projectId, updateData, user) => {
   const project = await Model.findById(projectId);
   if (!project) throw { statusCode: 404, message: 'Không tìm thấy công trình.' };
   if (user.role !== 'admin' && !user.permissions.assignConstructionTimeline) throw { statusCode: 403, message: 'Bạn không có quyền cập nhật timeline thi công.' };
+
+  const holidayDoc = await Holiday.findOne({ year: project.financialYear });
+  const holidaysList = holidayDoc && holidayDoc.holidays ? holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]) : [];
 
   const allowedFields = ['startDate', 'endDate', 'durationDays', 'progress', 'statusNotes', 'assignmentType', 'excludeHolidays'];
   const updatePayload = {};
@@ -310,7 +322,7 @@ const updateConstructionTimelineTask = async (projectId, updateData, user) => {
     const newEndDate = updatePayload['constructionTimeline.endDate'];
     const excludeHolidays = updateData.hasOwnProperty('excludeHolidays') ? updateData.excludeHolidays : (project.constructionTimeline?.excludeHolidays ?? true);
     if (newStartDate && newEndDate) {
-      updatePayload['constructionTimeline.durationDays'] = await calculateDurationDays(newStartDate, newEndDate, excludeHolidays, project.financialYear);
+      updatePayload['constructionTimeline.durationDays'] = await calculateDurationDays(newStartDate, newEndDate, excludeHolidays, holidaysList);
     }
   }
   updatePayload['constructionTimeline.assignedBy'] = user.id;

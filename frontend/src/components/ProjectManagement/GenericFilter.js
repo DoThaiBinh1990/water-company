@@ -26,7 +26,7 @@ function GenericFilter({
   }, [filterConfig, filters]);
 
   // Memoize the debounced function itself
-  const debouncedSetFilters = useMemo(
+  const debouncedSetFilters =  useMemo(
     () => debounce((name, value) => {
       setFilters(prev => ({ ...prev, [name]: value }));
     }, 500),
@@ -62,9 +62,9 @@ function GenericFilter({
   };
 
   return (
-    <div className="filter-container card p-4 bg-white rounded-xl shadow-lg border border-gray-100 transition-all duration-300">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-subheading text-gray-800 font-semibold tracking-tight flex items-center gap-2">
+    <div className="filter-container card p-3 bg-white rounded-xl shadow-lg border border-gray-100 transition-all duration-300"> {/* p-4 to p-3 */}
+      <div className="flex justify-between items-center mb-3"> {/* mb-4 to mb-3 */}
+        <h2 className="text-gray-800 font-semibold tracking-tight flex items-center gap-2 text-base"> {/* Adjusted text size */}
           <FaFilter className="text-blue-600" size={16} />
           Bộ lọc
         </h2>
@@ -72,14 +72,14 @@ function GenericFilter({
           <button
             onClick={onResetFilters}
             className="btn btn-reset flex items-center gap-1 bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300 transform hover:scale-105 shadow-md rounded-lg px-3 py-1.5 text-xs"
-            disabled={isLoading}
+            disabled={isLoading} // py-1.5 is fine for text-xs
             title="Đặt lại bộ lọc"
           >
             <FaUndo size={14} />
             <span className="hidden sm:inline">Đặt lại</span>
           </button>
           <button
-            onClick={() => setShowFilter(!showFilter)}
+            onClick={() => setShowFilter(!showFilter)} // py-1.5 is fine for text-xs
             className="btn btn-secondary flex items-center gap-1 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md rounded-lg px-3 py-1.5 text-xs"
             title={showFilter ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
           >
@@ -90,18 +90,18 @@ function GenericFilter({
       </div>
 
       {showFilter && (
-        <div className="filter-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="filter-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"> {/* gap-4 to gap-3 */}
           {filterConfig.map(field => (
             <div key={field.name} className="relative">
-              <label className="form-label text-gray-700">{field.label}</label>
+              <label className="form-label text-gray-700 text-sm mb-0.5 block">{field.label}</label> {/* Adjusted label style */}
               {field.type === 'select' ? (
                 <select
                   name={field.name}
                   value={filters[field.name] || ''}
                   onChange={handleOtherFilterChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400"
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400"
                   disabled={isLoading}
-                  style={{ height: '40px' }}
+                  style={{ height: '36px' }} // height 40px to 36px
                 >
                   <option value="">Tất cả</option>
                   {getOptionsForField(field).map((opt, index) => (
@@ -117,10 +117,10 @@ function GenericFilter({
                      type="date"
                      name={field.name}
                      value={filters[field.name] || ''}
-                     onChange={handleOtherFilterChange}
-                     className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400"
+                     onChange={handleOtherFilterChange} // py-2 to py-1.5
+                     className="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400"
                      disabled={isLoading}
-                     style={{ height: '40px' }}
+                     style={{ height: '36px' }} // height 40px to 36px
                    />
                 </div>
               ) : (
@@ -130,11 +130,11 @@ function GenericFilter({
                     type="text"
                     name={field.name}
                     value={localTextFilters[field.name] || ''}
-                    onChange={handleTextFilterChange}
-                    className="w-full pl-9 pr-9 py-2 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400"
+                    onChange={handleTextFilterChange} // py-2 to py-1.5, pr-9 to pr-3 if no spinner
+                    className="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg bg-white text-gray-800 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400"
                     placeholder={field.placeholder || `Nhập ${field.label.toLowerCase()}...`}
                     disabled={isLoading}
-                    style={{ height: '40px' }}
+                    style={{ height: '36px' }} // height 40px to 36px
                   />
                   {isLoading && (
                     <FaSpinner className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 animate-spin" size={14} />

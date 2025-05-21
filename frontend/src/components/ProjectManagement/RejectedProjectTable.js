@@ -30,9 +30,9 @@ function RejectedProjectTable({
 
   if (!isLoading && (!rejectedProjects || rejectedProjects.length === 0)) {
     return (
-      <div className="text-center text-gray-500 py-10 bg-white shadow-md rounded-lg card"> {/* Using card class */}
-        <FaInfoCircle size={48} className="mx-auto text-blue-400 mb-4" />
-        <p className="text-xl">Không có công trình nào bị từ chối.</p>
+      <div className="text-center text-gray-500 py-10 mt-4 bg-white shadow-md rounded-lg card">
+        <FaInfoCircle size={40} className="mx-auto text-blue-400 mb-3" />
+        <p className="text-lg">Không có công trình nào bị từ chối.</p>
       </div>
     );
   }
@@ -123,14 +123,18 @@ function RejectedProjectTable({
           </tbody>
         </table>
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        isSubmitting={isLoading}
-      />
-      <div className="text-center text-gray-500 text-sm mt-2">
-            Hiển thị trang {currentPage} / {totalPages} (Tổng số: {totalItemsCount} công trình)
+      {/* Container cho phân trang và thông tin tổng số */}
+      <div className="flex justify-between items-center mt-4 px-2"> {/* Sử dụng flexbox để căn chỉnh */}
+        <div className="text-gray-500 text-sm"> {/* Thông tin tổng số ở bên trái */}
+          Hiển thị trang {currentPage} / {totalPages} (Tổng số: {totalItemsCount} công trình bị từ chối)
+        </div>
+        {/* Component Pagination ở bên phải */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          isSubmitting={isLoading}
+        />
       </div>
     </div>
   );
