@@ -1,9 +1,9 @@
 // d:\CODE\water-company\backend\server\utils\sync.util.js
 const mongoose = require('mongoose');
 const { CategoryProject, MinorRepairProject, SerialCounter, Notification, User } = require('../models');
-const logger = require('../config/logger'); // Import logger
+const { userFieldToQuery } = require('../services/helpers/serviceHelpers');
+const logger = require('../config/logger');
 
-// Hàm đồng bộ dữ liệu từ collection projects cũ
 async function syncOldProjects() {
   logger.info('Bắt đầu đồng bộ dữ liệu công trình từ collection projects cũ...');
   try {
@@ -15,6 +15,7 @@ async function syncOldProjects() {
 
     const OldProject = mongoose.model('OldProjectSyncData', new mongoose.Schema({}, { strict: false }), 'projects');
 
+    // Đồng bộ Category Projects
     const categoryProjects = await OldProject.find({ type: 'category' }).sort({ createdAt: 1 });
     const categoryBulkOps = [];
     let categorySerial = await SerialCounter.findOne({ type: 'category' });
@@ -32,70 +33,79 @@ async function syncOldProjects() {
         allocationWave: oldProject.allocationWave || '',
         location: oldProject.location,
         scale: oldProject.scale || '',
-        initialValue: oldProject.initialValue || 0,
-        enteredBy: oldProject.enteredBy,
-        createdBy: oldProject.createdBy || null,
+        projectType: oldProject.projectType || '',
+        leadershipApproval: oldProject.leadershipApproval || '',
+        enteredBy: oldProject.enteredBy, // Giữ lại enteredBy nếu có
         status: oldProject.status || 'Chờ duyệt',
-        assignedTo: oldProject.assignedTo || '',
-        estimator: oldProject.estimator || '',
-        supervisor: oldProject.supervisor || '',
-        durationDays: oldProject.durationDays || 0,
-        startDate: oldProject.startDate || null,
-        completionDate: oldProject.completionDate || null,
+        assignedTo: oldProject.assignedTo || '', // Sẽ được resolve nếu là ID/username
         taskDescription: oldProject.taskDescription || '',
-        contractValue: oldProject.contractValue || 0,
         progress: oldProject.progress || '',
         feasibility: oldProject.feasibility || '',
-        notes: oldProject.notes || '',
+        notes: oldProject.notes ?? '',
         pendingEdit: oldProject.pendingEdit || null,
-        pendingDelete: oldProject.pendingDelete || false,
-        projectType: oldProject.projectType || '',
-        estimatedValue: oldProject.estimatedValue || 0,
-        leadershipApproval: oldProject.leadershipApproval || '',
+        pendingDelete: oldProject.pendingDelete === true,
         createdAt: oldProject.createdAt,
         updatedAt: oldProject.updatedAt,
+        history: oldProject.history || [],
+        profileTimeline: oldProject.profileTimeline || null,
+        constructionTimeline: oldProject.constructionTimeline || null,
       };
-      if (projectData.createdBy && !mongoose.Types.ObjectId.isValid(projectData.createdBy)) {
-        logger.warn(`Invalid createdBy ID ${projectData.createdBy} for old category project ${oldProject._id}. Attempting to find user by username.`);
-        const creatorUser = await User.findOne({ username: projectData.createdBy });
-        projectData.createdBy = creatorUser ? creatorUser._id : null;
-      }
+
+      projectData.financialYear = oldProject.financialYear ? parseInt(String(oldProject.financialYear), 10) : (oldProject.createdAt ? new Date(oldProject.createdAt).getFullYear() : new Date().getFullYear());
+      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getFullYear();
+      
+      projectData.isCompleted = oldProject.isCompleted === true || String(oldProject.isCompleted).toLowerCase() === 'true';
+
+      projectData.createdBy = await userFieldToQuery(oldProject.createdBy) || await userFieldToQuery(oldProject.enteredBy);
       if (!projectData.createdBy) {
-         const defaultCreator = await User.findOne({ role: 'admin' });
-         if (defaultCreator) projectData.createdBy = defaultCreator._id;
-         else {
-            logger.error(`Cannot assign a default creator for old category project ${oldProject._id}. Skipping.`);
+          const defaultCreator = await User.findOne({ role: 'admin' });
+          projectData.createdBy = defaultCreator ? defaultCreator._id : null;
+          if (!projectData.createdBy) {
+            logger.error(`Không thể gán người tạo mặc định cho CT Danh mục cũ ${oldProject._id}. Bỏ qua.`);
             continue;
-         }
+          }
+      }
+      projectData.approvedBy = await userFieldToQuery(oldProject.approvedBy);
+      projectData.supervisor = await userFieldToQuery(oldProject.supervisor);
+      projectData.estimator = await userFieldToQuery(oldProject.estimator);
+      if (typeof oldProject.assignedTo === 'string') { // Resolve assignedTo if it's a string
+        projectData.assignedTo = await userFieldToQuery(oldProject.assignedTo) || oldProject.assignedTo;
       }
 
+
+      projectData.startDate = oldProject.startDate ? new Date(oldProject.startDate) : null;
+      projectData.completionDate = oldProject.completionDate ? new Date(oldProject.completionDate) : null;
+
+      const parseNumeric = (value) => {
+        if (value === undefined || value === null || String(value).trim() === '') return null;
+        const num = parseFloat(String(value).replace(/,/g, ''));
+        return isNaN(num) ? null : num;
+      };
+      projectData.initialValue = parseNumeric(oldProject.initialValue);
+      projectData.contractValue = parseNumeric(oldProject.contractValue);
+      projectData.estimatedValue = parseNumeric(oldProject.estimatedValue);
+      projectData.durationDays = oldProject.durationDays !== undefined && oldProject.durationDays !== null ? parseInt(String(oldProject.durationDays), 10) : null;
+      if (isNaN(projectData.durationDays)) projectData.durationDays = null;
+
+
+      const categorySchemaPaths = Object.keys(CategoryProject.schema.paths);
+      for (const key in projectData) {
+          if (!categorySchemaPaths.includes(key) && key !== '_id') {
+              delete projectData[key];
+          }
+      }
 
       if (existingProject) {
-        categoryBulkOps.push({
-          updateOne: {
-            filter: { _id: oldProject._id },
-            update: { $set: projectData },
-          },
-        });
+        categoryBulkOps.push({ updateOne: { filter: { _id: oldProject._id }, update: { $set: projectData } } });
       } else {
-        categoryBulkOps.push({
-          insertOne: {
-            document: { _id: oldProject._id, ...projectData },
-          },
-        });
+        categoryBulkOps.push({ insertOne: { document: { _id: oldProject._id, ...projectData } } });
       }
     }
-
-    if (categoryBulkOps.length > 0) {
-      await CategoryProject.bulkWrite(categoryBulkOps);
-    }
-    await SerialCounter.findOneAndUpdate(
-      { type: 'category' },
-      { currentSerial: categorySerial.currentSerial },
-      { upsert: true }
-    );
+    if (categoryBulkOps.length > 0) await CategoryProject.bulkWrite(categoryBulkOps, { ordered: false });
+    await SerialCounter.findOneAndUpdate({ type: 'category' }, { currentSerial: categorySerial.currentSerial }, { upsert: true });
     logger.info(`Đã đồng bộ ${categoryProjects.length} công trình danh mục.`);
 
+    // Đồng bộ Minor Repair Projects
     const minorRepairProjects = await OldProject.find({ type: 'minor_repair' }).sort({ createdAt: 1 });
     const minorRepairBulkOps = [];
     let minorRepairSerial = await SerialCounter.findOne({ type: 'minor_repair' });
@@ -109,75 +119,65 @@ async function syncOldProjects() {
         minorRepairSerialNumber: existingProject ? existingProject.minorRepairSerialNumber : ++minorRepairSerial.currentSerial,
         name: oldProject.name,
         allocatedUnit: oldProject.allocatedUnit,
-        constructionUnit: oldProject.constructionUnit || '',
-        allocationWave: oldProject.allocationWave || '',
         location: oldProject.location,
         scale: oldProject.scale || '',
-        reportDate: oldProject.reportDate || null,
-        inspectionDate: oldProject.inspectionDate || null,
-        paymentDate: oldProject.paymentDate || null,
-        paymentValue: oldProject.paymentValue || 0,
         leadershipApproval: oldProject.leadershipApproval || '',
-        initialValue: oldProject.initialValue || 0,
         enteredBy: oldProject.enteredBy,
-        createdBy: oldProject.createdBy || null,
         status: oldProject.status || 'Chờ duyệt',
         assignedTo: oldProject.assignedTo || '',
-        estimator: oldProject.estimator || '',
-        supervisor: oldProject.supervisor || '',
-        durationDays: oldProject.durationDays || 0,
-        startDate: oldProject.startDate || null,
-        completionDate: oldProject.completionDate || null,
         taskDescription: oldProject.taskDescription || '',
-        contractValue: oldProject.contractValue || 0,
-        progress: oldProject.progress || '',
-        feasibility: oldProject.feasibility || '',
-        notes: oldProject.notes || '',
+        notes: oldProject.notes ?? '',
         pendingEdit: oldProject.pendingEdit || null,
-        pendingDelete: oldProject.pendingDelete || false,
+        pendingDelete: oldProject.pendingDelete === true,
         createdAt: oldProject.createdAt,
         updatedAt: oldProject.updatedAt,
+        history: oldProject.history || [],
+        constructionTimeline: oldProject.constructionTimeline || null,
       };
-      if (projectData.createdBy && !mongoose.Types.ObjectId.isValid(projectData.createdBy)) {
-        logger.warn(`Invalid createdBy ID ${projectData.createdBy} for old minor_repair project ${oldProject._id}. Attempting to find user by username.`);
-        const creatorUser = await User.findOne({ username: projectData.createdBy });
-        projectData.createdBy = creatorUser ? creatorUser._id : null;
-      }
+
+      projectData.financialYear = oldProject.financialYear ? parseInt(String(oldProject.financialYear), 10) : (oldProject.createdAt ? new Date(oldProject.createdAt).getFullYear() : new Date().getFullYear());
+      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getFullYear();
+      
+      projectData.isCompleted = oldProject.isCompleted === true || String(oldProject.isCompleted).toLowerCase() === 'true';
+
+      projectData.createdBy = await userFieldToQuery(oldProject.createdBy) || await userFieldToQuery(oldProject.enteredBy);
       if (!projectData.createdBy) {
-         const defaultCreator = await User.findOne({ role: 'admin' });
-         if (defaultCreator) projectData.createdBy = defaultCreator._id;
-         else {
-            logger.error(`Cannot assign a default creator for old minor_repair project ${oldProject._id}. Skipping.`);
+          const defaultCreator = await User.findOne({ role: 'admin' });
+          projectData.createdBy = defaultCreator ? defaultCreator._id : null;
+          if (!projectData.createdBy) {
+            logger.error(`Không thể gán người tạo mặc định cho CT SCN cũ ${oldProject._id}. Bỏ qua.`);
             continue;
-         }
+          }
+      }
+      projectData.approvedBy = await userFieldToQuery(oldProject.approvedBy);
+      projectData.supervisor = await userFieldToQuery(oldProject.supervisor);
+       if (typeof oldProject.assignedTo === 'string') {
+        projectData.assignedTo = await userFieldToQuery(oldProject.assignedTo) || oldProject.assignedTo;
+      }
+
+      projectData.reportDate = oldProject.reportDate ? new Date(oldProject.reportDate) : null;
+      projectData.inspectionDate = oldProject.inspectionDate ? new Date(oldProject.inspectionDate) : null;
+      projectData.paymentDate = oldProject.paymentDate ? new Date(oldProject.paymentDate) : null;
+      projectData.paymentValue = parseNumeric(oldProject.paymentValue);
+
+      const minorRepairSchemaPaths = Object.keys(MinorRepairProject.schema.paths);
+      for (const key in projectData) {
+          if (!minorRepairSchemaPaths.includes(key) && key !== '_id') {
+              delete projectData[key];
+          }
       }
 
       if (existingProject) {
-        minorRepairBulkOps.push({
-          updateOne: {
-            filter: { _id: oldProject._id },
-            update: { $set: projectData },
-          },
-        });
+        minorRepairBulkOps.push({ updateOne: { filter: { _id: oldProject._id }, update: { $set: projectData } } });
       } else {
-        minorRepairBulkOps.push({
-          insertOne: {
-            document: { _id: oldProject._id, ...projectData },
-          },
-        });
+        minorRepairBulkOps.push({ insertOne: { document: { _id: oldProject._id, ...projectData } } });
       }
     }
-
-    if (minorRepairBulkOps.length > 0) {
-      await MinorRepairProject.bulkWrite(minorRepairBulkOps);
-    }
-    await SerialCounter.findOneAndUpdate(
-      { type: 'minor_repair' },
-      { currentSerial: minorRepairSerial.currentSerial },
-      { upsert: true }
-    );
+    if (minorRepairBulkOps.length > 0) await MinorRepairProject.bulkWrite(minorRepairBulkOps, { ordered: false });
+    await SerialCounter.findOneAndUpdate({ type: 'minor_repair' }, { currentSerial: minorRepairSerial.currentSerial }, { upsert: true });
     logger.info(`Đã đồng bộ ${minorRepairProjects.length} công trình sửa chữa nhỏ.`);
 
+    // Cập nhật projectModel cho Notifications
     const notifications = await Notification.find();
     for (const notification of notifications) {
       if (notification.projectId) {

@@ -330,7 +330,7 @@ function Settings({ user }) {
     onSuccess: (data) => {
       toast.success(data.message || 'Đồng bộ dữ liệu thành công!', { position: "top-center" });
       queryClient.invalidateQueries(['projects', 'category']);
-      queryClient.invalidateQueries(['projects', 'minor_repair']);
+      queryClient.invalidateQueries(['projects', 'minor_repair']); // Invalidate both project types
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi đồng bộ dữ liệu công trình!', { position: "top-center" }),
   });

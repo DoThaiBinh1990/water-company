@@ -1,3 +1,4 @@
+// d:\CODE\water-company\frontend\src\config\formConfigs.js
 export const categoryFormConfig = {
   addTitle: 'Thêm mới Công trình Danh mục',
   editTitle: 'Chỉnh sửa Công trình Danh mục',
@@ -8,6 +9,7 @@ export const categoryFormConfig = {
       fields: [
         { name: 'name', label: 'Tên danh mục công trình', type: 'text', required: true, placeholder: 'Nhập tên công trình' },
         { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
+        { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' }, // Thêm trường isCompleted
         { name: 'allocatedUnit', label: 'Đơn vị phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
         { name: 'projectType', label: 'Loại công trình', type: 'select', required: true, optionsSource: 'projectTypes' },
         { name: 'scale', label: 'Quy mô', type: 'text', required: true, placeholder: 'VD: Tuyến ống D100, Nâng cấp TBA...' },
@@ -35,7 +37,7 @@ export const categoryFormConfig = {
         { name: 'initialValue', label: 'Giá trị phân bổ (Triệu đồng)', type: 'text', numeric: true, placeholder: 'Chỉ nhập số, VD: 150.5' },
         { name: 'estimatedValue', label: 'Giá trị dự toán (Triệu đồng)', type: 'text', numeric: true, placeholder: 'Chỉ nhập số' },
         { name: 'contractValue', label: 'Giá trị giao khoán (Triệu đồng)', type: 'text', numeric: true, placeholder: 'Chỉ nhập số' },
-        { name: 'constructionUnit', label: 'Đơn vị thi công', type: 'select', optionsSource: 'constructionUnits' },
+        { name: 'constructionUnit', label: 'Đơn vị thi công', type: 'select', optionsSource: 'constructionUnits' }, // Sửa optionsSource
         { name: 'progress', label: 'Tiến độ thi công', type: 'text', placeholder: 'VD: Hoàn thành 50%, Đang mời thầu...' },
         { name: 'feasibility', label: 'Khả năng thực hiện', type: 'text', placeholder: 'VD: Tốt, Cần xem xét thêm...' },
         { name: 'notes', label: 'Ghi chú chung', type: 'textarea', rows: 3, fullWidth: true, placeholder: 'Các thông tin khác cần lưu ý' },
@@ -54,6 +56,7 @@ export const minorRepairFormConfig = {
       fields: [
         { name: 'name', label: 'Tên công trình/Sự cố', type: 'text', required: true, placeholder: 'Nhập tên hoặc mô tả sự cố' },
         { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
+        { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' }, // Thêm trường isCompleted
         { name: 'allocatedUnit', label: 'Đơn vị quản lý/phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
         { name: 'location', label: 'Địa điểm xảy ra sự cố', type: 'text', required: true, placeholder: 'Nhập địa điểm cụ thể' },
         { name: 'scale', label: 'Quy mô/Hiện trạng', type: 'textarea', rows: 2, required: true, placeholder: 'Mô tả quy mô hoặc hiện trạng sự cố' },

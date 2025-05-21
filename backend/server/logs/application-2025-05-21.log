@@ -278,3 +278,405 @@
 2025-05-21 10:59:27 info: Người dùng đã ngắt kết nối: _4gjPwK3Vn18JTI1AABx
 2025-05-21 10:59:28 info: Một người dùng đã kết nối: luyZgTap7o2UOvV9AABz
 2025-05-21 10:59:28 info: Một người dùng đã kết nối: hHsqdWYppju8hh3EAAB1
+2025-05-21 11:06:37 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 11:06:37 info: Một người dùng đã kết nối: IN0HGg0SoIpVf-t0AAAB
+2025-05-21 11:06:38 info: Một người dùng đã kết nối: Ycso3GMlxjnyP8pTAAAD
+2025-05-21 11:06:38 info: MongoDB đã kết nối thành công.
+2025-05-21 11:06:42 info: Người dùng đã ngắt kết nối: IN0HGg0SoIpVf-t0AAAB
+2025-05-21 11:06:42 info: Người dùng đã ngắt kết nối: Ycso3GMlxjnyP8pTAAAD
+2025-05-21 11:06:42 info: Một người dùng đã kết nối: 26RSiy0JT4BIY3ZJAAAF
+2025-05-21 11:06:42 info: Một người dùng đã kết nối: oInsMdjz86zinUTvAAAH
+2025-05-21 13:54:14 info: Một người dùng đã kết nối: grw3X6TDh3n8MKtoAAAJ
+2025-05-21 13:55:11 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 13:55:11 info: Một người dùng đã kết nối: SfS0O-gLlA_mEFDZAAAB
+2025-05-21 13:55:11 info: Một người dùng đã kết nối: OqjbdsMePPs33t9XAAAD
+2025-05-21 13:55:11 info: MongoDB đã kết nối thành công.
+2025-05-21 13:55:12 info: Một người dùng đã kết nối: 1pVrwpvNinT8MhaBAAAF
+2025-05-21 13:55:18 info: Người dùng đã ngắt kết nối: SfS0O-gLlA_mEFDZAAAB
+2025-05-21 13:55:18 info: Người dùng đã ngắt kết nối: 1pVrwpvNinT8MhaBAAAF
+2025-05-21 13:55:18 info: Người dùng đã ngắt kết nối: OqjbdsMePPs33t9XAAAD
+2025-05-21 13:55:19 info: Một người dùng đã kết nối: akFf7yqUe9l-Zkm8AAAH
+2025-05-21 13:55:19 info: Một người dùng đã kết nối: RbMtckZ5BzbCll3gAAAJ
+2025-05-21 13:56:11 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 13:56:11 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 13:56:22 info: Bắt đầu đồng bộ dữ liệu công trình từ collection projects cũ...
+2025-05-21 13:56:22 info: Đã đồng bộ 1 công trình danh mục.
+2025-05-21 13:56:22 error: Lỗi khi đồng bộ dữ liệu: parseNumeric is not defined
+2025-05-21 13:56:22 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: parseNumeric is not defined
+2025-05-21 13:56:22 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: parseNumeric is not defined
+2025-05-21 13:56:43 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 13:56:43 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 13:58:39 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 13:58:39 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 13:59:20 info: Người dùng đã ngắt kết nối: akFf7yqUe9l-Zkm8AAAH
+2025-05-21 13:59:20 info: Người dùng đã ngắt kết nối: RbMtckZ5BzbCll3gAAAJ
+2025-05-21 13:59:21 info: Một người dùng đã kết nối: 6yY9bdPloQ3YHtF9AAAL
+2025-05-21 13:59:21 info: Một người dùng đã kết nối: fd_q3zYdZsayq-UQAAAN
+2025-05-21 13:59:24 info: Người dùng đã ngắt kết nối: 6yY9bdPloQ3YHtF9AAAL
+2025-05-21 13:59:24 info: Người dùng đã ngắt kết nối: fd_q3zYdZsayq-UQAAAN
+2025-05-21 13:59:25 info: Một người dùng đã kết nối: AaAwBUlugb-inDelAAAP
+2025-05-21 13:59:25 info: Một người dùng đã kết nối: hSofCFAPrNCXgSzCAAAR
+2025-05-21 13:59:26 info: Người dùng đã ngắt kết nối: AaAwBUlugb-inDelAAAP
+2025-05-21 13:59:26 info: Người dùng đã ngắt kết nối: hSofCFAPrNCXgSzCAAAR
+2025-05-21 13:59:26 info: Một người dùng đã kết nối: FoY8tIFNw8IPy2lkAAAT
+2025-05-21 13:59:26 info: Một người dùng đã kết nối: eXM1mdRcdXagMgnvAAAV
+2025-05-21 13:59:27 info: Người dùng đã ngắt kết nối: FoY8tIFNw8IPy2lkAAAT
+2025-05-21 13:59:27 info: Người dùng đã ngắt kết nối: eXM1mdRcdXagMgnvAAAV
+2025-05-21 13:59:28 info: Một người dùng đã kết nối: UYwG350jY7NqgMifAAAX
+2025-05-21 13:59:28 info: Một người dùng đã kết nối: 8khrtWyo4tQ_I-k4AAAZ
+2025-05-21 13:59:29 info: Người dùng đã ngắt kết nối: UYwG350jY7NqgMifAAAX
+2025-05-21 13:59:29 info: Người dùng đã ngắt kết nối: 8khrtWyo4tQ_I-k4AAAZ
+2025-05-21 13:59:29 info: Một người dùng đã kết nối: 8NH4OV6sc3YNQ_wUAAAb
+2025-05-21 13:59:29 info: Một người dùng đã kết nối: Rrjm2PCe1EB0dXjkAAAd
+2025-05-21 13:59:32 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 13:59:32 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 13:59:34 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 13:59:34 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 13:59:38 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 13:59:38 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:04:50 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:04:50 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:06:36 error: Lỗi Controller batch update Timeline Hồ sơ: Cannot create field 'actualEndDate' in element {profileTimeline: null}
+2025-05-21 14:06:36 error: Lỗi không xác định: Cannot create field 'actualEndDate' in element {profileTimeline: null}
+2025-05-21 14:07:13 info: Người dùng đã ngắt kết nối: 8NH4OV6sc3YNQ_wUAAAb
+2025-05-21 14:07:13 info: Người dùng đã ngắt kết nối: Rrjm2PCe1EB0dXjkAAAd
+2025-05-21 14:07:13 info: Một người dùng đã kết nối: 6c82OIuT5o6mo8U1AAAf
+2025-05-21 14:07:13 info: Một người dùng đã kết nối: 1A0jhF5sECnh3U2fAAAh
+2025-05-21 14:11:48 info: Người dùng đã ngắt kết nối: 6c82OIuT5o6mo8U1AAAf
+2025-05-21 14:11:48 info: Người dùng đã ngắt kết nối: 1A0jhF5sECnh3U2fAAAh
+2025-05-21 14:11:49 info: Một người dùng đã kết nối: _UizV4GJpnVVae6wAAAj
+2025-05-21 14:11:49 info: Một người dùng đã kết nối: x1-mpiY8Eww70c8GAAAl
+2025-05-21 14:13:14 info: Người dùng đã ngắt kết nối: _UizV4GJpnVVae6wAAAj
+2025-05-21 14:13:14 info: Người dùng đã ngắt kết nối: x1-mpiY8Eww70c8GAAAl
+2025-05-21 14:13:15 info: Một người dùng đã kết nối: 1uh-0SkYFn8K1risAAAn
+2025-05-21 14:13:15 info: Một người dùng đã kết nối: MU78TUxkQBHqnDMcAAAp
+2025-05-21 14:15:08 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:15:08 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:16:13 error: Lỗi Controller batch update Timeline Hồ sơ: Cannot create field 'actualEndDate' in element {profileTimeline: null}
+2025-05-21 14:16:13 error: Lỗi không xác định: Cannot create field 'actualEndDate' in element {profileTimeline: null}
+2025-05-21 14:17:16 info: Người dùng đã ngắt kết nối: 1uh-0SkYFn8K1risAAAn
+2025-05-21 14:17:16 info: Người dùng đã ngắt kết nối: MU78TUxkQBHqnDMcAAAp
+2025-05-21 14:17:17 info: Một người dùng đã kết nối: Lkft4Eekcrqt979AAAAr
+2025-05-21 14:17:17 info: Một người dùng đã kết nối: SYQDwB0TfPT2qhWtAAAt
+2025-05-21 14:24:15 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:24:16 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:25:40 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:25:40 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:26:17 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:26:17 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:30:17 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 14:30:17 info: Một người dùng đã kết nối: 2XbpQI252gRuNIdnAAAB
+2025-05-21 14:30:18 info: Một người dùng đã kết nối: vdD-UibyKsN5K4AOAAAD
+2025-05-21 14:30:18 info: MongoDB đã kết nối thành công.
+2025-05-21 14:31:09 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-21 14:31:09 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:31:09 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:31:09 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:31:09 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:32:53 info: Người dùng đã ngắt kết nối: 2XbpQI252gRuNIdnAAAB
+2025-05-21 14:32:53 info: Người dùng đã ngắt kết nối: vdD-UibyKsN5K4AOAAAD
+2025-05-21 14:32:53 info: Một người dùng đã kết nối: OEOsweEgz0YPAfp0AAAF
+2025-05-21 14:32:53 info: Một người dùng đã kết nối: BE2brQSZoQI8AgHcAAAH
+2025-05-21 14:33:01 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:33:01 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:33:28 info: [getHolidays] Attempting to fetch holidays for year: 2020
+2025-05-21 14:33:29 info: [getHolidays] No holiday document found for year 2020. Returning empty list.
+2025-05-21 14:37:51 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 14:37:51 info: Một người dùng đã kết nối: tRtPXyg8PzyhZFnIAAAC
+2025-05-21 14:37:51 info: Một người dùng đã kết nối: 0vNZ4EhnX8qF6gCCAAAD
+2025-05-21 14:37:51 info: MongoDB đã kết nối thành công.
+2025-05-21 14:38:04 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-21 14:38:04 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:38:04 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:38:04 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:38:04 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:38:16 info: Người dùng đã ngắt kết nối: tRtPXyg8PzyhZFnIAAAC
+2025-05-21 14:38:16 info: Người dùng đã ngắt kết nối: 0vNZ4EhnX8qF6gCCAAAD
+2025-05-21 14:38:17 info: Một người dùng đã kết nối: ewl0otgVop2hKyzQAAAF
+2025-05-21 14:38:17 info: Một người dùng đã kết nối: byorlldoUeuY46sXAAAH
+2025-05-21 14:56:38 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 14:56:38 info: Một người dùng đã kết nối: -OoSSIBV_M8jSmpDAAAB
+2025-05-21 14:56:39 info: MongoDB đã kết nối thành công.
+2025-05-21 14:56:43 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:56:43 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:56:43 info: Một người dùng đã kết nối: vSpdZtAmxJM1rWGdAAAD
+2025-05-21 14:56:45 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:56:45 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:56:46 info: Người dùng đã ngắt kết nối: -OoSSIBV_M8jSmpDAAAB
+2025-05-21 14:56:46 info: Người dùng đã ngắt kết nối: vSpdZtAmxJM1rWGdAAAD
+2025-05-21 14:56:46 info: Một người dùng đã kết nối: Qz_lk7xMeENDNUf1AAAF
+2025-05-21 14:56:46 info: Một người dùng đã kết nối: 8GGCIokV_tEzMK3jAAAH
+2025-05-21 14:57:28 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:28 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:29 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:29 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:31 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:31 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:35 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:35 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:36 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 14:57:36 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 14:57:49 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:49 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:50 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:50 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:51 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:51 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:52 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:52 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:53 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:53 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:54 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:54 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:56 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:56 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:58 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:58 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:59 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:57:59 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:01 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:01 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:05 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:05 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:10 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:10 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:11 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:11 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:13 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:13 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:17 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:58:17 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:36 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:36 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:37 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:37 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:39 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:39 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:43 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:43 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:52 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:52 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:53 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:53 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:55 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:55 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:56 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:56 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:58 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 14:59:58 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:02 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:02 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:36 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:36 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:37 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:37 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:40 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:40 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:44 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:00:44 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:03:52 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:03:52 info: Một người dùng đã kết nối: 4xa0IBd4QOjzj6moAAAB
+2025-05-21 15:03:52 info: Một người dùng đã kết nối: Bh-My86U0oSoYQQ0AAAD
+2025-05-21 15:03:53 info: MongoDB đã kết nối thành công.
+2025-05-21 15:03:54 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:03:54 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:03:55 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:03:55 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:03:57 info: Người dùng đã ngắt kết nối: 4xa0IBd4QOjzj6moAAAB
+2025-05-21 15:03:57 info: Người dùng đã ngắt kết nối: Bh-My86U0oSoYQQ0AAAD
+2025-05-21 15:03:57 info: Một người dùng đã kết nối: hLdY8lfV-R9ZD0zQAAAF
+2025-05-21 15:03:58 info: Một người dùng đã kết nối: KF6-Q3Y_-Mw4MUTuAAAH
+2025-05-21 15:04:02 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:02 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:03 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:03 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:05 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:05 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:09 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:09 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:10 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:04:11 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 15:04:17 info: Người dùng đã ngắt kết nối: hLdY8lfV-R9ZD0zQAAAF
+2025-05-21 15:04:17 info: Người dùng đã ngắt kết nối: KF6-Q3Y_-Mw4MUTuAAAH
+2025-05-21 15:04:17 info: Một người dùng đã kết nối: sGlR_Ua-DFNbYc63AAAJ
+2025-05-21 15:04:17 info: Một người dùng đã kết nối: A8XyJ57DIabnEgRAAAAL
+2025-05-21 15:04:21 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:21 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:22 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:22 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:26 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:26 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:30 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:04:30 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:05:43 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:05:43 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:05:44 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:05:44 error: Lỗi không xác định: Class constructor ObjectId cannot be invoked without 'new'
+2025-05-21 15:06:23 info: Người dùng đã ngắt kết nối: sGlR_Ua-DFNbYc63AAAJ
+2025-05-21 15:06:27 info: Một người dùng đã kết nối: S-8f9GClVMZ1T8vmAAAN
+2025-05-21 15:09:44 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:09:44 info: Một người dùng đã kết nối: XL5EJrjsPWdImJSKAAAB
+2025-05-21 15:09:45 info: Một người dùng đã kết nối: rbDinHXTXVdHjGRKAAAD
+2025-05-21 15:09:45 info: MongoDB đã kết nối thành công.
+2025-05-21 15:11:13 info: Batch update profile timeline result for estimator 6824157f08ab772b765f45e5, year 2025:
+2025-05-21 15:12:29 info: Batch update profile timeline result for estimator 6824441608ab772b765f4d88, year 2025:
+2025-05-21 15:19:21 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:19:22 info: Một người dùng đã kết nối: Q6pw5G_2wC6GXal4AAAB
+2025-05-21 15:19:22 info: Một người dùng đã kết nối: ZSuE0M7hJprVVHmZAAAD
+2025-05-21 15:19:22 info: MongoDB đã kết nối thành công.
+2025-05-21 15:19:51 info: Người dùng đã ngắt kết nối: Q6pw5G_2wC6GXal4AAAB
+2025-05-21 15:19:51 info: Người dùng đã ngắt kết nối: ZSuE0M7hJprVVHmZAAAD
+2025-05-21 15:19:52 info: Một người dùng đã kết nối: PqeL-4hg3sosPa3BAAAF
+2025-05-21 15:19:52 info: Một người dùng đã kết nối: 4d-wUBC6wguL1ewvAAAH
+2025-05-21 15:21:21 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:21:21 error: Lỗi không xác định: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:21:22 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:21:22 error: Lỗi không xác định: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:21:24 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:21:24 error: Lỗi không xác định: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:41 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:41 error: Lỗi không xác định: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:42 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:42 error: Lỗi không xác định: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:44 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:44 error: Lỗi không xác định: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:51 error: Lỗi Controller lấy danh sách công trình cho phân công Timeline: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:23:51 error: Lỗi không xác định: Cannot populate path `estimator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-21 15:27:54 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:27:54 info: Một người dùng đã kết nối: G_jgukT1E-0GJ4Q0AAAC
+2025-05-21 15:27:54 info: Một người dùng đã kết nối: pn40h4CB_4hTO-fHAAAD
+2025-05-21 15:27:55 info: MongoDB đã kết nối thành công.
+2025-05-21 15:28:02 info: Người dùng đã ngắt kết nối: G_jgukT1E-0GJ4Q0AAAC
+2025-05-21 15:28:02 info: Người dùng đã ngắt kết nối: pn40h4CB_4hTO-fHAAAD
+2025-05-21 15:28:03 info: Một người dùng đã kết nối: TdZbgmNGepidZFkeAAAF
+2025-05-21 15:28:03 info: Một người dùng đã kết nối: BECYU_fzOXKWBC3NAAAH
+2025-05-21 15:32:26 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:32:26 info: Một người dùng đã kết nối: adpi9-5g178P4YGgAAAB
+2025-05-21 15:32:26 info: Một người dùng đã kết nối: I9OkGtKZiiOurrseAAAD
+2025-05-21 15:32:26 info: MongoDB đã kết nối thành công.
+2025-05-21 15:32:30 info: Người dùng đã ngắt kết nối: adpi9-5g178P4YGgAAAB
+2025-05-21 15:32:30 info: Người dùng đã ngắt kết nối: I9OkGtKZiiOurrseAAAD
+2025-05-21 15:32:30 info: Một người dùng đã kết nối: cRJcpbheeFYJ2ArMAAAF
+2025-05-21 15:32:31 info: Một người dùng đã kết nối: lqNTsudRGb0rAz6gAAAH
+2025-05-21 15:38:24 info: Người dùng đã ngắt kết nối: cRJcpbheeFYJ2ArMAAAF
+2025-05-21 15:38:29 info: Một người dùng đã kết nối: 32YCc4TYt4PpEoBbAAAJ
+2025-05-21 15:38:29 info: Một người dùng đã kết nối: hlCFW1_pYydayhJHAAAK
+2025-05-21 15:38:42 info: Người dùng đã ngắt kết nối: hlCFW1_pYydayhJHAAAK
+2025-05-21 15:38:42 info: Người dùng đã ngắt kết nối: 32YCc4TYt4PpEoBbAAAJ
+2025-05-21 15:38:46 info: Một người dùng đã kết nối: pVOHTC6WpugIPVc_AAAM
+2025-05-21 15:38:46 info: Một người dùng đã kết nối: wueEsnuRdQFqiXtdAAAN
+2025-05-21 15:41:39 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:41:39 info: Một người dùng đã kết nối: aufZJhDaTQ37HvXJAAAB
+2025-05-21 15:41:39 info: Một người dùng đã kết nối: Is-srxcghISZ4OWXAAAD
+2025-05-21 15:41:40 info: MongoDB đã kết nối thành công.
+2025-05-21 15:41:51 info: Người dùng đã ngắt kết nối: aufZJhDaTQ37HvXJAAAB
+2025-05-21 15:41:51 info: Người dùng đã ngắt kết nối: Is-srxcghISZ4OWXAAAD
+2025-05-21 15:41:52 info: Một người dùng đã kết nối: TbIALVcHAMlOkxxPAAAF
+2025-05-21 15:41:52 info: Một người dùng đã kết nối: opeoUEv5Pvjnq_XeAAAH
+2025-05-21 15:41:58 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:41:58 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 15:46:50 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:46:50 info: Một người dùng đã kết nối: VU0BGlHDjwBkvs-XAAAC
+2025-05-21 15:46:50 info: Một người dùng đã kết nối: LnqHC4U0M0UuKSj_AAAD
+2025-05-21 15:46:51 info: MongoDB đã kết nối thành công.
+2025-05-21 15:46:55 info: Người dùng đã ngắt kết nối: VU0BGlHDjwBkvs-XAAAC
+2025-05-21 15:46:55 info: Người dùng đã ngắt kết nối: LnqHC4U0M0UuKSj_AAAD
+2025-05-21 15:46:56 info: Một người dùng đã kết nối: 6r7xDeA9wSdlFXU9AAAF
+2025-05-21 15:46:56 info: Một người dùng đã kết nối: qXBRG4uEfvbPXudyAAAH
+2025-05-21 15:47:02 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:47:02 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 15:52:49 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:52:50 info: Một người dùng đã kết nối: Kjcki2j1idIquZZmAAAB
+2025-05-21 15:52:50 info: Một người dùng đã kết nối: w8CGkIZoZFfa9lpQAAAD
+2025-05-21 15:52:50 info: MongoDB đã kết nối thành công.
+2025-05-21 15:52:56 info: Người dùng đã ngắt kết nối: Kjcki2j1idIquZZmAAAB
+2025-05-21 15:52:56 info: Người dùng đã ngắt kết nối: w8CGkIZoZFfa9lpQAAAD
+2025-05-21 15:52:57 info: Một người dùng đã kết nối: Zmyb1yOKleverz2tAAAF
+2025-05-21 15:52:57 info: Một người dùng đã kết nối: xhL2A3xv1IjbwC-zAAAH
+2025-05-21 15:53:03 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:53:03 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 15:55:23 info: Batch update profile timeline result for estimator 6824441608ab772b765f4d88, year 2025:
+2025-05-21 15:55:23 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:55:24 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 15:55:24 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:55:24 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 15:55:37 info: Người dùng đã ngắt kết nối: Zmyb1yOKleverz2tAAAF
+2025-05-21 15:55:37 info: Người dùng đã ngắt kết nối: xhL2A3xv1IjbwC-zAAAH
+2025-05-21 15:55:38 info: Một người dùng đã kết nối: 361gh450utZH3mqfAAAJ
+2025-05-21 15:55:38 info: Một người dùng đã kết nối: Z4cJHYAaPudnjBPlAAAL
+2025-05-21 15:55:42 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:55:42 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 15:59:38 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 15:59:38 info: Một người dùng đã kết nối: j0o8QLIUjHcgPV55AAAB
+2025-05-21 15:59:38 info: Một người dùng đã kết nối: skUnwRmoR7FuybJQAAAD
+2025-05-21 15:59:38 info: MongoDB đã kết nối thành công.
+2025-05-21 15:59:45 info: Người dùng đã ngắt kết nối: j0o8QLIUjHcgPV55AAAB
+2025-05-21 15:59:45 info: Người dùng đã ngắt kết nối: skUnwRmoR7FuybJQAAAD
+2025-05-21 15:59:46 info: Một người dùng đã kết nối: -3PBife9GYbhX3HUAAAF
+2025-05-21 15:59:46 info: Một người dùng đã kết nối: wRqdSzZIz39vPbR9AAAH
+2025-05-21 15:59:53 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 15:59:53 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 16:11:52 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 16:11:52 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 16:13:46 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 16:13:46 info: Một người dùng đã kết nối: 8q2iJoS2Cby8iAheAAAB
+2025-05-21 16:13:46 info: Một người dùng đã kết nối: JREZq30jso83dftrAAAD
+2025-05-21 16:13:47 info: MongoDB đã kết nối thành công.
+2025-05-21 16:13:58 info: Người dùng đã ngắt kết nối: 8q2iJoS2Cby8iAheAAAB
+2025-05-21 16:13:58 info: Người dùng đã ngắt kết nối: JREZq30jso83dftrAAAD
+2025-05-21 16:13:59 info: Một người dùng đã kết nối: uXGE8Z_7TH6f9vfxAAAF
+2025-05-21 16:13:59 info: Một người dùng đã kết nối: fgFnA_G6MFMpmUxOAAAH
+2025-05-21 16:14:04 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 16:14:05 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 16:21:59 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 16:22:00 info: Một người dùng đã kết nối: AKyVdWlnhVG5JbxEAAAC
+2025-05-21 16:22:00 info: Một người dùng đã kết nối: JVoZedv10r9L_ZuKAAAD
+2025-05-21 16:22:00 info: MongoDB đã kết nối thành công.
+2025-05-21 16:22:06 info: Người dùng đã ngắt kết nối: AKyVdWlnhVG5JbxEAAAC
+2025-05-21 16:22:06 info: Người dùng đã ngắt kết nối: JVoZedv10r9L_ZuKAAAD
+2025-05-21 16:22:07 info: Một người dùng đã kết nối: uQ9BraVp6PKGex6EAAAF
+2025-05-21 16:22:07 info: Một người dùng đã kết nối: ES0r337vnqgqixllAAAH
+2025-05-21 16:22:13 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 16:22:13 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 16:35:25 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 16:35:25 info: Một người dùng đã kết nối: OmbcUhWtxOA1ZaxwAAAB
+2025-05-21 16:35:25 info: Một người dùng đã kết nối: jKYQCRzAkveQK2WoAAAD
+2025-05-21 16:35:26 info: MongoDB đã kết nối thành công.
+2025-05-21 16:35:31 info: Người dùng đã ngắt kết nối: OmbcUhWtxOA1ZaxwAAAB
+2025-05-21 16:35:32 info: Người dùng đã ngắt kết nối: jKYQCRzAkveQK2WoAAAD
+2025-05-21 16:35:32 info: Một người dùng đã kết nối: HLMUlOpf4fHKa2IEAAAF
+2025-05-21 16:35:32 info: Một người dùng đã kết nối: nU31bu9cscI6rr6iAAAH
+2025-05-21 16:35:38 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 16:35:38 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 16:41:32 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 16:41:32 info: Một người dùng đã kết nối: invEYgrPyo_gmSNXAAAC
+2025-05-21 16:41:32 info: Một người dùng đã kết nối: LB02foPyBSxYMWP2AAAD
+2025-05-21 16:41:33 info: MongoDB đã kết nối thành công.
+2025-05-21 16:41:37 info: Người dùng đã ngắt kết nối: invEYgrPyo_gmSNXAAAC
+2025-05-21 16:41:37 info: Người dùng đã ngắt kết nối: LB02foPyBSxYMWP2AAAD
+2025-05-21 16:41:37 info: Một người dùng đã kết nối: OY6znlxOAqfSUfphAAAF
+2025-05-21 16:41:38 info: Một người dùng đã kết nối: Z2joKSLSWwNiQww2AAAH
+2025-05-21 16:41:43 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 16:41:43 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 16:51:07 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 16:51:08 info: Một người dùng đã kết nối: drQKnOxjNYER8j2JAAAB
+2025-05-21 16:51:08 info: Một người dùng đã kết nối: TqPtvNITN8pdZOuCAAAD
+2025-05-21 16:51:08 info: MongoDB đã kết nối thành công.
+2025-05-21 16:51:12 info: Người dùng đã ngắt kết nối: drQKnOxjNYER8j2JAAAB
+2025-05-21 16:51:12 info: Người dùng đã ngắt kết nối: TqPtvNITN8pdZOuCAAAD
+2025-05-21 16:51:12 info: Một người dùng đã kết nối: A0Ki37PpBw_L2ysxAAAF
+2025-05-21 16:51:13 info: Một người dùng đã kết nối: z_716G0myuJbZvp-AAAH
+2025-05-21 16:51:19 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 16:51:19 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 17:03:34 info: Máy chủ đang chạy trên cổng 5000
+2025-05-21 17:03:34 info: Một người dùng đã kết nối: bchqrpx4PTHTDxwMAAAC
+2025-05-21 17:03:34 info: Một người dùng đã kết nối: nA75qSc6mgYzLY4nAAAD
+2025-05-21 17:03:35 info: MongoDB đã kết nối thành công.
+2025-05-21 17:03:51 info: Người dùng đã ngắt kết nối: nA75qSc6mgYzLY4nAAAD
+2025-05-21 17:03:51 info: Người dùng đã ngắt kết nối: bchqrpx4PTHTDxwMAAAC
+2025-05-21 17:04:11 info: Một người dùng đã kết nối: OXvkielPIL_9SusGAAAF
+2025-05-21 17:04:11 info: Một người dùng đã kết nối: qngjYDN16QhatX23AAAH
+2025-05-21 17:04:17 info: [getHolidays] Attempting to fetch holidays for year: 2025
+2025-05-21 17:04:17 info: [getHolidays] Found holiday document for year 2025. Holidays count: 1
+2025-05-21 17:04:24 info: Người dùng đã ngắt kết nối: qngjYDN16QhatX23AAAH
+2025-05-21 17:04:24 info: Người dùng đã ngắt kết nối: OXvkielPIL_9SusGAAAF

@@ -1,8 +1,8 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\GenericTable.js
 import React from 'react';
-import { FaInfoCircle } from 'react-icons/fa'; // Import icon for empty state
+import { FaInfoCircle } from 'react-icons/fa';
 import { formatCurrency, getNestedProperty } from '../../utils/helpers';
-import { formatDateToLocale } from '../../utils/dateUtils';
+// formatDateToLocale sẽ được truyền qua props từ ProjectManagement.js
 import Pagination from '../Common/Pagination';
 
 function GenericTable({
@@ -21,16 +21,17 @@ function GenericTable({
   tableWidth = '100%',
   itemsPerPage = 10,
   usersList = [],
+  formatDateToLocale, // Nhận hàm này qua props
 }) {
 
-  const getCellDisplayData = (project, fieldPath, currentUsersList) => {
+  const getCellDisplayData = (project, fieldPath, currentUsersList = []) => {
     let originalValueFromProject = getNestedProperty(project, fieldPath);
 
     const resolveUserValue = (value) => {
       if (value && typeof value === 'object' && (value._id || value.name || value.fullName || value.username)) {
         return value;
       }
-      if (typeof value === 'string' && currentUsersList && currentUsersList.length > 0) {
+      if (value && typeof value === 'string' && currentUsersList && currentUsersList.length > 0) {
         if (value.match(/^[0-9a-fA-F]{24}$/)) {
           const foundUser = currentUsersList.find(u => u._id === value);
           return foundUser || value;
@@ -67,27 +68,32 @@ function GenericTable({
     let originalDisplayValue = cellData.originalValue;
 
     const formatValueForDisplay = (value, formatType) => {
-      // Hiển thị "N/A" cho null, undefined, hoặc chuỗi rỗng
-      if (value === null || value === undefined || String(value).trim() === '') return 'N/A';
+      if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (typeof value === 'number' && isNaN(value))) return 'N/A'; // Handle NaN for numbers and empty strings
 
       if (typeof value === 'object') {
         return value.fullName || value.username || value.name || '[Đối tượng]';
       }
-      if (formatType === 'date') return formatDateToLocale ? formatDateToLocale(value) : (value ? String(value) : 'N/A');
-      if (formatType === 'currency') return formatCurrency(value);
+      if (formatType === 'date' && formatDateToLocale) return formatDateToLocale(value);
+      if (formatType === 'date' && !formatDateToLocale) return value ? String(value) : 'N/A'; // Fallback if formatDateToLocale not passed
+      // Currency formatting handled separately
       return String(value);
-
     };
 
     if (colConfig.render) {
       return colConfig.render(project, cellData, isPendingTab, usersList);
     }
 
-    const contentToRender = formatValueForDisplay(displayValue, colConfig.format);
+    let contentToRender;
+    if (colConfig.format === 'currency') {
+        contentToRender = (displayValue !== null && displayValue !== undefined && String(displayValue).trim() !== '' && !isNaN(parseFloat(String(displayValue)))) ? formatCurrency(displayValue) : 'N/A'; // Safely format currency, handle empty string
+    } else {
+        contentToRender = formatValueForDisplay(displayValue, colConfig.format);
+    }
+
     let formattedOriginalValue = '';
     if (cellData.isChanged && originalDisplayValue !== null && originalDisplayValue !== undefined) {
-        formattedOriginalValue = formatValueForDisplay(originalDisplayValue, colConfig.format);
-    }
+        formattedOriginalValue = colConfig.format === 'currency' ? formatCurrency(originalDisplayValue) : formatValueForDisplay(originalDisplayValue, colConfig.format);
+    } // Ensure originalValue is also safely formatted for currency, formatValueForDisplay handles its own N/A
 
     let finalDisplayElement;
     if (contentToRender === "N/A" || (typeof contentToRender === 'string' && contentToRender.startsWith("["))) {
@@ -111,7 +117,7 @@ function GenericTable({
   };
 
   if ((isLoading || isFetching) && (!data || data.length === 0)) {
-    const skeletonCols = columns.length + 2; // +2 for STT and Actions
+    const skeletonCols = columns.length + 2;
     return (
       <div className="table-container mt-4">
         <table className="table-fixed" style={{ width: tableWidth }}>
@@ -128,7 +134,7 @@ function GenericTable({
             {Array(itemsPerPage).fill(0).map((_, rowIndex) => (
               <tr key={`skeleton-${rowIndex}`}>
                 {Array(skeletonCols).fill(0).map((_, colIndex) => (
-                  <td key={`skeleton-${rowIndex}-${colIndex}`} className="px-3 py-2.5 border-b border-[var(--border)]">
+                  <td key={`skeleton-${rowIndex}-${colIndex}`} className="px-3 py-1.5 border-b border-[var(--border)]"> {/* Adjusted padding */}
                     <div className="bg-gray-200 animate-pulse h-4 w-full rounded"></div>
                   </td>
                 ))}
@@ -145,8 +151,6 @@ function GenericTable({
       <div className="text-center text-gray-500 py-10 mt-4 bg-white shadow-md rounded-lg card">
         <FaInfoCircle size={40} className="mx-auto text-blue-400 mb-3" />
         <p className="text-lg">Không có công trình nào để hiển thị.</p>
-        {/* You can add more specific messages based on props if needed */}
-        {/* Example: {isPendingTab && <p className="text-sm mt-1">Không có yêu cầu nào đang chờ xử lý.</p>} */}
       </div>
     );
   }
@@ -157,25 +161,21 @@ function GenericTable({
         <table className="table-fixed" style={{ width: tableWidth }}>
           <thead className="bg-[var(--primary)] text-white">
             <tr>
-              {/* Sử dụng biến CSS cho chiều rộng cột STT */}
               <th
                 className="sticky-col-1 px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-center"
-                style={{ width: 'var(--sticky-col-1-width, 35px)' }} // Giảm fallback xuống 35px
+                style={{ width: 'var(--sticky-col-1-width, 35px)' }}
               >
                 STT
               </th>
               {columns.map((col, index) => (
                 <th
-                  key={col.field || `header-${index}`} // Ensure unique key
-                  // Luôn áp dụng text-center cho th. Nếu col.align được định nghĩa, nó sẽ được áp dụng cho div bên trong.
+                  key={col.field || `header-${index}`}
                   className={`${col.sticky ? `sticky-col-${col.sticky}` : ''} ${col.headerClassName || ''} px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-center`}
                   style={{
                     width: col.width, minWidth: col.minWidth || col.width,
-                    // left: col.sticky ? col.left : undefined, // 'left' is handled by CSS classes like .sticky-col-2
                     ...col.headerStyle,
                   }}
                 >
-                  {/* Bỏ div bao quanh, để text-center của th trực tiếp căn chỉnh col.header */}
                     {col.header}
                 </th>
               ))}
@@ -184,9 +184,9 @@ function GenericTable({
               </th>
             </tr>
           </thead>
-          <tbody className="text-xs"> {/* Removed divide-y, relying on td border-b */}
+          <tbody className="text-xs">
             {data.map((project, index) => (
-              <tr key={project._id || `project-row-${index}`} className="hover:bg-gray-50"> {/* Fallback key */}
+              <tr key={project._id || `project-row-${index}`} className="hover:bg-gray-50">
                 <td className="sticky-col-1 text-center px-3 py-2.5 whitespace-nowrap">
                   {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>
@@ -194,12 +194,9 @@ function GenericTable({
                   const cellDataForTd = getCellDisplayData(project, col.field, usersList);
                   return (
                     <td
-                      key={`${project._id || `project-row-${index}`}-${col.field || `col-${colIndex}`}`} // Fallback key
-                      className={`${col.sticky ? `sticky-col-${col.sticky}` : ''} ${cellDataForTd.isChanged ? 'cell-changed' : ''} ${col.className || ''} ${col.align ? `text-${col.align}` : 'text-left'} ${col.breakWords ? 'whitespace-pre-wrap break-words' : 'whitespace-nowrap'} px-3 py-2.5`}
-                      style={{
-                        // left: col.sticky ? col.left : undefined, // 'left' is handled by CSS classes
-                        ...col.cellStyle,
-                      }}
+                      key={`${project._id || `project-row-${index}`}-${col.field || `col-${colIndex}`}`}
+                      className={`${col.sticky ? `sticky-col-${col.sticky}` : ''} ${cellDataForTd.isChanged ? 'cell-changed' : ''} ${col.className || ''} ${col.align ? `text-${col.align}` : 'text-left'} ${col.breakWords ? 'whitespace-pre-wrap break-words' : 'whitespace-nowrap'} px-3 py-1.5`} // Changed py-2.5 to py-1.5
+                      style={{ ...col.cellStyle }} // Removed explicit paddingBlock, relying on Tailwind class
                       title={col.tooltipRender ? col.tooltipRender(project) : undefined}
                     >
                       {renderCellContent(project, col)}
@@ -207,19 +204,17 @@ function GenericTable({
                   );
                 })}
                 <td className="sticky-col-last text-center px-3 py-2.5 whitespace-nowrap">
-                  {renderActions && renderActions(project, isPendingTab)}
+                  {renderActions && renderActions(project, isPendingTab)} {/* Padding cho cột actions có thể giữ nguyên hoặc điều chỉnh riêng nếu cần */}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {/* Container cho phân trang và thông tin tổng số */}
-      <div className="flex justify-between items-center mt-4 px-2"> {/* Sử dụng flexbox để căn chỉnh */}
-        <div className="text-gray-500 text-sm"> {/* Thông tin tổng số ở bên trái */}
+      <div className="flex justify-between items-center mt-4 px-2">
+        <div className="text-gray-500 text-sm">
           Hiển thị trang {currentPage} / {totalPages} (Tổng số: {totalItemsCount} mục)
         </div>
-        {/* Component Pagination ở bên phải */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

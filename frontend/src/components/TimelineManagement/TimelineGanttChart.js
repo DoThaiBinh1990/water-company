@@ -9,29 +9,6 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
   const ganttInstance = useRef(null);
   const [renderableTasksCount, setRenderableTasksCount] = useState(0);
 
-  // BƯỚC 4: ĐƠN GIẢN HÓA DỮ LIỆU TEST
-  // Tạm thời bỏ qua 'tasks' từ props và sử dụng dữ liệu test này
-  const useTestData = true; // Đặt thành true để dùng test data, false để dùng prop 'tasks'
-  const testData = [
-    {
-      id: 'testTask1', // ID phải là string
-      name: 'Công việc Test 1',
-      start: '2024-05-01', // Định dạng YYYY-MM-DD
-      end: '2024-05-10',   // Định dạng YYYY-MM-DD
-      progress: 60,
-      _originalTask: { id: 'testTask1', name: 'Công việc Test 1', project: { financialYear: 2024, profileTimeline: { assignmentType: 'auto', durationDays: 10 } } }
-    },
-    {
-      id: 'testTask2',
-      name: 'Công việc Test 2 (Thủ công)',
-      start: '2024-05-12',
-      // end: '2024-05-20', // Thử trường hợp task thủ công không có end date ban đầu
-      progress: 30,
-      _originalTask: { id: 'testTask2', name: 'Công việc Test 2 (Thủ công)', project: { financialYear: 2024, profileTimeline: { assignmentType: 'manual' } } }
-    }
-  ];
-
-
   useEffect(() => {
     logger.debug('[TimelineGanttChart] useEffect triggered. Input tasks prop:', JSON.stringify(tasks, null, 2));
     logger.debug('[TimelineGanttChart] viewMode:', viewMode);
@@ -41,7 +18,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
       return;
     }
 
-    const sourceTasks = useTestData ? testData : (Array.isArray(tasks) ? tasks : []);
+    const sourceTasks = Array.isArray(tasks) ? tasks : [];
     logger.debug('[TimelineGanttChart] Using sourceTasks:', JSON.stringify(sourceTasks, null, 2));
 
     const validSourceTasks = sourceTasks.filter(task =>
@@ -52,23 +29,9 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
     );
     logger.debug('[TimelineGanttChart] Filtered validSourceTasks (tasks with id, name, start):', JSON.stringify(validSourceTasks, null, 2));
 
-
-    if (validSourceTasks.length === 0) {
-      logger.warn('[TimelineGanttChart] No valid tasks to process. Clearing Gantt.');
-      if (ganttInstance.current) {
-        ganttInstance.current.destroy ? ganttInstance.current.destroy() : ganttInstance.current.clear();
-        ganttInstance.current = null;
-      }
-      if (ganttRef.current) {
-        ganttRef.current.innerHTML = '<div style="padding:20px; text-align:center; color: #6b7280;">Không có dữ liệu timeline để hiển thị.</div>';
-      }
-      setRenderableTasksCount(0);
-      return;
-    }
-
     let overallMaxEndDate = new Date(0);
     validSourceTasks.forEach(task => {
-      const originalProjectData = task._originalTask?.project || task.project || {};
+      const originalProjectData = task._originalTask?.project || task.project || task; // Lấy dữ liệu project gốc
       const timelineDetails = timelineType === 'profile' ? originalProjectData.profileTimeline : originalProjectData.constructionTimeline;
       const assignmentType = timelineDetails?.assignmentType || 'auto';
       let endDate;
@@ -97,7 +60,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
 
     const formattedTasksForGantt = validSourceTasks
       .map(task => {
-        const originalProjectData = task._originalTask?.project || task.project || {};
+        const originalProjectData = task._originalTask?.project || task.project || task; // Lấy dữ liệu project gốc
         const timelineDetails = timelineType === 'profile' ? originalProjectData.profileTimeline : originalProjectData.constructionTimeline;
         const assignmentType = timelineDetails?.assignmentType || 'auto';
         
@@ -124,7 +87,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
         }
 
         return {
-          id: String(task.id || task._id),
+          id: String(task.id || task._id), // Đảm bảo ID là string
           name: task.name,
           start: task.start,
           end: taskEndDate,
@@ -132,7 +95,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
           dependencies: task.dependencies || '',
           custom_class: task.custom_class || (assignmentType === 'manual' ? 'gantt-manual-task' : 'gantt-auto-task'),
           _originalTask: task._originalTask || task // Đảm bảo _originalTask luôn có
-        };
+        }; // Thêm projectType vào _originalTask nếu có
       })
       .filter(ft => ft.start && ft.end && new Date(ft.start) <= new Date(ft.end));
 
@@ -140,10 +103,12 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
     setRenderableTasksCount(formattedTasksForGantt.length);
 
     if (ganttRef.current && formattedTasksForGantt.length > 0) {
+      // Nếu có task hợp lệ để render, đảm bảo ref trống trước khi khởi tạo
       if (ganttInstance.current) {
         ganttInstance.current.destroy ? ganttInstance.current.destroy() : ganttInstance.current.clear();
+        ganttInstance.current = null; // Quan trọng: reset instance
       }
-      ganttRef.current.innerHTML = '';
+      ganttRef.current.innerHTML = ''; // Xóa nội dung cũ của SVG
       
       logger.debug('[TimelineGanttChart] Initializing Gantt with tasks.');
       try {
@@ -161,7 +126,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
           language: 'vi',
           custom_popup_html: (taskGantt) => {
             const originalTaskData = taskGantt._originalTask?.project || taskGantt._originalTask; // Sửa ở đây
-            if (!originalTaskData) return `<div>${taskGantt.name}</div>`;
+            if (!originalTaskData) return `<div>${taskGantt.name}</div>`; // Fallback nếu không có originalTaskData
   
             const currentTimelineInfo = timelineType === 'profile' ? originalTaskData.profileTimeline : originalTaskData.constructionTimeline;
             const assignedBy = currentTimelineInfo?.assignedBy?.fullName || currentTimelineInfo?.assignedBy?.username || 'N/A';
@@ -171,7 +136,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
   
             let detailsHtml = `
               <div class="gantt-custom-popup p-3 text-xs bg-white shadow-xl rounded-md border border-gray-300 max-w-sm leading-normal">
-                <h5 class="text-base font-semibold mb-2 text-blue-700">${taskGantt.name}</h5>
+                <h5 class="text-base font-semibold mb-2 text-blue-700">${taskGantt.name || 'N/A'}</h5>
                 <p class="mb-1"><strong>Mã CT:</strong> ${originalTaskData.projectCode || 'N/A'}</p>
                 <p class="mb-1"><strong>Năm TC:</strong> ${originalTaskData.financialYear || 'N/A'}</p>
                 <p class="mb-1"><strong>Đơn vị PB:</strong> ${originalTaskData.allocatedUnit?.name || originalTaskData.allocatedUnit || 'N/A'}</p>
@@ -229,14 +194,14 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
             ganttRef.current.innerHTML = `<div class="p-4 text-red-600 bg-red-100 border border-red-400 rounded">Lỗi khởi tạo biểu đồ Gantt: ${error.message}</div>`;
         }
       }
-    } else if (ganttRef.current && formattedTasksForGantt.length === 0 && validSourceTasks.length > 0) {
-      logger.warn('[TimelineGanttChart] No renderable tasks after formatting, but had valid source tasks. Clearing Gantt.');
+    } else { // Bao gồm cả validSourceTasks.length === 0 và formattedTasksForGantt.length === 0
+      logger.warn('[TimelineGanttChart] No tasks to render. Clearing Gantt and ref.');
       if (ganttInstance.current) {
         ganttInstance.current.destroy ? ganttInstance.current.destroy() : ganttInstance.current.clear();
         ganttInstance.current = null;
       }
       if (ganttRef.current) {
-        ganttRef.current.innerHTML = '<div style="padding:20px; text-align:center; color: #6b7280;">Không có dữ liệu timeline để hiển thị hoặc dữ liệu không hợp lệ sau khi xử lý.</div>';
+        ganttRef.current.innerHTML = ''; // Đảm bảo SVG trống nếu không có task
       }
     }
 
@@ -247,17 +212,17 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
         ganttInstance.current = null;
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, viewMode, timelineType, useTestData]); // Thêm useTestData vào dependencies nếu bạn muốn nó trigger re-render khi thay đổi
+  }, [tasks, viewMode, timelineType]); // Removed useTestData from dependencies
 
   return (
     <div className="gantt-container relative w-full h-[600px] overflow-x-auto overflow-y-hidden border border-gray-300 rounded-md shadow-sm bg-white custom-scrollbar">
-      {renderableTasksCount === 0 && ganttRef.current && ganttRef.current.innerHTML.includes("Không có dữ liệu") && (
+      {renderableTasksCount === 0 ? (
         <div className="absolute inset-0 flex items-center justify-center text-gray-500 p-4">
-          {ganttRef.current.innerText}
+          Không có dữ liệu timeline để hiển thị hoặc dữ liệu không hợp lệ.
         </div>
+      ) : (
+        <svg ref={ganttRef} className="w-full h-full"></svg>
       )}
-      <svg ref={ganttRef} className="w-full h-full"></svg>
       {/* CSS cho custom popup của Gantt */}
       <style jsx global>{`
         .gantt-custom-popup {

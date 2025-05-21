@@ -9,13 +9,13 @@ Modal.setAppElement('#root');
 function GenericFormModal({
   showModal,
   setShowModal,
-  isSubmitting, // Renamed from isSaving to match ProjectManagementLogic
+  isSubmitting,
   editProject,
   formData,
   setFormData,
   formConfig,
   saveProject,
-  initialFormState,
+  initialFormState, // Nhận initialFormState từ ProjectManagementLogic
   allocatedUnits = [],
   user,
   allocationWavesList = [],
@@ -26,7 +26,7 @@ function GenericFormModal({
 }) {
   const visibleTabs = useMemo(() => {
     if (!formConfig || !formConfig.tabs) return [];
-    if (!user) return []; // No user, no tabs (or handle as per your logic)
+    if (!user) return [];
 
     return formConfig.tabs.filter(tab => {
       if (tab.name === 'assignment') {
@@ -69,7 +69,7 @@ function GenericFormModal({
   const handleCloseModal = useCallback(() => {
     setShowModal(false);
     if (typeof initialFormState === 'function') {
-        setFormData(initialFormState());
+        setFormData(initialFormState()); // Gọi hàm để lấy state khởi tạo
     }
     if (visibleTabs.length > 0) setActiveTab(visibleTabs[0].name);
   }, [setShowModal, setFormData, initialFormState, visibleTabs]);
@@ -77,7 +77,10 @@ function GenericFormModal({
   const handleSaveClick = () => {
     for (const tab of visibleTabs) {
       for (const field of tab.fields) {
-        if (field.required && (!formData[field.name] || String(formData[field.name]).trim() === '')) {
+        if (field.required && (formData[field.name] === undefined || formData[field.name] === null || String(formData[field.name]).trim() === '')) {
+          // Cho phép trường checkbox 'isCompleted' không bắt buộc phải check
+          if (field.type === 'checkbox' && field.name === 'isCompleted') continue;
+
           toast.error(`Vui lòng nhập đầy đủ thông tin cho trường "${field.label}".`, { position: "top-center" });
           setActiveTab(tab.name);
           return;
@@ -88,23 +91,20 @@ function GenericFormModal({
   };
 
   const isFieldDisabled = (field) => {
-    if (isSubmitting) return true; // Disable all fields while saving/submitting
-
-    // Example: Disable 'approvedBy' if project is already approved and user is not admin
+    if (isSubmitting) return true;
     if (editProject && field.name === 'approvedBy') {
         if (editProject.status === 'Đã duyệt' && user.role !== 'admin') {
             return true;
         }
     }
-    // Add more complex logic based on project status, user role/permissions, and field name
-    // For example, if editing an approved project, many fields might be disabled unless it's a pendingEdit flow.
-    // This depends heavily on your business rules for editing.
-    return field.disabled || false; // Use disabled flag from field config if present
+    return field.disabled || false;
   };
 
-
   const isSaveDisabled = isSubmitting || visibleTabs.some(tab =>
-    tab.fields.some(field => field.required && (!formData[field.name] || String(formData[field.name]).trim() === ''))
+    tab.fields.some(field => {
+        if (field.type === 'checkbox' && field.name === 'isCompleted') return false; // isCompleted không bắt buộc
+        return field.required && (formData[field.name] === undefined || formData[field.name] === null || String(formData[field.name]).trim() === '');
+    })
   );
 
   const getOptionsForField = (field) => {
@@ -165,9 +165,9 @@ function GenericFormModal({
         {visibleTabs.map(tab => activeTab === tab.name && (
           <div key={tab.name} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 animate-fadeIn">
             {tab.fields.map(field => (
-              <div key={field.name} className={`${field.fullWidth ? 'sm:col-span-2' : ''}`}>
-                <label htmlFor={field.name} className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label} {field.required && <span className="text-red-500">*</span>}
+              <div key={field.name} className={`${field.fullWidth ? 'sm:col-span-2' : ''} ${field.type === 'checkbox' ? 'sm:col-span-2 flex items-center' : ''}`}>
+                <label htmlFor={field.name} className={`block text-sm font-medium text-gray-700 ${field.type === 'checkbox' ? 'mr-2' : 'mb-1'}`}>
+                  {field.label} {field.required && field.type !== 'checkbox' && <span className="text-red-500">*</span>}
                 </label>
                 {field.type === 'select' ? (
                   <select
@@ -184,6 +184,14 @@ function GenericFormModal({
                     onChange={handleInputChange} required={field.required} disabled={isFieldDisabled(field)}
                     rows={field.rows || 3} placeholder={field.placeholder}
                     className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
+                  />
+                ) : field.type === 'checkbox' ? (
+                  <input
+                    type="checkbox" id={field.name} name={field.name}
+                    checked={formData[field.name] || false}
+                    onChange={handleInputChange}
+                    disabled={isFieldDisabled(field)}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50"
                   />
                 ) : (
                   <input

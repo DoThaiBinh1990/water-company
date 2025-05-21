@@ -1,6 +1,7 @@
 // d:\CODE\water-company\backend\server\services\project.actions.service.js
 const mongoose = require('mongoose');
 const { CategoryProject, MinorRepairProject, User, Notification, RejectedProject, SerialCounter } = require('../models');
+const { userFieldToQuery } = require('./helpers/serviceHelpers'); // Import helper
 const { populateProjectFields, updateSerialNumbers } = require('../utils');
 const logger = require('../config/logger');
 
@@ -15,11 +16,11 @@ const getRejectedProjectsList = async (queryParams) => {
   const query = {};
   if (type) query.projectType = type;
   if (search) query.name = { $regex: search, $options: 'i' };
-  if (allocatedUnit) query.allocatedUnit = allocatedUnit;
+  if (allocatedUnit) query.allocatedUnit = allocatedUnit; // Filter by allocatedUnit string
   if (financialYear) query.financialYear = parseInt(financialYear, 10);
 
   if (requestedBy && mongoose.Types.ObjectId.isValid(requestedBy)) {
-    query.createdBy = requestedBy;
+    query.createdBy = requestedBy; // Filter by createdBy ObjectId
   }
 
   if (rejectedBy && mongoose.Types.ObjectId.isValid(rejectedBy)) {
@@ -364,6 +365,8 @@ const restoreRejectedProject = async (rejectedProjectId, user, io) => {
       paymentValue: rejectedProject.paymentValue ?? rejectedProject.details?.paymentValue ?? 0,
       financialYear: rejectedProject.financialYear ?? rejectedProject.details?.financialYear ?? new Date().getFullYear(), // Restore financialYear
       isCompleted: false, // Reset completion status on restore
+      // Restore timeline data if it exists in details (from when it was rejected)
+      profileTimeline: rejectedProject.details?.profileTimeline || null,
     };
 
     delete projectDataToRestore._id;
@@ -377,8 +380,10 @@ const restoreRejectedProject = async (rejectedProjectId, user, io) => {
     delete projectDataToRestore.categorySerialNumber;
     delete projectDataToRestore.minorRepairSerialNumber;
 
+    // Ensure projectType is copied for category projects
     if (rejectedProject.projectType === 'category') {
       projectDataToRestore.projectType = projectDataToRestore.projectType || rejectedProject.details?.projectType || '';
+      projectDataToRestore.constructionUnit = rejectedProject.constructionUnit || rejectedProject.details?.constructionUnit || ''; // Also copy constructionUnit for category
     }
     projectDataToRestore.estimator = rejectedProject.estimator || rejectedProject.details?.estimator;
     projectDataToRestore.supervisor = rejectedProject.supervisor || rejectedProject.details?.supervisor;

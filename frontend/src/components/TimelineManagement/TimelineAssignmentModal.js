@@ -27,24 +27,43 @@ const TimelineAssignmentModal = ({
   useEffect(() => {
     if (projectsToAssign && projectsToAssign.length > 0) {
       setAssignments(
-        projectsToAssign.map((p, index) => ({
-          projectId: p._id,
-          projectName: p.name,
-          currentEstimator: p.profileTimeline?.estimator?.fullName || p.profileTimeline?.estimator?.username, // Ví dụ cho profile
-          currentConstructionUnit: p.constructionTimeline?.constructionUnit, // Ví dụ cho construction
-          assignmentType: p.profileTimeline?.assignmentType || p.constructionTimeline?.assignmentType || 'auto',
-          startDate: p.profileTimeline?.startDate || p.constructionTimeline?.startDate ? new Date(p.profileTimeline?.startDate || p.constructionTimeline?.startDate).toISOString().split('T')[0] : '',
-          durationDays: p.profileTimeline?.durationDays || p.constructionTimeline?.durationDays || '',
-          endDate: p.profileTimeline?.endDate || p.constructionTimeline?.endDate ? new Date(p.profileTimeline?.endDate || p.constructionTimeline?.endDate).toISOString().split('T')[0] : '',
-          excludeHolidays: p.profileTimeline?.excludeHolidays !== undefined ? p.profileTimeline.excludeHolidays : (p.constructionTimeline?.excludeHolidays !== undefined ? p.constructionTimeline.excludeHolidays : true),
-          order: index, // Giữ thứ tự ban đầu
-        }))
+        projectsToAssign.map((p, index) => {
+          let initialAssignmentType = 'auto';
+          let initialStartDate = '';
+          let initialDurationDays = '';
+          let initialEndDate = '';
+
+          // Ưu tiên lấy từ profileTimeline nếu có và là manual, sau đó mới đến trường gốc của project
+          if (timelineType === 'profile' && p.profileTimeline?.assignmentType === 'manual') {
+            initialAssignmentType = 'manual';
+            initialStartDate = p.profileTimeline.startDate ? new Date(p.profileTimeline.startDate).toISOString().split('T')[0] : '';
+            initialDurationDays = p.profileTimeline.durationDays || '';
+            initialEndDate = p.profileTimeline.endDate ? new Date(p.profileTimeline.endDate).toISOString().split('T')[0] : '';
+          } else if (timelineType === 'profile' && p.startDate && p.durationDays) { // Lấy từ trường gốc của CategoryProject cho profile timeline
+            initialAssignmentType = 'manual'; // Nếu có ngày ở gốc, coi như manual
+            initialStartDate = p.startDate ? new Date(p.startDate).toISOString().split('T')[0] : '';
+            initialDurationDays = p.durationDays || '';
+            initialEndDate = p.completionDate ? new Date(p.completionDate).toISOString().split('T')[0] : '';
+          }
+          // (Không áp dụng logic này cho constructionTimeline từ trường gốc)
+
+          return {
+            projectId: p._id,
+            projectName: p.name,
+            assignmentType: initialAssignmentType,
+            startDate: initialStartDate,
+            durationDays: initialDurationDays,
+            endDate: initialEndDate,
+            excludeHolidays: p.profileTimeline?.excludeHolidays !== undefined ? p.profileTimeline.excludeHolidays : (p.constructionTimeline?.excludeHolidays !== undefined ? p.constructionTimeline.excludeHolidays : true),
+            order: index,
+          };
+        })
       );
     } else {
       setAssignments([]);
     }
     setCommonStartDate(''); // Reset common start date when projects change
-  }, [projectsToAssign]);
+  }, [projectsToAssign, timelineType]); // Thêm timelineType vào dependency
 
   // useEffect để tự động tính toán lại ngày khi assignments, commonStartDate, hoặc holidays thay đổi
   useEffect(() => {

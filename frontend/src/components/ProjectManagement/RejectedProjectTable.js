@@ -75,16 +75,16 @@ function RejectedProjectTable({
           <tbody className="text-xs"> {/* Removed divide-y, relying on td border-b */}
             {rejectedProjects.map((project, index) => (
               <tr key={project._id || project.originalProjectId || index} className="hover:bg-gray-50">
-                <td className="px-3 py-2.5 whitespace-nowrap text-center">{itemsPerPage * (currentPage - 1) + index + 1}</td>
-                <td className="px-3 py-2.5 whitespace-normal text-left">{project.name || project.details?.name || 'N/A'}</td>
-                <td className="px-3 py-2.5 whitespace-normal text-left">{project.location || project.details?.location || 'N/A'}</td>
-                <td className="px-3 py-2.5 whitespace-normal text-left">{project.scale || project.details?.scale || 'N/A'}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-center">{project.allocatedUnit || project.details?.allocatedUnit || 'N/A'}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-center">{getActionTypeDisplay(project.actionType)}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-center">{getUserName(project.createdBy)}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-center">{getUserName(project.rejectedBy)}</td>
-                <td className="px-3 py-2.5 whitespace-nowrap text-center">{formatDateToLocale(project.rejectedAt)}</td>
-                <td className="px-3 py-2.5 whitespace-pre-wrap break-words text-left">{project.rejectionReason || 'N/A'}</td>
+                <td className="px-3 py-1.5 whitespace-nowrap text-center">{itemsPerPage * (currentPage - 1) + index + 1}</td>
+                <td className="px-3 py-1.5 whitespace-normal text-left">{project.name || project.details?.name || 'N/A'}</td>
+                <td className="px-3 py-1.5 whitespace-normal text-left">{project.location || project.details?.location || 'N/A'}</td>
+                <td className="px-3 py-1.5 whitespace-normal text-left">{project.scale || project.details?.scale || 'N/A'}</td>
+                <td className="px-3 py-1.5 whitespace-nowrap text-center">{project.allocatedUnit || project.details?.allocatedUnit || 'N/A'}</td>
+                <td className="px-3 py-1.5 whitespace-nowrap text-center">{getActionTypeDisplay(project.actionType)}</td>
+                <td className="px-3 py-1.5 whitespace-nowrap text-center">{getUserName(project.createdBy)}</td>
+                <td className="px-3 py-1.5 whitespace-nowrap text-center">{getUserName(project.rejectedBy)}</td>
+                <td className="px-3 py-1.5 whitespace-nowrap text-center">{formatDateToLocale(project.rejectedAt)}</td>
+                <td className="px-3 py-1.5 whitespace-pre-wrap break-words text-left">{project.rejectionReason || 'N/A'}</td>
                 <td className="sticky-col-last px-3 py-2.5 whitespace-nowrap text-center">
                   <div className="flex justify-center items-center gap-2">
                     {user?.permissions?.approve && restoreRejectedProject && project.status !== 'restored' && (
@@ -115,7 +115,7 @@ function RejectedProjectTable({
             ))}
             {rejectedProjects.length === 0 && (
               <tr>
-                <td colSpan={11} className="px-3 py-2.5 text-center italic text-gray-500">
+                <td colSpan={11} className="px-3 py-1.5 text-center italic text-gray-500">
                   Không có công trình nào bị từ chối khớp với bộ lọc.
                 </td>
               </tr>
