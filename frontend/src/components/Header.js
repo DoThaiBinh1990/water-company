@@ -64,7 +64,7 @@ function Header({
       <header className={`bg-gradient-to-r from-blue-800 to-blue-600 shadow-lg h-12 px-4 flex justify-between items-center fixed top-0 z-[1000] transition-all duration-300 left-0 right-0 ${isSidebarOpen ? 'md:left-64' : 'md:left-16'}`}>
         <div className="flex items-center gap-2">
           <button
-            className="md:hidden p-2 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-all duration-200 transform hover:scale-105"
+            className="md:hidden p-3 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-all duration-200 transform hover:scale-105"
             onClick={() => {
               if (typeof setIsSidebarOpen === 'function') {
                 setIsSidebarOpen(!isSidebarOpen);

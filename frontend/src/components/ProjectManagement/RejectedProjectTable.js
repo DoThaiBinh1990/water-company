@@ -3,6 +3,7 @@ import React from 'react';
 import { FaInfoCircle, FaUndo, FaTrash } from 'react-icons/fa';
 import { formatDateToLocale } from '../../utils/dateUtils';
 import { formatCurrency } from '../../utils/helpers';
+import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook
 import Pagination from '../Common/Pagination';
 
 function RejectedProjectTable({
@@ -18,6 +19,7 @@ function RejectedProjectTable({
   totalItemsCount,
   itemsPerPage,
 }) {
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   if (isLoading) {
     return (

@@ -1,5 +1,5 @@
 // d:\CODE\water-company\frontend\src\pages\Settings.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram, FaUserCog, FaKey, FaCalendarAlt, FaCalendarTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,12 +15,15 @@ import {
   getHolidaysForYearAPI, createOrUpdateHolidaysForYearAPI, deleteHolidayDateAPI
 } from '../apiService';
 
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import Pagination from '../components/Common/Pagination';
+
 const initialNewUserState = {
   username: '', password: '', role: 'staff-office', fullName: '',
   address: '', phoneNumber: '', email: '', unit: '',
   permissions: {
     add: true, edit: true, delete: true, approve: false, viewRejected: false,
-    allocate: false, assign: false, // Đã loại bỏ khỏi giao diện chính
+    allocate: false, assign: false,
     viewOtherBranchProjects: false,
     assignProfileTimeline: false, assignConstructionTimeline: false,
   }
@@ -28,19 +31,24 @@ const initialNewUserState = {
 
 const getInitialActiveTab = () => {
   const persistedTab = localStorage.getItem('settingsActiveTab');
-  // Danh sách các tab hợp lệ
-  const validTabs = ['profile', 'users', 'allocatedUnits', 'constructionUnits', 'allocationWaves', 'projectTypes', 'syncProjects', 'holidays'];  
-  // console.log('[Settings getInitialActiveTab] Persisted tab from localStorage:', persistedTab);
+  const validTabs = ['profile', 'users', 'allocatedUnits', 'constructionUnits', 'allocationWaves', 'projectTypes', 'syncProjects', 'holidays'];
   if (persistedTab && validTabs.includes(persistedTab)) {
     return persistedTab;
   }
-  // console.log('[Settings getInitialActiveTab] Defaulting to "profile"');
-  return 'profile'; // Tab mặc định
+  return 'profile';
 };
 
 function Settings({ user }) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState(getInitialActiveTab);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const itemsPerPage = 10;
+
+  const [currentPageUsers, setCurrentPageUsers] = useState(1);
+  const [currentPageAllocatedUnits, setCurrentPageAllocatedUnits] = useState(1);
+  const [currentPageConstructionUnits, setCurrentPageConstructionUnits] = useState(1);
+  const [currentPageAllocationWaves, setCurrentPageAllocationWaves] = useState(1);
+  const [currentPageProjectTypes, setCurrentPageProjectTypes] = useState(1);
 
   const [newUser, setNewUser] = useState(initialNewUserState);
   const [editingUserId, setEditingUserId] = useState(null);
@@ -65,7 +73,7 @@ function Settings({ user }) {
   const [selectedHolidayYear, setSelectedHolidayYear] = useState(new Date().getFullYear());
   const [holidaysForSelectedYear, setHolidaysForSelectedYear] = useState([]);
   const [newHoliday, setNewHoliday] = useState({ date: '', description: '' });
-  const [editingHoliday, setEditingHoliday] = useState(null); // { date: string, description: string }
+  const [editingHoliday, setEditingHoliday] = useState(null);
   const [editingHolidayDescription, setEditingHolidayDescription] = useState('');
 
   const { data: users = [], isLoading: isLoadingUsers, isFetching: isFetchingUsers } = useQuery({
@@ -103,72 +111,25 @@ function Settings({ user }) {
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải loại công trình!', { position: "top-center" }),
   });
 
-  // eslint-disable-next-line no-unused-vars
-  const { data: holidaysDataFromQuery, isLoading: isLoadingHolidays, isFetching: isFetchingHolidays, refetch: refetchHolidays, status: holidaysQueryStatus } = useQuery({
+  const { data: holidaysDataFromQuery, isLoading: isLoadingHolidays, refetch: refetchHolidays } = useQuery({
     queryKey: ['holidays', selectedHolidayYear],
-    queryFn: async () => {      
-      console.log(`[Settings - holidaysQuery] Running queryFn for year: ${selectedHolidayYear}. User role: ${user?.role}. Active tab: ${activeTab}`);
-      const data = await getHolidaysForYearAPI(selectedHolidayYear);
-      // Log dữ liệu thô từ API TRƯỚC KHI xử lý
-      console.log(`[Settings - holidaysQuery] RAW API response for year ${selectedHolidayYear}:`, JSON.stringify(data, null, 2));
-      return data;
-    },
+    queryFn: () => getHolidaysForYearAPI(selectedHolidayYear),
     enabled: user?.role === 'admin' && activeTab === 'holidays',
     keepPreviousData: true,
-        onSuccess: (data) => {
-          console.log(`[Settings - onSuccess] START. For data.year: ${data?.year}. Current selectedHolidayYear: ${selectedHolidayYear}. data.holidays items: ${data?.holidays?.length}`);
-          
-          // Check for stale data based on year
-          if (!data || data.year !== selectedHolidayYear) { 
-            console.warn(`[Settings - onSuccess] STALE DATA. data.year: ${data?.year}, selectedHolidayYear: ${selectedHolidayYear}. IGNORING.`);
-            return;
-          }
-    
-          if (!data || !data.holidays || !Array.isArray(data.holidays)) {
-            console.warn(`[Settings - onSuccess] INVALID STRUCTURE for year ${data.year}. Expected { holidays: [] }. Received:`, data);
-            setHolidaysForSelectedYear([]);
-            return;
-          }
-          console.log(`[Settings - onSuccess] Processing data for year ${data.year}. Raw holidays:`, JSON.stringify(data.holidays, null, 2));
-    
-          try {
-            // Ensure h.date is a valid Date object before processing
-            const processedHolidays = data.holidays.map((h, itemIndex) => {
-              const dateStringFromAPI = h?.date; // h.date is an ISO string from API
-
-              if (!h || !dateStringFromAPI) {
-                console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} is invalid or missing 'date' field:`, h);
-                return null;
-              }
-
-              const dateObj = new Date(dateStringFromAPI);
-              if (isNaN(dateObj.getTime())) {
-                console.warn(`[Settings - map] Item ${itemIndex} for year ${data.year} has an invalid date string '${dateStringFromAPI}':`, h);
-                return null;
-              }
-              
-              // Convert the valid Date object to YYYY-MM-DD string for state
-              const formattedDateString = dateObj.toISOString().split('T')[0];
-              // We assume the backend query correctly filtered by year.
-              // No need to re-check the year here unless there's a known backend issue.
-    
-              return {
-                _id: h._id,
-                description: h.description,
-                date: formattedDateString, // Store as YYYY-MM-DD string
-              };
-            }).filter(item => item !== null);
-    
-            console.log(`[Settings - onSuccess] FINAL processedHolidays for year ${data.year} (length ${processedHolidays.length}):`, JSON.stringify(processedHolidays, null, 2));
-            setHolidaysForSelectedYear(processedHolidays);
-    
-          } catch (mapError) {
-            console.error(`[Settings - onSuccess] CATCH_ERROR during mapping holidays for year ${data.year}:`, mapError);
-            setHolidaysForSelectedYear([]);
-          }
-        },
+    onSuccess: (data) => {
+      if (!data || data.year !== selectedHolidayYear) return;
+      if (!data.holidays || !Array.isArray(data.holidays)) {
+        setHolidaysForSelectedYear([]); return;
+      }
+      const processedHolidays = data.holidays.map(h => {
+        if (!h || !h.date) return null;
+        const dateObj = new Date(h.date);
+        if (isNaN(dateObj.getTime())) return null;
+        return { _id: h._id, description: h.description, date: dateObj.toISOString().split('T')[0] };
+      }).filter(item => item !== null);
+      setHolidaysForSelectedYear(processedHolidays);
+    },
     onError: (error) => {
-      console.error(`[Settings - holidaysQuery onError] Error for year ${selectedHolidayYear}:`, error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || `Lỗi tải ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" });
       setHolidaysForSelectedYear([]);
     }
@@ -189,7 +150,7 @@ function Settings({ user }) {
         const isEditing = editingUserId || editAllocatedUnit || editConstructionUnit || editAllocationWave || editProjectType || (variables && (variables.userId || variables.unitId || variables.waveId || variables.typeId));
         toast.success(isEditing ? successEditMsg : successAddMsg, { position: "top-center" });
         if (queryKeyToInvalidate) {
-            queryClient.invalidateQueries(queryKeyToInvalidate);
+            queryClient.invalidateQueries({queryKey: queryKeyToInvalidate});
         }
         if (resetFormFn) resetFormFn();
       },
@@ -210,7 +171,7 @@ function Settings({ user }) {
     },
     onSuccess: () => {
       toast.success(editingUserId ? 'Đã cập nhật người dùng!' : 'Đã thêm người dùng!', { position: "top-center" });
-      queryClient.invalidateQueries(['users']);
+      queryClient.invalidateQueries({queryKey: ['users']});
       setNewUser(initialNewUserState);
       setEditingUserId(null);
     },
@@ -324,8 +285,8 @@ function Settings({ user }) {
     mutationFn: syncProjectsAPI,
     onSuccess: (data) => {
       toast.success(data.message || 'Đồng bộ dữ liệu thành công!', { position: "top-center" });
-      queryClient.invalidateQueries(['projects', 'category']);
-      queryClient.invalidateQueries(['projects', 'minor_repair']); // Invalidate both project types
+      queryClient.invalidateQueries({queryKey: ['projects', 'category']});
+      queryClient.invalidateQueries({queryKey: ['projects', 'minor_repair']});
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi đồng bộ dữ liệu công trình!', { position: "top-center" }),
   });
@@ -335,7 +296,7 @@ function Settings({ user }) {
     mutationFn: updateUserProfileAPI,
     onSuccess: (data) => {
       toast.success(data.message || 'Cập nhật thông tin thành công!', { position: "top-center" });
-      queryClient.invalidateQueries(['currentUser']);
+      queryClient.invalidateQueries({queryKey: ['currentUser']});
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi cập nhật thông tin!', { position: "top-center" }),
   });
@@ -508,6 +469,31 @@ function Settings({ user }) {
     });
   }, [user]);
 
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPageUsers - 1) * itemsPerPage;
+    return users.slice(startIndex, startIndex + itemsPerPage);
+  }, [users, currentPageUsers, itemsPerPage]);
+
+  const paginatedAllocatedUnits = useMemo(() => {
+    const startIndex = (currentPageAllocatedUnits - 1) * itemsPerPage;
+    return allocatedUnits.slice(startIndex, startIndex + itemsPerPage);
+  }, [allocatedUnits, currentPageAllocatedUnits, itemsPerPage]);
+
+  const paginatedConstructionUnits = useMemo(() => {
+    const startIndex = (currentPageConstructionUnits - 1) * itemsPerPage;
+    return constructionUnits.slice(startIndex, startIndex + itemsPerPage);
+  }, [constructionUnits, currentPageConstructionUnits, itemsPerPage]);
+
+  const paginatedAllocationWaves = useMemo(() => {
+    const startIndex = (currentPageAllocationWaves - 1) * itemsPerPage;
+    return allocationWaves.slice(startIndex, startIndex + itemsPerPage);
+  }, [allocationWaves, currentPageAllocationWaves, itemsPerPage]);
+
+  const paginatedProjectTypes = useMemo(() => {
+    const startIndex = (currentPageProjectTypes - 1) * itemsPerPage;
+    return projectTypes.slice(startIndex, startIndex + itemsPerPage);
+  }, [projectTypes, currentPageProjectTypes, itemsPerPage]);
+
   useEffect(() => {
     localStorage.setItem('settingsActiveTab', activeTab);
   }, [activeTab]);
@@ -633,54 +619,229 @@ function Settings({ user }) {
           </div>
           <div className="mt-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh sách người dùng</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full table-auto border-collapse">
-                <thead>
-                  <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên người dùng</th><th className="p-4 text-left text-gray-700 font-bold border-b">Họ và tên</th><th className="p-4 text-left text-gray-700 font-bold border-b">Đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Vai trò</th><th className="p-4 text-left text-gray-700 font-bold border-b">Quyền</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr>
-                </thead>
-                <tbody>
-                  {users.map(u => (
-                    <tr key={u._id} className="border-t hover:bg-blue-50">
-                      <td className="p-4 text-gray-700">{u.username}</td><td className="p-4 text-gray-700">{u.fullName || 'N/A'}</td><td className="p-4 text-gray-700">{u.unit || 'N/A'}</td>
-                      <td className="p-4 text-gray-700">
-                        {u.role === 'admin' && 'Admin'}
-                        {u.role === 'director' && 'Tổng giám đốc'}
-                        {u.role === 'deputy_director' && 'Phó tổng giám đốc'}
-                        {u.role === 'manager-office' && 'Trưởng phòng (CT)'}
-                        {u.role === 'deputy_manager-office' && 'Phó phòng (CT)'}
-                        {u.role === 'staff-office' && 'Nhân viên (Phòng CT)'}
-                        {u.role === 'manager-branch' && 'Giám đốc (CN)'}
-                        {u.role === 'deputy_manager-branch' && 'Phó giám đốc (CN)'}
-                        {u.role === 'staff-branch' && 'Nhân viên (CN)'}
-                        {u.role === 'worker' && 'Công nhân'}
-                      </td>
-                      <td className="p-4 text-gray-700 text-xs">
-                        {Object.entries(u.permissions || {})
-                          .filter(([, value]) => value)
-                          .map(([key]) => ({
-                            add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'Xem TC',
-                            assignProfileTimeline: 'PCTL HS', assignConstructionTimeline: 'PCTL TC',
-                            viewOtherBranchProjects: 'XemCNKhác'
-                          }[key] || key.replace('assign', 'PC').replace('Timeline','TL').replace('Profile','HS').replace('Construction','TC')))
-                          .join(', ')}
-                      </td>
-                      <td className="p-4 flex gap-2">
-                        <button onClick={() => editUserHandler(u)} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={userMutation.isLoading || deleteUserMutation.isLoading}><FaEdit size={16} /></button>
-                        <button onClick={() => deleteUserHandler(u._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={userMutation.isLoading || deleteUserMutation.isLoading || u.role === 'admin'}><FaTrash size={16} /></button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {isMobile ? (
+              <div className="space-y-3 mb-4">
+                {paginatedUsers.map(u => (
+                  <div key={u._id} className="bg-gray-50 p-4 rounded-lg shadow">
+                    <h3 className="text-md font-semibold text-blue-600 mb-2">{u.fullName || u.username}</h3>
+                    <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Username:</span> {u.username}</p>
+                    <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Đơn vị:</span> {u.unit || 'N/A'}</p>
+                    <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Vai trò:</span> 
+                      {u.role === 'admin' && 'Admin'}
+                      {u.role === 'director' && 'Tổng giám đốc'}
+                      {u.role === 'deputy_director' && 'Phó tổng giám đốc'}
+                      {u.role === 'manager-office' && 'Trưởng phòng (CT)'}
+                      {u.role === 'deputy_manager-office' && 'Phó phòng (CT)'}
+                      {u.role === 'staff-office' && 'Nhân viên (Phòng CT)'}
+                      {u.role === 'manager-branch' && 'Giám đốc (CN)'}
+                      {u.role === 'deputy_manager-branch' && 'Phó giám đốc (CN)'}
+                      {u.role === 'staff-branch' && 'Nhân viên (CN)'}
+                      {u.role === 'worker' && 'Công nhân'}
+                    </p>
+                    <p className="text-xs text-gray-600 mb-2"><span className="font-medium">Quyền:</span> {Object.entries(u.permissions || {}).filter(([, value]) => value).map(([key]) => ({add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'Xem TC', assignProfileTimeline: 'PCTL HS', assignConstructionTimeline: 'PCTL TC', viewOtherBranchProjects: 'XemCNKhác'}[key] || key.replace('assign', 'PC').replace('Timeline','TL').replace('Profile','HS').replace('Construction','TC'))).join(', ')}</p>
+                    <div className="mt-3 pt-3 border-t border-gray-200 flex gap-3">
+                      <button onClick={() => editUserHandler(u)} className="btn-sm btn-primary flex items-center gap-1" disabled={userMutation.isLoading || deleteUserMutation.isLoading}><FaEdit size={14} /> Sửa</button>
+                      <button onClick={() => deleteUserHandler(u._id)} className="btn-sm btn-danger flex items-center gap-1" disabled={userMutation.isLoading || deleteUserMutation.isLoading || u.role === 'admin'}><FaTrash size={14} /> Xóa</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full table-auto border-collapse">
+                  <thead>
+                    <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên người dùng</th><th className="p-4 text-left text-gray-700 font-bold border-b">Họ và tên</th><th className="p-4 text-left text-gray-700 font-bold border-b">Đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Vai trò</th><th className="p-4 text-left text-gray-700 font-bold border-b">Quyền</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr>
+                  </thead>
+                  <tbody>
+                    {paginatedUsers.map(u => (
+                      <tr key={u._id} className="border-t hover:bg-blue-50">
+                        <td className="p-4 text-gray-700">{u.username}</td><td className="p-4 text-gray-700">{u.fullName || 'N/A'}</td><td className="p-4 text-gray-700">{u.unit || 'N/A'}</td>
+                        <td className="p-4 text-gray-700">
+                          {u.role === 'admin' && 'Admin'}
+                          {u.role === 'director' && 'Tổng giám đốc'}
+                          {u.role === 'deputy_director' && 'Phó tổng giám đốc'}
+                          {u.role === 'manager-office' && 'Trưởng phòng (CT)'}
+                          {u.role === 'deputy_manager-office' && 'Phó phòng (CT)'}
+                          {u.role === 'staff-office' && 'Nhân viên (Phòng CT)'}
+                          {u.role === 'manager-branch' && 'Giám đốc (CN)'}
+                          {u.role === 'deputy_manager-branch' && 'Phó giám đốc (CN)'}
+                          {u.role === 'staff-branch' && 'Nhân viên (CN)'}
+                          {u.role === 'worker' && 'Công nhân'}
+                        </td>
+                        <td className="p-4 text-gray-700 text-xs">
+                          {Object.entries(u.permissions || {})
+                            .filter(([, value]) => value)
+                            .map(([key]) => ({
+                              add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'Xem TC',
+                              assignProfileTimeline: 'PCTL HS', assignConstructionTimeline: 'PCTL TC',
+                              viewOtherBranchProjects: 'XemCNKhác'
+                            }[key] || key.replace('assign', 'PC').replace('Timeline','TL').replace('Profile','HS').replace('Construction','TC')))
+                            .join(', ')}
+                        </td>
+                        <td className="p-4 flex gap-2">
+                          <button onClick={() => editUserHandler(u)} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={userMutation.isLoading || deleteUserMutation.isLoading}><FaEdit size={16} /></button>
+                          <button onClick={() => deleteUserHandler(u._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={userMutation.isLoading || deleteUserMutation.isLoading || u.role === 'admin'}><FaTrash size={16} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {users.length > itemsPerPage && (
+              <Pagination
+                currentPage={currentPageUsers}
+                totalPages={Math.ceil(users.length / itemsPerPage)}
+                onPageChange={setCurrentPageUsers}
+                isSubmitting={userMutation.isLoading || deleteUserMutation.isLoading}
+              />
+            )}
           </div>
         </div>
       )}
 
-      {activeTab === 'allocatedUnits' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên đơn vị</label> <input type="text" placeholder="Nhập tên đơn vị" value={newAllocatedUnitName} onChange={(e) => setNewAllocatedUnitName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocatedUnitMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveAllocatedUnit} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocatedUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocatedUnitMutation.isLoading}><FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'}</button> {editAllocatedUnit && (<button onClick={() => { setNewAllocatedUnitName(''); setEditAllocatedUnit(null); }} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocatedUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocatedUnitMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {allocatedUnits.map(unit => (<tr key={unit._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{unit.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewAllocatedUnitName(unit.name); setEditAllocatedUnit(unit);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteAllocatedUnitHandler(unit._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
-      {activeTab === 'constructionUnits' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị thi công</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên đơn vị thi công</label> <input type="text" placeholder="Nhập tên đơn vị thi công" value={newConstructionUnitName} onChange={(e) => setNewConstructionUnitName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={constructionUnitMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveConstructionUnit} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${constructionUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={constructionUnitMutation.isLoading}><FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'}</button> {editConstructionUnit && (<button onClick={() => { setNewConstructionUnitName(''); setEditConstructionUnit(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${constructionUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={constructionUnitMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {constructionUnits.map(unit => (<tr key={unit._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{unit.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewConstructionUnitName(unit.name); setEditConstructionUnit(unit);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteConstructionUnitHandler(unit._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
-      {activeTab === 'allocationWaves' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label> <input type="text" placeholder="Nhập tên đợt phân bổ" value={newAllocationWaveName} onChange={(e) => setNewAllocationWaveName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocationWaveMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveAllocationWave} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}><FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'}</button> {editAllocationWave && (<button onClick={() => { setNewAllocationWaveName(''); setEditAllocationWave(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {allocationWaves.map(wave => (<tr key={wave._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{wave.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewAllocationWaveName(wave.name); setEditAllocationWave(wave);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteAllocationWaveHandler(wave._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
-      {activeTab === 'projectTypes' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý loại công trình</h2> <div className="flex flex-col md:flex-row gap-4 mb-6"> <div className="flex-1"> <label className="block text-gray-700 mb-2">Tên loại công trình</label> <input type="text" placeholder="Nhập tên loại công trình" value={newProjectTypeName} onChange={(e) => setNewProjectTypeName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={projectTypeMutation.isLoading} maxLength={50} /> </div> <div className="flex items-end gap-4"> <button onClick={saveProjectType} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}><FaPlus /> {editProjectType ? 'Cập nhật' : 'Thêm'}</button> {editProjectType && (<button onClick={() => { setNewProjectTypeName(''); setEditProjectType(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}>Hủy</button>)} </div> </div> <div className="overflow-x-auto"> <table className="w-full table-auto border-collapse"> <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên loại công trình</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead> <tbody> {projectTypes.map(type => (<tr key={type._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{type.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewProjectTypeName(type.name); setEditProjectType(type);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteProjectTypeHandler(type._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaTrash size={16} /></button></td></tr>))} </tbody> </table> </div> </div>)}
+      {activeTab === 'allocatedUnits' && user?.role === 'admin' && (
+        <div className="bg-white p-8 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị</h2>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <label className="block text-gray-700 mb-2">Tên đơn vị</label>
+              <input type="text" placeholder="Nhập tên đơn vị" value={newAllocatedUnitName} onChange={(e) => setNewAllocatedUnitName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocatedUnitMutation.isLoading} maxLength={50} />
+            </div>
+            <div className="flex items-end gap-4">
+              <button onClick={saveAllocatedUnit} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocatedUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocatedUnitMutation.isLoading}><FaBuilding /> {editAllocatedUnit ? 'Cập nhật' : 'Thêm'}</button>
+              {editAllocatedUnit && (<button onClick={() => { setNewAllocatedUnitName(''); setEditAllocatedUnit(null); }} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocatedUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocatedUnitMutation.isLoading}>Hủy</button>)}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto border-collapse">
+              <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead>
+              <tbody>
+                {paginatedAllocatedUnits.map(unit => (
+                  <tr key={unit._id} className="border-t hover:bg-blue-50">
+                    <td className="p-4 text-gray-700">{unit.name}</td>
+                    <td className="p-4 flex gap-2">
+                      <button onClick={() => { setNewAllocatedUnitName(unit.name); setEditAllocatedUnit(unit);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}><FaEdit size={16} /></button>
+                      <button onClick={() => deleteAllocatedUnitHandler(unit._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}><FaTrash size={16} /></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {allocatedUnits.length > itemsPerPage && (
+            <Pagination
+              currentPage={currentPageAllocatedUnits}
+              totalPages={Math.ceil(allocatedUnits.length / itemsPerPage)}
+              onPageChange={setCurrentPageAllocatedUnits}
+              isSubmitting={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}
+            />
+          )}
+        </div>
+      )}
+
+      {activeTab === 'constructionUnits' && user?.role === 'admin' && (
+        <div className="bg-white p-8 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đơn vị thi công</h2>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <label className="block text-gray-700 mb-2">Tên đơn vị thi công</label>
+              <input type="text" placeholder="Nhập tên đơn vị thi công" value={newConstructionUnitName} onChange={(e) => setNewConstructionUnitName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={constructionUnitMutation.isLoading} maxLength={50} />
+            </div>
+            <div className="flex items-end gap-4">
+              <button onClick={saveConstructionUnit} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${constructionUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={constructionUnitMutation.isLoading}><FaHardHat /> {editConstructionUnit ? 'Cập nhật' : 'Thêm'}</button>
+              {editConstructionUnit && (<button onClick={() => { setNewConstructionUnitName(''); setEditConstructionUnit(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${constructionUnitMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={constructionUnitMutation.isLoading}>Hủy</button>)}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto border-collapse">
+              <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đơn vị</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead>
+              <tbody>
+                {paginatedConstructionUnits.map(unit => (
+                  <tr key={unit._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{unit.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewConstructionUnitName(unit.name); setEditConstructionUnit(unit);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteConstructionUnitHandler(unit._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading}><FaTrash size={16} /></button></td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {constructionUnits.length > itemsPerPage && (
+            <Pagination
+              currentPage={currentPageConstructionUnits}
+              totalPages={Math.ceil(constructionUnits.length / itemsPerPage)}
+              onPageChange={setCurrentPageConstructionUnits}
+              isSubmitting={constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading}
+            />
+          )}
+        </div>
+      )}
+
+      {activeTab === 'allocationWaves' && user?.role === 'admin' && (
+        <div className="bg-white p-8 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label>
+              <input type="text" placeholder="Nhập tên đợt phân bổ" value={newAllocationWaveName} onChange={(e) => setNewAllocationWaveName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocationWaveMutation.isLoading} maxLength={50} />
+            </div>
+            <div className="flex items-end gap-4">
+              <button onClick={saveAllocationWave} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}><FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'}</button>
+              {editAllocationWave && (<button onClick={() => { setNewAllocationWaveName(''); setEditAllocationWave(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}>Hủy</button>)}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto border-collapse">
+              <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead>
+              <tbody>
+                {paginatedAllocationWaves.map(wave => (
+                  <tr key={wave._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{wave.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewAllocationWaveName(wave.name); setEditAllocationWave(wave);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteAllocationWaveHandler(wave._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaTrash size={16} /></button></td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {allocationWaves.length > itemsPerPage && (
+            <Pagination
+              currentPage={currentPageAllocationWaves}
+              totalPages={Math.ceil(allocationWaves.length / itemsPerPage)}
+              onPageChange={setCurrentPageAllocationWaves}
+              isSubmitting={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}
+            />
+          )}
+        </div>
+      )}
+
+      {activeTab === 'projectTypes' && user?.role === 'admin' && (
+        <div className="bg-white p-8 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý loại công trình</h2>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <label className="block text-gray-700 mb-2">Tên loại công trình</label>
+              <input type="text" placeholder="Nhập tên loại công trình" value={newProjectTypeName} onChange={(e) => setNewProjectTypeName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={projectTypeMutation.isLoading} maxLength={50} />
+            </div>
+            <div className="flex items-end gap-4">
+              <button onClick={saveProjectType} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}><FaPlus /> {editProjectType ? 'Cập nhật' : 'Thêm'}</button>
+              {editProjectType && (<button onClick={() => { setNewProjectTypeName(''); setEditProjectType(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${projectTypeMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={projectTypeMutation.isLoading}>Hủy</button>)}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto border-collapse">
+              <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên loại công trình</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead>
+              <tbody>
+                {paginatedProjectTypes.map(type => (
+                  <tr key={type._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{type.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewProjectTypeName(type.name); setEditProjectType(type);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteProjectTypeHandler(type._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}><FaTrash size={16} /></button></td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {projectTypes.length > itemsPerPage && (
+            <Pagination
+              currentPage={currentPageProjectTypes}
+              totalPages={Math.ceil(projectTypes.length / itemsPerPage)}
+              onPageChange={setCurrentPageProjectTypes}
+              isSubmitting={projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading}
+            />
+          )}
+        </div>
+      )}
+
       {activeTab === 'syncProjects' && user?.role === 'admin' && ( <div className="bg-white p-8 rounded-2xl shadow-md"> <h2 className="text-2xl font-bold text-gray-800 mb-6">Đồng bộ dữ liệu công trình</h2> <p className="text-gray-600 mb-4"> Chức năng này sẽ đồng bộ dữ liệu công trình từ collection cũ (<code>projects</code>) sang các collection mới (<code>categoryprojects</code> và <code>minorrepairprojects</code>). <br /> <strong>Lưu ý:</strong> Hành động này sẽ cập nhật hoặc thêm mới các công trình dựa trên dữ liệu cũ, giữ nguyên các công trình đã có trong collection mới nếu không có thay đổi. </p> <button onClick={() => { if (window.confirm('Bạn có chắc chắn muốn đồng bộ dữ liệu công trình?')) { syncProjects(); } }} className={`bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 flex items-center gap-2 shadow-md ${syncProjectsMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={syncProjectsMutation.isLoading}><FaSync /> Đồng bộ dữ liệu công trình</button> </div>)}
       
       {activeTab === 'holidays' && user?.role === 'admin' && (
@@ -736,7 +897,6 @@ function Settings({ user }) {
           {!isLoadingHolidays && holidaysForSelectedYear.length === 0 && (
             <p className="text-gray-500">
               Chưa có ngày nghỉ nào được thiết lập cho năm {selectedHolidayYear}.
-              (Raw API items: {holidaysDataFromQuery?.holidays?.length || 0}, Processed items: {holidaysForSelectedYear.length})
             </p>
           )}
           {!isLoadingHolidays && holidaysForSelectedYear.length > 0 && (

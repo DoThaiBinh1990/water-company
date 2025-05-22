@@ -71,7 +71,7 @@ function GenericFilter({
         <div className="flex items-center gap-2">
           <button
             onClick={onResetFilters}
-            className="btn btn-reset flex items-center gap-1 bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300 transform hover:scale-105 shadow-md rounded-lg px-3 py-1.5 text-xs"
+            className="btn btn-reset flex items-center gap-1 bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300 transform hover:scale-105 shadow-md rounded-lg px-4 py-2 text-sm md:px-3 md:py-1.5 md:text-xs"
             disabled={isLoading} // py-1.5 is fine for text-xs
             title="Đặt lại bộ lọc"
           >
@@ -79,8 +79,8 @@ function GenericFilter({
             <span className="hidden sm:inline">Đặt lại</span>
           </button>
           <button
-            onClick={() => setShowFilter(!showFilter)} // py-1.5 is fine for text-xs
-            className="btn btn-secondary flex items-center gap-1 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md rounded-lg px-3 py-1.5 text-xs"
+            onClick={() => setShowFilter(!showFilter)}
+            className="btn btn-secondary flex items-center gap-1 bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-md rounded-lg px-4 py-2 text-sm md:px-3 md:py-1.5 md:text-xs"
             title={showFilter ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
           >
             {showFilter ? <FaEyeSlash size={14} /> : <FaEye size={14} />}

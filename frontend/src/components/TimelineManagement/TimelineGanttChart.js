@@ -2,12 +2,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Gantt from 'frappe-gantt';
 import { formatDateToLocale } from '../../utils/dateUtils';
+import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook
 import logger from '../../utils/logger'; // Import logger
 
 const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChange, onProgressChange, timelineType }) => {
   const ganttRef = useRef(null);
   const ganttInstance = useRef(null);
   const [renderableTasksCount, setRenderableTasksCount] = useState(0);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     logger.debug('[TimelineGanttChart] useEffect triggered. Input tasks prop:', JSON.stringify(tasks, null, 2));
@@ -168,11 +170,11 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
           header_height: 50,
           column_width: 35, // Giảm chiều rộng cột ngày để hiển thị nhiều ngày hơn
           step: 24,
-          bar_height: 20,
+          bar_height: isMobile ? 22 : 20, // Tăng nhẹ bar_height trên mobile để dễ chạm
           bar_corner_radius: 2, // Giảm độ bo góc một chút
           arrow_curve: 5,
-          padding: 16, // Giảm padding một chút
-          view_mode: viewMode,
+          padding: isMobile ? 12 : 16, // Giảm padding trên mobile
+          view_mode: isMobile ? 'Day' : viewMode, // Chế độ 'Day' cho mobile, prop viewMode cho desktop
           date_format: 'YYYY-MM-DD',
           language: 'vi',
           custom_popup_html: (taskGantt) => {
@@ -182,26 +184,26 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
               return `<div class="p-2 text-red-500">Lỗi: Không tìm thấy dữ liệu gốc cho task ${taskGantt.name}</div>`;
             }
             const currentTimelineInfo = timelineType === 'profile' ? projectData.profileTimeline : projectData.constructionTimeline;
-            const assignedBy = currentTimelineInfo?.assignedBy?.fullName || currentTimelineInfo?.assignedBy?.username || (typeof currentTimelineInfo?.assignedBy === 'string' ? currentTimelineInfo.assignedBy : 'N/A');
+            const assignedBy = currentTimelineInfo?.assignedBy?.fullName || currentTimelineInfo?.assignedBy?.username || (typeof currentTimelineInfo?.assignedBy === 'string' ? currentTimelineInfo.assignedBy : 'N/A');            
             let detailsHtml = `
-              <div class="gantt-custom-popup p-4 text-sm bg-white shadow-xl rounded-lg border border-gray-200 max-w-md leading-relaxed">
-                <h5 class="text-lg font-bold mb-3 text-blue-700">${taskGantt.name || 'N/A'}</h5>
-                <div class="space-y-1.5">
-                  <p><strong>Mã CT:</strong> <span class="text-gray-700">${projectData.projectCode || 'N/A'}</span></p>
-                  <p><strong>Năm TC:</strong> <span class="text-gray-700">${projectData.financialYear || 'N/A'}</span></p>
-                  <p><strong>Đơn vị PB:</strong> <span class="text-gray-700">${projectData.allocatedUnit?.name || projectData.allocatedUnit || 'N/A'}</span></p>
-                  <p><strong>Loại phân công:</strong> <span class="font-semibold ${currentTimelineInfo?.assignmentType === 'manual' ? 'text-purple-600' : 'text-green-600'}">${currentTimelineInfo?.assignmentType === 'manual' ? 'Thủ công' : 'Tự động'}</span></p>
-                  <hr class="my-2 border-gray-200">
-                  <p><strong>Ngày BĐ (KH):</strong> <span class="text-gray-700">${formatDateToLocale(taskGantt.start)}</span></p>
-                  <p><strong>Ngày KT (KH):</strong> <span class="text-gray-700">${formatDateToLocale(taskGantt.end)}</span></p>
-                  <p><strong>Số ngày (KH):</strong> <span class="text-gray-700">${currentTimelineInfo?.durationDays || 'N/A'}</span></p>
+              <div class="gantt-custom-popup p-3 sm:p-4 text-xs sm:text-sm bg-white shadow-xl rounded-lg border border-gray-200 max-w-xs sm:max-w-md leading-relaxed">
+                <h5 class="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-blue-700">${taskGantt.name || 'N/A'}</h5>
+                <div class="space-y-1 sm:space-y-1.5">
+                  <p><strong>Mã CT:</strong> <span class="text-gray-700">${projectData.projectCode || 'N/A'}</span></p>                  
+                  <p><strong>Năm TC:</strong> <span class="text-gray-700">${projectData.financialYear || 'N/A'}</span></p>                  
+                  <p><strong>Đơn vị PB:</strong> <span class="text-gray-700">${projectData.allocatedUnit?.name || projectData.allocatedUnit || 'N/A'}</span></p>                  
+                  <p><strong>Loại PC:</strong> <span class="font-semibold ${currentTimelineInfo?.assignmentType === 'manual' ? 'text-purple-600' : 'text-green-600'}">${currentTimelineInfo?.assignmentType === 'manual' ? 'Thủ công' : 'Tự động'}</span></p>
+                  <hr class="my-1 sm:my-2 border-gray-200">
+                  <p><strong>BĐ (KH):</strong> <span class="text-gray-700">${formatDateToLocale(taskGantt.start)}</span></p>
+                  <p><strong>KT (KH):</strong> <span class="text-gray-700">${formatDateToLocale(taskGantt.end)}</span></p>
+                  <p><strong>Số ngày (KH):</strong> <span class="text-gray-700">${currentTimelineInfo?.durationDays || 'N/A'}</span></p>                  
             `;
             if (timelineType === 'profile') {
-              detailsHtml += `<p><strong>Người lập DT:</strong> <span class="text-gray-700">${projectData.profileTimeline?.estimator?.fullName || projectData.profileTimeline?.estimator?.username || 'N/A'}</span></p>`;
+              detailsHtml += `<p><strong>Người DT:</strong> <span class="text-gray-700">${projectData.profileTimeline?.estimator?.fullName || projectData.profileTimeline?.estimator?.username || 'N/A'}</span></p>`;
             }
             if (timelineType === 'construction') {
-              detailsHtml += `<p><strong>Đơn vị TC:</strong> <span class="text-gray-700">${projectData.constructionTimeline?.constructionUnit || 'N/A'}</span></p>`;
-              detailsHtml += `<p><strong>Người theo dõi:</strong> <span class="text-gray-700">${projectData.constructionTimeline?.supervisor?.fullName || projectData.constructionTimeline?.supervisor?.username || 'N/A'}</span></p>`;
+              detailsHtml += `<p><strong>ĐVTC:</strong> <span class="text-gray-700">${projectData.constructionTimeline?.constructionUnit || 'N/A'}</span></p>`;
+              detailsHtml += `<p><strong>Người TD:</strong> <span class="text-gray-700">${projectData.constructionTimeline?.supervisor?.fullName || projectData.constructionTimeline?.supervisor?.username || 'N/A'}</span></p>`;
             }
             detailsHtml += `
                 <hr class="my-2">
@@ -209,7 +211,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
                 <p class="mb-1"><strong>Ngày BĐ (TT):</strong> ${formatDateToLocale(currentTimelineInfo?.actualStartDate)}</p>
                 <p class="mb-1"><strong>Ngày KT (TT):</strong> ${formatDateToLocale(currentTimelineInfo?.actualEndDate)}</p>
                 <p class="mb-1"><strong>Ghi chú TT:</strong> <span class="text-gray-700">${currentTimelineInfo?.statusNotes || 'N/A'}</span></p>
-                <p class="mt-3 pt-2 border-t border-gray-200 text-gray-600"><strong>Người phân công:</strong> ${assignedBy}</p>
+                <p class="mt-2 pt-1.5 sm:mt-3 sm:pt-2 border-t border-gray-200 text-gray-600"><strong>Người PC:</strong> ${assignedBy}</p>
                 </div>
               </div>
             `;
@@ -263,7 +265,7 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
         ganttInstance.current = null;
       }
     };
-  }, [tasks, viewMode, timelineType, onTaskClick, onDateChange, onProgressChange]);
+  }, [tasks, viewMode, timelineType, onTaskClick, onDateChange, onProgressChange, isMobile]); // Thêm isMobile vào dependencies
 
   return (
     <div className="gantt-container relative w-full h-[600px] overflow-x-auto overflow-y-hidden border border-gray-300 rounded-md shadow-sm bg-white custom-scrollbar">

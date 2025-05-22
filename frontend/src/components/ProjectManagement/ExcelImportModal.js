@@ -270,8 +270,8 @@ const ExcelImportModal = ({
                             <input
                               type={fieldConfig.type === 'date' ? 'date' : (fieldConfig.numeric ? 'number' : 'text')}
                               value={displayInputValue || ''}
-                              onChange={(e) => handleInputChange(rowIndex, fieldConfig.name, e.target.value)}
-                              className={`w-full p-1 border text-xs rounded ${error ? 'border-red-500' : 'border-gray-300'} focus:ring-blue-500 focus:border-blue-500`}
+                              onChange={(e) => handleInputChange(rowIndex, fieldConfig.name, e.target.value)} // Giữ nguyên text-xs, tăng padding cho mobile
+                              className={`w-full p-1.5 md:p-1 border text-xs rounded ${error ? 'border-red-500' : 'border-gray-300'} focus:ring-blue-500 focus:border-blue-500`}
                             />
                           )}
                           {error && <p className="text-red-500 text-xs mt-0.5 flex items-center"><FaExclamationTriangle className="mr-1"/> {error}</p>}

@@ -3,6 +3,7 @@ import React from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import { formatCurrency, getNestedProperty } from '../../utils/helpers';
 // formatDateToLocale sẽ được truyền qua props từ ProjectManagement.js
+import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook mới
 import Pagination from '../Common/Pagination';
 
 function GenericTable({
@@ -23,6 +24,8 @@ function GenericTable({
   usersList = [],
   formatDateToLocale, // Nhận hàm này qua props
 }) {
+  const isMobile = useMediaQuery('(max-width: 768px)'); // Ví dụ: breakpoint cho mobile là 768px
+
 
   const getCellDisplayData = (project, fieldPath, currentUsersList = []) => {
     let originalValueFromProject = getNestedProperty(project, fieldPath);
@@ -116,6 +119,55 @@ function GenericTable({
     );
   };
 
+  // Render dạng Card cho mobile
+  if (isMobile) {
+    if (isLoading || isFetching) {
+      return Array(itemsPerPage).fill(0).map((_, index) => (
+        <div key={`skeleton-card-${index}`} className="bg-white p-4 rounded-lg shadow mb-3 animate-pulse">
+          <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/2 mb-1"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          {/* Thêm skeleton cho nút actions nếu cần */}
+        </div>
+      ));
+    }
+    if (!data || data.length === 0) {
+      return (
+        <div className="text-center text-gray-500 py-10 mt-4 bg-white shadow-md rounded-lg card">
+          <FaInfoCircle size={32} className="mx-auto text-blue-400 mb-2" />
+          <p className="text-base">Không có công trình nào để hiển thị.</p>
+        </div>
+      );
+    }
+    return (
+      <div className="mt-4 space-y-3">
+        {data.map((project, index) => (
+          <div key={project._id || `project-card-${index}`} className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-md font-semibold text-blue-600 mb-2">
+              {(currentPage - 1) * itemsPerPage + index + 1}. {project.name}
+            </h3>
+            {/* Hiển thị một số cột quan trọng - bạn có thể tùy chỉnh cột nào hiển thị */}
+            {columns.slice(0, 4).map(col => ( // Ví dụ: hiển thị 4 cột đầu tiên
+              <div key={col.field} className="text-sm mb-1.5">
+                <span className="font-medium text-gray-600">{col.header}: </span>
+                {/* renderCellContent có thể cần điều chỉnh để phù hợp với card */}
+                <span className="text-gray-800">{renderCellContent(project, col)}</span>
+              </div>
+            ))}
+            {/* Nút hành động */}
+            {renderActions && (
+              <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap gap-2">
+                {renderActions(project, isPendingTab)}
+              </div>
+            )}
+          </div>
+        ))}
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} isSubmitting={isLoading || isSubmitting} />
+      </div>
+    );
+  }
+
+  // Render dạng bảng cho Desktop (logic hiện tại của bạn)
   if ((isLoading || isFetching) && (!data || data.length === 0)) {
     const skeletonCols = columns.length + 2;
     return (
