@@ -331,9 +331,16 @@ export const getHolidaysForYearAPI = async (year) => {
   return data; // Expects { year, holidays: [{ date, description }] } or { year, holidays: [] }
 };
 
-export const createOrUpdateHolidaysForYearAPI = async ({ year, holidays }) => {
-  // holidays should be an array of { date: 'YYYY-MM-DD', description: '...' }
-  const { data } = await apiClient.post('/api/holidays', { year, holidays });
+export const addHolidayAPI = async ({ year, date, description }) => {
+  // Payload cho API thêm một ngày nghỉ
+  const payload = { year, date, description };
+  // console.log('[addHolidayAPI] Payload to be sent:', payload, 'Type of year:', typeof payload.year); // Log payload
+  const { data } = await apiClient.post('/api/holidays', payload);
+  return data;
+};
+
+export const updateHolidayAPI = async ({ year, dateString, description }) => {
+  const { data } = await apiClient.patch(`/api/holidays/${year}/date/${dateString}`, { description });
   return data;
 };
 

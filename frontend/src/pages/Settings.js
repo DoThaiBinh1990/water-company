@@ -12,7 +12,7 @@ import {
   getProjectTypes, createProjectType as createProjectTypeAPI, updateProjectType as updateProjectTypeAPI, deleteProjectType as deleteProjectTypeAPI,
   updateUserProfile as updateUserProfileAPI, changeUserPassword as changeUserPasswordAPI,
   syncProjectsData as syncProjectsAPI,
-  getHolidaysForYearAPI, createOrUpdateHolidaysForYearAPI, deleteHolidayDateAPI
+  getHolidaysForYearAPI, addHolidayAPI, updateHolidayAPI, deleteHolidayDateAPI
 } from '../apiService';
 
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -115,25 +115,40 @@ function Settings({ user }) {
     queryKey: ['holidays', selectedHolidayYear],
     queryFn: () => getHolidaysForYearAPI(selectedHolidayYear),
     enabled: user?.role === 'admin' && activeTab === 'holidays',
-    keepPreviousData: true,
+    staleTime: 0, // Luôn coi dữ liệu là cũ để fetch lại khi query active
     onSuccess: (data) => {
-      if (!data || data.year !== selectedHolidayYear) return;
-      if (!data.holidays || !Array.isArray(data.holidays)) {
-        setHolidaysForSelectedYear([]); return;
+      // console.log('[Holidays Query Success] Selected Year:', selectedHolidayYear, 'API Data:', data);
+      if (data && data.year === selectedHolidayYear) {
+        if (data.holidays && Array.isArray(data.holidays)) {
+          const processedHolidays = data.holidays.map(h => {
+            if (!h || !h.date) return null;
+            const dateObj = new Date(h.date);
+            if (isNaN(dateObj.getTime())) return null;
+            return { _id: h._id, description: h.description, date: dateObj.toISOString().split('T')[0] };
+          }).filter(item => item !== null);
+          setHolidaysForSelectedYear(processedHolidays);
+        } else {
+          setHolidaysForSelectedYear([]);
+        }
+      } else if (activeTab === 'holidays') { // Nếu không có data hoặc data cho năm khác, và tab holidays active
+        setHolidaysForSelectedYear([]);
       }
-      const processedHolidays = data.holidays.map(h => {
-        if (!h || !h.date) return null;
-        const dateObj = new Date(h.date);
-        if (isNaN(dateObj.getTime())) return null;
-        return { _id: h._id, description: h.description, date: dateObj.toISOString().split('T')[0] };
-      }).filter(item => item !== null);
-      setHolidaysForSelectedYear(processedHolidays);
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || `Lỗi tải ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" });
       setHolidaysForSelectedYear([]);
     }
   });
+
+  // React Query sẽ tự động refetch khi queryKey (chứa selectedHolidayYear) thay đổi
+  // và query đang enabled. Không cần useEffect riêng để gọi refetchHolidays khi selectedHolidayYear đổi.
+  useEffect(() => {
+    if (user?.role === 'admin' && activeTab === 'holidays') {
+      // Khi tab holidays được active, query sẽ tự chạy nếu enabled và staleTime đã qua.
+      // Nếu muốn chắc chắn fetch lại khi tab active, có thể gọi refetch ở đây,
+      // nhưng với staleTime: 0, nó sẽ tự fetch khi component mount/remount và tab active.
+    }
+  }, [activeTab, user?.role]); // Chỉ phụ thuộc vào activeTab và user role
 
   const isLoadingTabData =
     (activeTab === 'users' && (isLoadingUsers || isFetchingUsers)) ||
@@ -331,19 +346,53 @@ function Settings({ user }) {
     });
   };
 
-  const saveHolidaysMutation = useMutation({
-    mutationFn: createOrUpdateHolidaysForYearAPI,
+  const addHolidayMutation = useMutation({ // Đổi tên mutation
+    mutationFn: addHolidayAPI, // Gọi API thêm một ngày
     onSuccess: (data, variables) => {
-      toast.success(`Đã lưu ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" });
-      queryClient.invalidateQueries({ queryKey: ['holidays', parseInt(variables.year, 10)] });
+      toast.success(`Đã thêm ngày nghỉ ${variables.date} cho năm ${selectedHolidayYear}!`, { position: "top-center" });
+      // Cập nhật state holidaysForSelectedYear trực tiếp với dữ liệu mới
+      // Giả sử API trả về { year, holidays: [...] } với holidays đã được xử lý
+      if (data && data.holidays && data.year === selectedHolidayYear) {
+        const processedHolidays = data.holidays.map(h => ({
+          _id: h._id, // Nếu có
+          date: new Date(h.date).toISOString().split('T')[0],
+          description: h.description
+        })).filter(h => h.date); // Lọc bỏ các holiday không hợp lệ
+        setHolidaysForSelectedYear(processedHolidays);
+      }
+      // Không cần invalidate nếu đã cập nhật state trực tiếp và API trả về đủ thông tin
+      // Hoặc vẫn invalidate để đảm bảo đồng bộ nếu có thay đổi từ nguồn khác
+      queryClient.invalidateQueries({ queryKey: ['holidays', selectedHolidayYear] });
+      setNewHoliday({ date: '', description: '' }); // Reset form thêm mới
     },
-    onError: (error) => toast.error(error.response?.data?.message || `Lỗi khi lưu ngày nghỉ cho năm ${selectedHolidayYear}!`, { position: "top-center" }),
+    onError: (error) => toast.error(error.response?.data?.message || `Lỗi khi thêm ngày nghỉ!`, { position: "top-center" }),
+  });
+
+  const updateHolidayMutation = useMutation({
+    mutationFn: updateHolidayAPI,
+    onSuccess: (data, variables) => {
+      toast.success(`Đã cập nhật ngày nghỉ ${variables.dateString}!`, { position: "top-center" });
+      if (data && data.holidays && data.year === selectedHolidayYear) {
+        const processedHolidays = data.holidays.map(h => ({ _id: h._id, date: new Date(h.date).toISOString().split('T')[0], description: h.description })).filter(h => h.date);
+        setHolidaysForSelectedYear(processedHolidays);
+      }
+      queryClient.invalidateQueries({ queryKey: ['holidays', selectedHolidayYear] });
+      setEditingHoliday(null);
+      setEditingHolidayDescription('');
+    },
+    onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi cập nhật ngày nghỉ!', { position: "top-center" }),
   });
 
   const deleteHolidayMutation = useMutation({
     mutationFn: deleteHolidayDateAPI,
     onSuccess: (data, variables) => {
       toast.success(data.message || 'Đã xóa ngày nghỉ!', { position: "top-center" });
+      // Cập nhật state holidaysForSelectedYear trực tiếp
+      // data.holidays từ API nên là danh sách đã cập nhật
+      if (data && data.holidays && data.holidays.year === selectedHolidayYear) {
+        const processedHolidays = data.holidays.holidays.map(h => ({ _id: h._id, date: new Date(h.date).toISOString().split('T')[0], description: h.description })).filter(h => h.date);
+        setHolidaysForSelectedYear(processedHolidays);
+      }
       queryClient.invalidateQueries({ queryKey: ['holidays', parseInt(variables.year, 10)] });
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi xóa ngày nghỉ!', { position: "top-center" }),
@@ -354,6 +403,11 @@ function Settings({ user }) {
       toast.error('Vui lòng nhập ngày và mô tả cho ngày nghỉ.', { position: "top-center" });
       return;
     }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(newHoliday.date)) {
+        toast.error('Ngày nghỉ không đúng định dạng YYYY-MM-DD.', { position: "top-center" });
+        return;
+    }
+
     if (holidaysForSelectedYear.some(h => h.date === newHoliday.date)) {
       toast.error(`Ngày ${newHoliday.date} đã tồn tại trong danh sách.`, { position: "top-center" });
       return;
@@ -369,10 +423,15 @@ function Settings({ user }) {
       }
     }
 
-    const currentHolidays = holidaysForSelectedYear.map(h => ({ date: h.date, description: h.description }));
-    const updatedHolidays = [...currentHolidays, { date: newHoliday.date, description: newHoliday.description }];
-    saveHolidaysMutation.mutate({ year: selectedHolidayYear, holidays: updatedHolidays });
-    setNewHoliday({ date: '', description: '' });
+    const yearToSend = parseInt(selectedHolidayYear, 10);
+    // console.log('Type of selectedHolidayYear:', typeof selectedHolidayYear, 'Value:', selectedHolidayYear);
+    // console.log('Type of yearToSend:', typeof yearToSend, 'Value:', yearToSend);
+
+    addHolidayMutation.mutate({
+        year: yearToSend,
+        date: newHoliday.date,
+        description: newHoliday.description.trim()
+    });
   };
 
   const handleStartEditHoliday = (holiday) => {
@@ -385,13 +444,11 @@ function Settings({ user }) {
       toast.error('Mô tả không được để trống.', { position: "top-center" });
       return;
     }
-    const updatedHolidaysList = holidaysForSelectedYear.map(h =>
-      h.date === editingHoliday.date ? { ...h, description: editingHolidayDescription.trim() } : h
-    );
-    const holidaysToSave = updatedHolidaysList.map(({ date, description }) => ({ date, description }));
-    saveHolidaysMutation.mutate({ year: selectedHolidayYear, holidays: holidaysToSave });
-    setEditingHoliday(null);
-    setEditingHolidayDescription('');
+    updateHolidayMutation.mutate({
+      year: selectedHolidayYear,
+      dateString: editingHoliday.date,
+      description: editingHolidayDescription.trim()
+    });
   };
 
   const handleDeleteHoliday = (dateString) => {
@@ -407,7 +464,7 @@ function Settings({ user }) {
     constructionUnitMutation.isLoading || deleteConstructionUnitMutation.isLoading ||
     allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading ||
     projectTypeMutation.isLoading || deleteProjectTypeMutation.isLoading ||
-    saveHolidaysMutation.isLoading || deleteHolidayMutation.isLoading;
+    addHolidayMutation.isLoading || updateHolidayMutation.isLoading || deleteHolidayMutation.isLoading;
 
   const anyProfileMutationLoading = updateUserProfileMutation.isLoading || changePasswordMutation.isLoading;
 
@@ -853,7 +910,7 @@ function Settings({ user }) {
               value={selectedHolidayYear} 
               onChange={(e) => setSelectedHolidayYear(parseInt(e.target.value, 10))} 
               className="w-full md:w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-              disabled={saveHolidaysMutation.isLoading || deleteHolidayMutation.isLoading || isLoadingHolidays}
+              disabled={addHolidayMutation.isLoading || updateHolidayMutation.isLoading || deleteHolidayMutation.isLoading || isLoadingHolidays}
             >
               {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i).map(year => (
                 <option key={year} value={year}>{year}</option>
@@ -869,7 +926,7 @@ function Settings({ user }) {
                 value={newHoliday.date} 
                 onChange={(e) => setNewHoliday(prev => ({ ...prev, date: e.target.value }))} 
                 className="w-full border border-gray-300 p-2 rounded-lg" 
-                disabled={saveHolidaysMutation.isLoading} 
+                disabled={addHolidayMutation.isLoading} 
               />
             </div>
             <div className="md:col-span-2">
@@ -880,14 +937,14 @@ function Settings({ user }) {
                 value={newHoliday.description} 
                 onChange={(e) => setNewHoliday(prev => ({ ...prev, description: e.target.value }))} 
                 className="w-full border border-gray-300 p-2 rounded-lg" 
-                disabled={saveHolidaysMutation.isLoading} 
+                disabled={addHolidayMutation.isLoading} 
               />
             </div>
           </div>
           <button 
             onClick={handleAddHoliday} 
-            className={`bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 flex items-center gap-2 mb-6 ${saveHolidaysMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} 
-            disabled={saveHolidaysMutation.isLoading}
+            className={`bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 flex items-center gap-2 mb-6 ${addHolidayMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} 
+            disabled={addHolidayMutation.isLoading}
           >
             <FaPlus /> Thêm ngày nghỉ
           </button>
@@ -911,10 +968,10 @@ function Settings({ user }) {
                         value={editingHolidayDescription}
                         onChange={(e) => setEditingHolidayDescription(e.target.value)}
                         className="form-input text-sm flex-grow rounded-md"
-                        disabled={saveHolidaysMutation.isLoading}
+                        disabled={updateHolidayMutation.isLoading}
                       />
-                      <button onClick={handleSaveEditedHoliday} className="btn btn-success btn-sm" disabled={saveHolidaysMutation.isLoading}>Lưu</button>
-                      <button onClick={() => setEditingHoliday(null)} className="btn btn-secondary btn-sm" disabled={saveHolidaysMutation.isLoading}>Hủy</button>
+                      <button onClick={handleSaveEditedHoliday} className="btn btn-success btn-sm" disabled={updateHolidayMutation.isLoading}>Lưu</button>
+                      <button onClick={() => setEditingHoliday(null)} className="btn btn-secondary btn-sm" disabled={updateHolidayMutation.isLoading}>Hủy</button>
                     </div>
                   ) : (
                     <div className="flex justify-between items-center">
@@ -923,10 +980,10 @@ function Settings({ user }) {
                         <span className="text-gray-600 ml-2">- {holiday.description}</span>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => handleStartEditHoliday(holiday)} className="text-blue-500 hover:text-blue-700 disabled:opacity-50" disabled={deleteHolidayMutation.isLoading || saveHolidaysMutation.isLoading}>
+                        <button onClick={() => handleStartEditHoliday(holiday)} className="text-blue-500 hover:text-blue-700 disabled:opacity-50" disabled={deleteHolidayMutation.isLoading || updateHolidayMutation.isLoading || addHolidayMutation.isLoading}>
                           <FaEdit size={16} />
                         </button>
-                        <button onClick={() => handleDeleteHoliday(holiday.date)} className="text-red-500 hover:text-red-700 disabled:opacity-50" disabled={deleteHolidayMutation.isLoading || saveHolidaysMutation.isLoading}>
+                        <button onClick={() => handleDeleteHoliday(holiday.date)} className="text-red-500 hover:text-red-700 disabled:opacity-50" disabled={deleteHolidayMutation.isLoading || updateHolidayMutation.isLoading || addHolidayMutation.isLoading}>
                           <FaCalendarTimes size={16} />
                         </button>
                       </div>

@@ -12,7 +12,8 @@ router.use(authenticate, (req, res, next) => {
     next();
 });
 
-router.post('/', holidayController.createOrUpdateHolidays); // Tạo hoặc cập nhật ngày nghỉ cho một năm
+router.post('/', holidayController.addHoliday); // Thêm một ngày nghỉ mới cho năm
+router.patch('/:year/date/:dateString', holidayController.updateHoliday); // Cập nhật mô tả của một ngày nghỉ
 router.get('/:year', holidayController.getHolidaysByYear);
 router.delete('/:year/date/:dateString', holidayController.deleteHolidayDate); // Xóa một ngày nghỉ cụ thể trong năm
 

@@ -1,17 +1,55 @@
 // d:\CODE\water-company\backend\server\controllers\holiday.controller.js
 const holidayService = require('../services/holiday.service'); // Sẽ tạo file này
 const logger = require('../config/logger');
+const Joi = require('joi');
 
-exports.createOrUpdateHolidays = async (req, res, next) => {
+const addHolidaySchema = Joi.object({
+    year: Joi.number().integer().min(2000).max(2100).required(),
+    date: Joi.string().isoDate().required().messages({ // YYYY-MM-DD
+        'string.isoDate': 'Ngày nghỉ phải có định dạng YYYY-MM-DD.',
+        'any.required': 'Ngày nghỉ là bắt buộc.'
+    }),
+    description: Joi.string().trim().min(1).required().messages({
+        'string.empty': 'Mô tả không được để trống.',
+        'any.required': 'Mô tả là bắt buộc.'
+    })
+});
+
+exports.addHoliday = async (req, res, next) => {
     try {
-        const { year, holidays } = req.body; // holidays là một mảng các { date: 'YYYY-MM-DD', description: '...' }
-        if (!year || !Array.isArray(holidays)) {
-            return res.status(400).json({ message: 'Năm và danh sách ngày nghỉ là bắt buộc.' });
+        // Log quan trọng để xem chính xác backend nhận được gì
+        logger.info(`[addHoliday Controller] Received req.body: ${JSON.stringify(req.body)}, Type of req.body.year: ${typeof req.body.year}`);
+        const { error, value } = addHolidaySchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
         }
-        const result = await holidayService.createOrUpdateHolidaysForYear(year, holidays, req.user);
+        const { year, date, description } = value;
+        const result = await holidayService.addHolidayToYear(year, { date, description }, req.user);
         res.status(200).json(result);
     } catch (error) {
         logger.error("Lỗi Controller tạo/cập nhật ngày nghỉ:", { error: error.message, stack: error.stack });
+        next(error);
+    }
+};
+
+const updateHolidaySchema = Joi.object({
+    description: Joi.string().trim().min(1).required().messages({
+        'string.empty': 'Mô tả không được để trống.',
+        'any.required': 'Mô tả là bắt buộc.'
+    })
+});
+
+exports.updateHoliday = async (req, res, next) => {
+    try {
+        const { error, value } = updateHolidaySchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
+        const { year, dateString } = req.params;
+        const result = await holidayService.updateHolidayInYear(parseInt(year, 10), dateString, value.description, req.user);
+        res.status(200).json(result);
+    } catch (error) {
+        logger.error("Lỗi Controller cập nhật ngày nghỉ:", { error: error.message, stack: error.stack });
         next(error);
     }
 };
