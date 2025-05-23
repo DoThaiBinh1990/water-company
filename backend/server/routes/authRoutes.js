@@ -216,15 +216,31 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
     try {
       const { name, shortCode } = req.body; // Thêm shortCode
       if (!name || name.trim() === "") { return res.status(400).json({ message: `Tên ${modelNameSingular} không được để trống` }); }
-      if (modelNameSingular === 'đơn vị' && (!shortCode || shortCode.trim().length !== 3)) { // Validate shortCode cho AllocatedUnit
-        return res.status(400).json({ message: 'Mã viết tắt đơn vị là bắt buộc và phải có 3 ký tự.' });
+      
+      let dataToSave = { name: name.trim() };
+
+      if (modelNameSingular === 'đơn vị') { // AllocatedUnit
+        if (!shortCode || shortCode.trim().length !== 3) {
+          return res.status(400).json({ message: 'Mã viết tắt đơn vị là bắt buộc và phải có 3 ký tự.' });
+        }
+        const existingShortCode = await model.findOne({ shortCode: shortCode.trim().toUpperCase() });
+        if (existingShortCode) {
+          return res.status(400).json({ message: `Mã viết tắt "${shortCode.trim().toUpperCase()}" đã tồn tại.` });
+        }
+        dataToSave.shortCode = shortCode.trim().toUpperCase();
+      } else if (modelNameSingular === 'đợt phân bổ') { // AllocationWave
+        if (!shortCode || shortCode.trim().length !== 2) {
+          return res.status(400).json({ message: 'Mã viết tắt đợt phân bổ là bắt buộc và phải có 2 ký tự.' });
+        }
+        const existingShortCode = await model.findOne({ shortCode: shortCode.trim().toUpperCase() });
+        if (existingShortCode) {
+          return res.status(400).json({ message: `Mã viết tắt đợt "${shortCode.trim().toUpperCase()}" đã tồn tại.` });
+        }
+        dataToSave.shortCode = shortCode.trim().toUpperCase();
       }
 
       const existingUnit = await model.findOne({ name: name.trim() });
       if (existingUnit) { return res.status(400).json({ message: `${modelNameSingular} "${name.trim()}" đã tồn tại.` }); }
-
-      const dataToSave = { name: name.trim() };
-      if (modelNameSingular === 'đơn vị' && shortCode) dataToSave.shortCode = shortCode.trim().toUpperCase();
 
       const unit = new model(dataToSave);
       const newUnit = await unit.save();
@@ -251,17 +267,34 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
     try {
       const { name, shortCode } = req.body; // Thêm shortCode
       if (!name || name.trim() === "") { return res.status(400).json({ message: `Tên ${modelNameSingular} không được để trống` }); }
-      if (modelNameSingular === 'đơn vị' && shortCode && shortCode.trim().length !== 3) {
-        return res.status(400).json({ message: 'Mã viết tắt đơn vị phải có 3 ký tự nếu được cung cấp.' });
-      }
 
       const unitToUpdate = await model.findById(req.params.id);
       if (!unitToUpdate) return res.status(404).json({ message: `Không tìm thấy ${modelNameSingular}` });
+      
       const existingUnit = await model.findOne({ name: name.trim(), _id: { $ne: req.params.id } });
       if (existingUnit) { return res.status(400).json({ message: `${modelNameSingular} "${name.trim()}" đã tồn tại.` }); }
 
       unitToUpdate.name = name.trim();
-      if (modelNameSingular === 'đơn vị' && shortCode) {
+
+      if (modelNameSingular === 'đơn vị') { // AllocatedUnit
+        if (!shortCode || shortCode.trim().length !== 3) {
+          // Nếu shortCode được gửi nhưng không hợp lệ
+          return res.status(400).json({ message: 'Mã viết tắt đơn vị phải có 3 ký tự nếu được cung cấp.' });
+        }
+        // Kiểm tra shortCode mới có trùng với cái khác không (ngoại trừ chính nó)
+        const existingShortCode = await model.findOne({ shortCode: shortCode.trim().toUpperCase(), _id: { $ne: req.params.id } });
+        if (existingShortCode) {
+          return res.status(400).json({ message: `Mã viết tắt "${shortCode.trim().toUpperCase()}" đã tồn tại.` });
+        }
+        unitToUpdate.shortCode = shortCode.trim().toUpperCase();
+      } else if (modelNameSingular === 'đợt phân bổ') { // AllocationWave
+        if (!shortCode || shortCode.trim().length !== 2) {
+          return res.status(400).json({ message: 'Mã viết tắt đợt phân bổ phải có 2 ký tự nếu được cung cấp.' });
+        }
+        const existingShortCode = await model.findOne({ shortCode: shortCode.trim().toUpperCase(), _id: { $ne: req.params.id } });
+        if (existingShortCode) {
+          return res.status(400).json({ message: `Mã viết tắt đợt "${shortCode.trim().toUpperCase()}" đã tồn tại.` });
+        }
         unitToUpdate.shortCode = shortCode.trim().toUpperCase();
       }
       await unitToUpdate.save();
@@ -279,9 +312,18 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
       const unit = await model.findById(req.params.id);
       if (!unit) return res.status(404).json({ message: `Không tìm thấy ${modelNameSingular}` });
       // Logic kiểm tra unit có đang được sử dụng không
-      const isUsedInCategory = await CategoryProject.exists({ $or: [{ allocatedUnit: unit.name }, { constructionUnit: unit.name }, { allocationWave: unit.name }] });
-      const isUsedInMinorRepair = await MinorRepairProject.exists({ allocatedUnit: unit.name });
-      const isUserUnit = await User.exists({ unit: unit.name });
+      let isUsedInCategory = false;
+      let isUsedInMinorRepair = false;
+      let isUserUnit = false;
+
+      if (modelNameSingular === 'đơn vị') { // AllocatedUnit
+        isUsedInCategory = await CategoryProject.exists({ allocatedUnit: unit._id }); // Giả sử lưu ID
+        isUsedInMinorRepair = await MinorRepairProject.exists({ allocatedUnit: unit._id }); // Giả sử lưu ID
+        isUserUnit = await User.exists({ unit: unit._id }); // Giả sử lưu ID
+      } else { // Các loại đơn vị khác có thể vẫn lưu bằng tên
+        isUsedInCategory = await CategoryProject.exists({ $or: [{ constructionUnit: unit.name }, { allocationWave: unit.name }] });
+      }
+      // MinorRepairProject không có constructionUnit, allocationWave
 
       if (isUsedInCategory || isUsedInMinorRepair || isUserUnit) {
         return res.status(400).json({ message: `${modelNameSingular} "${unit.name}" đang được sử dụng và không thể xóa.` });

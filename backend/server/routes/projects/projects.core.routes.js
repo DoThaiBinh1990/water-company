@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const authenticate = require('../../middleware'); // Đường dẫn tới middleware authenticate
+const projectStandardizeController = require('../../controllers/projects/project.standardize.controller.js');
 const projectCoreController = require('../../controllers/projects/project.core.controller.js');
 
 // Route này sẽ được mount với prefix /api/projects (trong server.js)
@@ -36,5 +37,9 @@ router.patch('/timeline/construction/:id', authenticate, projectCoreController.u
 
 // Route for getting projects eligible for timeline assignment
 router.get('/timeline/for-assignment', authenticate, projectCoreController.getProjectsForTimelineAssignment);
+
+// Routes for Project Code Standardization
+router.get('/standardize/prepare', authenticate, projectStandardizeController.prepareStandardization);
+router.post('/standardize/execute', authenticate, projectStandardizeController.executeStandardization);
 
 module.exports = router;

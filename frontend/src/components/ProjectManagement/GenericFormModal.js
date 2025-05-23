@@ -95,7 +95,7 @@ function GenericFormModal({
     if (editProject && field.name === 'approvedBy') {
         if (editProject.status === 'Đã duyệt' && user.role !== 'admin') {
             return true;
-        }
+        } // Admin có thể sửa approvedBy ngay cả khi đã duyệt
     }
     // Chỉ admin mới được sửa projectCode, và chỉ khi đang edit
     if (field.name === 'projectCode') {

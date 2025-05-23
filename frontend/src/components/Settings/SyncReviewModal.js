@@ -262,9 +262,21 @@ const SyncReviewModal = ({
                           {/* Đã có */}
                           <option value="">-- Chọn {mf.label.toLowerCase()} --</option>
                           {getOptionsForMissingField(mf).map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value || opt.label} value={opt.value}>{opt.label}</option>
                           ))}
                         </select>
+                      ) : mf.type === 'textarea' ? (
+                         <textarea
+                          id={`${p._id}-${mf.field}`}
+                          value={editableData[p._id]?.[mf.field] || ''}
+                          onChange={(e) => handleInputChange(p._id, mf.field, e.target.value)}
+                          className={`form-textarea w-full p-1.5 text-xs border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500
+                                      ${(isExecutingSync || p.isDuplicateInNewSystem || !projectsToSync.includes(p._id))
+                                        ? 'bg-gray-100 cursor-not-allowed'
+                                        : 'border-gray-300 bg-white'}`}
+                          disabled={isExecutingSync || p.isDuplicateInNewSystem || !projectsToSync.includes(p._id)}
+                          rows={2} // Mặc định 2 dòng cho textarea trong modal này
+                        />
                       ) : (
                         <input
                           id={`${p._id}-${mf.field}`}

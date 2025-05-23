@@ -1,5 +1,5 @@
-// d:\CODE\water-company\frontend\src\config\formConfigs.js
-export const categoryFormConfig = {
+// d:\CODE\water-company\backend\server\config\formConfigs.js
+const categoryFormConfig = {
   addTitle: 'Thêm mới Công trình Danh mục',
   editTitle: 'Chỉnh sửa Công trình Danh mục',
   tabs: [
@@ -16,7 +16,7 @@ export const categoryFormConfig = {
         { name: 'scale', label: 'Quy mô', type: 'text', required: true, placeholder: 'VD: Tuyến ống D100, Nâng cấp TBA...' },
         { name: 'location', label: 'Địa điểm Xây dựng', type: 'text', required: true, placeholder: 'Nhập địa điểm cụ thể' },
         { name: 'approvedBy', label: 'Người phê duyệt', type: 'select', required: true, optionsSource: 'approvers' },
-        { name: 'createdBy', label: 'Người tạo', type: 'select', required: true, optionsSource: 'users' }, // Thêm createdBy với optionsSource
+        { name: 'createdBy', label: 'Người tạo', type: 'select', required: true, optionsSource: 'users' },
       ],
     },
     {
@@ -39,7 +39,7 @@ export const categoryFormConfig = {
         { name: 'initialValue', label: 'Giá trị phân bổ (Triệu đồng)', type: 'text', numeric: true, placeholder: 'Chỉ nhập số, VD: 150.5' },
         { name: 'estimatedValue', label: 'Giá trị dự toán (Triệu đồng)', type: 'text', numeric: true, placeholder: 'Chỉ nhập số' },
         { name: 'contractValue', label: 'Giá trị giao khoán (Triệu đồng)', type: 'text', numeric: true, placeholder: 'Chỉ nhập số' },
-        { name: 'constructionUnit', label: 'Đơn vị thi công', type: 'select', optionsSource: 'constructionUnits' }, // Sửa optionsSource
+        { name: 'constructionUnit', label: 'Đơn vị thi công', type: 'select', optionsSource: 'constructionUnits' },
         { name: 'progress', label: 'Tiến độ thi công', type: 'text', placeholder: 'VD: Hoàn thành 50%, Đang mời thầu...' },
         { name: 'feasibility', label: 'Khả năng thực hiện', type: 'text', placeholder: 'VD: Tốt, Cần xem xét thêm...' },
         { name: 'notes', label: 'Ghi chú chung', type: 'textarea', rows: 3, fullWidth: true, placeholder: 'Các thông tin khác cần lưu ý' },
@@ -48,7 +48,7 @@ export const categoryFormConfig = {
   ],
 };
 
-const initialMinorRepairFormConfig = { // Đổi tên biến tạm thời
+const minorRepairFormConfig = {
   addTitle: 'Thêm mới Công trình Sửa chữa nhỏ',
   editTitle: 'Chỉnh sửa Công trình Sửa chữa nhỏ',
   tabs: [
@@ -57,16 +57,16 @@ const initialMinorRepairFormConfig = { // Đổi tên biến tạm thời
       label: 'Thông tin Cơ bản',
       fields: [
         { name: 'name', label: 'Tên công trình/Sự cố', type: 'text', required: true, placeholder: 'Nhập tên hoặc mô tả sự cố' },
-        { name: 'projectCode', label: 'Mã công trình', type: 'text', placeholder: 'Sẽ được tạo tự động', disabled: true }, // Thêm trường projectCode
+        { name: 'projectCode', label: 'Mã công trình', type: 'text', placeholder: 'Sẽ được tạo tự động', disabled: true },
         { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
-        { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' }, // Thêm trường isCompleted
+        { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' },
         { name: 'allocatedUnit', label: 'Đơn vị quản lý/phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
         { name: 'location', label: 'Địa điểm xảy ra sự cố', type: 'text', required: true, placeholder: 'Nhập địa điểm cụ thể' },
         { name: 'scale', label: 'Quy mô/Hiện trạng', type: 'textarea', rows: 2, required: true, placeholder: 'Mô tả quy mô hoặc hiện trạng sự cố' },
         { name: 'reportDate', label: 'Ngày nhận thông tin/xảy ra sự cố', type: 'date', required: true },
         { name: 'approvedBy', label: 'Người phê duyệt', type: 'select', required: true, optionsSource: 'approvers' },
+        { name: 'createdBy', label: 'Người tạo', type: 'select', required: true, optionsSource: 'users' },
       ],
-      // Thêm createdBy vào tab basic hoặc một tab khác nếu cần cho MinorRepair
     },
     {
       name: 'assignment',
@@ -89,15 +89,7 @@ const initialMinorRepairFormConfig = { // Đổi tên biến tạm thời
   ],
 };
 
-// Thêm trường createdBy vào tab 'basic' sau khi initialMinorRepairFormConfig đã được định nghĩa
-const updatedMinorRepairTabs = initialMinorRepairFormConfig.tabs.map(tab => {
-    if (tab.name === 'basic') {
-      return { ...tab, fields: [...tab.fields, { name: 'createdBy', label: 'Người tạo', type: 'select', required: true, optionsSource: 'users' }] };
-    }
-    return tab;
-});
-
-export const minorRepairFormConfig = {
-  ...initialMinorRepairFormConfig,
-  tabs: updatedMinorRepairTabs,
+module.exports = { // Export dưới dạng module.exports cho backend
+    categoryFormConfig,
+    minorRepairFormConfig,
 };

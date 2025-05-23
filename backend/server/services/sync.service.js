@@ -4,9 +4,10 @@ const { CategoryProject, MinorRepairProject, AllocatedUnit, User } = require('..
 const { userFieldToQuery } = require('./helpers/serviceHelpers');
 const { generateProjectCode } = require('./helpers/projectCodeHelper');
 const logger = require('../config/logger');
+const { categoryFormConfig, minorRepairFormConfig } = require('../config/formConfigs'); // Import form configs
 
 /**
- * Prepares old project data for synchronization, identifying missing fields and auto-filled values.
+ * Prepares project data for synchronization, identifying missing fields and auto-filled values based on form configs.
  * @param {string|number} [targetFinancialYear] - Optional. The specific financial year to sync. Can be "all" or a year number.
  * @param {string} [targetProjectType] - Optional. The specific project type to sync ('category', 'minor_repair', 'all').
  * @param {object} [currentUser] - The user performing the action (for context, not used for filtering here).
@@ -14,7 +15,7 @@ const logger = require('../config/logger');
  */
 const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectType, currentUser) => {
   logger.info(`[SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: ${targetFinancialYear || 'Tất cả'}, Loại CT: ${targetProjectType || 'Tất cả'}`);
-  
+
   let projectsToProcess = [];
   const categoryQuery = {};
   const minorRepairQuery = {};
@@ -40,6 +41,15 @@ const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectT
 
   logger.info(`[SyncService] Tìm thấy tổng cộng ${projectsToProcess.length} công trình từ CategoryProject và MinorRepairProject.`);
 
+  // Lấy cấu hình form để xác định các trường bắt buộc và optionsSource
+  const formConfigs = {
+      category: categoryFormConfig,
+      minor_repair: minorRepairFormConfig,
+  };
+  const getFieldConfig = (projectType, fieldName) => {
+      return formConfigs[projectType]?.tabs.flatMap(tab => tab.fields).find(f => f.name === fieldName);
+  };
+
   const preparedProjects = [];
   const categorySchemaFields = Object.keys(CategoryProject.schema.paths);
   const minorRepairSchemaFields = Object.keys(MinorRepairProject.schema.paths);
@@ -47,7 +57,7 @@ const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectT
   // Sửa ở đây: Lặp qua projectsToProcess thay vì oldProjects
   for (const oldP of projectsToProcess) {
     // oldP đã là một plain object do .map(p => ({ ...p.toObject(), ... })) ở trên
-    const oldProjectData = oldP; 
+    const oldProjectData = oldP;
     let effectiveFinancialYear = oldProjectData.financialYear;
     if (!effectiveFinancialYear && oldProjectData.createdAt) {
       effectiveFinancialYear = new Date(oldProjectData.createdAt).getUTCFullYear(); // Use UTCFullYear
@@ -67,14 +77,17 @@ const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectT
     const Model = isCategory ? CategoryProject : MinorRepairProject;
 
     const preparedData = {
-      _id: oldProjectData._id, // Giữ lại ID gốc để tham chiếu
-      originalData: { ...oldProjectData }, // Giữ một bản sao của dữ liệu gốc
-      syncData: {}, // Dữ liệu sẽ được đồng bộ, có thể được người dùng sửa đổi
-      missingMandatoryFields: [],
-      autoFilledFields: {},
-      isDuplicateInNewSystem: false,
-      projectType: isCategory ? 'category' : 'minor_repair', // Đảm bảo projectType chính xác
+        _id: oldProjectData._id, // Giữ lại ID gốc để tham chiếu
+        originalData: { ...oldProjectData }, // Giữ một bản sao của dữ liệu gốc
+        syncData: {}, // Dữ liệu sẽ được đồng bộ, có thể được người dùng sửa đổi
+        missingMandatoryFields: [],
+        autoFilledFields: {},
+        isDuplicateInNewSystem: false,
+        projectType: isCategory ? 'category' : 'minor_repair', // Đảm bảo projectType chính xác
     };
+
+    // Lấy tất cả các trường từ form config cho loại công trình này
+    const relevantFormFields = formConfigs[preparedData.projectType]?.tabs.flatMap(tab => tab.fields) || [];
 
     // 1. Kiểm tra trùng lặp trong hệ thống mới
     const duplicateCheckName = (oldProjectData.name || '').trim();
@@ -91,10 +104,11 @@ const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectT
       }
     }
 
-    // 2. Ánh xạ và tự động điền các trường
+    // 2. Ánh xạ và xử lý các trường (bao gồm tự động điền và kiểm tra bắt buộc)
     for (const field of relevantSchemaFields) {
       if (['_id', '__v', 'categorySerialNumber', 'minorRepairSerialNumber'].includes(field)) continue;
 
+      const fieldName = field; // Đổi tên biến để rõ ràng hơn
       let value = oldProjectData[field];
 
       // Các trường tự động điền/suy luận
@@ -103,11 +117,25 @@ const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectT
         if (oldProjectData.financialYear === undefined || oldProjectData.financialYear === null) preparedData.autoFilledFields[field] = value;
       } else if (field === 'projectCode' && !oldProjectData.projectCode) {
         try {
-          value = await generateProjectCode(preparedData.projectType, effectiveFinancialYear, oldProjectData.allocatedUnit);
-          preparedData.autoFilledFields[field] = value;
-        } catch (e) { logger.error(`Lỗi tạo projectCode cho ${oldProjectData._id} khi chuẩn bị đồng bộ: ${e.message}`); }
-      } else if (field === 'isCompleted') {
-        value = oldProjectData.isCompleted === true || String(oldProjectData.isCompleted).toLowerCase() === 'true';
+          // Gọi generateProjectCode ở chế độ xem trước (previewMode = true)
+          // Nó sẽ không tăng bộ đếm hoặc upsert counter, chỉ tính toán mã kỳ vọng.
+          // oldProjectData.allocatedUnit có thể là ID hoặc tên.
+          // oldProjectData.allocationWave có thể là ID hoặc tên.
+          // Hàm generateProjectCode đã được cập nhật để xử lý cả hai trường hợp.
+          const unitIdentifier = oldProjectData.allocatedUnit;
+          const waveIdentifier = oldProjectData.allocationWave;
+
+          value = await generateProjectCode(preparedData.projectType, effectiveFinancialYear, unitIdentifier, waveIdentifier, true); // Thêm previewMode = true
+          
+          if (value) { // Chỉ gán nếu generateProjectCode trả về mã hợp lệ
+            preparedData.autoFilledFields[fieldName] = value; // Đánh dấu là auto-filled
+          } else {
+            logger.warn(`Không thể tạo projectCode dự kiến cho ${oldProjectData._id} do thiếu thông tin đơn vị.`);
+            // Nếu projectCode là bắt buộc, nó sẽ được đánh dấu trong missingMandatoryFields
+          }
+        } catch (e) { logger.error(`Lỗi trong quá trình tạo projectCode dự kiến cho ${oldProjectData._id} khi chuẩn bị đồng bộ: ${e.message}`); }
+      } else if (fieldName === 'isCompleted') {
+        value = oldProjectData.isCompleted === true || String(oldProjectData.isCompleted).toLowerCase() === 'true' || false; // Default to false if undefined/null
         if (oldProjectData.isCompleted === undefined) preparedData.autoFilledFields[field] = value; // Chỉ đánh dấu auto-filled nếu trường gốc là undefined
       } else if (field === 'status' && !oldProjectData.status) {
         value = 'Chờ duyệt'; // Mặc định
@@ -117,52 +145,71 @@ const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectT
         if (resolvedUser) {
           value = resolvedUser.toString(); // Lưu ID dạng string
           // Không đánh dấu là auto-filled nếu giá trị gốc đã có và resolve được
-        } else if (oldProjectData[field]) {
+        } else if (oldProjectData[field] !== undefined && oldProjectData[field] !== null && String(oldProjectData[field]).trim() !== '') {
            // Nếu có giá trị gốc nhưng không resolve được, giữ lại giá trị gốc để người dùng review
            value = String(oldProjectData[field]);
         }
+      } else if (['initialValue', 'estimatedValue', 'contractValue', 'paymentValue'].includes(fieldName)) {
+          // Xử lý các trường số
+          const num = parseFloat(String(value).replace(/,/g, ''));
+          value = isNaN(num) ? null : num;
+      } else if (['reportDate', 'inspectionDate', 'paymentDate', 'startDate', 'completionDate'].includes(fieldName)) {
+          // Xử lý các trường ngày tháng
+          value = (value && !isNaN(new Date(value).getTime())) ? new Date(value).toISOString().split('T')[0] : null; // Lưu dưới dạng YYYY-MM-DD string, kiểm tra ngày hợp lệ
       }
+
 
       preparedData.syncData[field] = value !== undefined ? value : null; // Gán giá trị vào syncData
 
       // 3. Kiểm tra trường bắt buộc còn thiếu
-      const schemaFieldDefinition = Model.schema.paths[field];
-      if (schemaFieldDefinition && schemaFieldDefinition.isRequired) {
+      const fieldConfig = getFieldConfig(preparedData.projectType, fieldName);
+      const schemaFieldDefinition = Model.schema.paths[fieldName];
+
+      // Xác định xem trường có thực sự bắt buộc không, ưu tiên formConfig
+      let isFieldConsideredRequired = false;
+      if (fieldConfig && typeof fieldConfig.required === 'boolean') {
+        isFieldConsideredRequired = fieldConfig.required;
+      } else if (schemaFieldDefinition && schemaFieldDefinition.isRequired) {
+        isFieldConsideredRequired = schemaFieldDefinition.isRequired;
         const isEffectivelyEmpty = preparedData.syncData[field] === null ||
                                    preparedData.syncData[field] === undefined ||
                                    (typeof preparedData.syncData[field] === 'string' && preparedData.syncData[field].trim() === '');
-        if (isEffectivelyEmpty) {
+        // Trường projectCode là bắt buộc trong schema, nhưng ta tự tạo nếu thiếu.
+        // Chỉ đánh dấu thiếu nếu không có giá trị VÀ không phải là trường projectCode
+        if (isEffectivelyEmpty && field !== 'projectCode') {
+          const fieldConfig = getFieldConfig(preparedData.projectType, field);
           preparedData.missingMandatoryFields.push({
             field: field,
-            label: schemaFieldDefinition.options.label || field, // Giả sử bạn có 'label' trong options schema
-            optionsSource: schemaFieldDefinition.options.optionsSource || null // Thêm optionsSource nếu có
+            // Lấy label và optionsSource từ form config nếu có, ngược lại dùng schema info
+            label: fieldConfig?.label || schemaFieldDefinition.options.label || field,
+            optionsSource: fieldConfig?.optionsSource || schemaFieldDefinition.options.optionsSource || null
           });
         }
       }
     }
     // Đảm bảo các trường cơ bản có mặt trong syncData dù giá trị là null
+    // (Có thể đã được thêm ở vòng lặp trên, nhưng thêm lại để chắc chắn)
     ['name', 'allocatedUnit', 'location', 'scale', 'financialYear'].forEach(f => {
         if (preparedData.syncData[f] === undefined) preparedData.syncData[f] = oldProjectData[f] || null;
     });
     if (isCategory && preparedData.syncData['projectType'] === undefined) {
         preparedData.syncData['projectType'] = oldProjectData['projectType'] || null;
     }
-    if (!isCategory && preparedData.syncData['reportDate'] === undefined && oldProjectData['reportDate']) {
-        preparedData.syncData['reportDate'] = oldProjectData['reportDate'] ? new Date(oldProjectData['reportDate']).toISOString().split('T')[0] : null;
+     if (!isCategory && preparedData.syncData['createdBy'] === undefined) {
+        preparedData.syncData['createdBy'] = oldProjectData['createdBy'] || null;
     }
     // Đảm bảo các trường khác có giá trị mặc định nếu cần
-    
+
     // KIỂM TRA XEM CÔNG TRÌNH NÀY CÓ CẦN REVIEW KHÔNG
     // Điều kiện để một công trình được coi là "không cần review" (đã hoàn hảo):
     // 1. Không bị trùng lặp (isDuplicateInNewSystem = false)
     // 2. Không có trường bắt buộc nào bị thiếu (missingMandatoryFields.length === 0)
     // 3. Không có trường nào được tự động điền (Object.keys(autoFilledFields).length === 0)
-    //    HOẶC các trường tự động điền là những trường "luôn được tính toán" như projectCode mới.
-    //    Để đơn giản, nếu có autoFilledFields (ngoài projectCode mới nếu nó được tạo), thì vẫn nên review.
-    const needsReview = preparedData.isDuplicateInNewSystem || 
+    //    NGOẠI LỆ: projectCode được tạo mới KHÔNG làm cho công trình cần review nếu mọi thứ khác hoàn hảo.
+    const needsReview = preparedData.isDuplicateInNewSystem ||
                         preparedData.missingMandatoryFields.length > 0 ||
-                        Object.keys(preparedData.autoFilledFields).some(key => !(key === 'projectCode' && oldProjectData.projectCode === null && preparedData.autoFilledFields.projectCode !== null));
-
+                        Object.keys(preparedData.autoFilledFields).some(key => key !== 'projectCode'); // Cần review nếu có auto-filled field KHÁC projectCode
+    // Sửa điều kiện needsReview: Chỉ cần review nếu có duplicate HOẶC missing mandatory fields HOẶC auto-filled fields KHÁC projectCode, status, isCompleted, financialYear
     if (needsReview) {
       preparedProjects.push(preparedData);
     }

@@ -117,6 +117,7 @@ const ConstructionUnit = mongoose.model('ConstructionUnit', constructionUnitSche
 // AllocationWave Schema
 const allocationWaveSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true, trim: true },
+  shortCode: { type: String, trim: true, uppercase: true, sparse: true, index: true, minlength: 2, maxlength: 2 }, // Mã viết tắt cho Đợt (SS)
 });
 const AllocationWave = mongoose.model('AllocationWave', allocationWaveSchema);
 
@@ -196,8 +197,8 @@ const categoryProjectSchema = new mongoose.Schema({
   completionMarkedAt: { type: Date, default: null }, // Thời gian đánh dấu hoàn thành
   pendingEdit: { type: pendingEditSubSchema, default: null },
   pendingDelete: { type: Boolean, default: false },
-  history: [{
-    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned', 'completed_marked', 'year_moved'], required: true }, // Thêm action mới
+  history: [{ // Thêm 'code_standardized' vào enum
+    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned', 'completed_marked', 'year_moved', 'code_standardized'], required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     timestamp: { type: Date, default: Date.now },
     details: { type: mongoose.Schema.Types.Mixed }
@@ -255,8 +256,8 @@ const minorRepairProjectSchema = new mongoose.Schema({
   completionMarkedAt: { type: Date, default: null }, // Thời gian đánh dấu hoàn thành
   pendingEdit: { type: pendingEditSubSchema, default: null },
   pendingDelete: { type: Boolean, default: false },
-  history: [{
-    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned', 'completed_marked', 'year_moved'], required: true }, // Thêm action mới
+  history: [{ // Thêm 'code_standardized' vào enum
+    action: { type: String, enum: ['created', 'approved', 'edited', 'edit_requested', 'edit_approved', 'edit_rejected', 'delete_requested', 'delete_approved', 'delete_rejected', 'allocated', 'assigned', 'completed_marked', 'year_moved', 'code_standardized'], required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     timestamp: { type: Date, default: Date.now },
     details: { type: mongoose.Schema.Types.Mixed }
@@ -356,12 +357,13 @@ const Holiday = mongoose.model('Holiday', holidaySchema);
 const projectCodeCounterSchema = new mongoose.Schema({
   year: { type: Number, required: true },
   type: { type: String, enum: ['category', 'minor_repair'], required: true },
+  allocationWaveShortCode: { type: String, required: true, uppercase: true, trim: true, minlength: 2, maxlength: 2, default: '00' }, // Mã đợt (SS), mặc định '00'
   unitShortCode: { type: String, required: true, uppercase: true, trim: true, minlength: 3, maxlength: 3 },
   currentSerial: { type: Number, default: 0 },
 }, { timestamps: true });
 
 // Compound index để đảm bảo duy nhất và tăng tốc query
-projectCodeCounterSchema.index({ year: 1, type: 1, unitShortCode: 1 }, { unique: true });
+projectCodeCounterSchema.index({ year: 1, type: 1, allocationWaveShortCode: 1, unitShortCode: 1 }, { unique: true });
 const ProjectCodeCounter = mongoose.model('ProjectCodeCounter', projectCodeCounterSchema);
 
 

@@ -72,7 +72,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       let effectiveFinancialYear = userInputData.financialYear || originalProjectData.financialYear;
       if (!effectiveFinancialYear && oldProject.createdAt) {
         // Sửa ở đây: oldProject.createdAt -> originalProjectData.createdAt
-        effectiveFinancialYear = new Date(originalProjectData.createdAt).getFullYear(); 
+        effectiveFinancialYear = new Date(originalProjectData.createdAt).getUTCFullYear();
       } else if (!effectiveFinancialYear) {
         effectiveFinancialYear = new Date().getFullYear(); // Mặc định nếu không có gì cả
       }
@@ -90,7 +90,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
         skippedCategoryCount++;
         continue;
       }
-      const projectData = {
+      const projectData = { // Đây là dữ liệu sẽ được dùng để CẬP NHẬT bản ghi CategoryProject hiện có
         // Merge userInputData vào projectData, ưu tiên userInputData
         ...userInputData, // Các trường người dùng đã nhập sẽ ghi đè oldProject
         // Các trường từ oldProject (sẽ bị ghi đè bởi userInputData nếu trùng key)
@@ -100,7 +100,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
         constructionUnit: (userInputData.constructionUnit ?? originalProjectData.constructionUnit) || '',
         allocationWave: (userInputData.allocationWave ?? originalProjectData.allocationWave) || '',
         location: userInputData.location ?? originalProjectData.location,
-        scale: (userInputData.scale ?? originalProjectData.scale) || '',
+        scale: (userInputData.scale ?? originalProjectData.scale) || '', // Scale is required for CategoryProject
         projectType: (userInputData.projectType ?? originalProjectData.projectType) || '',
         leadershipApproval: (userInputData.leadershipApproval ?? originalProjectData.leadershipApproval) || '',
         enteredBy: originalProjectData.enteredBy, // Giữ lại enteredBy gốc
@@ -120,7 +120,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       };
 
       projectData.financialYear = effectiveFinancialYear; // Sử dụng financialYear đã xác định
-      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getFullYear();
+      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getUTCFullYear();
       
       // Sửa ở đây: oldProject.isCompleted -> originalProjectData.isCompleted
       projectData.isCompleted = originalProjectData.isCompleted === true || String(originalProjectData.isCompleted).toLowerCase() === 'true';
@@ -146,16 +146,22 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       }
 
       // Tạo projectCode nếu chưa có hoặc được cung cấp từ userInputData
-      try {
-        projectData.projectCode = userInputData.projectCode || await generateProjectCode('category', projectData.financialYear, projectData.allocatedUnit);
-      } catch (codeGenError) {
-        logger.error(`Lỗi tạo projectCode cho CT Danh mục ID ${existingProjectId}: ${codeGenError.message}. Sẽ để trống.`);
-        projectData.projectCode = null; // Hoặc một giá trị mặc định
+      // Logic: Ưu tiên userInputData.projectCode > originalProjectData.projectCode > generate new code
+      if (userInputData.projectCode) {
+          projectData.projectCode = userInputData.projectCode;
+      } else if (originalProjectData.projectCode) {
+          projectData.projectCode = originalProjectData.projectCode;
+      } else { // Chỉ tạo mã mới nếu cả hai đều không có
+          try {
+            projectData.projectCode = await generateProjectCode('category', projectData.financialYear, projectData.allocatedUnit, originalProjectData.allocationWave, false); // Không ở chế độ preview khi thực thi
+          } catch (codeGenError) {
+            logger.error(`Lỗi tạo projectCode cho CT Danh mục ID ${existingProjectId}: ${codeGenError.message}. Sẽ để trống.`); 
+            projectData.projectCode = null; 
+          }
       }
       projectData.createdBy = await userFieldToQuery(userInputData.createdBy || originalProjectData.createdBy) || await userFieldToQuery(originalProjectData.enteredBy);
       if (!projectData.createdBy && !existingProject.createdBy) { // Chỉ yêu cầu nếu cả hai đều thiếu
-          const defaultCreator = await User.findOne({ role: 'admin' });
-          projectData.createdBy = defaultCreator ? defaultCreator._id : null;
+          const defaultCreator = await User.findOne({ role: 'admin' }).session(null); // Không cần session cho query đơn giản này
           if (!projectData.createdBy) {
             logger.error(`Không thể gán người tạo mặc định cho CT Danh mục ID ${existingProjectId}. Bỏ qua.`);
             continue;
@@ -163,9 +169,9 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       }
       projectData.approvedBy = await userFieldToQuery(userInputData.approvedBy || originalProjectData.approvedBy);
       projectData.supervisor = await userFieldToQuery(userInputData.supervisor || originalProjectData.supervisor);
-      projectData.estimator = await userFieldToQuery(userInputData.estimator || originalProjectData.estimator);
+      projectData.estimator = await userFieldToQuery(userInputData.estimator || originalProjectData.estimator); // estimator có thể là ID hoặc tên
       if (typeof (userInputData.assignedTo || originalProjectData.assignedTo) === 'string') {
-        projectData.assignedTo = await userFieldToQuery(userInputData.assignedTo || originalProjectData.assignedTo) || (userInputData.assignedTo || originalProjectData.assignedTo);
+        projectData.assignedTo = await userFieldToQuery(userInputData.assignedTo || originalProjectData.assignedTo) || (userInputData.assignedTo || originalProjectData.assignedTo); // assignedTo có thể là ID hoặc tên
       }
 
       projectData.startDate = (userInputData.startDate || originalProjectData.startDate) ? new Date(userInputData.startDate || originalProjectData.startDate) : null;
@@ -216,7 +222,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
         effectiveFinancialYear = new Date(originalProjectData.createdAt).getFullYear();
       }
       else if (!effectiveFinancialYear) effectiveFinancialYear = new Date().getFullYear();
-      effectiveFinancialYear = parseInt(String(effectiveFinancialYear), 10);
+      effectiveFinancialYear = parseInt(String(effectiveFinancialYear), 10); // Use UTCFullYear consistently?
 
       if (targetFinancialYear && String(targetFinancialYear).toLowerCase() !== 'all' && effectiveFinancialYear !== parseInt(targetFinancialYear, 10)) {
         skippedMinorRepairCount++;
@@ -229,7 +235,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
         skippedMinorRepairCount++;
         continue;
       }
-      const projectData = {
+      const projectData = { // Dữ liệu sẽ được dùng để CẬP NHẬT bản ghi MinorRepairProject hiện có
         ...userInputData,
         minorRepairSerialNumber: existingProject ? existingProject.minorRepairSerialNumber : ++minorRepairSerial.currentSerial,
         name: userInputData.name ?? originalProjectData.name,
@@ -238,7 +244,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
         scale: (userInputData.scale ?? originalProjectData.scale) || '',
         leadershipApproval: (userInputData.leadershipApproval ?? originalProjectData.leadershipApproval) || '',
         enteredBy: originalProjectData.enteredBy,
-        status: (userInputData.status ?? originalProjectData.status) || 'Chờ duyệt',
+        status: (userInputData.status ?? originalProjectData.status) || 'Chờ duyệt', // Default status if both are empty
         assignedTo: (userInputData.assignedTo ?? originalProjectData.assignedTo) || '',
         taskDescription: (userInputData.taskDescription ?? originalProjectData.taskDescription) || '',
         notes: (userInputData.notes ?? originalProjectData.notes) || '', // Sửa ở đây
@@ -251,7 +257,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       };
 
       projectData.financialYear = effectiveFinancialYear;
-      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getFullYear();
+      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getUTCFullYear();
       
       // Sửa ở đây: oldProject.isCompleted -> originalProjectData.isCompleted
       projectData.isCompleted = originalProjectData.isCompleted === true || String(originalProjectData.isCompleted).toLowerCase() === 'true';
@@ -276,23 +282,30 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       }
 
       // Tạo projectCode nếu chưa có hoặc được cung cấp từ userInputData
-      try {
-        projectData.projectCode = userInputData.projectCode || await generateProjectCode('minor_repair', projectData.financialYear, projectData.allocatedUnit);
-      } catch (codeGenError) {
-        logger.error(`Lỗi tạo projectCode cho CT SCN ID ${existingProjectId}: ${codeGenError.message}. Sẽ để trống.`);
-        projectData.projectCode = null; // Hoặc một giá trị mặc định
+      // Logic: Ưu tiên userInputData.projectCode > originalProjectData.projectCode > generate new code
+      if (userInputData.projectCode) {
+          projectData.projectCode = userInputData.projectCode;
+      } else if (originalProjectData.projectCode) {
+          projectData.projectCode = originalProjectData.projectCode;
+      } else { // Chỉ tạo mã mới nếu cả hai đều không có
+          try {
+            projectData.projectCode = await generateProjectCode('minor_repair', projectData.financialYear, projectData.allocatedUnit, null, false); // Minor repair không có allocationWave, không ở chế độ preview
+          } catch (codeGenError) {
+            logger.error(`Lỗi tạo projectCode cho CT SCN ID ${existingProjectId}: ${codeGenError.message}. Sẽ để trống.`); 
+            projectData.projectCode = null; 
+          }
       }
 
       projectData.createdBy = await userFieldToQuery(userInputData.createdBy || originalProjectData.createdBy) || await userFieldToQuery(originalProjectData.enteredBy);
       if (!projectData.createdBy && !existingProject.createdBy) {
-          const defaultCreator = await User.findOne({ role: 'admin' });
+          const defaultCreator = await User.findOne({ role: 'admin' }).session(null);
           projectData.createdBy = defaultCreator ? defaultCreator._id : null;
           if (!projectData.createdBy) {
             logger.error(`Không thể gán người tạo mặc định cho CT SCN ID ${existingProjectId}. Bỏ qua.`);
             continue;
           }
       }
-      projectData.approvedBy = await userFieldToQuery(userInputData.approvedBy || originalProjectData.approvedBy);
+      projectData.approvedBy = await userFieldToQuery(userInputData.approvedBy || originalProjectData.approvedBy); // approvedBy có thể là ID hoặc tên
       projectData.supervisor = await userFieldToQuery(userInputData.supervisor || originalProjectData.supervisor);
        if (typeof (userInputData.assignedTo || originalProjectData.assignedTo) === 'string') {
         projectData.assignedTo = await userFieldToQuery(userInputData.assignedTo || originalProjectData.assignedTo) || (userInputData.assignedTo || originalProjectData.assignedTo);

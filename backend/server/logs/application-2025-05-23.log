@@ -730,3 +730,1222 @@
 2025-05-23 11:25:30 error: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
 2025-05-23 11:25:30 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
 2025-05-23 11:25:30 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 11:29:53 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 11:29:54 info: Một người dùng đã kết nối: lZ7X-krNVKSCx4HOAAAE
+2025-05-23 11:29:54 info: Một người dùng đã kết nối: thebub4T9h7vgcpVAAAF
+2025-05-23 11:29:54 info: Một người dùng đã kết nối: 8cwZHZSWFII8d59iAAAG
+2025-05-23 11:29:54 info: Một người dùng đã kết nối: Bv9hheIIVQzl8fJNAAAH
+2025-05-23 11:29:54 info: MongoDB đã kết nối thành công.
+2025-05-23 11:29:59 info: Người dùng đã ngắt kết nối: lZ7X-krNVKSCx4HOAAAE
+2025-05-23 11:29:59 info: Người dùng đã ngắt kết nối: thebub4T9h7vgcpVAAAF
+2025-05-23 11:30:00 info: Một người dùng đã kết nối: _WyfIYMeWLapPge4AAAJ
+2025-05-23 11:30:00 info: Một người dùng đã kết nối: 3QcnlfKcen4Cf2YCAAAL
+2025-05-23 11:30:04 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 11:30:05 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 11:30:05 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:30:21 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 11:30:28 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 11:30:28 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 11:30:28 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 11:30:28 info: Đã xử lý 1 CT danh mục. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:30:29 info: Đã xử lý 0 CT SCN. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:30:29 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 11:30:29 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 11:30:29 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 11:30:29 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 11:30:29 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 11:30:29 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 11:30:29 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 11:30:29 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 11:30:29 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 11:30:29 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 11:30:29 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 11:30:29 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 11:30:29 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 11:30:29 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 11:30:29 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 11:30:29 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 11:30:29 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 11:30:29 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 11:30:29 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 11:30:29 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 11:30:34 info: Người dùng đã ngắt kết nối: _WyfIYMeWLapPge4AAAJ
+2025-05-23 11:30:34 info: Người dùng đã ngắt kết nối: 3QcnlfKcen4Cf2YCAAAL
+2025-05-23 11:30:34 info: Một người dùng đã kết nối: 4szHMDRj-Sd8HI7cAAAN
+2025-05-23 11:30:34 info: Một người dùng đã kết nối: 5MAmlgSL6UyZ8y8AAAAP
+2025-05-23 13:39:29 info: Người dùng đã ngắt kết nối: 8cwZHZSWFII8d59iAAAG
+2025-05-23 13:39:29 info: Người dùng đã ngắt kết nối: Bv9hheIIVQzl8fJNAAAH
+2025-05-23 13:39:30 info: Một người dùng đã kết nối: LtPH-Wcovn3vIsNqAAAR
+2025-05-23 13:39:30 info: Một người dùng đã kết nối: 26g0_AKCEUfQcl4NAAAT
+2025-05-23 14:24:23 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 14:24:24 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 14:24:24 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 14:24:25 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 14:33:12 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 14:33:13 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 14:33:13 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 14:33:14 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 15:10:00 info: Một người dùng đã kết nối: -K6mambFYWeIR9GoAAAW
+2025-05-23 15:10:00 info: Một người dùng đã kết nối: RNwcNMm4cqMKTh9rAAAX
+2025-05-23 15:21:23 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 15:21:23 info: Một người dùng đã kết nối: _JGi0yhLeDjBnNFBAAAC
+2025-05-23 15:21:23 info: Một người dùng đã kết nối: H4rjtCI14Mi76UyGAAAD
+2025-05-23 15:21:23 info: Một người dùng đã kết nối: BZqQx0kOdYPsTn4vAAAI
+2025-05-23 15:21:23 info: Một người dùng đã kết nối: yUtLqJfxi8_HPzpeAAAJ
+2025-05-23 15:21:23 info: Một người dùng đã kết nối: Ze_7tcZ7W74UhM85AAAK
+2025-05-23 15:21:23 info: Một người dùng đã kết nối: C6JZ5F7BD7dtmvxmAAAL
+2025-05-23 15:21:24 info: MongoDB đã kết nối thành công.
+2025-05-23 15:21:41 info: Một người dùng đã kết nối: WlnmcAa6W8gqsZkyAAAN
+2025-05-23 15:21:41 info: Một người dùng đã kết nối: tGuZq9SPSw0OVsIVAAAP
+2025-05-23 15:21:42 info: Người dùng đã ngắt kết nối: BZqQx0kOdYPsTn4vAAAI
+2025-05-23 15:21:42 info: Người dùng đã ngắt kết nối: H4rjtCI14Mi76UyGAAAD
+2025-05-23 15:21:42 info: Người dùng đã ngắt kết nối: Ze_7tcZ7W74UhM85AAAK
+2025-05-23 15:22:24 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 15:22:24 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 15:22:24 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:22:25 error: Lỗi tạo projectCode cho 682560cde26c028dfa5b65b3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "minor_repair", unitShortCode: "CBX" }
+2025-05-23 15:22:26 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 15:24:13 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:24:13 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:24:13 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:24:13 error: Lỗi tạo projectCode cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:14 error: Lỗi tạo projectCode cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:24:14 error: Lỗi tạo projectCode cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }
+2025-05-23 15:24:14 error: Lỗi tạo projectCode cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBX" }
+2025-05-23 15:24:15 error: Lỗi tạo projectCode cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:15 error: Lỗi tạo projectCode cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:24:15 error: Lỗi tạo projectCode cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:16 error: Lỗi tạo projectCode cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:16 error: Lỗi tạo projectCode cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:17 error: Lỗi tạo projectCode cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:17 error: Lỗi tạo projectCode cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:24:18 error: Lỗi tạo projectCode cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBT" }
+2025-05-23 15:24:18 error: Lỗi tạo projectCode cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "TDH" }
+2025-05-23 15:24:19 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:19 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:20 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:20 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:20 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:21 error: Lỗi tạo projectCode cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:21 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:22 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:22 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:23 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:23 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:24:24 error: Lỗi tạo projectCode cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:24 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:25 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:25 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:26 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:26 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:26 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:27 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:27 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:28 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:24:28 info: [SyncService] Đã chuẩn bị 19 công trình để review.
+2025-05-23 15:31:17 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:31:17 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:31:17 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:31:18 error: Lỗi tạo projectCode cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:18 error: Lỗi tạo projectCode cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:31:18 error: Lỗi tạo projectCode cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }
+2025-05-23 15:31:19 error: Lỗi tạo projectCode cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBX" }
+2025-05-23 15:31:19 error: Lỗi tạo projectCode cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:19 error: Lỗi tạo projectCode cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:31:20 error: Lỗi tạo projectCode cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:20 error: Lỗi tạo projectCode cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:21 error: Lỗi tạo projectCode cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:21 error: Lỗi tạo projectCode cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:22 error: Lỗi tạo projectCode cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:31:22 error: Lỗi tạo projectCode cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBT" }
+2025-05-23 15:31:23 error: Lỗi tạo projectCode cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "TDH" }
+2025-05-23 15:31:23 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:24 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:24 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:25 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:26 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:26 error: Lỗi tạo projectCode cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:27 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:28 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:28 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:29 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:30 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:31:31 error: Lỗi tạo projectCode cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:31 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:31 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:32 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:32 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:33 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:33 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:34 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:35 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:36 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:31:36 info: [SyncService] Đã chuẩn bị 19 công trình để review.
+2025-05-23 15:32:18 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 15:32:18 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 15:32:18 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 15:32:18 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 15:32:18 error: Lỗi tạo projectCode cho CT Danh mục ID 682455eb2ee12413119c324d: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }. Sẽ để trống.
+2025-05-23 15:32:18 info: Đã xử lý 1 CT danh mục. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 15:32:19 info: Đã xử lý 0 CT SCN. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 15:32:19 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 15:32:19 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 15:32:19 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 15:32:19 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 15:32:19 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 15:32:19 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 15:32:19 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 15:32:19 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 15:32:19 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 15:32:19 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 15:32:19 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 15:32:19 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 15:32:19 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 15:32:19 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 15:32:19 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 15:32:19 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 15:32:19 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 15:32:19 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 15:32:19 warn: Notification 68301e0fd48d1e5eabf0a52b không có projectId.
+2025-05-23 15:32:19 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 15:32:19 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 15:33:12 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:33:13 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:33:13 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:33:13 error: Lỗi tạo projectCode cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:13 error: Lỗi tạo projectCode cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:33:14 error: Lỗi tạo projectCode cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }
+2025-05-23 15:33:14 error: Lỗi tạo projectCode cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBX" }
+2025-05-23 15:33:14 error: Lỗi tạo projectCode cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:15 error: Lỗi tạo projectCode cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:33:15 error: Lỗi tạo projectCode cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:15 error: Lỗi tạo projectCode cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:16 error: Lỗi tạo projectCode cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:16 error: Lỗi tạo projectCode cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:17 error: Lỗi tạo projectCode cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:33:18 error: Lỗi tạo projectCode cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBT" }
+2025-05-23 15:33:18 error: Lỗi tạo projectCode cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "TDH" }
+2025-05-23 15:33:19 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:19 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:19 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:20 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:20 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:21 error: Lỗi tạo projectCode cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:21 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:22 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:22 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:23 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:23 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:33:24 error: Lỗi tạo projectCode cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:24 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:25 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:25 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:26 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:26 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:27 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:27 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:28 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:29 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:33:29 info: [SyncService] Đã chuẩn bị 18 công trình để review.
+2025-05-23 15:33:40 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 15:33:40 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 15:33:40 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 15:33:41 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 15:33:41 error: Lỗi tạo projectCode cho CT Danh mục ID 6824c62748c1788d755ef17e: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }. Sẽ để trống.
+2025-05-23 15:33:41 info: Đã xử lý 1 CT danh mục. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 15:33:41 info: Đã xử lý 0 CT SCN. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 15:33:41 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 15:33:41 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 15:33:41 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 15:33:41 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 15:33:41 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 15:33:41 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 15:33:41 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 15:33:41 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 15:33:41 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 15:33:41 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 15:33:41 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 15:33:41 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 15:33:41 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 15:33:41 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 15:33:41 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 15:33:41 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 15:33:41 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 15:33:41 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 15:33:41 warn: Notification 68301e0fd48d1e5eabf0a52b không có projectId.
+2025-05-23 15:33:41 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 15:33:41 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 15:35:49 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 15:35:49 info: Một người dùng đã kết nối: agwpCnr5nyV2u2O5AAAC
+2025-05-23 15:35:49 info: Một người dùng đã kết nối: Tk4vbXVXiUvPi-pqAAAE
+2025-05-23 15:35:49 info: Một người dùng đã kết nối: HV89maOG_hJ0_brgAAAF
+2025-05-23 15:35:50 info: MongoDB đã kết nối thành công.
+2025-05-23 15:35:51 info: Một người dùng đã kết nối: HgJ2BjMFCkLmTcmBAAAI
+2025-05-23 15:35:51 info: Một người dùng đã kết nối: 6OB-yfiXhI6Eye8TAAAJ
+2025-05-23 15:36:02 info: Người dùng đã ngắt kết nối: agwpCnr5nyV2u2O5AAAC
+2025-05-23 15:36:02 info: Người dùng đã ngắt kết nối: HgJ2BjMFCkLmTcmBAAAI
+2025-05-23 15:36:03 info: Một người dùng đã kết nối: MLgdm-UAEVY3t7r4AAAL
+2025-05-23 15:36:03 info: Một người dùng đã kết nối: LzF8z__oNNeqWEArAAAN
+2025-05-23 15:37:32 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:37:32 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:37:32 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:37:33 error: Lỗi tạo projectCode cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:33 error: Lỗi tạo projectCode cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:37:33 error: Lỗi tạo projectCode cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }
+2025-05-23 15:37:34 error: Lỗi tạo projectCode cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBX" }
+2025-05-23 15:37:34 error: Lỗi tạo projectCode cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:34 error: Lỗi tạo projectCode cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:37:35 error: Lỗi tạo projectCode cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:35 error: Lỗi tạo projectCode cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:36 error: Lỗi tạo projectCode cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:36 error: Lỗi tạo projectCode cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:37 error: Lỗi tạo projectCode cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:37:37 error: Lỗi tạo projectCode cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBT" }
+2025-05-23 15:37:38 error: Lỗi tạo projectCode cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "TDH" }
+2025-05-23 15:37:38 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:39 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:39 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:40 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:40 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:40 error: Lỗi tạo projectCode cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:41 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:41 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:42 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:43 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:43 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:37:44 error: Lỗi tạo projectCode cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:44 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:45 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:45 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:45 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:46 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:46 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:47 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:47 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:48 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:37:48 info: [SyncService] Đã chuẩn bị 17 công trình để review.
+2025-05-23 15:48:59 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 15:48:59 info: Một người dùng đã kết nối: kDE9jQriXxn1_-KeAAAB
+2025-05-23 15:49:00 info: Một người dùng đã kết nối: HHcycxoT65MIg1e1AAAD
+2025-05-23 15:49:00 info: Một người dùng đã kết nối: pv9W8lVaPj8R3MEhAAAF
+2025-05-23 15:49:01 info: MongoDB đã kết nối thành công.
+2025-05-23 15:49:02 info: Một người dùng đã kết nối: YKhFFoeWJgtPsw6eAAAH
+2025-05-23 15:49:04 info: Một người dùng đã kết nối: 6maQzPqXHa1amztHAAAJ
+2025-05-23 15:49:16 info: Một người dùng đã kết nối: _NMsAFsp-Jj692nXAAAL
+2025-05-23 15:49:22 info: Người dùng đã ngắt kết nối: pv9W8lVaPj8R3MEhAAAF
+2025-05-23 15:49:22 info: Người dùng đã ngắt kết nối: HHcycxoT65MIg1e1AAAD
+2025-05-23 15:49:26 info: Người dùng đã ngắt kết nối: _NMsAFsp-Jj692nXAAAL
+2025-05-23 15:49:26 info: Một người dùng đã kết nối: R2Ohpxk7mRQ7kUNFAAAN
+2025-05-23 15:49:41 info: Người dùng đã ngắt kết nối: R2Ohpxk7mRQ7kUNFAAAN
+2025-05-23 15:49:41 info: Một người dùng đã kết nối: KA9zT-Dc0hcJL8G5AAAP
+2025-05-23 15:49:59 info: Người dùng đã ngắt kết nối: KA9zT-Dc0hcJL8G5AAAP
+2025-05-23 15:50:00 info: Một người dùng đã kết nối: bejMK1paBQmM8Y8jAAAR
+2025-05-23 15:50:37 info: Người dùng đã ngắt kết nối: bejMK1paBQmM8Y8jAAAR
+2025-05-23 15:50:37 info: Một người dùng đã kết nối: wqAcf3FhxxMZRuCKAAAT
+2025-05-23 15:51:17 info: Một người dùng đã kết nối: C2hSUu0jv6fagbKyAAAW
+2025-05-23 15:51:17 info: Một người dùng đã kết nối: v-ZjlfJG-LvjaMYBAAAX
+2025-05-23 15:51:22 info: Người dùng đã ngắt kết nối: wqAcf3FhxxMZRuCKAAAT
+2025-05-23 15:51:22 info: Người dùng đã ngắt kết nối: v-ZjlfJG-LvjaMYBAAAX
+2025-05-23 15:51:22 info: Người dùng đã ngắt kết nối: C2hSUu0jv6fagbKyAAAW
+2025-05-23 15:51:23 info: Một người dùng đã kết nối: SrfpS2uLWhOowT-iAAAZ
+2025-05-23 15:51:23 info: Một người dùng đã kết nối: AFU8_jlfTINT1hdOAAAb
+2025-05-23 15:51:30 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:51:31 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:51:31 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:51:31 error: Lỗi Controller chuẩn bị đồng bộ: Cannot find module '../../config/formConfigs'
+Require stack:
+- D:\CODE\water-company\backend\server\services\sync.service.js
+- D:\CODE\water-company\backend\server\controllers\sync.controller.js
+- D:\CODE\water-company\backend\server\routes\syncRoutes.js
+- D:\CODE\water-company\backend\server\server.js
+2025-05-23 15:51:31 error: Lỗi không xác định: Cannot find module '../../config/formConfigs'
+Require stack:
+- D:\CODE\water-company\backend\server\services\sync.service.js
+- D:\CODE\water-company\backend\server\controllers\sync.controller.js
+- D:\CODE\water-company\backend\server\routes\syncRoutes.js
+- D:\CODE\water-company\backend\server\server.js
+2025-05-23 15:53:23 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 15:53:23 info: Một người dùng đã kết nối: xgcenWrjKqdf6uFRAAAB
+2025-05-23 15:53:23 info: Một người dùng đã kết nối: WagRObCOGC3WEg_aAAAD
+2025-05-23 15:53:23 info: Một người dùng đã kết nối: AhqRSCdxrwClHx_wAAAH
+2025-05-23 15:53:23 info: Một người dùng đã kết nối: sEr3L8xx42s8v4HOAAAI
+2025-05-23 15:53:23 info: Một người dùng đã kết nối: jGoiAOhdmJazEnNjAAAJ
+2025-05-23 15:53:24 info: MongoDB đã kết nối thành công.
+2025-05-23 15:53:27 info: Người dùng đã ngắt kết nối: xgcenWrjKqdf6uFRAAAB
+2025-05-23 15:53:27 info: Người dùng đã ngắt kết nối: WagRObCOGC3WEg_aAAAD
+2025-05-23 15:53:27 info: Một người dùng đã kết nối: GbL7934b4rPsBRKMAAAL
+2025-05-23 15:53:27 info: Một người dùng đã kết nối: SWHmadn7YfI897KUAAAN
+2025-05-23 15:53:33 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:53:34 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:53:34 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:53:34 error: Lỗi tạo projectCode cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:34 error: Lỗi tạo projectCode cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:53:35 error: Lỗi tạo projectCode cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }
+2025-05-23 15:53:35 error: Lỗi tạo projectCode cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBX" }
+2025-05-23 15:53:36 error: Lỗi tạo projectCode cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:36 error: Lỗi tạo projectCode cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:53:36 error: Lỗi tạo projectCode cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:37 error: Lỗi tạo projectCode cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:37 error: Lỗi tạo projectCode cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:38 error: Lỗi tạo projectCode cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:38 error: Lỗi tạo projectCode cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:53:39 error: Lỗi tạo projectCode cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBT" }
+2025-05-23 15:53:40 error: Lỗi tạo projectCode cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "TDH" }
+2025-05-23 15:53:40 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:40 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:41 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:41 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:42 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:42 error: Lỗi tạo projectCode cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:43 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:43 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:44 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:44 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:45 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:53:45 error: Lỗi tạo projectCode cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:46 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:46 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:47 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:47 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:48 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:48 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:49 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:49 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:50 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:53:50 info: [SyncService] Đã chuẩn bị 17 công trình để review.
+2025-05-23 15:54:29 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 15:54:29 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 15:54:30 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 15:54:30 warn: Đợt phân bổ "Đợt 2" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 15:54:30 error: Lỗi tạo projectCode cho CT Danh mục ID 6820de29e3e046fbb27e73db: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }. Sẽ để trống.
+2025-05-23 15:54:30 info: Đã xử lý 1 CT danh mục. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 15:54:30 info: Đã xử lý 0 CT SCN. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 15:54:31 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 15:54:31 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 15:54:31 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 15:54:31 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 15:54:31 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 15:54:31 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 15:54:31 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 15:54:31 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 15:54:31 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 15:54:31 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 15:54:31 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 15:54:31 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 15:54:31 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 15:54:31 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 15:54:31 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 15:54:31 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 15:54:31 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 15:54:31 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 15:54:31 warn: Notification 68301e0fd48d1e5eabf0a52b không có projectId.
+2025-05-23 15:54:31 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 15:54:31 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 15:55:27 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:55:27 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:55:27 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:55:27 error: Lỗi tạo projectCode cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:27 error: Lỗi tạo projectCode cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:55:28 error: Lỗi tạo projectCode cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }
+2025-05-23 15:55:28 error: Lỗi tạo projectCode cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBX" }
+2025-05-23 15:55:29 error: Lỗi tạo projectCode cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:29 error: Lỗi tạo projectCode cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:55:29 error: Lỗi tạo projectCode cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:30 error: Lỗi tạo projectCode cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:30 error: Lỗi tạo projectCode cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:31 error: Lỗi tạo projectCode cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:31 error: Lỗi tạo projectCode cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:55:32 error: Lỗi tạo projectCode cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBT" }
+2025-05-23 15:55:32 error: Lỗi tạo projectCode cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "TDH" }
+2025-05-23 15:55:32 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:33 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:33 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:34 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:34 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:35 error: Lỗi tạo projectCode cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:35 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:35 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:36 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:36 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:37 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:55:38 error: Lỗi tạo projectCode cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:38 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:38 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:39 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:39 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:40 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:40 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:41 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:41 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:42 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:55:42 info: [SyncService] Đã chuẩn bị 16 công trình để review.
+2025-05-23 15:56:40 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 15:56:41 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 15:56:41 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 15:56:41 error: Lỗi tạo projectCode cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:41 error: Lỗi tạo projectCode cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:56:42 error: Lỗi tạo projectCode cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS2" }
+2025-05-23 15:56:42 error: Lỗi tạo projectCode cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBX" }
+2025-05-23 15:56:42 error: Lỗi tạo projectCode cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:43 error: Lỗi tạo projectCode cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:56:43 error: Lỗi tạo projectCode cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:43 error: Lỗi tạo projectCode cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:44 error: Lỗi tạo projectCode cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:44 error: Lỗi tạo projectCode cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:45 error: Lỗi tạo projectCode cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CTL" }
+2025-05-23 15:56:45 error: Lỗi tạo projectCode cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CBT" }
+2025-05-23 15:56:46 error: Lỗi tạo projectCode cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "TDH" }
+2025-05-23 15:56:46 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:47 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:47 error: Lỗi tạo projectCode cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:47 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:48 error: Lỗi tạo projectCode cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:48 error: Lỗi tạo projectCode cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:49 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:49 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:50 error: Lỗi tạo projectCode cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:51 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:51 error: Lỗi tạo projectCode cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }
+2025-05-23 15:56:52 error: Lỗi tạo projectCode cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:52 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:52 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:53 error: Lỗi tạo projectCode cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:53 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:54 error: Lỗi tạo projectCode cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:54 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:54 error: Lỗi tạo projectCode cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:55 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:56 error: Lỗi tạo projectCode cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 15:56:56 info: [SyncService] Đã chuẩn bị 16 công trình để review.
+2025-05-23 16:05:07 info: Người dùng đã ngắt kết nối: AhqRSCdxrwClHx_wAAAH
+2025-05-23 16:05:07 info: Người dùng đã ngắt kết nối: jGoiAOhdmJazEnNjAAAJ
+2025-05-23 16:05:07 info: Người dùng đã ngắt kết nối: sEr3L8xx42s8v4HOAAAI
+2025-05-23 16:05:10 info: Một người dùng đã kết nối: 26VmQYuJgRCCN3XPAAAP
+2025-05-23 16:05:10 info: Một người dùng đã kết nối: V4Qby3yajdky86RrAAAR
+2025-05-23 16:05:28 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 16:05:28 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 16:05:28 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:05:29 error: Lỗi tạo projectCode cho 682560cde26c028dfa5b65b3 khi chuẩn bị đồng bộ: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "minor_repair", unitShortCode: "CBX" }
+2025-05-23 16:05:29 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 16:07:21 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:07:21 info: Một người dùng đã kết nối: 9zTNkQ83_chZ-jRYAAAB
+2025-05-23 16:07:21 info: Một người dùng đã kết nối: EpIvhtSzeR7dpdUhAAAD
+2025-05-23 16:07:21 info: Một người dùng đã kết nối: LQXbv445LbP8jbwzAAAF
+2025-05-23 16:07:21 info: Một người dùng đã kết nối: xsvnJAqaAHDixO9HAAAH
+2025-05-23 16:07:22 info: MongoDB đã kết nối thành công.
+2025-05-23 16:07:29 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 16:07:29 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 16:07:29 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:07:30 error: Lỗi tạo projectCode dự kiến cho 682560cde26c028dfa5b65b3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bát Xát" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:30 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 16:07:51 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 16:07:52 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 16:07:52 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:07:52 error: Lỗi tạo projectCode dự kiến cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:52 error: Lỗi tạo projectCode dự kiến cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:52 error: Lỗi tạo projectCode dự kiến cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 2" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:52 error: Lỗi tạo projectCode dự kiến cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bát Xát" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:53 error: Lỗi tạo projectCode dự kiến cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:53 error: Lỗi tạo projectCode dự kiến cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:53 error: Lỗi tạo projectCode dự kiến cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:53 error: Lỗi tạo projectCode dự kiến cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:53 error: Lỗi tạo projectCode dự kiến cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:54 error: Lỗi tạo projectCode dự kiến cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:54 error: Lỗi tạo projectCode dự kiến cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:55 error: Lỗi tạo projectCode dự kiến cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bảo Thắng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:55 error: Lỗi tạo projectCode dự kiến cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh Trung tâm đồng hồ nước" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:55 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:56 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:56 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:56 error: Lỗi tạo projectCode dự kiến cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:56 error: Lỗi tạo projectCode dự kiến cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:57 error: Lỗi tạo projectCode dự kiến cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:57 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:57 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:58 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:58 error: Lỗi tạo projectCode dự kiến cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:59 error: Lỗi tạo projectCode dự kiến cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:59 error: Lỗi tạo projectCode dự kiến cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:59 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:07:59 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:00 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:00 error: Lỗi tạo projectCode dự kiến cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:01 error: Lỗi tạo projectCode dự kiến cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:01 error: Lỗi tạo projectCode dự kiến cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:01 error: Lỗi tạo projectCode dự kiến cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:02 error: Lỗi tạo projectCode dự kiến cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:03 error: Lỗi tạo projectCode dự kiến cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:08:03 info: [SyncService] Đã chuẩn bị 16 công trình để review.
+2025-05-23 16:08:51 info: Người dùng đã ngắt kết nối: LQXbv445LbP8jbwzAAAF
+2025-05-23 16:08:51 info: Người dùng đã ngắt kết nối: xsvnJAqaAHDixO9HAAAH
+2025-05-23 16:08:52 info: Một người dùng đã kết nối: hIgrcLKTNTeDM0DrAAAJ
+2025-05-23 16:08:52 info: Một người dùng đã kết nối: 0pQzwyTzAVTwr-YBAAAL
+2025-05-23 16:09:22 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:09:22 info: Một người dùng đã kết nối: pEjFHb_EhhpCU9QXAAAC
+2025-05-23 16:09:22 info: Một người dùng đã kết nối: oKMaznhq4i5TzuHJAAAD
+2025-05-23 16:09:23 info: MongoDB đã kết nối thành công.
+2025-05-23 16:09:24 info: Một người dùng đã kết nối: e6kGLJGM1W9pdQFiAAAF
+2025-05-23 16:09:25 info: Một người dùng đã kết nối: W3wCplKOwWoveV1nAAAH
+2025-05-23 16:09:27 info: Người dùng đã ngắt kết nối: oKMaznhq4i5TzuHJAAAD
+2025-05-23 16:09:27 info: Người dùng đã ngắt kết nối: e6kGLJGM1W9pdQFiAAAF
+2025-05-23 16:09:28 info: Một người dùng đã kết nối: NU2PsME6GZaxjkK5AAAJ
+2025-05-23 16:09:28 info: Một người dùng đã kết nối: rsb-XcRyAfxar1FpAAAL
+2025-05-23 16:09:36 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 16:09:36 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 16:09:36 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:09:36 error: Lỗi tạo projectCode dự kiến cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:36 error: Lỗi tạo projectCode dự kiến cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:37 error: Lỗi tạo projectCode dự kiến cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 2" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:37 error: Lỗi tạo projectCode dự kiến cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bát Xát" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:37 error: Lỗi tạo projectCode dự kiến cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:37 error: Lỗi tạo projectCode dự kiến cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:38 error: Lỗi tạo projectCode dự kiến cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:38 error: Lỗi tạo projectCode dự kiến cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:38 error: Lỗi tạo projectCode dự kiến cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:38 error: Lỗi tạo projectCode dự kiến cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:39 error: Lỗi tạo projectCode dự kiến cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:39 error: Lỗi tạo projectCode dự kiến cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bảo Thắng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:40 error: Lỗi tạo projectCode dự kiến cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh Trung tâm đồng hồ nước" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:40 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:40 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:40 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:41 error: Lỗi tạo projectCode dự kiến cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:41 error: Lỗi tạo projectCode dự kiến cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:41 error: Lỗi tạo projectCode dự kiến cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:42 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:42 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:42 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:43 error: Lỗi tạo projectCode dự kiến cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:43 error: Lỗi tạo projectCode dự kiến cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:44 error: Lỗi tạo projectCode dự kiến cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:44 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:44 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:44 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:45 error: Lỗi tạo projectCode dự kiến cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:45 error: Lỗi tạo projectCode dự kiến cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:45 error: Lỗi tạo projectCode dự kiến cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:45 error: Lỗi tạo projectCode dự kiến cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:46 error: Lỗi tạo projectCode dự kiến cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:46 error: Lỗi tạo projectCode dự kiến cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:09:47 info: [SyncService] Đã chuẩn bị 16 công trình để review.
+2025-05-23 16:10:49 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:10:49 info: Một người dùng đã kết nối: j2fjAbMWDRVEwSJZAAAE
+2025-05-23 16:10:49 info: Một người dùng đã kết nối: dWod2Motk3U0PgtCAAAF
+2025-05-23 16:10:49 info: Một người dùng đã kết nối: vbWyZ-Dh23vI1yPyAAAG
+2025-05-23 16:10:49 info: Một người dùng đã kết nối: xxnRER6FIsL6oZdMAAAH
+2025-05-23 16:10:50 info: MongoDB đã kết nối thành công.
+2025-05-23 16:10:54 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 16:10:54 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 16:10:54 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:10:55 error: Lỗi tạo projectCode dự kiến cho 682560cde26c028dfa5b65b3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bát Xát" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:10:55 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 16:11:04 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 16:11:05 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 16:11:05 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:11:05 error: Lỗi tạo projectCode dự kiến cho 6820de29e3e046fbb27e73db khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:05 error: Lỗi tạo projectCode dự kiến cho 682455eb2ee12413119c324d khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:05 error: Lỗi tạo projectCode dự kiến cho 6824c62748c1788d755ef17e khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 2" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:06 error: Lỗi tạo projectCode dự kiến cho 6824c8ff23c4733f70a02a9b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bát Xát" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:06 error: Lỗi tạo projectCode dự kiến cho 6824c94123c4733f70a02ac8 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:06 error: Lỗi tạo projectCode dự kiến cho 6824c99623c4733f70a02aea khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:06 error: Lỗi tạo projectCode dự kiến cho 6824cbb023c4733f70a02bfe khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:07 error: Lỗi tạo projectCode dự kiến cho 6824d490cb34f2ebee0f4c59 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:07 error: Lỗi tạo projectCode dự kiến cho 6826bc052534264e23c1f2dc khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:07 error: Lỗi tạo projectCode dự kiến cho 6826bf68402862f4c7831a61 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:08 error: Lỗi tạo projectCode dự kiến cho 68278721ba9a88725e5490bd khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước KCN Tằng Loỏng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:08 error: Lỗi tạo projectCode dự kiến cho 6828974d6cdd135fa1890fae khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước Bảo Thắng" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:08 error: Lỗi tạo projectCode dự kiến cho 6829ff7f01dc11463077e8b8 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh Trung tâm đồng hồ nước" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:09 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc5b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:09 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc63 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:09 error: Lỗi tạo projectCode dự kiến cho 682ae71791cd7c772f8dbc6b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:09 error: Lỗi tạo projectCode dự kiến cho 682ae71891cd7c772f8dbc73 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:10 error: Lỗi tạo projectCode dự kiến cho 682ae71891cd7c772f8dbc7b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:10 error: Lỗi tạo projectCode dự kiến cho 682b47fca72b7662a08fe5b1 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:10 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67ba3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:11 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67bab khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:11 error: Lỗi tạo projectCode dự kiến cho 682dc39ad251bb6a04b67bbd khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:12 error: Lỗi tạo projectCode dự kiến cho 682dc39bd251bb6a04b67bd0 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:12 error: Lỗi tạo projectCode dự kiến cho 682dc39bd251bb6a04b67be3 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước số 1" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:12 error: Lỗi tạo projectCode dự kiến cho 682dc8b2d251bb6a04b67ea1 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:13 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67eaa khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:13 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67ee7 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:13 error: Lỗi tạo projectCode dự kiến cho 682dc8b3d251bb6a04b67f23 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:13 error: Lỗi tạo projectCode dự kiến cho 682dc8b4d251bb6a04b67f5e khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:14 error: Lỗi tạo projectCode dự kiến cho 682dc8b4d251bb6a04b67f9a khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:14 error: Lỗi tạo projectCode dự kiến cho 682dc8b5d251bb6a04b67fd7 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:14 error: Lỗi tạo projectCode dự kiến cho 682dc8b5d251bb6a04b68013 khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:15 error: Lỗi tạo projectCode dự kiến cho 682dc8b6d251bb6a04b6804f khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:15 error: Lỗi tạo projectCode dự kiến cho 682dc8b6d251bb6a04b6808b khi chuẩn bị đồng bộ: Cast to ObjectId failed for value "Chi nhánh cấp nước SaPa" (type string) at path "_id" for model "AllocatedUnit"
+2025-05-23 16:11:15 info: [SyncService] Đã chuẩn bị 16 công trình để review.
+2025-05-23 16:17:23 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:17:23 info: Một người dùng đã kết nối: fNTzkcAPpRZFQJasAAAB
+2025-05-23 16:17:23 info: Một người dùng đã kết nối: FMHfPJD0Dllr-vjGAAAD
+2025-05-23 16:17:23 info: Một người dùng đã kết nối: y1zbB33M_n1nhoDgAAAF
+2025-05-23 16:17:23 info: Một người dùng đã kết nối: TK7JSmy6f37bzqr8AAAH
+2025-05-23 16:17:24 info: MongoDB đã kết nối thành công.
+2025-05-23 16:17:30 info: Người dùng đã ngắt kết nối: y1zbB33M_n1nhoDgAAAF
+2025-05-23 16:17:30 info: Người dùng đã ngắt kết nối: TK7JSmy6f37bzqr8AAAH
+2025-05-23 16:17:30 info: Một người dùng đã kết nối: _KYnDg-8-U88XDvcAAAJ
+2025-05-23 16:17:30 info: Một người dùng đã kết nối: JkD5ZTUAPztLCjm0AAAL
+2025-05-23 16:17:35 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 16:17:35 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 16:17:35 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:17:36 warn: Đợt phân bổ "Đợt 2" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:36 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:36 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:38 warn: Đợt phân bổ "Đợt 2" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:39 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:40 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:40 warn: Đợt phân bổ "Đợt 2" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:42 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:43 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:44 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:44 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:45 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:45 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:48 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:49 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:49 warn: Đợt phân bổ "Đợt 1" không có mã viết tắt (shortCode). Sử dụng "00" cho projectCode.
+2025-05-23 16:17:50 info: [SyncService] Đã chuẩn bị 16 công trình để review.
+2025-05-23 16:18:12 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 16:18:12 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 16:18:12 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 16:18:13 info: Đã xử lý 1 CT danh mục. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 16:18:13 info: Đã xử lý 0 CT SCN. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 16:18:14 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 16:18:14 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 16:18:14 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 16:18:14 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 16:18:14 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 16:18:14 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 16:18:14 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 16:18:14 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 16:18:14 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 16:18:14 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 16:18:14 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 16:18:14 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 16:18:14 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 16:18:14 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 16:18:14 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 16:18:14 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 16:18:14 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 16:18:14 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 16:18:14 warn: Notification 68301e0fd48d1e5eabf0a52b không có projectId.
+2025-05-23 16:18:14 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 16:18:14 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 16:24:33 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:24:33 info: Một người dùng đã kết nối: UF5SKzcB3McZcUGaAAAC
+2025-05-23 16:24:33 info: Một người dùng đã kết nối: hTOKblGVKGzy-KAMAAAD
+2025-05-23 16:24:33 info: Một người dùng đã kết nối: SilIf5hsgHi7-3d3AAAG
+2025-05-23 16:24:33 info: Một người dùng đã kết nối: ZJrKC5DyjJ5zmrntAAAH
+2025-05-23 16:24:34 info: MongoDB đã kết nối thành công.
+2025-05-23 16:24:37 info: Người dùng đã ngắt kết nối: hTOKblGVKGzy-KAMAAAD
+2025-05-23 16:24:37 info: Người dùng đã ngắt kết nối: SilIf5hsgHi7-3d3AAAG
+2025-05-23 16:24:37 info: Một người dùng đã kết nối: V6x-1v6SEMtRGj6mAAAJ
+2025-05-23 16:24:37 info: Một người dùng đã kết nối: 6Nifs8xiXiceIYWkAAAL
+2025-05-23 16:25:28 info: Người dùng đã ngắt kết nối: V6x-1v6SEMtRGj6mAAAJ
+2025-05-23 16:25:28 info: Người dùng đã ngắt kết nối: 6Nifs8xiXiceIYWkAAAL
+2025-05-23 16:25:28 info: Một người dùng đã kết nối: KvoxPPpc0NWZ491XAAAN
+2025-05-23 16:25:28 info: Một người dùng đã kết nối: pdNjA-A8pqemL3JMAAAP
+2025-05-23 16:26:30 error: Lỗi Controller chuẩn bị chuẩn hóa mã: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:26:30 error: Lỗi không xác định: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:34:53 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:34:53 info: Một người dùng đã kết nối: SRYvVn_Qh-71aaBOAAAB
+2025-05-23 16:34:54 info: Một người dùng đã kết nối: D7TyMGwQ2Cp1P75iAAAD
+2025-05-23 16:34:54 info: MongoDB đã kết nối thành công.
+2025-05-23 16:34:55 info: Một người dùng đã kết nối: dwhsDg_bXbv-cFgPAAAF
+2025-05-23 16:34:55 info: Một người dùng đã kết nối: kuIfAUFzpIhWkQUuAAAH
+2025-05-23 16:40:14 error: Lỗi Controller chuẩn bị chuẩn hóa mã: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:40:14 error: Lỗi không xác định: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:43:04 error: Lỗi Controller chuẩn bị chuẩn hóa mã: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:43:04 error: Lỗi không xác định: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:43:48 error: Lỗi Controller chuẩn bị chuẩn hóa mã: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:43:48 error: Lỗi không xác định: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:44:17 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:44:17 info: Một người dùng đã kết nối: Pb535Ycqtknil94zAAAB
+2025-05-23 16:44:17 info: Một người dùng đã kết nối: wIpGGteDXrPN-moYAAAD
+2025-05-23 16:44:17 info: Một người dùng đã kết nối: x1cULklnxgrKjlJeAAAG
+2025-05-23 16:44:17 info: Một người dùng đã kết nối: pOJjuMwEnxrp31zOAAAH
+2025-05-23 16:44:18 info: MongoDB đã kết nối thành công.
+2025-05-23 16:44:26 info: Người dùng đã ngắt kết nối: Pb535Ycqtknil94zAAAB
+2025-05-23 16:44:26 info: Người dùng đã ngắt kết nối: wIpGGteDXrPN-moYAAAD
+2025-05-23 16:44:27 info: Một người dùng đã kết nối: IcZdhbvXTXGpBLdpAAAJ
+2025-05-23 16:44:27 info: Một người dùng đã kết nối: YmCrrWfR0EC_LbWwAAAL
+2025-05-23 16:44:33 error: Lỗi Controller chuẩn bị chuẩn hóa mã: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:44:33 error: Lỗi không xác định: Cannot populate path `projectType` because it is not in your schema. Set the `strictPopulate` option to false to override.
+2025-05-23 16:46:25 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 16:46:25 info: Một người dùng đã kết nối: FGY4j7jiKM9Ag95YAAAB
+2025-05-23 16:46:25 info: Một người dùng đã kết nối: gzbxAIpCZ8ZehDXIAAAD
+2025-05-23 16:46:25 info: Một người dùng đã kết nối: BaRQCD8qQcrih8OMAAAF
+2025-05-23 16:46:25 info: Một người dùng đã kết nối: EZMYuSu4SKF-5Nh7AAAH
+2025-05-23 16:46:25 info: MongoDB đã kết nối thành công.
+2025-05-23 16:47:03 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 16:47:03 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 16:47:03 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 16:47:17 info: [SyncService] Đã chuẩn bị 15 công trình để review.
+2025-05-23 17:01:52 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 17:01:52 info: Một người dùng đã kết nối: YSA_EqD0Tw4DYHqbAAAB
+2025-05-23 17:01:53 info: MongoDB đã kết nối thành công.
+2025-05-23 17:01:55 info: Một người dùng đã kết nối: WjD8IsITW4jpfoxGAAAD
+2025-05-23 17:01:57 info: Người dùng đã ngắt kết nối: YSA_EqD0Tw4DYHqbAAAB
+2025-05-23 17:01:59 info: Một người dùng đã kết nối: kEVoMQSzzDlTSJt0AAAF
+2025-05-23 17:01:59 info: Một người dùng đã kết nối: toxRIe0puiQg6GpFAAAH
+2025-05-23 17:02:01 info: Một người dùng đã kết nối: gf_q06gRPN4EaxK2AAAJ
+2025-05-23 17:02:11 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 17:02:11 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 17:02:11 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 17:02:24 info: [SyncService] Đã chuẩn bị 15 công trình để review.
+2025-05-23 17:03:08 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 17:03:08 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 17:03:08 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 17:03:08 info: Đã xử lý 1 CT danh mục. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 17:03:08 info: Đã xử lý 0 CT SCN. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 17:03:09 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 17:03:09 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 17:03:09 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 17:03:09 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 17:03:09 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 17:03:09 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 17:03:09 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 17:03:09 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 17:03:09 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 17:03:09 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 17:03:09 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 17:03:09 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 17:03:09 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 17:03:09 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 17:03:09 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 17:03:09 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 17:03:09 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 17:03:09 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 17:03:09 warn: Notification 68301e0fd48d1e5eabf0a52b không có projectId.
+2025-05-23 17:03:09 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 17:03:09 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 17:03:49 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.0.action: `code_standardized` is not a valid enum value for path `action`.
+2025-05-23 17:03:49 error: Lỗi không xác định: CategoryProject validation failed: history.0.action: `code_standardized` is not a valid enum value for path `action`.

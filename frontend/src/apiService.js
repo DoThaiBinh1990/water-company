@@ -360,3 +360,16 @@ export const deleteHolidayDateAPI = async ({ year, dateString }) => {
   const { data } = await apiClient.delete(`/api/holidays/${year}/date/${dateString}`);
   return data;
 };
+
+// Project Code Standardization APIs
+export const prepareProjectCodeStandardizationAPI = async (params) => {
+  // params: { financialYear, projectType, allocatedUnitId, allocationWaveId (optional) }
+  const { data } = await apiClient.get('/api/projects/standardize/prepare', { params });
+  return data; // Array of projects to standardize
+};
+
+export const executeProjectCodeStandardizationAPI = async (payload) => {
+  // payload: { financialYear, projectType, allocatedUnitId, allocationWaveId (optional) }
+  const { data } = await apiClient.post('/api/projects/standardize/execute', payload);
+  return data; // { message, updatedCount }
+};

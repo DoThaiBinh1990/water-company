@@ -1,6 +1,6 @@
 // d:\CODE\water-company\frontend\src\pages\Settings.js
 import { useState, useEffect, useMemo } from 'react';
-import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram, FaUserCog, FaKey, FaCalendarAlt, FaCalendarTimes } from 'react-icons/fa';
+import { FaUserPlus, FaBuilding, FaHardHat, FaEdit, FaTrash, FaPlus, FaSync, FaUsers, FaList, FaProjectDiagram, FaUserCog, FaKey, FaCalendarAlt, FaCalendarTimes, FaListAlt } from 'react-icons/fa'; // Thêm FaListAlt
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -11,14 +11,14 @@ import {
   getAllocationWaves, createAllocationWave as createAllocationWaveAPI, updateAllocationWave as updateAllocationWaveAPI, deleteAllocationWave as deleteAllocationWaveAPI,
   getProjectTypes, createProjectType as createProjectTypeAPI, updateProjectType as updateProjectTypeAPI, deleteProjectType as deleteProjectTypeAPI,
   updateUserProfile as updateUserProfileAPI, changeUserPassword as changeUserPasswordAPI,
-  // syncProjectsData as syncProjectsAPI, // Đã thay thế bằng prepare và execute
-  prepareSyncDataAPI, // API mới để chuẩn bị
-  executeSyncDataAPI, // API mới để thực thi
+  prepareSyncDataAPI,
+  executeSyncDataAPI,
   getHolidaysForYearAPI, addHolidayAPI, updateHolidayAPI, deleteHolidayDateAPI
 } from '../apiService';
 
-import SyncReviewModal from '../components/Settings/SyncReviewModal'; // Import modal mới
+import SyncReviewModal from '../components/Settings/SyncReviewModal';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import ProjectCodeStandardization from '../components/Settings/ProjectCodeStandardization'; // Import component mới
 import Pagination from '../components/Common/Pagination';
 
 const initialNewUserState = {
@@ -34,7 +34,7 @@ const initialNewUserState = {
 
 const getInitialActiveTab = () => {
   const persistedTab = localStorage.getItem('settingsActiveTab');
-  const validTabs = ['profile', 'users', 'allocatedUnits', 'constructionUnits', 'allocationWaves', 'projectTypes', 'syncProjects', 'holidays'];
+  const validTabs = ['profile', 'users', 'allocatedUnits', 'constructionUnits', 'allocationWaves', 'projectTypes', 'syncProjects', 'holidays', 'standardizeCodes']; // Thêm standardizeCodes
   if (persistedTab && validTabs.includes(persistedTab)) {
     return persistedTab;
   }
@@ -62,6 +62,7 @@ function Settings({ user }) {
   const [newConstructionUnitName, setNewConstructionUnitName] = useState('');
   const [editConstructionUnit, setEditConstructionUnit] = useState(null);
   const [newAllocationWaveName, setNewAllocationWaveName] = useState('');
+  const [newAllocationWaveShortCode, setNewAllocationWaveShortCode] = useState(''); // State cho shortCode của Đợt PB
   const [editAllocationWave, setEditAllocationWave] = useState(null);
   const [newProjectTypeName, setNewProjectTypeName] = useState('');
   const [editProjectType, setEditProjectType] = useState(null);
@@ -81,7 +82,7 @@ function Settings({ user }) {
   const [editingHolidayDescription, setEditingHolidayDescription] = useState('');
 
   const [selectedSyncYear, setSelectedSyncYear] = useState(String(new Date().getFullYear()));
-  const [selectedSyncProjectType, setSelectedSyncProjectType] = useState('all'); // Thêm state cho loại CT
+  const [selectedSyncProjectType, setSelectedSyncProjectType] = useState('all');
   const [showSyncReviewModal, setShowSyncReviewModal] = useState(false);
   const [preparedSyncData, setPreparedSyncData] = useState([]);
 
@@ -95,7 +96,7 @@ function Settings({ user }) {
   const { data: allocatedUnits = [], isLoading: isLoadingAllocatedUnits, isFetching: isFetchingAllocatedUnits } = useQuery({
     queryKey: ['allocatedUnits'],
     queryFn: getAllocatedUnits,
-    enabled: user?.role === 'admin' && (activeTab === 'allocatedUnits' || activeTab === 'users'),
+    enabled: user?.role === 'admin' && (activeTab === 'allocatedUnits' || activeTab === 'users' || activeTab === 'standardizeCodes'), // Thêm standardizeCodes
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải đơn vị!', { position: "top-center" }),
   });
 
@@ -109,7 +110,7 @@ function Settings({ user }) {
   const { data: allocationWaves = [], isLoading: isLoadingAllocationWaves, isFetching: isFetchingAllocationWaves } = useQuery({
     queryKey: ['allocationWaves'],
     queryFn: getAllocationWaves,
-    enabled: user?.role === 'admin' && activeTab === 'allocationWaves',
+    enabled: user?.role === 'admin' && (activeTab === 'allocationWaves' || activeTab === 'standardizeCodes'), // Thêm standardizeCodes
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi tải đợt phân bổ!', { position: "top-center" }),
   });
 
@@ -221,8 +222,8 @@ function Settings({ user }) {
       email: userToEdit.email || '',
       unit: userToEdit.unit || '',
       permissions: {
-        ...initialNewUserState.permissions, 
-        ...(userToEdit.permissions || {}) 
+        ...initialNewUserState.permissions,
+        ...(userToEdit.permissions || {})
       }
     });
     setEditingUserId(userToEdit._id);
@@ -272,11 +273,15 @@ function Settings({ user }) {
   const allocationWaveMutation = useCreateGenericMutation(
     (waveData) => editAllocationWave ? updateAllocationWaveAPI({ waveId: editAllocationWave._id, waveData }) : createAllocationWaveAPI(waveData),
     ['allocationWaves'], 'Đã thêm đợt phân bổ!', 'Đã cập nhật đợt phân bổ!',
-    () => { setNewAllocationWaveName(''); setEditAllocationWave(null); }
+    () => { setNewAllocationWaveName(''); setNewAllocationWaveShortCode(''); setEditAllocationWave(null); } // Reset cả shortCode
   );
   const saveAllocationWave = () => {
-    if (!newAllocationWaveName.trim()) return toast.error('Vui lòng nhập tên đợt phân bổ!', { position: "top-center" });
-    allocationWaveMutation.mutate({ name: newAllocationWaveName.trim() });
+    if (!newAllocationWaveName.trim() || !newAllocationWaveShortCode.trim()) {
+      return toast.error('Vui lòng nhập tên và mã viết tắt (2 ký tự) cho đợt phân bổ!', { position: "top-center" });
+    }
+    if (newAllocationWaveShortCode.trim().length !== 2) return toast.error('Mã viết tắt đợt phân bổ phải có đúng 2 ký tự!', { position: "top-center" });
+
+    allocationWaveMutation.mutate({ name: newAllocationWaveName.trim(), shortCode: newAllocationWaveShortCode.trim().toUpperCase() });
   };
   const deleteAllocationWaveMutation = useCreateGenericMutation(deleteAllocationWaveAPI, ['allocationWaves'], '', 'Đã xóa đợt phân bổ!', null);
   const deleteAllocationWaveHandler = (id) => {
@@ -301,9 +306,8 @@ function Settings({ user }) {
     }
   };
 
-  // Mutation để chuẩn bị dữ liệu đồng bộ
   const prepareSyncMutation = useMutation({
-    mutationFn: () => prepareSyncDataAPI(selectedSyncYear, selectedSyncProjectType), // Truyền thêm loại CT
+    mutationFn: () => prepareSyncDataAPI(selectedSyncYear, selectedSyncProjectType),
     onSuccess: (data) => {
       if (data && data.length > 0) {
         setPreparedSyncData(data);
@@ -316,7 +320,6 @@ function Settings({ user }) {
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi chuẩn bị dữ liệu đồng bộ!', { position: "top-center" }),
   });
 
-  // Mutation để thực thi đồng bộ sau khi review
   const executeSyncMutation = useMutation({
     mutationFn: executeSyncDataAPI,
     onSuccess: (data) => {
@@ -485,11 +488,11 @@ function Settings({ user }) {
 
     switch (role) {
       case 'admin':
-        defaultPermissions = { 
-          add: true, edit: true, delete: true, approve: true, viewRejected: true, 
-          allocate: true, assign: true, 
-          viewOtherBranchProjects: true, 
-          assignProfileTimeline: true, 
+        defaultPermissions = {
+          add: true, edit: true, delete: true, approve: true, viewRejected: true,
+          allocate: true, assign: true,
+          viewOtherBranchProjects: true,
+          assignProfileTimeline: true,
           assignConstructionTimeline: true
         };
         break;
@@ -566,10 +569,10 @@ function Settings({ user }) {
     localStorage.setItem('settingsActiveTab', activeTab);
   }, [activeTab]);
 
-  const isOverallLoading = isLoadingTabData || 
-                           anyAdminMutationLoading || 
-                           anyProfileMutationLoading || 
-                           prepareSyncMutation.isLoading || 
+  const isOverallLoading = isLoadingTabData ||
+                           anyAdminMutationLoading ||
+                           anyProfileMutationLoading ||
+                           prepareSyncMutation.isLoading ||
                            executeSyncMutation.isLoading;
 
   return (
@@ -579,8 +582,8 @@ function Settings({ user }) {
       {(isOverallLoading) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
           <div className="text-white text-xl p-4 bg-gray-800 rounded-lg">
-            {prepareSyncMutation.isLoading ? 'Đang chuẩn bị dữ liệu...' : 
-             executeSyncMutation.isLoading ? 'Đang thực thi đồng bộ...' : 
+            {prepareSyncMutation.isLoading ? 'Đang chuẩn bị dữ liệu...' :
+             executeSyncMutation.isLoading ? 'Đang thực thi đồng bộ...' :
              isLoadingTabData ? 'Đang tải dữ liệu cài đặt...' : 'Đang xử lý...'}
           </div>
         </div>
@@ -597,6 +600,7 @@ function Settings({ user }) {
             <button onClick={() => setActiveTab('projectTypes')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'projectTypes' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={isOverallLoading}><FaProjectDiagram /> Quản lý loại CT</button>
             <button onClick={() => setActiveTab('syncProjects')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'syncProjects' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={isOverallLoading}><FaSync /> Đồng bộ dữ liệu</button>
             <button onClick={() => setActiveTab('holidays')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'holidays' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={isOverallLoading}><FaCalendarAlt /> Quản lý Ngày nghỉ</button>
+            <button onClick={() => setActiveTab('standardizeCodes')} className={`py-2 px-4 flex items-center gap-2 text-sm font-medium transition-colors duration-150 ${activeTab === 'standardizeCodes' ? 'border-b-2 border-blue-600 text-blue-700' : 'text-gray-500 hover:text-blue-600'}`} disabled={isOverallLoading}><FaListAlt /> Chuẩn hóa Mã CT</button>
           </>
         )}
       </div>
@@ -698,7 +702,7 @@ function Settings({ user }) {
                     <h3 className="text-md font-semibold text-blue-600 mb-2">{u.fullName || u.username}</h3>
                     <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Username:</span> {u.username}</p>
                     <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Đơn vị:</span> {u.unit || 'N/A'}</p>
-                    <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Vai trò:</span> 
+                    <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Vai trò:</span>
                       {u.role === 'admin' && 'Admin'}
                       {u.role === 'director' && 'Tổng giám đốc'}
                       {u.role === 'deputy_director' && 'Phó tổng giám đốc'}
@@ -782,13 +786,13 @@ function Settings({ user }) {
             </div>
             <div className="flex-1 md:max-w-xs">
               <label className="block text-gray-700 mb-2">Mã viết tắt (3 ký tự)</label>
-              <input 
-                type="text" 
-                placeholder="VD: TLO" 
-                value={newAllocatedUnitShortCode} 
-                onChange={(e) => setNewAllocatedUnitShortCode(e.target.value.toUpperCase())} 
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading} 
+              <input
+                type="text"
+                placeholder="VD: TLO"
+                value={newAllocatedUnitShortCode}
+                onChange={(e) => setNewAllocatedUnitShortCode(e.target.value.toUpperCase())}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={allocatedUnitMutation.isLoading || deleteAllocatedUnitMutation.isLoading}
                 maxLength={3} />
             </div>
             <div className="flex items-end gap-4">
@@ -861,22 +865,44 @@ function Settings({ user }) {
       {activeTab === 'allocationWaves' && user?.role === 'admin' && (
         <div className="bg-white p-8 rounded-2xl shadow-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý đợt phân bổ</h2>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
             <div className="flex-1">
               <label className="block text-gray-700 mb-2">Tên đợt phân bổ</label>
               <input type="text" placeholder="Nhập tên đợt phân bổ" value={newAllocationWaveName} onChange={(e) => setNewAllocationWaveName(e.target.value)} className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled={allocationWaveMutation.isLoading} maxLength={50} />
             </div>
-            <div className="flex items-end gap-4">
+            <div className="flex-1">
+              <label className="block text-gray-700 mb-2">Mã viết tắt (2 ký tự)</label>
+              <input
+                type="text"
+                placeholder="VD: D1"
+                value={newAllocationWaveShortCode}
+                onChange={(e) => setNewAllocationWaveShortCode(e.target.value.toUpperCase())}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={allocationWaveMutation.isLoading}
+                maxLength={2}
+              />
+            </div>
+            <div className="flex items-end gap-4 md:col-start-3">
               <button onClick={saveAllocationWave} className={`bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}><FaPlus /> {editAllocationWave ? 'Cập nhật' : 'Thêm'}</button>
-              {editAllocationWave && (<button onClick={() => { setNewAllocationWaveName(''); setEditAllocationWave(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}>Hủy</button>)}
+              {editAllocationWave && (<button onClick={() => { setNewAllocationWaveName(''); setNewAllocationWaveShortCode(''); setEditAllocationWave(null);}} className={`bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 ${allocationWaveMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={allocationWaveMutation.isLoading}>Hủy</button>)}
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full table-auto border-collapse">
-              <thead> <tr className="bg-blue-50"><th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th><th className="p-4 text-left text-gray-700 font-bold border-b">Hành động</th></tr> </thead>
+              <thead> <tr className="bg-blue-50">
+                <th className="p-4 text-left text-gray-700 font-bold border-b">Tên đợt phân bổ</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b" style={{width: '150px'}}>Mã viết tắt</th>
+                <th className="p-4 text-left text-gray-700 font-bold border-b" style={{width: '120px'}}>Hành động</th></tr> </thead>
               <tbody>
                 {paginatedAllocationWaves.map(wave => (
-                  <tr key={wave._id} className="border-t hover:bg-blue-50"><td className="p-4 text-gray-700">{wave.name}</td><td className="p-4 flex gap-2"><button onClick={() => { setNewAllocationWaveName(wave.name); setEditAllocationWave(wave);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaEdit size={16} /></button><button onClick={() => deleteAllocationWaveHandler(wave._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaTrash size={16} /></button></td></tr>
+                  <tr key={wave._id} className="border-t hover:bg-blue-50">
+                    <td className="p-4 text-gray-700">{wave.name}</td>
+                    <td className="p-4 text-gray-700">{wave.shortCode || 'N/A'}</td>
+                    <td className="p-4 flex gap-2">
+                      <button onClick={() => { setNewAllocationWaveName(wave.name); setNewAllocationWaveShortCode(wave.shortCode || ''); setEditAllocationWave(wave);}} className="text-blue-600 hover:text-blue-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaEdit size={16} /></button>
+                      <button onClick={() => deleteAllocationWaveHandler(wave._id)} className="text-red-600 hover:text-red-800 disabled:opacity-50" disabled={allocationWaveMutation.isLoading || deleteAllocationWaveMutation.isLoading}><FaTrash size={16} /></button>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -965,10 +991,10 @@ function Settings({ user }) {
             </div>
           </div>
           <button
-            onClick={() => prepareSyncMutation.mutate()} 
-            className={`text-white p-3 rounded-lg flex items-center justify-center gap-2 shadow-md transition-all duration-150 
-                        ${prepareSyncMutation.isLoading || executeSyncMutation.isLoading 
-                          ? 'bg-blue-400 opacity-75 cursor-not-allowed'  // Màu nhạt hơn khi loading
+            onClick={() => prepareSyncMutation.mutate()}
+            className={`text-white p-3 rounded-lg flex items-center justify-center gap-2 shadow-md transition-all duration-150
+                        ${prepareSyncMutation.isLoading || executeSyncMutation.isLoading
+                          ? 'bg-blue-400 opacity-75 cursor-not-allowed'
                           : 'bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-100'
                         }`}
             disabled={prepareSyncMutation.isLoading || executeSyncMutation.isLoading}>
@@ -981,10 +1007,10 @@ function Settings({ user }) {
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Quản lý Ngày nghỉ Lễ</h2>
           <div className="mb-6">
             <label className="block text-gray-700 mb-2">Chọn năm tài chính:</label>
-            <select 
-              value={selectedHolidayYear} 
-              onChange={(e) => setSelectedHolidayYear(parseInt(e.target.value, 10))} 
-              className="w-full md:w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            <select
+              value={selectedHolidayYear}
+              onChange={(e) => setSelectedHolidayYear(parseInt(e.target.value, 10))}
+              className="w-full md:w-1/3 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={addHolidayMutation.isLoading || updateHolidayMutation.isLoading || deleteHolidayMutation.isLoading || isLoadingHolidays}
             >
               {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i).map(year => (
@@ -996,29 +1022,29 @@ function Settings({ user }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
               <label className="block text-gray-700 mb-1">Ngày (YYYY-MM-DD)</label>
-              <input 
-                type="date" 
-                value={newHoliday.date} 
-                onChange={(e) => setNewHoliday(prev => ({ ...prev, date: e.target.value }))} 
-                className="w-full border border-gray-300 p-2 rounded-lg" 
-                disabled={addHolidayMutation.isLoading} 
+              <input
+                type="date"
+                value={newHoliday.date}
+                onChange={(e) => setNewHoliday(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full border border-gray-300 p-2 rounded-lg"
+                disabled={addHolidayMutation.isLoading}
               />
             </div>
             <div className="md:col-span-2">
               <label className="block text-gray-700 mb-1">Mô tả</label>
-              <input 
-                type="text" 
-                placeholder="Mô tả ngày nghỉ" 
-                value={newHoliday.description} 
-                onChange={(e) => setNewHoliday(prev => ({ ...prev, description: e.target.value }))} 
-                className="w-full border border-gray-300 p-2 rounded-lg" 
-                disabled={addHolidayMutation.isLoading} 
+              <input
+                type="text"
+                placeholder="Mô tả ngày nghỉ"
+                value={newHoliday.description}
+                onChange={(e) => setNewHoliday(prev => ({ ...prev, description: e.target.value }))}
+                className="w-full border border-gray-300 p-2 rounded-lg"
+                disabled={addHolidayMutation.isLoading}
               />
             </div>
           </div>
-          <button 
-            onClick={handleAddHoliday} 
-            className={`bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 flex items-center gap-2 mb-6 ${addHolidayMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} 
+          <button
+            onClick={handleAddHoliday}
+            className={`bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 flex items-center gap-2 mb-6 ${addHolidayMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={addHolidayMutation.isLoading}
           >
             <FaPlus /> Thêm ngày nghỉ
@@ -1071,6 +1097,12 @@ function Settings({ user }) {
         </div>
       )}
 
+      {activeTab === 'standardizeCodes' && user?.role === 'admin' && (
+        <ProjectCodeStandardization
+          user={user}
+        />
+      )}
+
       {showSyncReviewModal && (
         <SyncReviewModal
           isOpen={showSyncReviewModal}
@@ -1078,13 +1110,18 @@ function Settings({ user }) {
           preparedData={preparedSyncData}
           onConfirmSync={(projectsToSync) => {
             const payload = { projectsToSyncFromFrontend: projectsToSync };
-            // Truyền cả targetFinancialYear và targetProjectType nếu chúng không phải 'all'
-            // Backend sẽ sử dụng các giá trị này để lọc lại lần nữa nếu cần (mặc dù frontend đã lọc)
             if (selectedSyncYear && String(selectedSyncYear).toLowerCase() !== 'all') payload.targetFinancialYear = parseInt(selectedSyncYear, 10);
             if (selectedSyncProjectType && String(selectedSyncProjectType).toLowerCase() !== 'all') payload.targetProjectType = selectedSyncProjectType;
             executeSyncMutation.mutate(payload);
           }}
           isExecutingSync={executeSyncMutation.isLoading}
+          dataSources={{ // Truyền dataSources vào modal
+            allocatedUnits: allocatedUnits,
+            usersList: users, // Giả sử users là danh sách user đầy đủ
+            projectTypesList: projectTypes,
+            constructionUnitsList: constructionUnits,
+            allocationWavesList: allocationWaves,
+          }}
         />
       )}
     </div>
