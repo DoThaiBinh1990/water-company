@@ -8,6 +8,7 @@ export const categoryFormConfig = {
       label: 'Thông tin Cơ bản',
       fields: [
         { name: 'name', label: 'Tên danh mục công trình', type: 'text', required: true, placeholder: 'Nhập tên công trình' },
+        { name: 'projectCode', label: 'Mã công trình', type: 'text', placeholder: 'Sẽ được tạo tự động', disabled: true }, // Thêm trường projectCode, admin có thể sửa khi edit
         { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
         { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' }, // Thêm trường isCompleted
         { name: 'allocatedUnit', label: 'Đơn vị phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
@@ -55,6 +56,7 @@ export const minorRepairFormConfig = {
       label: 'Thông tin Cơ bản',
       fields: [
         { name: 'name', label: 'Tên công trình/Sự cố', type: 'text', required: true, placeholder: 'Nhập tên hoặc mô tả sự cố' },
+        { name: 'projectCode', label: 'Mã công trình', type: 'text', placeholder: 'Sẽ được tạo tự động', disabled: true }, // Thêm trường projectCode
         { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
         { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' }, // Thêm trường isCompleted
         { name: 'allocatedUnit', label: 'Đơn vị quản lý/phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },

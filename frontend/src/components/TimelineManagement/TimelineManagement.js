@@ -18,9 +18,9 @@ const TimelineManagement = ({ user, addMessage }) => {
   const [activeTab, setActiveTab] = useState(getActiveTabFromPath(location.pathname));
 
   const tabs = [
-    { name: 'profile-category', label: 'TL Hồ sơ (DM)', path: 'profile-category', icon: <FaUserClock/>, component: <ProfileTimelineCategory user={user} addMessage={addMessage} /> },
-    { name: 'construction-category', label: 'TL Thi công (DM)', path: 'construction-category', icon: <FaHardHat/>, component: <ConstructionTimelineCategory user={user} addMessage={addMessage} /> },
-    { name: 'construction-minor-repair', label: 'TL Thi công (SCN)', path: 'construction-minor-repair', icon: <FaHardHat/>, component: <ConstructionTimelineMinorRepair user={user} addMessage={addMessage} /> },
+    { name: 'profile-category', label: 'Timeline Hồ sơ DM', path: 'profile-category', icon: <FaUserClock/>, component: <ProfileTimelineCategory user={user} addMessage={addMessage} /> },
+    { name: 'construction-category', label: 'Timeline Thi công DM', path: 'construction-category', icon: <FaHardHat/>, component: <ConstructionTimelineCategory user={user} addMessage={addMessage} /> },
+    { name: 'construction-minor-repair', label: 'Timeline Thi công SCN', path: 'construction-minor-repair', icon: <FaHardHat/>, component: <ConstructionTimelineMinorRepair user={user} addMessage={addMessage} /> },
   ];
 
   return (

@@ -214,11 +214,19 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
   router.post(`/${modelNamePlural}`, authenticate, async (req, res, next) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: `Chỉ admin mới có quyền thêm ${modelNameSingular}` });
     try {
-      const { name } = req.body;
+      const { name, shortCode } = req.body; // Thêm shortCode
       if (!name || name.trim() === "") { return res.status(400).json({ message: `Tên ${modelNameSingular} không được để trống` }); }
+      if (modelNameSingular === 'đơn vị' && (!shortCode || shortCode.trim().length !== 3)) { // Validate shortCode cho AllocatedUnit
+        return res.status(400).json({ message: 'Mã viết tắt đơn vị là bắt buộc và phải có 3 ký tự.' });
+      }
+
       const existingUnit = await model.findOne({ name: name.trim() });
       if (existingUnit) { return res.status(400).json({ message: `${modelNameSingular} "${name.trim()}" đã tồn tại.` }); }
-      const unit = new model({ name: name.trim() });
+
+      const dataToSave = { name: name.trim() };
+      if (modelNameSingular === 'đơn vị' && shortCode) dataToSave.shortCode = shortCode.trim().toUpperCase();
+
+      const unit = new model(dataToSave);
       const newUnit = await unit.save();
       res.status(201).json(newUnit);
     } catch (error) {
@@ -241,13 +249,21 @@ const createUnitCrudEndpoints = (router, model, modelNameSingular, modelNamePlur
   router.patch(`/${modelNamePlural}/:id`, authenticate, async (req, res, next) => {
     if (req.user.role !== 'admin') return res.status(403).json({ message: `Chỉ admin mới có quyền sửa ${modelNameSingular}` });
     try {
-      const { name } = req.body;
+      const { name, shortCode } = req.body; // Thêm shortCode
       if (!name || name.trim() === "") { return res.status(400).json({ message: `Tên ${modelNameSingular} không được để trống` }); }
+      if (modelNameSingular === 'đơn vị' && shortCode && shortCode.trim().length !== 3) {
+        return res.status(400).json({ message: 'Mã viết tắt đơn vị phải có 3 ký tự nếu được cung cấp.' });
+      }
+
       const unitToUpdate = await model.findById(req.params.id);
       if (!unitToUpdate) return res.status(404).json({ message: `Không tìm thấy ${modelNameSingular}` });
       const existingUnit = await model.findOne({ name: name.trim(), _id: { $ne: req.params.id } });
       if (existingUnit) { return res.status(400).json({ message: `${modelNameSingular} "${name.trim()}" đã tồn tại.` }); }
+
       unitToUpdate.name = name.trim();
+      if (modelNameSingular === 'đơn vị' && shortCode) {
+        unitToUpdate.shortCode = shortCode.trim().toUpperCase();
+      }
       await unitToUpdate.save();
       res.json(unitToUpdate);
     } catch (error) {

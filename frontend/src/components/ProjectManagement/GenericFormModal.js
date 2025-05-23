@@ -97,6 +97,12 @@ function GenericFormModal({
             return true;
         }
     }
+    // Chỉ admin mới được sửa projectCode, và chỉ khi đang edit
+    if (field.name === 'projectCode') {
+        if (!editProject || user.role !== 'admin') { // Nếu là tạo mới, hoặc không phải admin khi edit
+            return true;
+        }
+    }
     return field.disabled || false;
   };
 

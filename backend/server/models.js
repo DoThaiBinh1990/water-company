@@ -104,6 +104,7 @@ const User = mongoose.model('User', userSchema);
 // AllocatedUnit Schema (Đơn vị)
 const allocatedUnitSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true, trim: true },
+  shortCode: { type: String, trim: true, uppercase: true, sparse: true, index: true, minlength: 3, maxlength: 3 }, // Mã viết tắt, 3 ký tự
 });
 const AllocatedUnit = mongoose.model('AllocatedUnit', allocatedUnitSchema);
 
@@ -161,6 +162,7 @@ const constructionTimelineSubSchema = new mongoose.Schema(timelineEntrySchema.ob
 // CategoryProject Schema (Công trình danh mục)
 const categoryProjectSchema = new mongoose.Schema({
   categorySerialNumber: { type: Number, default: null, sparse: true, index: true },
+  projectCode: { type: String, trim: true, uppercase: true, sparse: true, index: true }, // Mã công trình
   financialYear: { type: Number, required: true, index: true }, // Thêm năm tài chính
   isCompleted: { type: Boolean, default: false, index: true }, // Thêm trạng thái hoàn thành
   // Common fields
@@ -228,6 +230,7 @@ const CategoryProject = mongoose.model('CategoryProject', categoryProjectSchema)
 const minorRepairProjectSchema = new mongoose.Schema({
   // Minor Repair specific fields
   minorRepairSerialNumber: { type: Number, default: null, sparse: true, index: true },
+  projectCode: { type: String, trim: true, uppercase: true, sparse: true, index: true }, // Mã công trình
   financialYear: { type: Number, required: true, index: true }, // Thêm năm tài chính
   isCompleted: { type: Boolean, default: false, index: true }, // Thêm trạng thái hoàn thành
   reportDate: { type: Date },
@@ -349,7 +352,20 @@ const holidaySchema = new mongoose.Schema({
 
 const Holiday = mongoose.model('Holiday', holidaySchema);
 
+// ProjectCodeCounter Schema
+const projectCodeCounterSchema = new mongoose.Schema({
+  year: { type: Number, required: true },
+  type: { type: String, enum: ['category', 'minor_repair'], required: true },
+  unitShortCode: { type: String, required: true, uppercase: true, trim: true, minlength: 3, maxlength: 3 },
+  currentSerial: { type: Number, default: 0 },
+}, { timestamps: true });
+
+// Compound index để đảm bảo duy nhất và tăng tốc query
+projectCodeCounterSchema.index({ year: 1, type: 1, unitShortCode: 1 }, { unique: true });
+const ProjectCodeCounter = mongoose.model('ProjectCodeCounter', projectCodeCounterSchema);
+
+
 module.exports = {
   SerialCounter, User, AllocatedUnit, ConstructionUnit, AllocationWave,
-  ProjectType, CategoryProject, MinorRepairProject, Notification, RejectedProject, Holiday // Thêm Holiday vào exports
+  ProjectType, CategoryProject, MinorRepairProject, Notification, RejectedProject, Holiday, ProjectCodeCounter // Thêm ProjectCodeCounter
 };

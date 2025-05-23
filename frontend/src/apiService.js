@@ -201,8 +201,20 @@ export const rejectDeleteProject = async ({ projectId, type, reason }) => { // T
 };
 
 // Sync
-export const syncProjectsData = async () => {
-  const { data } = await apiClient.post('/api/sync-projects');
+export const prepareSyncDataAPI = async (financialYear, projectType) => {
+  const params = {};
+  if (financialYear && String(financialYear).toLowerCase() !== 'all') params.financialYear = financialYear;
+  if (projectType && String(projectType).toLowerCase() !== 'all') params.projectType = projectType;
+
+  const { data } = await apiClient.get('/api/sync-projects/prepare', { params });
+  return data; // Array of prepared project data
+};
+
+export const executeSyncDataAPI = async (payload) => {
+  // payload: { targetFinancialYear (optional), projectsToSyncFromFrontend: [...] }
+  // Hàm syncOldProjects ở backend sẽ nhận projectsToSyncFromFrontend
+  // và targetFinancialYear (nếu có) từ payload này.
+  const { data } = await apiClient.post('/api/sync-projects/execute', payload);
   return data;
 };
 

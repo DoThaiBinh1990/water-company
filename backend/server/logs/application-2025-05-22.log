@@ -580,3 +580,12 @@
 2025-05-22 11:16:25 info: Người dùng đã ngắt kết nối: c22LmNeepOiBxSt0AAAP
 2025-05-22 11:16:26 info: Một người dùng đã kết nối: tFUhWX2HFr0YhMiaAAAR
 2025-05-22 11:16:26 info: Một người dùng đã kết nối: 7VvT0r5R2rlf6bKSAAAT
+2025-05-22 11:16:42 info: [addHoliday Controller] Received req.body: {"year":2025,"date":"2025-05-13","description":"test"}, Type of req.body.year: number
+2025-05-22 11:16:44 info: [addHoliday Controller] Received req.body: {"year":2025,"date":"2025-05-13","description":"test"}, Type of req.body.year: number
+2025-05-22 11:16:44 info: Đã thêm ngày nghỉ 2025-05-13 cho năm 2025 bởi admin
+2025-05-22 11:16:47 error: Lỗi Controller tạo/cập nhật ngày nghỉ:
+2025-05-22 11:16:47 error: Lỗi không xác định: Ngày nghỉ 2025-05-13 đã tồn tại cho năm 2025.
+2025-05-22 11:16:56 info: Người dùng đã ngắt kết nối: tFUhWX2HFr0YhMiaAAAR
+2025-05-22 11:16:56 info: Người dùng đã ngắt kết nối: 7VvT0r5R2rlf6bKSAAAT
+2025-05-22 11:16:56 info: Một người dùng đã kết nối: NsYcXlkYpkJXyF78AAAV
+2025-05-22 11:16:57 info: Một người dùng đã kết nối: 22ttjlmjtBXxGO5WAAAX

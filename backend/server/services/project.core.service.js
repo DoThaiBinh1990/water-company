@@ -4,6 +4,7 @@ const { CategoryProject, MinorRepairProject, User, SerialCounter, Notification }
 const { populateProjectFields, updateSerialNumbers, areDatesEqual } = require('../utils');
 const logger = require('../config/logger');
 const Joi = require('joi');
+const { generateProjectCode } = require('./helpers/projectCodeHelper'); // Import helper tạo mã CT
 const { userFieldToQuery } = require('./helpers/serviceHelpers');
 
 const getProjectsList = async (queryParams) => {
@@ -122,12 +123,23 @@ const createNewProject = async (projectData, user, projectType, io) => {
 
   const Model = projectType === 'category' ? CategoryProject : MinorRepairProject;
 
+  // Kiểm tra trùng lặp trước khi tạo
+  const existingProjectByNameUnitYear = await Model.findOne({
+    name: name.trim(), // Trim name before checking
+    allocatedUnit: allocatedUnit.trim(), // Trim allocatedUnit
+    financialYear: parseInt(financialYear, 10)
+  });
+  if (existingProjectByNameUnitYear) {
+    throw { statusCode: 409, message: `Công trình "${name.trim()}" của đơn vị "${allocatedUnit.trim()}" trong năm ${financialYear} đã tồn tại.` };
+  }
+
   const dataToSave = {
     name, allocatedUnit, location, scale,
     ...restData,
     financialYear: parseInt(financialYear, 10),
     isCompleted: isCompleted === true || String(isCompleted).toLowerCase() === 'true',
     enteredBy: user.username,
+    projectCode: await generateProjectCode(projectType, parseInt(financialYear, 10), allocatedUnit), // Tạo projectCode
     createdBy: user.id,
   };
 
@@ -260,10 +272,35 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
   const forbiddenFields = ['createdBy', 'enteredBy', 'categorySerialNumber', 'minorRepairSerialNumber', 'status', 'pendingEdit', 'pendingDelete', 'history'];
 
   if (!isUserAdmin) {
+      // Nếu không phải admin, không cho phép sửa projectCode trực tiếp
+      if (currentUpdateData.hasOwnProperty('projectCode')) {
+          delete currentUpdateData.projectCode;
+          logger.warn(`User ${user.username} (không phải admin) đã cố gắng sửa projectCode. Thay đổi này đã bị bỏ qua.`);
+      }
       forbiddenFields.push('approvedBy');
   }
   forbiddenFields.forEach(field => delete currentUpdateData[field]);
 
+  // Kiểm tra trùng lặp nếu các trường khóa (name, allocatedUnit, financialYear) thay đổi
+  const newName = currentUpdateData.hasOwnProperty('name') ? currentUpdateData.name.trim() : project.name.trim();
+  const newAllocatedUnit = currentUpdateData.hasOwnProperty('allocatedUnit') ? currentUpdateData.allocatedUnit.trim() : project.allocatedUnit.trim();
+  const newFinancialYear = currentUpdateData.hasOwnProperty('financialYear') ? parseInt(currentUpdateData.financialYear, 10) : project.financialYear;
+
+  if (
+    (currentUpdateData.hasOwnProperty('name') && currentUpdateData.name.trim() !== project.name.trim()) ||
+    (currentUpdateData.hasOwnProperty('allocatedUnit') && currentUpdateData.allocatedUnit.trim() !== project.allocatedUnit.trim()) ||
+    (currentUpdateData.hasOwnProperty('financialYear') && parseInt(currentUpdateData.financialYear, 10) !== project.financialYear)
+  ) {
+    const conflictingProject = await Model.findOne({
+      name: newName,
+      allocatedUnit: newAllocatedUnit,
+      financialYear: newFinancialYear,
+      _id: { $ne: project._id } // Quan trọng: loại trừ chính công trình đang sửa
+    });
+    if (conflictingProject) {
+      throw { statusCode: 409, message: `Không thể cập nhật. Công trình "${newName}" của đơn vị "${newAllocatedUnit}" trong năm ${newFinancialYear} đã tồn tại.` };
+    }
+  }
   // Resolve user fields
   if (currentUpdateData.hasOwnProperty('supervisor')) {
     currentUpdateData.supervisor = await userFieldToQuery(currentUpdateData.supervisor) || null;
@@ -316,6 +353,25 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     currentUpdateData.profileTimeline = newProfileTimelineData;
   }
 
+  // Xử lý sửa projectCode bởi Admin
+  if (isUserAdmin && currentUpdateData.hasOwnProperty('projectCode')) {
+    const newProjectCode = String(currentUpdateData.projectCode).trim().toUpperCase();
+    if (newProjectCode && newProjectCode !== project.projectCode) {
+      const existingWithNewCode = await Model.findOne({ projectCode: newProjectCode, _id: { $ne: project._id } });
+      if (existingWithNewCode) {
+        throw { statusCode: 400, message: `Mã công trình "${newProjectCode}" đã tồn tại.` };
+      }
+      project.projectCode = newProjectCode; // Gán trực tiếp vào project object
+      project.history.push({
+        action: 'edited', // Hoặc một action riêng 'project_code_changed'
+        user: user.id,
+        timestamp: new Date(),
+        details: { changes: [{ field: 'projectCode', oldValue: project.projectCode, newValue: newProjectCode }] }
+      });
+    }
+    // Xóa projectCode khỏi currentUpdateData để không bị ghi đè bởi Object.assign bên dưới
+    delete currentUpdateData.projectCode;
+  }
 
   if (isUserAdmin) {
     const originalStatus = project.status;

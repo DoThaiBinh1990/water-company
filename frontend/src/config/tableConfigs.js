@@ -13,8 +13,9 @@ const commonFields = {
     sticky: '2', // Use '2' to match .sticky-col-2 in App.css
     // 'left' is handled by .sticky-col-2 CSS using var(--sticky-col-1-width)
     align: 'left', // Explicit align for style prop
-    tooltipRender: (project) => `Tên: ${project.name}\nLoại: ${project.projectType || 'N/A'}`
+    tooltipRender: (project) => `Tên: ${project.name}\nLoại: ${project.projectType || 'N/A'}`,
   },
+  projectCode: { header: 'Mã CT', field: 'projectCode', width: '130px', minWidth: '110px', align: 'center', sticky: '3' }, // projectCode is now a direct property of commonFields
   allocatedUnit: { header: 'Đơn vị PB', field: 'allocatedUnit', width: '160px', minWidth: '130px', align: 'center' },
   location: { header: 'Địa điểm', field: 'location', width: '220px', minWidth: '180px', align: 'left' },
   scale: { header: 'Quy mô', field: 'scale', width: '300px', minWidth: '250px', align: 'left', className: 'align-left break-words' }, // Increased width, align left
@@ -340,6 +341,7 @@ const commonFields = {
 
 export const categoryProjectColumns = [
   commonFields.name,
+  commonFields.projectCode,
   commonFields.allocatedUnit,
   commonFields.projectType,
   commonFields.scale,
@@ -375,6 +377,7 @@ export const categoryProjectColumns = [
 
 export const minorRepairProjectColumns = [
   commonFields.name,
+  commonFields.projectCode,
   commonFields.allocatedUnit,
   commonFields.location,
   commonFields.scale,

@@ -1,0 +1,732 @@
+2025-05-23 07:58:58 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 07:59:01 info: MongoDB đã kết nối thành công.
+2025-05-23 07:59:31 error: Lỗi xác thực token: jwt expired
+2025-05-23 07:59:32 error: Lỗi xác thực token: jwt expired
+2025-05-23 07:59:34 info: Một người dùng đã kết nối: GInDyElzwR0zbCqeAAAB
+2025-05-23 07:59:35 info: Một người dùng đã kết nối: mxaKRbM9KHVMyD5SAAAD
+2025-05-23 08:01:56 info: [addHoliday Controller] Received req.body: {"year":2025,"date":"2025-09-02","description":"tết độc lập"}, Type of req.body.year: number
+2025-05-23 08:01:56 info: Đã thêm ngày nghỉ 2025-09-02 cho năm 2025 bởi admin
+2025-05-23 08:02:05 info: Ngày nghỉ 2025-05-13 cho năm 2025 đã được xóa bởi admin
+2025-05-23 08:02:41 info: Người dùng đã ngắt kết nối: GInDyElzwR0zbCqeAAAB
+2025-05-23 08:02:41 info: Người dùng đã ngắt kết nối: mxaKRbM9KHVMyD5SAAAD
+2025-05-23 08:02:41 info: Một người dùng đã kết nối: uvsghVcxKpNUhVJjAAAF
+2025-05-23 08:02:41 info: Một người dùng đã kết nối: NiY8H0IB71aoiUiMAAAH
+2025-05-23 08:06:08 info: [addHoliday Controller] Received req.body: {"year":2025,"date":"2025-05-26","description":"ngày test"}, Type of req.body.year: number
+2025-05-23 08:06:08 info: Đã thêm ngày nghỉ 2025-05-26 cho năm 2025 bởi admin
+2025-05-23 08:19:14 info: Người dùng đã ngắt kết nối: uvsghVcxKpNUhVJjAAAF
+2025-05-23 08:19:14 info: Người dùng đã ngắt kết nối: NiY8H0IB71aoiUiMAAAH
+2025-05-23 08:19:15 info: Một người dùng đã kết nối: Ohlz7bk43gRdW2eQAAAJ
+2025-05-23 08:19:15 info: Một người dùng đã kết nối: rif6zAoox987CfANAAAL
+2025-05-23 08:20:00 info: Một người dùng đã kết nối: kFlZ1ZLFi_SDkvT3AAAN
+2025-05-23 08:20:00 info: Một người dùng đã kết nối: u1NUky-9USx-LuT9AAAP
+2025-05-23 08:20:09 info: Một người dùng đã kết nối: esZk38T9z3wI5bsXAAAR
+2025-05-23 08:20:10 info: Một người dùng đã kết nối: -K81A4TKBf6hexkOAAAT
+2025-05-23 08:23:15 info: Người dùng đã ngắt kết nối: esZk38T9z3wI5bsXAAAR
+2025-05-23 08:23:15 info: Người dùng đã ngắt kết nối: u1NUky-9USx-LuT9AAAP
+2025-05-23 08:23:15 info: Người dùng đã ngắt kết nối: kFlZ1ZLFi_SDkvT3AAAN
+2025-05-23 08:23:15 info: Người dùng đã ngắt kết nối: -K81A4TKBf6hexkOAAAT
+2025-05-23 08:23:16 info: Một người dùng đã kết nối: BNxeBxHWK-qxQDN_AAAV
+2025-05-23 08:23:16 info: Một người dùng đã kết nối: 47S-9VVN6wYquv2UAAAX
+2025-05-23 08:23:49 info: Người dùng đã ngắt kết nối: BNxeBxHWK-qxQDN_AAAV
+2025-05-23 08:23:49 info: Người dùng đã ngắt kết nối: 47S-9VVN6wYquv2UAAAX
+2025-05-23 08:23:50 info: Một người dùng đã kết nối: Rrjlvp7gRWnmpvqwAAAZ
+2025-05-23 08:23:50 info: Một người dùng đã kết nối: Zd2g0sS0X-dtynpoAAAb
+2025-05-23 08:25:11 info: Người dùng đã ngắt kết nối: Ohlz7bk43gRdW2eQAAAJ
+2025-05-23 08:25:11 info: Người dùng đã ngắt kết nối: rif6zAoox987CfANAAAL
+2025-05-23 08:25:12 info: Một người dùng đã kết nối: 9JUSo4FjbF2Ryaw3AAAd
+2025-05-23 08:25:12 info: Một người dùng đã kết nối: EU1zwKHH69aWeIC_AAAf
+2025-05-23 08:30:45 info: Người dùng đã ngắt kết nối: 9JUSo4FjbF2Ryaw3AAAd
+2025-05-23 08:30:45 info: Người dùng đã ngắt kết nối: EU1zwKHH69aWeIC_AAAf
+2025-05-23 08:30:46 info: Một người dùng đã kết nối: Et4k2Ln_JW_CYx_dAAAh
+2025-05-23 08:30:46 info: Một người dùng đã kết nối: VK6KbrL_4A9VJeQrAAAj
+2025-05-23 08:31:00 info: Người dùng đã ngắt kết nối: Rrjlvp7gRWnmpvqwAAAZ
+2025-05-23 08:31:00 info: Người dùng đã ngắt kết nối: Zd2g0sS0X-dtynpoAAAb
+2025-05-23 08:31:01 info: Một người dùng đã kết nối: pyKmv7AxOK2X-A2GAAAl
+2025-05-23 08:31:01 info: Một người dùng đã kết nối: mEyu15obTt7_j1DbAAAn
+2025-05-23 08:36:17 info: Người dùng đã ngắt kết nối: Et4k2Ln_JW_CYx_dAAAh
+2025-05-23 08:36:17 info: Người dùng đã ngắt kết nối: VK6KbrL_4A9VJeQrAAAj
+2025-05-23 08:36:17 info: Một người dùng đã kết nối: wex5_FLwPU-E1g5QAAAp
+2025-05-23 08:36:17 info: Một người dùng đã kết nối: 7wh-cTg_5xdNGz7WAAAr
+2025-05-23 08:37:24 info: Người dùng đã ngắt kết nối: pyKmv7AxOK2X-A2GAAAl
+2025-05-23 08:37:24 info: Người dùng đã ngắt kết nối: mEyu15obTt7_j1DbAAAn
+2025-05-23 08:37:25 info: Một người dùng đã kết nối: 6zz8lojoOKMjxv8IAAAt
+2025-05-23 08:37:25 info: Một người dùng đã kết nối: 6TtzH-pYS1TvFK_2AAAv
+2025-05-23 09:03:02 info: Người dùng đã ngắt kết nối: wex5_FLwPU-E1g5QAAAp
+2025-05-23 09:03:02 info: Người dùng đã ngắt kết nối: 7wh-cTg_5xdNGz7WAAAr
+2025-05-23 09:03:03 info: Một người dùng đã kết nối: gooH1-onXZXjqtmCAAAx
+2025-05-23 09:03:03 info: Một người dùng đã kết nối: SCvFvaG3kOnbFCGRAAAz
+2025-05-23 09:03:05 info: Người dùng đã ngắt kết nối: gooH1-onXZXjqtmCAAAx
+2025-05-23 09:03:05 info: Người dùng đã ngắt kết nối: SCvFvaG3kOnbFCGRAAAz
+2025-05-23 09:03:06 info: Một người dùng đã kết nối: tyfWUG6-eT6Y0le2AAA1
+2025-05-23 09:03:06 info: Một người dùng đã kết nối: v9aqsYnVVtLM4YAsAAA3
+2025-05-23 09:03:42 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 09:03:42 info: Một người dùng đã kết nối: s1YrprcT57ZiQpb1AAAB
+2025-05-23 09:03:42 info: Một người dùng đã kết nối: ZVTVzKRrduc6xYwZAAAE
+2025-05-23 09:03:42 info: Một người dùng đã kết nối: lPwXbuOZapM_tZ3RAAAF
+2025-05-23 09:03:42 info: Một người dùng đã kết nối: jkIEuHzdhuij-fvOAAAH
+2025-05-23 09:03:43 info: MongoDB đã kết nối thành công.
+2025-05-23 09:03:46 info: Người dùng đã ngắt kết nối: ZVTVzKRrduc6xYwZAAAE
+2025-05-23 09:03:46 info: Người dùng đã ngắt kết nối: jkIEuHzdhuij-fvOAAAH
+2025-05-23 09:03:46 info: Một người dùng đã kết nối: TdgvUHvzD6oysEk1AAAJ
+2025-05-23 09:03:46 info: Một người dùng đã kết nối: Qb9v42hwlAypAjGfAAAL
+2025-05-23 09:03:50 info: Người dùng đã ngắt kết nối: TdgvUHvzD6oysEk1AAAJ
+2025-05-23 09:03:50 info: Người dùng đã ngắt kết nối: Qb9v42hwlAypAjGfAAAL
+2025-05-23 09:03:50 info: Một người dùng đã kết nối: lVI3QLoHq4KoEypZAAAN
+2025-05-23 09:03:50 info: Một người dùng đã kết nối: Xu3vxdAlHZv1r0zBAAAP
+2025-05-23 09:04:19 info: Người dùng đã ngắt kết nối: lVI3QLoHq4KoEypZAAAN
+2025-05-23 09:04:19 info: Một người dùng đã kết nối: sHQj54wD7fJ50oHyAAAR
+2025-05-23 09:04:25 info: Người dùng đã ngắt kết nối: Xu3vxdAlHZv1r0zBAAAP
+2025-05-23 09:04:25 info: Người dùng đã ngắt kết nối: sHQj54wD7fJ50oHyAAAR
+2025-05-23 09:04:26 info: Một người dùng đã kết nối: vhaaFzPbbyCqfNgtAAAT
+2025-05-23 09:04:26 info: Một người dùng đã kết nối: yhKvovptXmNoZnXcAAAV
+2025-05-23 09:05:43 info: Người dùng đã ngắt kết nối: vhaaFzPbbyCqfNgtAAAT
+2025-05-23 09:05:43 info: Người dùng đã ngắt kết nối: yhKvovptXmNoZnXcAAAV
+2025-05-23 09:05:44 info: Một người dùng đã kết nối: Sq-6OSdhXDooUJ6tAAAX
+2025-05-23 09:05:44 info: Một người dùng đã kết nối: WFWrHdf4F7JrbKYeAAAZ
+2025-05-23 09:08:10 info: Người dùng đã ngắt kết nối: Sq-6OSdhXDooUJ6tAAAX
+2025-05-23 09:08:10 info: Người dùng đã ngắt kết nối: WFWrHdf4F7JrbKYeAAAZ
+2025-05-23 09:08:10 info: Một người dùng đã kết nối: l4frBtKvDBPBcVxKAAAb
+2025-05-23 09:08:10 info: Một người dùng đã kết nối: Yw0QIBeszMHB0k54AAAd
+2025-05-23 09:47:51 info: Một người dùng đã kết nối: yPNDb5JSg9uGYxQqAAAg
+2025-05-23 09:47:51 info: Một người dùng đã kết nối: OeI_4WC_CcUjwW-uAAAi
+2025-05-23 09:47:51 info: Một người dùng đã kết nối: lrz7j2lxB1qZ-LRDAAAj
+2025-05-23 09:54:55 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 09:54:55 info: Một người dùng đã kết nối: EFjtBu_Th6pIMLQNAAAC
+2025-05-23 09:54:55 info: Một người dùng đã kết nối: oMLYAEbN9i5ydY_cAAAD
+2025-05-23 09:54:55 info: Một người dùng đã kết nối: xslqCjk49HD0LPC3AAAG
+2025-05-23 09:54:55 info: Một người dùng đã kết nối: qD-GFH1__huNocGlAAAH
+2025-05-23 09:54:55 info: Một người dùng đã kết nối: 5TrUTEubkoQIrBguAAAJ
+2025-05-23 09:54:55 info: Một người dùng đã kết nối: W9DAqPouMmBdZMBeAAAM
+2025-05-23 09:54:55 info: Một người dùng đã kết nối: AgnPX04nvvPltimKAAAN
+2025-05-23 09:54:56 info: MongoDB đã kết nối thành công.
+2025-05-23 09:55:06 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:06 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:06 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:06 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:06 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:06 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:06 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:07 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:07 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:07 error: Lỗi xác thực token: jwt expired
+2025-05-23 09:55:07 info: Người dùng đã ngắt kết nối: oMLYAEbN9i5ydY_cAAAD
+2025-05-23 09:55:12 info: Một người dùng đã kết nối: HJqbZlBvu4II5mWoAAAP
+2025-05-23 09:55:12 info: Một người dùng đã kết nối: moLnUV-qgH5YSUhcAAAR
+2025-05-23 09:55:13 info: Người dùng đã ngắt kết nối: W9DAqPouMmBdZMBeAAAM
+2025-05-23 09:55:13 info: Người dùng đã ngắt kết nối: 5TrUTEubkoQIrBguAAAJ
+2025-05-23 09:55:13 info: Người dùng đã ngắt kết nối: AgnPX04nvvPltimKAAAN
+2025-05-23 09:55:56 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 09:55:56 info: [SyncService] Đã chuẩn bị 0 công trình để review.
+2025-05-23 10:05:24 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 10:05:24 info: Một người dùng đã kết nối: nAsnSfBaBiXd-9gcAAAB
+2025-05-23 10:05:24 info: Một người dùng đã kết nối: FVMykrlJG9mI5EpvAAAD
+2025-05-23 10:05:24 info: Một người dùng đã kết nối: tTim0XKeHYyXRh6eAAAF
+2025-05-23 10:05:25 info: Một người dùng đã kết nối: 79w1OkM7cGnjZUZaAAAH
+2025-05-23 10:05:25 info: Một người dùng đã kết nối: XAvsAcOYarFEGWRUAAAJ
+2025-05-23 10:05:25 info: MongoDB đã kết nối thành công.
+2025-05-23 10:05:30 info: Người dùng đã ngắt kết nối: tTim0XKeHYyXRh6eAAAF
+2025-05-23 10:05:30 info: Người dùng đã ngắt kết nối: 79w1OkM7cGnjZUZaAAAH
+2025-05-23 10:05:32 info: Một người dùng đã kết nối: L2ZQfMXHN9GaJSwZAAAL
+2025-05-23 10:05:32 info: Một người dùng đã kết nối: Tg1mP9510IKBeIU3AAAN
+2025-05-23 10:05:39 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:05:39 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:05:39 error: Lỗi Controller chuẩn bị đồng bộ: oldProjects is not defined
+2025-05-23 10:05:39 error: Lỗi không xác định: oldProjects is not defined
+2025-05-23 10:05:47 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2024
+2025-05-23 10:05:48 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:05:48 error: Lỗi Controller chuẩn bị đồng bộ: oldProjects is not defined
+2025-05-23 10:05:48 error: Lỗi không xác định: oldProjects is not defined
+2025-05-23 10:05:56 info: Người dùng đã ngắt kết nối: Tg1mP9510IKBeIU3AAAN
+2025-05-23 10:05:56 info: Người dùng đã ngắt kết nối: L2ZQfMXHN9GaJSwZAAAL
+2025-05-23 10:06:10 info: Một người dùng đã kết nối: chOu01JSQTGZmCPdAAAP
+2025-05-23 10:06:10 info: Một người dùng đã kết nối: tLtenTOahk2i-_BWAAAR
+2025-05-23 10:06:14 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:06:14 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:06:14 error: Lỗi Controller chuẩn bị đồng bộ: oldProjects is not defined
+2025-05-23 10:06:14 error: Lỗi không xác định: oldProjects is not defined
+2025-05-23 10:08:18 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 10:08:18 info: Một người dùng đã kết nối: _RCu7BiqY_ZnzOWlAAAB
+2025-05-23 10:08:18 info: Một người dùng đã kết nối: OhwVEreQ29CbWk9GAAAF
+2025-05-23 10:08:18 info: Một người dùng đã kết nối: vMBQeyDq53Zygx-4AAAG
+2025-05-23 10:08:18 info: Một người dùng đã kết nối: BIXYVxVbYm1Zu8sVAAAH
+2025-05-23 10:08:18 info: Một người dùng đã kết nối: LOytCp-AIKokwBcOAAAJ
+2025-05-23 10:08:19 info: MongoDB đã kết nối thành công.
+2025-05-23 10:08:22 info: Người dùng đã ngắt kết nối: _RCu7BiqY_ZnzOWlAAAB
+2025-05-23 10:08:22 info: Người dùng đã ngắt kết nối: vMBQeyDq53Zygx-4AAAG
+2025-05-23 10:08:22 info: Một người dùng đã kết nối: asZpERbBcnLIisv9AAAL
+2025-05-23 10:08:22 info: Một người dùng đã kết nối: cHHY-WSAbaFlhV5hAAAN
+2025-05-23 10:08:33 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:08:33 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:08:33 error: Lỗi Controller chuẩn bị đồng bộ: oldP.toObject is not a function
+2025-05-23 10:08:33 error: Lỗi không xác định: oldP.toObject is not a function
+2025-05-23 10:08:40 info: Người dùng đã ngắt kết nối: asZpERbBcnLIisv9AAAL
+2025-05-23 10:08:40 info: Người dùng đã ngắt kết nối: cHHY-WSAbaFlhV5hAAAN
+2025-05-23 10:08:41 info: Một người dùng đã kết nối: GWPxsdqBPQF9FA7JAAAP
+2025-05-23 10:08:41 info: Một người dùng đã kết nối: TJw9K0hWZow7S401AAAR
+2025-05-23 10:08:45 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:08:46 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:08:46 error: Lỗi Controller chuẩn bị đồng bộ: oldP.toObject is not a function
+2025-05-23 10:08:46 error: Lỗi không xác định: oldP.toObject is not a function
+2025-05-23 10:10:18 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 10:10:18 info: Một người dùng đã kết nối: ozGYbJvAvKxgfXISAAAB
+2025-05-23 10:10:18 info: Một người dùng đã kết nối: sITEJZZtZJa47sUEAAAE
+2025-05-23 10:10:18 info: Một người dùng đã kết nối: ZRhKJizqBHHzsfFZAAAF
+2025-05-23 10:10:19 info: Một người dùng đã kết nối: x_CqTjoZMbhx7cj2AAAI
+2025-05-23 10:10:19 info: Một người dùng đã kết nối: -OqgL91LOhQBsHkdAAAJ
+2025-05-23 10:10:20 info: MongoDB đã kết nối thành công.
+2025-05-23 10:10:25 info: Người dùng đã ngắt kết nối: -OqgL91LOhQBsHkdAAAJ
+2025-05-23 10:10:25 info: Người dùng đã ngắt kết nối: sITEJZZtZJa47sUEAAAE
+2025-05-23 10:10:26 info: Một người dùng đã kết nối: JjizCBYBaLhLPPBDAAAL
+2025-05-23 10:10:26 info: Một người dùng đã kết nối: fvISn6nNvF_KxuOCAAAN
+2025-05-23 10:10:40 info: Một người dùng đã kết nối: 5Gd9pAinvqVgdJ88AAAP
+2025-05-23 10:10:40 info: Một người dùng đã kết nối: 05h7gqy762atB-vgAAAR
+2025-05-23 10:10:43 info: Người dùng đã ngắt kết nối: JjizCBYBaLhLPPBDAAAL
+2025-05-23 10:10:43 info: Người dùng đã ngắt kết nối: fvISn6nNvF_KxuOCAAAN
+2025-05-23 10:10:47 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:10:47 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:11:05 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 10:11:05 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:11:05 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:11:23 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 10:11:23 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:11:23 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:11:24 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:11:24 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:11:25 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:11:25 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm mục tiêu: 2025
+2025-05-23 10:11:25 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:11:25 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:11:40 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 10:11:41 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 10:11:43 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 10:11:43 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 10:20:11 info: Một người dùng đã kết nối: AQbaNN4n9oxn5fUNAAAT
+2025-05-23 10:23:05 info: Một người dùng đã kết nối: zucI7THixI7AiP3LAAAV
+2025-05-23 10:23:16 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 10:23:16 info: Một người dùng đã kết nối: MTcopsCy30LA5Ou1AAAB
+2025-05-23 10:23:16 info: Một người dùng đã kết nối: vRmTXCN3IAdBDuzxAAAF
+2025-05-23 10:23:16 info: Một người dùng đã kết nối: dbPl9wmDI_WMmPvEAAAG
+2025-05-23 10:23:16 info: Một người dùng đã kết nối: fVCZ4iFi-SOZeaq5AAAH
+2025-05-23 10:23:16 info: Một người dùng đã kết nối: Kp-8C38tAqCqjEfzAAAK
+2025-05-23 10:23:16 info: Một người dùng đã kết nối: oHyxf321zSZG3DRyAAAL
+2025-05-23 10:23:16 info: Một người dùng đã kết nối: 2FqdAYAytG-KsyikAAAN
+2025-05-23 10:23:17 info: MongoDB đã kết nối thành công.
+2025-05-23 10:24:22 info: Người dùng đã ngắt kết nối: MTcopsCy30LA5Ou1AAAB
+2025-05-23 10:24:22 info: Người dùng đã ngắt kết nối: dbPl9wmDI_WMmPvEAAAG
+2025-05-23 10:24:22 info: Người dùng đã ngắt kết nối: vRmTXCN3IAdBDuzxAAAF
+2025-05-23 10:24:22 info: Một người dùng đã kết nối: kbj46_hcuoYh6MIKAAAP
+2025-05-23 10:24:22 info: Một người dùng đã kết nối: vYJsCkU1Th3hP6EfAAAR
+2025-05-23 10:24:35 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 10:24:36 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 10:24:36 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:25:02 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 10:25:04 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 10:25:04 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:25:07 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 10:25:32 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 10:31:02 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:31:02 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:31:02 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:31:06 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:35:07 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 10:35:07 info: Một người dùng đã kết nối: 1c8QqOm7RDh8jTXBAAAB
+2025-05-23 10:35:07 info: Một người dùng đã kết nối: cXeQAPM97zhQKQb3AAAD
+2025-05-23 10:35:07 info: Một người dùng đã kết nối: U6QyMRQtFI1VPG3cAAAG
+2025-05-23 10:35:07 info: Một người dùng đã kết nối: UV028NiN2oUmOhk0AAAH
+2025-05-23 10:35:07 info: Một người dùng đã kết nối: uDptvG0r-DzvH4nJAAAK
+2025-05-23 10:35:07 info: Một người dùng đã kết nối: ekTNbgHe_5BrYMEaAAAL
+2025-05-23 10:35:10 info: MongoDB đã kết nối thành công.
+2025-05-23 10:35:27 info: Người dùng đã ngắt kết nối: UV028NiN2oUmOhk0AAAH
+2025-05-23 10:35:27 info: Người dùng đã ngắt kết nối: ekTNbgHe_5BrYMEaAAAL
+2025-05-23 10:35:28 info: Một người dùng đã kết nối: YfHQU3YBbAnF9wGPAAAN
+2025-05-23 10:35:28 info: Một người dùng đã kết nối: quxyyC28VIfQMHrUAAAP
+2025-05-23 10:35:33 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:35:33 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:35:33 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:35:35 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:35:39 info: Người dùng đã ngắt kết nối: YfHQU3YBbAnF9wGPAAAN
+2025-05-23 10:35:39 info: Người dùng đã ngắt kết nối: quxyyC28VIfQMHrUAAAP
+2025-05-23 10:35:40 info: Một người dùng đã kết nối: RxQxj2_HHG7-xUznAAAR
+2025-05-23 10:35:40 info: Một người dùng đã kết nối: 7ABGqcPzvBjNLCEIAAAT
+2025-05-23 10:35:45 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:35:46 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:35:46 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:35:48 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:35:50 info: Người dùng đã ngắt kết nối: 7ABGqcPzvBjNLCEIAAAT
+2025-05-23 10:35:50 info: Người dùng đã ngắt kết nối: RxQxj2_HHG7-xUznAAAR
+2025-05-23 10:36:09 info: Một người dùng đã kết nối: Zp2HF23q7kkiM3p_AAAV
+2025-05-23 10:36:09 info: Một người dùng đã kết nối: LZmPwePPqmIJZOyvAAAX
+2025-05-23 10:36:15 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:36:15 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:36:15 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:36:17 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:36:27 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:36:27 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:36:27 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:36:29 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:37:54 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 10:37:54 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 10:37:54 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:38:10 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 10:46:10 info: Người dùng đã ngắt kết nối: Zp2HF23q7kkiM3p_AAAV
+2025-05-23 10:46:10 info: Người dùng đã ngắt kết nối: LZmPwePPqmIJZOyvAAAX
+2025-05-23 10:46:10 info: Một người dùng đã kết nối: -DKDqj9pC04Awf4dAAAZ
+2025-05-23 10:46:11 info: Một người dùng đã kết nối: c_kAhfDzTrxNNendAAAb
+2025-05-23 10:46:15 info: Người dùng đã ngắt kết nối: -DKDqj9pC04Awf4dAAAZ
+2025-05-23 10:46:15 info: Người dùng đã ngắt kết nối: c_kAhfDzTrxNNendAAAb
+2025-05-23 10:46:15 info: Một người dùng đã kết nối: N6RqLagQsaDN5p6PAAAd
+2025-05-23 10:46:15 info: Một người dùng đã kết nối: -dT7Vw9su6xOzaqqAAAf
+2025-05-23 10:46:20 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:46:20 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:46:20 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:46:22 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:46:59 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:47:00 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:47:00 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:47:01 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:47:48 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 10:47:49 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 10:47:49 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:48:05 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 10:49:04 info: Người dùng đã ngắt kết nối: N6RqLagQsaDN5p6PAAAd
+2025-05-23 10:49:04 info: Một người dùng đã kết nối: C5jfoOG4EshKy16RAAAh
+2025-05-23 10:49:08 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 10:49:08 info: Một người dùng đã kết nối: U4WoiARECGtUgNiPAAAC
+2025-05-23 10:49:08 info: Một người dùng đã kết nối: r2pUlxrcwvMY4-3uAAAD
+2025-05-23 10:49:08 info: Một người dùng đã kết nối: KNc2Z7a8YIHIq2wDAAAG
+2025-05-23 10:49:08 info: Một người dùng đã kết nối: dFsUVKYD7jioKKiuAAAI
+2025-05-23 10:49:08 info: Một người dùng đã kết nối: OQJJkYxlsGSsrJ25AAAK
+2025-05-23 10:49:08 info: Một người dùng đã kết nối: PrpF9xB8iMWQkl9jAAAL
+2025-05-23 10:49:11 info: MongoDB đã kết nối thành công.
+2025-05-23 10:49:23 info: Một người dùng đã kết nối: inPFT-DtLhzZAXd1AAAN
+2025-05-23 10:49:23 info: Một người dùng đã kết nối: 23Vl0g7nnT35ScbEAAAP
+2025-05-23 10:49:24 info: Người dùng đã ngắt kết nối: PrpF9xB8iMWQkl9jAAAL
+2025-05-23 10:49:24 info: Người dùng đã ngắt kết nối: KNc2Z7a8YIHIq2wDAAAG
+2025-05-23 10:49:29 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:49:29 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:49:29 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:49:31 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:49:35 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:49:36 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:49:36 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:49:38 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:49:42 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 10:49:43 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 10:49:43 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:49:58 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 10:52:58 info: Người dùng đã ngắt kết nối: inPFT-DtLhzZAXd1AAAN
+2025-05-23 10:52:58 info: Một người dùng đã kết nối: SV1RccYwit80g7q5AAAR
+2025-05-23 10:55:07 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 10:55:08 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 10:55:08 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:55:10 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 10:55:18 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 10:55:18 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 10:55:18 info: Đã tạo shortCode "BAN" cho đơn vị "Ban Tổng giám đốc".
+2025-05-23 10:55:18 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 10:55:18 info: Đã xử lý 0 CT danh mục. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 10:55:19 error: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 10:55:19 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 10:55:19 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 10:56:26 info: Người dùng đã ngắt kết nối: 23Vl0g7nnT35ScbEAAAP
+2025-05-23 10:56:26 info: Người dùng đã ngắt kết nối: SV1RccYwit80g7q5AAAR
+2025-05-23 10:56:27 info: Một người dùng đã kết nối: DWdGeVGBLb1FRoQpAAAT
+2025-05-23 10:56:27 info: Một người dùng đã kết nối: rrjToaHxSSZLc4WpAAAV
+2025-05-23 10:56:31 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 10:56:31 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 10:56:31 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 10:56:47 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 10:58:16 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 10:58:16 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 10:58:16 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 10:58:16 error: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 10:58:16 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 10:58:16 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 11:03:27 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: Tất cả
+2025-05-23 11:03:28 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:03:47 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: Tất cả
+2025-05-23 11:03:47 info: [SyncService] Tìm thấy tổng cộng 40 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:03:49 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 11:04:04 info: Người dùng đã ngắt kết nối: OQJJkYxlsGSsrJ25AAAK
+2025-05-23 11:04:04 info: Người dùng đã ngắt kết nối: dFsUVKYD7jioKKiuAAAI
+2025-05-23 11:04:04 info: Người dùng đã ngắt kết nối: r2pUlxrcwvMY4-3uAAAD
+2025-05-23 11:04:04 info: Người dùng đã ngắt kết nối: U4WoiARECGtUgNiPAAAC
+2025-05-23 11:04:07 info: Một người dùng đã kết nối: K4jx_vHzoiLmZL28AAAX
+2025-05-23 11:04:08 info: Một người dùng đã kết nối: vgm6TD2LMJnOaBtTAAAZ
+2025-05-23 11:04:13 info: [SyncService] Đã chuẩn bị 39 công trình để review.
+2025-05-23 11:04:16 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 11:04:17 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 11:04:17 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:04:19 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 11:09:23 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 11:09:23 info: Một người dùng đã kết nối: PTqmQsa492hJwCP7AAAB
+2025-05-23 11:09:24 info: MongoDB đã kết nối thành công.
+2025-05-23 11:09:25 info: Một người dùng đã kết nối: z1VpwuWnNxj9kxxTAAAE
+2025-05-23 11:09:25 info: Một người dùng đã kết nối: JdF6IiQQfvJ_zVFXAAAF
+2025-05-23 11:09:29 info: Một người dùng đã kết nối: 9q0JKTk5YHU3TnG3AAAH
+2025-05-23 11:09:30 info: Người dùng đã ngắt kết nối: PTqmQsa492hJwCP7AAAB
+2025-05-23 11:09:30 info: Người dùng đã ngắt kết nối: z1VpwuWnNxj9kxxTAAAE
+2025-05-23 11:09:32 info: Một người dùng đã kết nối: EBtv6dr7oqqanMDxAAAJ
+2025-05-23 11:09:34 info: Một người dùng đã kết nối: udv7KI7CxC3IwnOZAAAL
+2025-05-23 11:09:37 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 11:09:37 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 11:09:37 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:09:39 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 11:09:57 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 11:09:57 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 11:09:57 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 11:09:57 info: Đã xử lý 0 CT danh mục. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:09:57 error: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 11:09:57 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 11:09:57 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 11:13:17 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 11:13:17 info: Một người dùng đã kết nối: hFAcyN-3HVCPd0-lAAAE
+2025-05-23 11:13:17 info: Một người dùng đã kết nối: 5-QBHNH0Moo-PUKMAAAF
+2025-05-23 11:13:17 info: Một người dùng đã kết nối: 7qgqy_4cp6XE8IN1AAAG
+2025-05-23 11:13:17 info: Một người dùng đã kết nối: zIXxjvZShjuqOS2VAAAH
+2025-05-23 11:13:18 info: MongoDB đã kết nối thành công.
+2025-05-23 11:13:23 info: Người dùng đã ngắt kết nối: hFAcyN-3HVCPd0-lAAAE
+2025-05-23 11:13:23 info: Người dùng đã ngắt kết nối: 5-QBHNH0Moo-PUKMAAAF
+2025-05-23 11:13:24 info: Một người dùng đã kết nối: xD7SrNuLgnsb9v8wAAAJ
+2025-05-23 11:13:24 info: Một người dùng đã kết nối: PbRuBad3z_BIBonQAAAL
+2025-05-23 11:13:28 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 11:13:29 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 11:13:29 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:13:30 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 11:13:44 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 11:13:44 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 11:13:44 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 11:13:44 info: Đã xử lý 0 CT danh mục. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:13:44 error: Lỗi khi đồng bộ dữ liệu: parseNumeric is not defined
+2025-05-23 11:13:44 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: parseNumeric is not defined
+2025-05-23 11:13:44 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: parseNumeric is not defined
+2025-05-23 11:16:11 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 11:16:11 info: Một người dùng đã kết nối: 6XBqwxvVXcmG5m69AAAB
+2025-05-23 11:16:11 info: Một người dùng đã kết nối: ddFJf-mS6rjKZXL0AAAD
+2025-05-23 11:16:11 info: Một người dùng đã kết nối: k6UdYFcaN5x8F0RHAAAG
+2025-05-23 11:16:11 info: Một người dùng đã kết nối: Tn99SK-FiAoJc2_fAAAH
+2025-05-23 11:16:12 info: MongoDB đã kết nối thành công.
+2025-05-23 11:16:14 info: Người dùng đã ngắt kết nối: 6XBqwxvVXcmG5m69AAAB
+2025-05-23 11:16:14 info: Người dùng đã ngắt kết nối: k6UdYFcaN5x8F0RHAAAG
+2025-05-23 11:16:15 info: Một người dùng đã kết nối: 10xo6MaD6ymmTqtqAAAJ
+2025-05-23 11:16:15 info: Một người dùng đã kết nối: -PnBQeMksQb9nrg_AAAL
+2025-05-23 11:16:20 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 11:16:20 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 11:16:20 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:16:22 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 11:16:28 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 11:16:28 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 11:16:28 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 11:16:28 info: Đã xử lý 0 CT danh mục. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:16:29 info: Đã xử lý 1 CT SCN. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:16:29 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 11:16:29 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 11:16:29 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 11:16:29 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 11:16:29 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 11:16:29 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 11:16:29 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 11:16:29 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 11:16:29 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 11:16:29 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 11:16:29 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 11:16:29 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 11:16:29 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 11:16:29 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 11:16:29 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 11:16:29 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 11:16:29 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 11:16:29 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 11:16:29 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 11:16:29 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 11:16:42 info: Người dùng đã ngắt kết nối: 10xo6MaD6ymmTqtqAAAJ
+2025-05-23 11:16:42 info: Người dùng đã ngắt kết nối: -PnBQeMksQb9nrg_AAAL
+2025-05-23 11:16:42 info: Một người dùng đã kết nối: tLi8WGl3R0NSUxs7AAAN
+2025-05-23 11:16:42 info: Một người dùng đã kết nối: WBNKFwj0ZkcandhMAAAP
+2025-05-23 11:17:01 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 11:17:02 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 11:17:02 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:17:04 info: [SyncService] Đã chuẩn bị 4 công trình để review.
+2025-05-23 11:17:34 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 11:17:34 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 11:17:34 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 11:17:34 info: Đã xử lý 0 CT danh mục. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:17:35 info: Đã xử lý 1 CT SCN. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:17:35 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 11:17:35 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 11:17:35 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 11:17:35 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 11:17:35 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 11:17:35 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 11:17:35 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 11:17:35 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 11:17:35 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 11:17:35 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 11:17:35 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 11:17:35 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 11:17:35 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 11:17:35 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 11:17:35 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 11:17:35 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 11:17:35 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 11:17:35 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 11:17:35 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 11:17:35 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 11:24:26 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 11:24:26 info: Một người dùng đã kết nối: gk3jYJoyjQ6p338kAAAC
+2025-05-23 11:24:26 info: Một người dùng đã kết nối: M-WQTCIHsEl6FtlxAAAF
+2025-05-23 11:24:26 info: Một người dùng đã kết nối: pWi1GnDiOxvtOxv3AAAG
+2025-05-23 11:24:26 info: Một người dùng đã kết nối: zU8I82fcvtwNI8joAAAH
+2025-05-23 11:24:27 info: MongoDB đã kết nối thành công.
+2025-05-23 11:24:31 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 11:24:32 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 11:24:32 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:24:34 info: [SyncService] Đã chuẩn bị 2 công trình để review.
+2025-05-23 11:25:03 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 11:25:03 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 11:25:03 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 11:25:03 info: Đã xử lý 0 CT danh mục. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:25:04 info: Đã xử lý 1 CT SCN. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 11:25:04 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 11:25:04 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 11:25:04 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 11:25:04 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 11:25:04 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 11:25:04 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 11:25:04 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 11:25:04 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 11:25:04 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 11:25:04 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 11:25:04 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 11:25:04 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 11:25:04 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 11:25:04 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 11:25:04 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 11:25:04 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 11:25:04 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 11:25:04 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 11:25:04 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 11:25:04 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 11:25:07 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 11:25:08 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 36
+2025-05-23 11:25:08 info: [SyncService] Tìm thấy tổng cộng 36 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 11:25:20 info: [SyncService] Đã chuẩn bị 35 công trình để review.
+2025-05-23 11:25:30 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 11:25:30 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 11:25:30 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 11:25:30 error: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 11:25:30 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
+2025-05-23 11:25:30 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: oldProject is not defined
