@@ -319,3 +319,21 @@ exports.importProjectsFromExcel = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.checkExcelDuplicates = async (req, res, next) => {
+  try {
+    const { projects, projectType } = req.body;
+    if (!projectType || !['category', 'minor_repair'].includes(projectType)) {
+      return res.status(400).json({ message: 'Loại công trình (projectType) là bắt buộc và hợp lệ.' });
+    }
+    if (!projects || !Array.isArray(projects)) {
+      return res.status(400).json({ message: 'Dữ liệu công trình (projects) là bắt buộc và phải là một mảng.' });
+    }
+    const results = await projectService.checkDuplicatesFromExcel(projects, projectType);
+    res.json(results);
+  } catch (error) {
+    logger.error("Lỗi Controller kiểm tra trùng lặp Excel:", { path: req.path, method: req.method, message: error.message, stack: error.stack, statusCode: error.statusCode });
+    if (error.statusCode) { return res.status(error.statusCode).json({ message: error.message }); }
+    next(error);
+  }
+};

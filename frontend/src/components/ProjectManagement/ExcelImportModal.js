@@ -1,9 +1,10 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\ExcelImportModal.js
 import React, { useState, useEffect, useMemo, useCallback } from 'react'; // Add useCallback
 import Modal from 'react-modal';
-import { FaSave, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import { FaSave, FaTimes, FaExclamationTriangle, FaSpinner, FaCheckSquare, FaRegSquare } from 'react-icons/fa'; // Thêm icons
 import { toast } from 'react-toastify';
 import { categoryFormConfig, minorRepairFormConfig } from '../../config/formConfigs';
+import { checkExcelDuplicatesAPI } from '../../apiService'; // API kiểm tra trùng lặp
 // import { format } from 'date-fns'; // Not strictly needed if backend handles date string
 
 Modal.setAppElement('#root');
@@ -22,6 +23,10 @@ const ExcelImportModal = ({
 }) => {
   const [editedData, setEditedData] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [duplicateCheckResults, setDuplicateCheckResults] = useState([]); // [{isDuplicate, existingProjectName, excelProjectName}]
+  const [isLoadingDuplicates, setIsLoadingDuplicates] = useState(false);
+  const [areAllNonDuplicateSelected, setAreAllNonDuplicateSelected] = useState(false);
 
   const formConfig = useMemo(() => projectType === 'category' ? categoryFormConfig : minorRepairFormConfig, [projectType]);
 
@@ -63,7 +68,7 @@ const ExcelImportModal = ({
   }, [dataSources]);
 
   useEffect(() => {
-    if (initialData) {
+    const processInitialData = async () => {
       const mappedData = initialData.map(row => {
         const newRow = {};
         tableColumns.forEach(col => {
@@ -86,9 +91,46 @@ const ExcelImportModal = ({
         });
         return newRow;
       });
+
       setEditedData(mappedData);
       setValidationErrors({}); // Clear previous errors
-    }
+      setSelectedRows(new Set()); // Reset selected rows
+      setDuplicateCheckResults([]); // Reset duplicate results
+
+      if (mappedData.length > 0) {
+        setIsLoadingDuplicates(true);
+        try {
+          // Chuẩn bị dữ liệu để gửi đi kiểm tra trùng lặp
+          const dataToCheck = mappedData.map(row => ({
+            name: row.name || null, // Gửi null nếu không có giá trị
+            allocatedUnit: row.allocatedUnit || null, // Gửi null nếu không có giá trị
+            financialYear: row.financialYear ? parseInt(String(row.financialYear), 10) : null, // Chuyển đổi sang số hoặc null
+          }));
+
+          const duplicateResultsFromApi = await checkExcelDuplicatesAPI({ projects: dataToCheck, projectType });
+          setDuplicateCheckResults(duplicateResultsFromApi);
+
+          // Tự động chọn các dòng không bị trùng
+          const initialSelected = new Set();
+          duplicateResultsFromApi.forEach((result, index) => {
+            if (!result.isDuplicate) {
+              initialSelected.add(index);
+            }
+          });
+          setSelectedRows(initialSelected);
+
+        } catch (error) {
+          // Hiển thị lỗi cụ thể hơn từ API nếu có
+          const errorMessage = error.response?.data?.message || error.message || "Lỗi khi kiểm tra công trình trùng lặp từ Excel.";
+          toast.error(errorMessage, { position: "top-center", autoClose: 5000 });
+          console.error("Error checking Excel duplicates:", error);
+          setDuplicateCheckResults(mappedData.map(() => ({ isDuplicate: false }))); // Giả định không có gì trùng nếu API lỗi
+        } finally {
+          setIsLoadingDuplicates(false);
+        }
+      }
+    };
+    if (initialData) processInitialData();
   }, [initialData, tableColumns, getOptionsForField]);
 
   // Effect to merge backend validation errors
@@ -113,6 +155,30 @@ const ExcelImportModal = ({
         if (Object.keys(newErrors).length > 0) setValidationErrors(newErrors); // Only set if there are new errors to merge
     }
   }, [backendValidationErrors, validationErrors]);
+
+  // Effect to update "select all" checkbox state
+  useEffect(() => {
+    if (editedData.length === 0 || duplicateCheckResults.length === 0) {
+      setAreAllNonDuplicateSelected(false);
+      return;
+    }    
+    // Lấy danh sách các index của dòng không bị trùng lặp
+    const nonDuplicateIndices = editedData
+      .map((_, index) => index)
+      .filter(index => !duplicateCheckResults[index]?.isDuplicate);
+    
+    // Nếu không có dòng nào không bị trùng lặp, không thể "chọn tất cả"
+    if (nonDuplicateIndices.length === 0) {
+      setAreAllNonDuplicateSelected(false);
+      return;
+    }
+    // Kiểm tra xem TẤT CẢ các dòng KHÔNG BỊ TRÙNG LẶP có nằm trong selectedRows không
+    const allNonDuplicatesAreSelected = nonDuplicateIndices.every(index => selectedRows.has(index));
+    // Và số lượng dòng được chọn phải bằng số lượng dòng không bị trùng lặp
+    setAreAllNonDuplicateSelected(allNonDuplicatesAreSelected && selectedRows.size === nonDuplicateIndices.length);
+
+  }, [selectedRows, editedData, duplicateCheckResults]);
+
 
 
   const handleInputChange = (rowIndex, fieldName, value) => {
@@ -177,12 +243,62 @@ const ExcelImportModal = ({
     return Object.keys(mergedErrors).length === 0;
   };
 
+  const validateSelectedData = () => {
+    const errors = {};
+    selectedRows.forEach(rowIndex => {
+      const row = editedData[rowIndex];
+      const rowErrors = validateRow(row, rowIndex); // validateRow đã có sẵn
+      if (Object.keys(rowErrors).length > 0) errors[rowIndex] = rowErrors;
+    });
+    // Merge với backend errors nếu cần, hoặc chỉ hiển thị lỗi frontend cho các dòng được chọn
+    const currentValidationErrors = { ...backendValidationErrors }; // Giữ lại lỗi backend nếu có
+    selectedRows.forEach(rowIndex => { // Ghi đè/thêm lỗi frontend cho các dòng được chọn
+        if (errors[rowIndex]) currentValidationErrors[rowIndex] = { ...(currentValidationErrors[rowIndex] || {}), ...errors[rowIndex]};
+        else if (currentValidationErrors[rowIndex]) delete currentValidationErrors[rowIndex]; // Xóa lỗi cũ nếu dòng đó giờ hợp lệ
+    });
+    setValidationErrors(currentValidationErrors);
+    return Object.values(currentValidationErrors).every(rowErr => Object.keys(rowErr).length === 0);
+  };
+
+  const handleToggleRowSelection = (rowIndex) => {
+    // Không cho chọn nếu dòng đó bị trùng lặp
+    if (duplicateCheckResults[rowIndex]?.isDuplicate) return;
+
+    setSelectedRows(prevSelected => {
+      const newSelected = new Set(prevSelected);
+      if (newSelected.has(rowIndex)) {
+        newSelected.delete(rowIndex);
+      } else {
+        newSelected.add(rowIndex);
+      }
+      return newSelected;
+    });
+  };
+
+  const handleToggleSelectAll = () => {
+    const nonDuplicateIndices = editedData
+      .map((_, index) => index)
+      .filter(index => !duplicateCheckResults[index]?.isDuplicate);
+
+    // Nếu tất cả các dòng không trùng lặp ĐÃ được chọn, thì hành động này là BỎ CHỌN TẤT CẢ
+    if (nonDuplicateIndices.length > 0 && nonDuplicateIndices.every(index => selectedRows.has(index))) {
+      setSelectedRows(new Set());
+    } else { // Ngược lại (chưa chọn hết hoặc chưa chọn gì) -> CHỌN TẤT CẢ các dòng không trùng
+      setSelectedRows(new Set(nonDuplicateIndices));
+    }
+  };
+
   const handleSubmit = () => {
-    if (!validateAllData()) {
+    const dataToSubmit = editedData.filter((_, index) => selectedRows.has(index));
+    if (dataToSubmit.length === 0) {
+      toast.info("Vui lòng chọn ít nhất một công trình để tải lên.", { position: "top-center" });
+      return;
+    }
+    if (!validateSelectedData()) { // Sử dụng hàm validate mới
       toast.error("Vui lòng sửa các lỗi trong bảng trước khi tải lên.", { position: "top-center" });
       return;
     }
-    onSubmit(editedData);
+    onSubmit(dataToSubmit);
   };
 
   const handleClose = () => {
@@ -208,19 +324,39 @@ const ExcelImportModal = ({
         <p className="text-sm text-gray-600">Kiểm tra và chỉnh sửa dữ liệu trước khi tải lên. Các trường có dấu (*) là bắt buộc.</p>
       </div>
 
-      <div className="p-5 overflow-y-auto flex-grow">
-        {editedData.length === 0 ? (
+      <div className="p-5 overflow-y-auto flex-grow relative">
+        {(isLoadingDuplicates || isSubmitting) && (
+          <div className="absolute inset-0 bg-white bg-opacity-75 flex flex-col items-center justify-center z-30">
+            <FaSpinner className="animate-spin text-blue-500 text-4xl mb-3" />
+            <p className="text-gray-700">{isLoadingDuplicates ? 'Đang kiểm tra trùng lặp...' : 'Đang tải lên...'}</p>
+          </div>
+        )}
+        {editedData.length === 0 && !isLoadingDuplicates ? (
           <p className="text-center text-gray-500">Không có dữ liệu để hiển thị.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 border border-gray-300" style={{ tableLayout: 'auto' }}>
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
+                  <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r sticky left-0 bg-gray-50 z-20" style={{ width: '40px' }}>
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-400 focus:ring-blue-500 disabled:opacity-50"
+                      checked={areAllNonDuplicateSelected}
+                      onChange={handleToggleSelectAll}
+                      disabled={isLoadingDuplicates || editedData.filter((_, idx) => !duplicateCheckResults[idx]?.isDuplicate).length === 0}
+                      title={areAllNonDuplicateSelected ? "Bỏ chọn tất cả công trình hợp lệ" : "Chọn tất cả công trình hợp lệ"}
+                    />
+                  </th>
                   <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r sticky left-0 bg-gray-50 z-20" style={{ minWidth: '50px' }}>STT</th>
                   {tableColumns.map((col) => (
                     <th
                       key={col.accessor}
-                      className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r"
+                      className={`px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r
+                                  ${col.accessor === 'name' ? 'sticky left-[90px] bg-gray-50 z-20' : ''}
+                                  ${col.accessor === 'projectCode' ? 'sticky left-[340px] bg-gray-50 z-20' : ''}
+                                `}
+                      // Thêm style left cho các cột sticky khác nếu cần, dựa trên độ rộng của các cột trước đó
                       style={{ minWidth: col.minWidth }}
                     >
                       {col.Header}
@@ -230,14 +366,40 @@ const ExcelImportModal = ({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {editedData.map((row, rowIndex) => (
-                  <tr key={rowIndex} className={`${Object.keys(validationErrors[rowIndex] || {}).length > 0 ? 'bg-red-50' : ''} hover:bg-gray-50`}>
-                    <td className="px-2 py-1 whitespace-nowrap text-xs text-gray-700 border-r sticky left-0 bg-white hover:bg-gray-50 z-10">{rowIndex + 1}</td>
+                {editedData.map((row, rowIndex) => {
+                  const isDuplicate = duplicateCheckResults[rowIndex]?.isDuplicate;
+                  const existingProjectName = duplicateCheckResults[rowIndex]?.existingProjectName;
+                  // Đảm bảo validationErrors[rowIndex] là một object trước khi lấy keys
+                  const rowHasError = validationErrors && typeof validationErrors === 'object' && validationErrors[rowIndex] && Object.keys(validationErrors[rowIndex] || {}).length > 0;
+                  let rowClass = 'hover:bg-gray-50 transition-colors duration-150'; // Lớp cơ bản
+                  if (isDuplicate) {
+                    rowClass = 'bg-yellow-100 hover:bg-yellow-200 opacity-80 cursor-not-allowed'; // Màu vàng cho dòng trùng lặp
+                  } else if (rowHasError) {
+                    rowClass = 'bg-red-100 hover:bg-red-200'; // Màu đỏ cho dòng có lỗi
+                  } else if (selectedRows.has(rowIndex)) {
+                    rowClass = 'bg-blue-100 hover:bg-blue-200'; // Màu xanh cho dòng được chọn (và không trùng/lỗi)
+                  }
+
+                  return (
+                  <tr key={rowIndex} className={rowClass}>
+                    <td className="px-2 py-1 whitespace-nowrap text-center border-r sticky left-0 bg-white hover:bg-gray-50 z-10">
+                       <input
+                        type="checkbox"
+                        className="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-400 focus:ring-blue-500 disabled:opacity-50"
+                        checked={selectedRows.has(rowIndex)}
+                        onChange={() => handleToggleRowSelection(rowIndex)}
+                        disabled={isDuplicate || isLoadingDuplicates}
+                      />
+                    </td>
+                    <td className={`px-2 py-1 whitespace-nowrap text-xs text-gray-700 border-r sticky left-0 bg-white hover:bg-gray-50 z-10 ${isDuplicate ? 'left-[40px]' : 'left-[40px]'}`}>{rowIndex + 1}</td>
                     {tableColumns.map((col) => {
                       const fieldConfig = col.config;
                       const cellValue = row[col.accessor];
                       const error = validationErrors[rowIndex]?.[fieldConfig.name] || validationErrors[rowIndex]?.general;
-                      const options = (fieldConfig.type === 'select' || fieldConfig.optionsSource === 'users' || fieldConfig.optionsSource === 'approvers')
+                      const options = (fieldConfig.type === 'select' ||
+                                       fieldConfig.optionsSource === 'users' ||
+                                       fieldConfig.optionsSource === 'approvers' ||
+                                       fieldConfig.optionsSource) // Thêm điều kiện này để lấy options cho các select khác
                                       ? getOptionsForField(fieldConfig) : [];
 
                       const isUserOrApproverField = fieldConfig.optionsSource === 'users' || fieldConfig.optionsSource === 'approvers';
@@ -256,10 +418,14 @@ const ExcelImportModal = ({
 
 
                       return (
-                        <td key={`${rowIndex}-${col.accessor}`} className="px-1 py-0.5 whitespace-nowrap border-r" style={{ minWidth: col.minWidth }}>
+                        <td key={`${rowIndex}-${col.accessor}`}
+                            className={`px-1 py-0.5 whitespace-nowrap border-r
+                                      ${col.accessor === 'name' ? 'sticky left-[90px] bg-white z-10' : ''}
+                                      ${col.accessor === 'projectCode' ? 'sticky left-[340px] bg-white z-10' : ''}
+                                    `} style={{ minWidth: col.minWidth }}>
                           {showSelect ? (
                             <select
-                              value={cellValue || ''}
+                              value={cellValue ?? ''} // Sử dụng ?? để xử lý null/undefined
                               onChange={(e) => handleInputChange(rowIndex, fieldConfig.name, e.target.value)}
                               className={`w-full p-1 border text-xs rounded ${error ? 'border-red-500' : 'border-gray-300'} focus:ring-blue-500 focus:border-blue-500`}
                             >
@@ -269,17 +435,23 @@ const ExcelImportModal = ({
                           ) : (
                             <input
                               type={fieldConfig.type === 'date' ? 'date' : (fieldConfig.numeric ? 'number' : 'text')}
-                              value={displayInputValue || ''}
+                              value={displayInputValue ?? ''} // Sử dụng ??
                               onChange={(e) => handleInputChange(rowIndex, fieldConfig.name, e.target.value)} // Giữ nguyên text-xs, tăng padding cho mobile
-                              className={`w-full p-1.5 md:p-1 border text-xs rounded ${error ? 'border-red-500' : 'border-gray-300'} focus:ring-blue-500 focus:border-blue-500`}
+                              className={`w-full p-[0.375rem] md:p-1 border text-xs rounded ${error ? 'border-red-500' : 'border-gray-300'} focus:ring-blue-500 focus:border-blue-500`}
                             />
                           )}
                           {error && <p className="text-red-500 text-xs mt-0.5 flex items-center"><FaExclamationTriangle className="mr-1"/> {error}</p>}
+                          {isDuplicate && col.accessor === 'name' && ( // Chỉ hiển thị thông báo trùng ở cột tên
+                            <p className="text-yellow-700 font-semibold text-xs mt-0.5 flex items-center" title={`Công trình này (tên, đơn vị, năm) đã tồn tại trong hệ thống với tên: ${existingProjectName || 'Không rõ'}`}>
+                              <FaExclamationTriangle className="mr-1"/> Trùng lặp
+                            </p>
+                          )}
                         </td>
                       );
                     })}
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -298,7 +470,7 @@ const ExcelImportModal = ({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isSubmitting || editedData.length === 0}
+          disabled={isSubmitting || editedData.length === 0 || selectedRows.size === 0 || isLoadingDuplicates}
           className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:bg-blue-300"
         >
           <FaSave className="mr-2" /> {isSubmitting ? 'Đang tải lên...' : 'Xác nhận & Tải lên'}

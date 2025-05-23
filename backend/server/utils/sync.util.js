@@ -1,6 +1,6 @@
 // d:\CODE\water-company\backend\server\utils\sync.util.js
 const mongoose = require('mongoose');
-const { CategoryProject, MinorRepairProject, SerialCounter, Notification, User, AllocatedUnit, ProjectCodeCounter } = require('../models'); // Thêm AllocatedUnit, ProjectCodeCounter
+const { CategoryProject, MinorRepairProject, SerialCounter, Notification, User, AllocatedUnit, ProjectCodeCounter, ProjectType: ModelProjectType } = require('../models'); // Thêm AllocatedUnit, ProjectCodeCounter, ModelProjectType
 const { generateProjectCode } = require('../services/helpers/projectCodeHelper'); // Import helper tạo mã
 const { userFieldToQuery } = require('../services/helpers/serviceHelpers');
 const logger = require('../config/logger');
@@ -42,6 +42,10 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
     }
     logger.info('Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.');
 
+    // Định nghĩa các giá trị mặc định
+    const DEFAULT_STRING = 'Chưa cung cấp';
+    const DEFAULT_DATE = new Date(); // Ngày hiện tại
+
     // Định nghĩa hàm parseNumeric ở phạm vi ngoài để cả hai khối đều dùng được
     const parseNumeric = (value) => {
       if (value === undefined || value === null || String(value).trim() === '') return null;
@@ -69,9 +73,8 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
 
       // Suy luận/Xác định financialYear hiệu lực
       // Ưu tiên userInputData, sau đó là originalProjectData, cuối cùng là suy luận
-      let effectiveFinancialYear = userInputData.financialYear || originalProjectData.financialYear;
-      if (!effectiveFinancialYear && oldProject.createdAt) {
-        // Sửa ở đây: oldProject.createdAt -> originalProjectData.createdAt
+      let effectiveFinancialYear = userInputData.financialYear ?? originalProjectData.financialYear;
+      if (!effectiveFinancialYear && originalProjectData.createdAt) {
         effectiveFinancialYear = new Date(originalProjectData.createdAt).getUTCFullYear();
       } else if (!effectiveFinancialYear) {
         effectiveFinancialYear = new Date().getFullYear(); // Mặc định nếu không có gì cả
@@ -90,52 +93,21 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
         skippedCategoryCount++;
         continue;
       }
-      const projectData = { // Đây là dữ liệu sẽ được dùng để CẬP NHẬT bản ghi CategoryProject hiện có
-        // Merge userInputData vào projectData, ưu tiên userInputData
-        ...userInputData, // Các trường người dùng đã nhập sẽ ghi đè oldProject
-        // Các trường từ oldProject (sẽ bị ghi đè bởi userInputData nếu trùng key)
-        categorySerialNumber: existingProject ? existingProject.categorySerialNumber : ++categorySerial.currentSerial,
-        name: userInputData.name ?? originalProjectData.name,
-        allocatedUnit: userInputData.allocatedUnit ?? originalProjectData.allocatedUnit, // Giả sử allocatedUnit luôn có giá trị
-        constructionUnit: (userInputData.constructionUnit ?? originalProjectData.constructionUnit) || '',
-        allocationWave: (userInputData.allocationWave ?? originalProjectData.allocationWave) || '',
-        location: userInputData.location ?? originalProjectData.location,
-        scale: (userInputData.scale ?? originalProjectData.scale) || '', // Scale is required for CategoryProject
-        projectType: (userInputData.projectType ?? originalProjectData.projectType) || '',
-        leadershipApproval: (userInputData.leadershipApproval ?? originalProjectData.leadershipApproval) || '',
-        enteredBy: originalProjectData.enteredBy, // Giữ lại enteredBy gốc
-        status: (userInputData.status ?? originalProjectData.status) || 'Chờ duyệt', // Ưu tiên status từ user input nếu có
-        assignedTo: (userInputData.assignedTo ?? originalProjectData.assignedTo) || '',
-        taskDescription: (userInputData.taskDescription ?? originalProjectData.taskDescription) || '',
-        progress: (userInputData.progress ?? originalProjectData.progress) || '',
-        feasibility: (userInputData.feasibility ?? originalProjectData.feasibility) || '',
-        notes: (userInputData.notes ?? originalProjectData.notes) || '', // Sửa ở đây, không phải ?? '' mà là || '' sau ??
-        pendingEdit: originalProjectData.pendingEdit || null, // Không nên cho user sửa trực tiếp
-        pendingDelete: originalProjectData.pendingDelete === true, // Không nên cho user sửa trực tiếp
-        createdAt: originalProjectData.createdAt, // Giữ lại createdAt gốc
-        updatedAt: new Date(), // Cập nhật updatedAt
-        history: originalProjectData.history || [], // Giữ lại history gốc, có thể thêm action mới
-        profileTimeline: (userInputData.profileTimeline ?? originalProjectData.profileTimeline) || null,
-        constructionTimeline: (userInputData.constructionTimeline ?? originalProjectData.constructionTimeline) || null,
-      };
 
-      projectData.financialYear = effectiveFinancialYear; // Sử dụng financialYear đã xác định
-      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getUTCFullYear();
-      
-      // Sửa ở đây: oldProject.isCompleted -> originalProjectData.isCompleted
-      projectData.isCompleted = originalProjectData.isCompleted === true || String(originalProjectData.isCompleted).toLowerCase() === 'true';
-      if (userInputData.hasOwnProperty('isCompleted')) { // Ưu tiên input từ người dùng nếu có
-        projectData.isCompleted = userInputData.isCompleted === true || String(userInputData.isCompleted).toLowerCase() === 'true';
-      }
+      // Xác định các trường để kiểm tra trùng lặp
+      // Ưu tiên userInputData, sau đó originalProjectData, cuối cùng là existingProject
+      const nameForDuplicateCheck = (userInputData.name || originalProjectData.name || existingProject.name || '').trim();
+      const unitForDuplicateCheck = (userInputData.allocatedUnit || originalProjectData.allocatedUnit || existingProject.allocatedUnit || '').trim();
+      // financialYear để kiểm tra trùng lặp nên là effectiveFinancialYear đã được xác định
+      const yearForDuplicateCheck = effectiveFinancialYear;
 
       // Kiểm tra trùng lặp trong hệ thống mới
-      const duplicateCheckName = (projectData.name || '').trim();
-      const duplicateCheckUnit = (projectData.allocatedUnit || '').trim();
-      if (duplicateCheckName && duplicateCheckUnit) {
+      // Sử dụng các biến đã xác định ở trên thay vì projectData (chưa được khởi tạo)
+      if (nameForDuplicateCheck && unitForDuplicateCheck) {
         const existingDuplicateInNewSystem = await CategoryProject.findOne({
-          name: duplicateCheckName,
-          allocatedUnit: duplicateCheckUnit,
-          financialYear: projectData.financialYear,
+          name: nameForDuplicateCheck,
+          allocatedUnit: unitForDuplicateCheck,
+          financialYear: yearForDuplicateCheck,
           _id: { $ne: existingProjectId } // Quan trọng: loại trừ trường hợp đang cập nhật chính nó
         });
         if (existingDuplicateInNewSystem) {
@@ -143,6 +115,49 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
           skippedCategoryCount++;
           continue;
         }
+      }
+
+      // Tạo projectData bằng cách merge userInputData vào existingProject, sau đó là originalProjectData cho các trường còn thiếu
+      const projectData = { ...existingProject.toObject(), ...userInputData }; // Ưu tiên userInputData
+
+      // Đảm bảo các trường từ originalProjectData được xem xét nếu chúng không có trong existingProject hoặc userInputData
+      // và chúng là các trường hợp lệ trong schema
+      const categorySchemaPathsSet = new Set(Object.keys(CategoryProject.schema.paths));
+      for (const key in originalProjectData) {
+        if (categorySchemaPathsSet.has(key) && (projectData[key] === undefined || projectData[key] === null)) {
+          if (originalProjectData[key] !== undefined && originalProjectData[key] !== null) {
+            projectData[key] = originalProjectData[key];
+          }
+        }
+      }
+
+      // Đảm bảo các trường bắt buộc có giá trị
+      projectData.name = projectData.name || `CT Danh mục không tên - ID ${existingProjectId}`;
+      projectData.allocatedUnit = projectData.allocatedUnit; // Phải có từ input hoặc DB
+      projectData.location = projectData.location || DEFAULT_STRING;
+      projectData.scale = projectData.scale || DEFAULT_STRING;
+      projectData.financialYear = parseInt(String(projectData.financialYear || effectiveFinancialYear), 10);
+      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getUTCFullYear();
+
+      let finalProjectType = projectData.projectType;
+      if (!finalProjectType || String(finalProjectType).trim() === '') {
+          const defaultProjectTypeDoc = await ModelProjectType.findOne().sort({ name: 1 });
+          finalProjectType = defaultProjectTypeDoc ? defaultProjectTypeDoc.name : DEFAULT_STRING;
+      }
+      projectData.projectType = finalProjectType;
+
+      projectData.isCompleted = projectData.hasOwnProperty('isCompleted') ? (projectData.isCompleted === true || String(projectData.isCompleted).toLowerCase() === 'true') : (existingProject.isCompleted === true || String(existingProject.isCompleted).toLowerCase() === 'true');
+      projectData.status = projectData.status || existingProject.status || 'Chờ duyệt';
+      projectData.enteredBy = projectData.enteredBy || existingProject.enteredBy || originalProjectData.enteredBy;
+      projectData.createdAt = projectData.createdAt || existingProject.createdAt || originalProjectData.createdAt || DEFAULT_DATE;
+      projectData.updatedAt = new Date();
+      projectData.history = projectData.history || existingProject.history || [];
+
+      // Kiểm tra lại các trường bắt buộc theo schema trước khi push vào bulkOps
+      if (!projectData.allocatedUnit) {
+        logger.error(`[SYNC EXECUTE] CT Danh mục ID ${existingProjectId} thiếu Đơn vị phân bổ. Bỏ qua.`);
+        skippedCategoryCount++;
+        continue;
       }
 
       // Tạo projectCode nếu chưa có hoặc được cung cấp từ userInputData
@@ -159,19 +174,19 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
             projectData.projectCode = null; 
           }
       }
-      projectData.createdBy = await userFieldToQuery(userInputData.createdBy || originalProjectData.createdBy) || await userFieldToQuery(originalProjectData.enteredBy);
-      if (!projectData.createdBy && !existingProject.createdBy) { // Chỉ yêu cầu nếu cả hai đều thiếu
+      projectData.createdBy = await userFieldToQuery(projectData.createdBy) || await userFieldToQuery(projectData.enteredBy);
+      if (!projectData.createdBy) { // Nếu vẫn không có createdBy
           const defaultCreator = await User.findOne({ role: 'admin' }).session(null); // Không cần session cho query đơn giản này
+          projectData.createdBy = defaultCreator ? defaultCreator._id : null;
           if (!projectData.createdBy) {
-            logger.error(`Không thể gán người tạo mặc định cho CT Danh mục ID ${existingProjectId}. Bỏ qua.`);
-            continue;
+            logger.error(`Không thể gán người tạo mặc định cho CT Danh mục ID ${existingProjectId}. Sẽ để trống createdBy.`);
           }
       }
-      projectData.approvedBy = await userFieldToQuery(userInputData.approvedBy || originalProjectData.approvedBy);
-      projectData.supervisor = await userFieldToQuery(userInputData.supervisor || originalProjectData.supervisor);
-      projectData.estimator = await userFieldToQuery(userInputData.estimator || originalProjectData.estimator); // estimator có thể là ID hoặc tên
-      if (typeof (userInputData.assignedTo || originalProjectData.assignedTo) === 'string') {
-        projectData.assignedTo = await userFieldToQuery(userInputData.assignedTo || originalProjectData.assignedTo) || (userInputData.assignedTo || originalProjectData.assignedTo); // assignedTo có thể là ID hoặc tên
+      projectData.approvedBy = await userFieldToQuery(projectData.approvedBy);
+      projectData.supervisor = await userFieldToQuery(projectData.supervisor);
+      projectData.estimator = await userFieldToQuery(projectData.estimator);
+      if (typeof projectData.assignedTo === 'string') {
+        projectData.assignedTo = await userFieldToQuery(projectData.assignedTo) || projectData.assignedTo;
       }
 
       projectData.startDate = (userInputData.startDate || originalProjectData.startDate) ? new Date(userInputData.startDate || originalProjectData.startDate) : null;
@@ -183,10 +198,10 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       projectData.durationDays = (userInputData.durationDays ?? originalProjectData.durationDays) !== undefined && (userInputData.durationDays ?? originalProjectData.durationDays) !== null ? parseInt(String(userInputData.durationDays ?? originalProjectData.durationDays), 10) : null;
       if (isNaN(projectData.durationDays)) projectData.durationDays = null;
 
-
-      const categorySchemaPaths = Object.keys(CategoryProject.schema.paths);
+      // Dọn dẹp các trường không thuộc schema trước khi lưu
+      const validSchemaFields = Object.keys(CategoryProject.schema.paths);
       for (const key in projectData) {
-          if (!categorySchemaPaths.includes(key) && key !== '_id') {
+          if (!validSchemaFields.includes(key) && key !== '_id') { // Giữ lại _id để update
               delete projectData[key];
           }
       }
@@ -217,8 +232,7 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
       const originalProjectData = oldProjectContainer.projectData || {};
 
       let effectiveFinancialYear = userInputData.financialYear || originalProjectData.financialYear;
-      // Sửa ở đây: oldProject.createdAt -> originalProjectData.createdAt
-      if (!effectiveFinancialYear && originalProjectData.createdAt) {
+      if (!effectiveFinancialYear && originalProjectData.createdAt) { // Sửa ở đây
         effectiveFinancialYear = new Date(originalProjectData.createdAt).getFullYear();
       }
       else if (!effectiveFinancialYear) effectiveFinancialYear = new Date().getFullYear();
@@ -235,43 +249,19 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
         skippedMinorRepairCount++;
         continue;
       }
-      const projectData = { // Dữ liệu sẽ được dùng để CẬP NHẬT bản ghi MinorRepairProject hiện có
-        ...userInputData,
-        minorRepairSerialNumber: existingProject ? existingProject.minorRepairSerialNumber : ++minorRepairSerial.currentSerial,
-        name: userInputData.name ?? originalProjectData.name,
-        allocatedUnit: userInputData.allocatedUnit ?? originalProjectData.allocatedUnit, // Giả sử allocatedUnit luôn có giá trị
-        location: userInputData.location ?? originalProjectData.location,
-        scale: (userInputData.scale ?? originalProjectData.scale) || '',
-        leadershipApproval: (userInputData.leadershipApproval ?? originalProjectData.leadershipApproval) || '',
-        enteredBy: originalProjectData.enteredBy,
-        status: (userInputData.status ?? originalProjectData.status) || 'Chờ duyệt', // Default status if both are empty
-        assignedTo: (userInputData.assignedTo ?? originalProjectData.assignedTo) || '',
-        taskDescription: (userInputData.taskDescription ?? originalProjectData.taskDescription) || '',
-        notes: (userInputData.notes ?? originalProjectData.notes) || '', // Sửa ở đây
-        pendingEdit: originalProjectData.pendingEdit || null,
-        pendingDelete: originalProjectData.pendingDelete === true,
-        createdAt: originalProjectData.createdAt,
-        updatedAt: new Date(),
-        history: originalProjectData.history || [],
-        constructionTimeline: (userInputData.constructionTimeline ?? originalProjectData.constructionTimeline) || null,
-      };
 
-      projectData.financialYear = effectiveFinancialYear;
-      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getUTCFullYear();
-      
-      // Sửa ở đây: oldProject.isCompleted -> originalProjectData.isCompleted
-      projectData.isCompleted = originalProjectData.isCompleted === true || String(originalProjectData.isCompleted).toLowerCase() === 'true';
-      if (userInputData.hasOwnProperty('isCompleted')) {
-        projectData.isCompleted = userInputData.isCompleted === true || String(userInputData.isCompleted).toLowerCase() === 'true';
-      }
+      // Xác định các trường để kiểm tra trùng lặp cho MinorRepair
+      const nameForDuplicateCheckMinor = (userInputData.name || originalProjectData.name || existingProject.name || '').trim();
+      const unitForDuplicateCheckMinor = (userInputData.allocatedUnit || originalProjectData.allocatedUnit || existingProject.allocatedUnit || '').trim();
+      const yearForDuplicateCheckMinor = effectiveFinancialYear;
 
-      const duplicateCheckName = (projectData.name || '').trim();
-      const duplicateCheckUnit = (projectData.allocatedUnit || '').trim();
-      if (duplicateCheckName && duplicateCheckUnit) {
+      // Kiểm tra trùng lặp trong hệ thống mới cho MinorRepair
+      // Sử dụng các biến đã xác định ở trên
+      if (nameForDuplicateCheckMinor && unitForDuplicateCheckMinor) {
         const existingDuplicateInNewSystem = await MinorRepairProject.findOne({
-          name: duplicateCheckName,
-          allocatedUnit: duplicateCheckUnit,
-          financialYear: projectData.financialYear,
+          name: nameForDuplicateCheckMinor,
+          allocatedUnit: unitForDuplicateCheckMinor,
+          financialYear: yearForDuplicateCheckMinor,
           _id: { $ne: existingProjectId }
         });
         if (existingDuplicateInNewSystem) {
@@ -279,6 +269,43 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
           skippedMinorRepairCount++;
           continue;
         }
+      }
+
+      const projectData = { ...existingProject.toObject(), ...userInputData };
+
+      const minorRepairSchemaPathsSet = new Set(Object.keys(MinorRepairProject.schema.paths));
+      for (const key in originalProjectData) {
+        if (minorRepairSchemaPathsSet.has(key) && (projectData[key] === undefined || projectData[key] === null)) {
+           if (originalProjectData[key] !== undefined && originalProjectData[key] !== null) {
+            projectData[key] = originalProjectData[key];
+          }
+        }
+      }
+
+      projectData.name = projectData.name || `CT SCN không tên - ID ${existingProjectId}`;
+      projectData.allocatedUnit = projectData.allocatedUnit;
+      projectData.location = projectData.location || DEFAULT_STRING;
+      projectData.scale = projectData.scale || DEFAULT_STRING;
+      projectData.financialYear = parseInt(String(projectData.financialYear || effectiveFinancialYear), 10);
+      if (isNaN(projectData.financialYear)) projectData.financialYear = new Date().getUTCFullYear();
+
+      let finalReportDate = projectData.reportDate;
+      if (!finalReportDate || isNaN(new Date(finalReportDate).getTime())) {
+          finalReportDate = DEFAULT_DATE;
+      }
+      projectData.reportDate = new Date(finalReportDate);
+
+      projectData.isCompleted = projectData.hasOwnProperty('isCompleted') ? (projectData.isCompleted === true || String(projectData.isCompleted).toLowerCase() === 'true') : (existingProject.isCompleted === true || String(existingProject.isCompleted).toLowerCase() === 'true');
+      projectData.status = projectData.status || existingProject.status || 'Chờ duyệt';
+      projectData.enteredBy = projectData.enteredBy || existingProject.enteredBy || originalProjectData.enteredBy;
+      projectData.createdAt = projectData.createdAt || existingProject.createdAt || originalProjectData.createdAt || DEFAULT_DATE;
+      projectData.updatedAt = new Date();
+      projectData.history = projectData.history || existingProject.history || [];
+
+      if (!projectData.allocatedUnit) {
+        logger.error(`[SYNC EXECUTE] CT SCN ID ${existingProjectId} thiếu Đơn vị phân bổ. Bỏ qua.`);
+        skippedMinorRepairCount++;
+        continue;
       }
 
       // Tạo projectCode nếu chưa có hoặc được cung cấp từ userInputData
@@ -296,29 +323,28 @@ async function syncOldProjects(targetFinancialYear, projectsToSyncFromFrontend, 
           }
       }
 
-      projectData.createdBy = await userFieldToQuery(userInputData.createdBy || originalProjectData.createdBy) || await userFieldToQuery(originalProjectData.enteredBy);
-      if (!projectData.createdBy && !existingProject.createdBy) {
+      projectData.createdBy = await userFieldToQuery(projectData.createdBy) || await userFieldToQuery(projectData.enteredBy);
+      if (!projectData.createdBy) {
           const defaultCreator = await User.findOne({ role: 'admin' }).session(null);
-          projectData.createdBy = defaultCreator ? defaultCreator._id : null;
+          projectData.createdBy = defaultCreator ? defaultCreator._id : null; // Gán null nếu không tìm thấy admin
           if (!projectData.createdBy) {
-            logger.error(`Không thể gán người tạo mặc định cho CT SCN ID ${existingProjectId}. Bỏ qua.`);
-            continue;
+            logger.error(`Không thể gán người tạo mặc định cho CT SCN ID ${existingProjectId}. Sẽ để trống createdBy.`);
           }
       }
-      projectData.approvedBy = await userFieldToQuery(userInputData.approvedBy || originalProjectData.approvedBy); // approvedBy có thể là ID hoặc tên
-      projectData.supervisor = await userFieldToQuery(userInputData.supervisor || originalProjectData.supervisor);
-       if (typeof (userInputData.assignedTo || originalProjectData.assignedTo) === 'string') {
-        projectData.assignedTo = await userFieldToQuery(userInputData.assignedTo || originalProjectData.assignedTo) || (userInputData.assignedTo || originalProjectData.assignedTo);
+      projectData.approvedBy = await userFieldToQuery(projectData.approvedBy);
+      projectData.supervisor = await userFieldToQuery(projectData.supervisor);
+      if (typeof projectData.assignedTo === 'string') {
+        projectData.assignedTo = await userFieldToQuery(projectData.assignedTo) || projectData.assignedTo;
       }
 
       projectData.reportDate = (userInputData.reportDate || originalProjectData.reportDate) ? new Date(userInputData.reportDate || originalProjectData.reportDate) : null;
       projectData.inspectionDate = (userInputData.inspectionDate || originalProjectData.inspectionDate) ? new Date(userInputData.inspectionDate || originalProjectData.inspectionDate) : null;
       projectData.paymentDate = (userInputData.paymentDate || originalProjectData.paymentDate) ? new Date(userInputData.paymentDate || originalProjectData.paymentDate) : null;
       projectData.paymentValue = parseNumeric(userInputData.paymentValue ?? originalProjectData.paymentValue);
-
-      const minorRepairSchemaPaths = Object.keys(MinorRepairProject.schema.paths);
+      
+      const validSchemaFieldsMinor = Object.keys(MinorRepairProject.schema.paths);
       for (const key in projectData) {
-          if (!minorRepairSchemaPaths.includes(key) && key !== '_id') {
+          if (!validSchemaFieldsMinor.includes(key) && key !== '_id') {
               delete projectData[key];
           }
       }

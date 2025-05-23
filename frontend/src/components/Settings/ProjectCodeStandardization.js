@@ -10,6 +10,7 @@ import {
   executeProjectCodeStandardizationAPI,
 } from '../../apiService';
 import { formatDateToLocale } from '../../utils/dateUtils';
+import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook
 
 Modal.setAppElement('#root');
 
@@ -26,6 +27,7 @@ const ProjectCodeStandardization = ({ user }) => {
 
   const [projectsToReview, setProjectsToReview] = useState([]);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const { data: allocatedUnits = [], isLoading: isLoadingAllocatedUnits } = useQuery({
     queryKey: ['allocatedUnits'],
@@ -177,8 +179,36 @@ const ProjectCodeStandardization = ({ user }) => {
         isOpen={showReviewModal}
         onRequestClose={() => { if (!executeMutation.isLoading) setShowReviewModal(false); }}
         style={{
-          overlay: { zIndex: 10001, backgroundColor: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-          content: { position: 'relative', margin: 'auto', width: '90%', maxWidth: '800px', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '0', border: '1px solid #ccc', borderRadius: '8px', background: '#fff' }
+          overlay: {
+            zIndex: 10001,
+            backgroundColor: 'rgba(0,0,0,0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+          content: {
+            position: 'relative',
+            inset: 'auto', // Quan trọng
+            maxHeight: '85vh',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '0',
+            border: '1px solid #ccc',
+            borderRadius: '8px',
+            background: '#fff',
+            boxSizing: 'border-box',
+            ...(isMobile ? {
+              width: 'auto',
+              marginLeft: '1rem',
+              marginRight: '1rem',
+              maxWidth: 'calc(100vw - 2rem)',
+            } : {
+              width: '90%', // Giữ nguyên cho desktop
+              maxWidth: '800px', // Giữ nguyên cho desktop
+              margin: 'auto', // Căn giữa cho desktop
+            })
+          }
         }}
         contentLabel="Xem trước Công trình Cần Chuẩn hóa"
       >
@@ -191,28 +221,45 @@ const ProjectCodeStandardization = ({ user }) => {
           {projectsToReview.length === 0 ? (
             <p className="text-center text-gray-600 py-8">Không có công trình nào cần chuẩn hóa theo bộ lọc này, hoặc tất cả đã đúng chuẩn.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 border">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r">STT</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r">Tên công trình</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r">Mã hiện tại</th>
-                    <th className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Ngày tạo</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {projectsToReview.map((p, index) => (
-                    <tr key={p._id} className="hover:bg-gray-50">
-                      <td className="px-3 py-2 text-center text-xs text-gray-700 border-r">{index + 1}</td>
-                      <td className="px-3 py-2 text-xs text-gray-800 border-r">{p.name}</td>
-                      <td className="px-3 py-2 text-xs text-gray-700 border-r">{p.currentProjectCode || 'Chưa có'}</td>
-                      <td className="px-3 py-2 text-center text-xs text-gray-700">{formatDateToLocale(p.createdAt)}</td>
+            isMobile ? (
+              <div className="space-y-3">
+                {projectsToReview.map((p, index) => (
+                  <div key={p._id} className="bg-white p-3 rounded-lg shadow border border-gray-200">
+                    <p className="text-xs text-gray-500">STT: {index + 1}</p>
+                    <h4 className="text-sm font-semibold text-blue-600 mb-1">{p.name}</h4>
+                    <p className="text-xs text-gray-700">
+                      <span className="font-medium">Mã hiện tại:</span> {p.currentProjectCode || 'Chưa có'}
+                    </p>
+                    <p className="text-xs text-gray-700">
+                      <span className="font-medium">Ngày tạo:</span> {formatDateToLocale(p.createdAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 border">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r">STT</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r">Tên công trình</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r">Mã hiện tại</th>
+                      <th className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Ngày tạo</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {projectsToReview.map((p, index) => (
+                      <tr key={p._id} className="hover:bg-gray-50">
+                        <td className="px-3 py-2 text-center text-xs text-gray-700 border-r">{index + 1}</td>
+                        <td className="px-3 py-2 text-xs text-gray-800 border-r">{p.name}</td>
+                        <td className="px-3 py-2 text-xs text-gray-700 border-r">{p.currentProjectCode || 'Chưa có'}</td>
+                        <td className="px-3 py-2 text-center text-xs text-gray-700">{formatDateToLocale(p.createdAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
         </div>
 

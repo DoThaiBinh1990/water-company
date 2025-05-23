@@ -42,4 +42,7 @@ router.get('/timeline/for-assignment', authenticate, projectCoreController.getPr
 router.get('/standardize/prepare', authenticate, projectStandardizeController.prepareStandardization);
 router.post('/standardize/execute', authenticate, projectStandardizeController.executeStandardization);
 
+// Route for checking duplicates from Excel import
+router.post('/check-excel-duplicates', authenticate, projectCoreController.checkExcelDuplicates);
+
 module.exports = router;

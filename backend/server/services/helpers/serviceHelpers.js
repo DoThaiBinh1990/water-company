@@ -18,6 +18,24 @@ const userFieldToQuery = async (userIdentifier) => {
   return userByName ? userByName._id : null;
 };
 
+/**
+ * Escapes special characters in a string for use in a regular expression.
+ * @param {string} string - The string to escape.
+ * @returns {string} The escaped string.
+ */
+function escapeRegExp(string) {
+  if (string === null || string === undefined) {
+    return '';
+  }
+  return String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+module.exports = {
+    userFieldToQuery, // Giữ lại hàm đã có
+    escapeRegExp,     // Thêm hàm mới
+};
+
 module.exports = {
     userFieldToQuery,
+    escapeRegExp,
 };

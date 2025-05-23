@@ -249,9 +249,10 @@ function GenericTable({
                       key={`${project._id || `project-row-${index}`}-${col.field || `col-${colIndex}`}`}
                       className={`${col.sticky ? `sticky-col-${col.sticky}` : ''} ${cellDataForTd.isChanged ? 'cell-changed' : ''} ${col.className || ''} ${col.align ? `text-${col.align}` : 'text-left'} ${col.breakWords ? 'whitespace-pre-wrap break-words' : 'whitespace-nowrap'} px-3 py-1.5`} // Changed py-2.5 to py-1.5
                       style={{ ...col.cellStyle }} // Removed explicit paddingBlock, relying on Tailwind class
-                      title={col.tooltipRender ? col.tooltipRender(project) : undefined}
+                      title={col.tooltipRender ? col.tooltipRender(project) : (col.field === 'name' ? project.name : undefined)} // Thêm tooltip mặc định cho cột tên
                     >
-                      {renderCellContent(project, col)}
+                      {/* Áp dụng class cho nội dung của cột tên */}
+                      {col.field === 'name' ? <div className="table-cell-expandable-content">{renderCellContent(project, col)}</div> : renderCellContent(project, col)}
                     </td>
                   );
                 })}

@@ -1949,3 +1949,394 @@ Require stack:
 2025-05-23 17:03:09 info: Đồng bộ dữ liệu hoàn tất.
 2025-05-23 17:03:49 error: Lỗi Controller cập nhật công trình: CategoryProject validation failed: history.0.action: `code_standardized` is not a valid enum value for path `action`.
 2025-05-23 17:03:49 error: Lỗi không xác định: CategoryProject validation failed: history.0.action: `code_standardized` is not a valid enum value for path `action`.
+2025-05-23 18:21:39 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 18:21:40 info: MongoDB đã kết nối thành công.
+2025-05-23 18:21:58 error: Lỗi xác thực token: jwt expired
+2025-05-23 18:21:59 error: Lỗi xác thực token: jwt expired
+2025-05-23 18:21:59 error: Lỗi xác thực token: jwt expired
+2025-05-23 18:22:06 info: Một người dùng đã kết nối: OQZaggjOTxgkQuIOAAAB
+2025-05-23 18:22:06 info: Một người dùng đã kết nối: 3J5ZJuVMHE2-7ckUAAAD
+2025-05-23 18:23:05 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 18:23:05 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 18:23:05 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 18:23:18 info: [SyncService] Đã chuẩn bị 14 công trình để review.
+2025-05-23 18:29:36 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 18:29:36 info: Một người dùng đã kết nối: NZwueHNcBcZWV2XdAAAB
+2025-05-23 18:29:36 info: Một người dùng đã kết nối: 35WVNBPY4HFtEiJZAAAD
+2025-05-23 18:29:37 info: MongoDB đã kết nối thành công.
+2025-05-23 18:29:46 info: Một người dùng đã kết nối: qVzCMGhn8jMot-qVAAAF
+2025-05-23 18:29:46 info: Một người dùng đã kết nối: QLgf4GD7KLTqtVRbAAAH
+2025-05-23 18:29:48 info: Người dùng đã ngắt kết nối: NZwueHNcBcZWV2XdAAAB
+2025-05-23 18:29:48 info: Người dùng đã ngắt kết nối: 35WVNBPY4HFtEiJZAAAD
+2025-05-23 18:29:48 info: Một người dùng đã kết nối: 5UY20FnffqdT8rkJAAAJ
+2025-05-23 18:29:48 info: Một người dùng đã kết nối: Xp3B2JXicLvJp4obAAAL
+2025-05-23 18:29:51 info: Một người dùng đã kết nối: qUvUwaGiyy54K4LmAAAN
+2025-05-23 18:29:51 info: Một người dùng đã kết nối: -4sh0GpDMRYBDFE-AAAP
+2025-05-23 18:29:59 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 18:29:59 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 18:29:59 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 18:30:00 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 18:36:07 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 18:36:07 info: Một người dùng đã kết nối: IdbpeP1YvaL1ACULAAAB
+2025-05-23 18:36:07 info: Một người dùng đã kết nối: SqFH1TXDqqUIjG0AAAAD
+2025-05-23 18:36:07 info: Một người dùng đã kết nối: 8fOTh7ji37JggYfUAAAF
+2025-05-23 18:36:07 info: Một người dùng đã kết nối: 2Dgy4yfz7jitjTWRAAAH
+2025-05-23 18:36:07 info: Một người dùng đã kết nối: eLD_e0xhtMtuFLsVAAAJ
+2025-05-23 18:36:07 info: Một người dùng đã kết nối: 3Fi7i6uxGYe2521bAAAL
+2025-05-23 18:36:08 info: MongoDB đã kết nối thành công.
+2025-05-23 18:36:14 info: Người dùng đã ngắt kết nối: 2Dgy4yfz7jitjTWRAAAH
+2025-05-23 18:36:14 info: Người dùng đã ngắt kết nối: 8fOTh7ji37JggYfUAAAF
+2025-05-23 18:36:14 info: Người dùng đã ngắt kết nối: SqFH1TXDqqUIjG0AAAAD
+2025-05-23 18:36:14 info: Người dùng đã ngắt kết nối: eLD_e0xhtMtuFLsVAAAJ
+2025-05-23 18:36:14 info: Một người dùng đã kết nối: uxoDtHOWm2JY0ZgAAAAN
+2025-05-23 18:36:14 info: Một người dùng đã kết nối: G8pSX2hlG3dp1DogAAAP
+2025-05-23 18:37:00 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 18:37:00 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 18:37:00 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 18:37:02 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 18:39:11 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: minor_repair
+2025-05-23 18:39:11 info: [SyncService] Lọc theo loại công trình: minor_repair. Số lượng còn lại: 4
+2025-05-23 18:39:11 info: [SyncService] Tìm thấy tổng cộng 4 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 18:39:12 info: [SyncService] Đã chuẩn bị 1 công trình để review.
+2025-05-23 19:08:18 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 19:08:18 info: Một người dùng đã kết nối: fXYTKzuIfFS-eaWoAAAB
+2025-05-23 19:08:18 info: Một người dùng đã kết nối: 9NR9yHB81D5427gjAAAD
+2025-05-23 19:08:19 info: Một người dùng đã kết nối: zB4BvqEjaBetEnx7AAAF
+2025-05-23 19:08:19 info: Một người dùng đã kết nối: WkoJQiDpLcCWGcxkAAAH
+2025-05-23 19:08:19 info: MongoDB đã kết nối thành công.
+2025-05-23 19:08:24 info: Người dùng đã ngắt kết nối: fXYTKzuIfFS-eaWoAAAB
+2025-05-23 19:08:24 info: Người dùng đã ngắt kết nối: WkoJQiDpLcCWGcxkAAAH
+2025-05-23 19:08:24 info: Một người dùng đã kết nối: uEtBM3rYEaY052VpAAAJ
+2025-05-23 19:08:24 info: Một người dùng đã kết nối: uJl1WjtqGc4z5Jt8AAAL
+2025-05-23 19:08:29 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 19:08:29 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 19:08:29 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 19:08:41 info: [SyncService] Đã chuẩn bị 14 công trình để review.
+2025-05-23 19:10:28 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 19:10:28 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 19:10:28 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 19:10:38 info: [SyncService] Đã chuẩn bị 14 công trình để review.
+2025-05-23 19:11:25 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 19:11:25 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 19:11:26 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 19:11:26 error: Lỗi khi đồng bộ dữ liệu: Cannot access 'projectData' before initialization
+2025-05-23 19:11:26 error: Lỗi API đồng bộ công trình: Lỗi khi đồng bộ dữ liệu: Cannot access 'projectData' before initialization
+2025-05-23 19:11:26 error: Lỗi không xác định: Lỗi khi đồng bộ dữ liệu: Cannot access 'projectData' before initialization
+2025-05-23 19:13:40 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 19:13:40 info: Một người dùng đã kết nối: AfSEbr2MJz-bHnPCAAAB
+2025-05-23 19:13:40 info: Một người dùng đã kết nối: U0TVZWzFQL6oxPckAAAD
+2025-05-23 19:13:40 info: Một người dùng đã kết nối: WSqfwOVRsRoKZO45AAAF
+2025-05-23 19:13:40 info: Một người dùng đã kết nối: gtEHsVNyRqyTxrWMAAAH
+2025-05-23 19:13:40 info: MongoDB đã kết nối thành công.
+2025-05-23 19:13:45 info: Người dùng đã ngắt kết nối: AfSEbr2MJz-bHnPCAAAB
+2025-05-23 19:13:45 info: Người dùng đã ngắt kết nối: U0TVZWzFQL6oxPckAAAD
+2025-05-23 19:13:45 info: Một người dùng đã kết nối: TOugqsPJeuSo70HkAAAJ
+2025-05-23 19:13:45 info: Một người dùng đã kết nối: Y8MOnxkpc42iPAHlAAAL
+2025-05-23 19:13:50 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 19:13:50 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 19:13:50 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 19:14:00 info: [SyncService] Đã chuẩn bị 14 công trình để review.
+2025-05-23 19:14:15 info: Bắt đầu đồng bộ dữ liệu công trình. Năm mục tiêu: 2025. User: admin
+2025-05-23 19:14:15 info: Đồng bộ dựa trên danh sách 1 công trình từ frontend.
+2025-05-23 19:14:15 info: Hoàn tất kiểm tra và tạo shortCode cho các đơn vị phân bổ.
+2025-05-23 19:14:15 info: Đã xử lý 1 CT danh mục. Cập nhật thành công: 1. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 19:14:15 info: Đã xử lý 0 CT SCN. Cập nhật thành công: 0. Bỏ qua (không tìm thấy/trùng/lọc năm): 0.
+2025-05-23 19:14:16 warn: Notification 6828674e768ff5df75bc55be không có projectId.
+2025-05-23 19:14:16 warn: Notification 68288fcbc900722951bdf75f không có projectId.
+2025-05-23 19:14:16 warn: Notification 68288ff8c900722951bdf838 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682897666cdd135fa1891015 không có projectId.
+2025-05-23 19:14:16 warn: Notification 6829bd1710683037e7acab40 không có projectId.
+2025-05-23 19:14:16 warn: Notification 6829bd5710683037e7acac2c không có projectId.
+2025-05-23 19:14:16 warn: Notification 6829bdbd10683037e7acadf9 không có projectId.
+2025-05-23 19:14:16 warn: Notification 6829bdeb10683037e7acae83 không có projectId.
+2025-05-23 19:14:16 warn: Notification 6829c2a510683037e7acb64b không có projectId.
+2025-05-23 19:14:16 warn: Notification 6829ccec188ad4eebac19f9e không có projectId.
+2025-05-23 19:14:16 warn: Notification 6829fa05fb808106131c8af2 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a018301dc11463077eea0 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a0906f1293290c3e0570a không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a14c958e66f84c6f062a0 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a14ce58e66f84c6f0639e không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a14d558e66f84c6f064ba không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a14e858e66f84c6f06622 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a14ed58e66f84c6f06766 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a14f258e66f84c6f068be không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a14f858e66f84c6f06a16 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a150658e66f84c6f06b6e không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a150d58e66f84c6f06cc6 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a151258e66f84c6f06e1e không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a176658e66f84c6f0775b không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a21043e47068f08ec2e4e không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a210a3e47068f08ec2f69 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a21103e47068f08ec3098 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a21163e47068f08ec31db không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a211d3e47068f08ec3332 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a21db3e47068f08ec36b1 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a237c9c068c5fd64481bf không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a23939c068c5fd64483fe không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a23999c068c5fd6448480 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2c6221a424ff9ea18443 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2ce621a424ff9ea18753 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2cf221a424ff9ea1884c không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2cf721a424ff9ea1894e không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2cfe21a424ff9ea18a40 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2d0421a424ff9ea18b22 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2d0921a424ff9ea18bf4 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2d0f21a424ff9ea18cb6 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2d1521a424ff9ea18d68 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2d1c21a424ff9ea18e0a không có projectId.
+2025-05-23 19:14:16 warn: Notification 682a2d2121a424ff9ea18e9c không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab13010655e288ef0a1b2 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab36210655e288ef0a54d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab3a210655e288ef0abab không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab3a810655e288ef0ac62 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab3ae10655e288ef0acee không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab3d010655e288ef0afc2 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab3d610655e288ef0b073 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab3db10655e288ef0b0f9 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ab3ef10655e288ef0b1f6 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682abb62f0c72ca87609b67a không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ad3f0a360144c0e472afa không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ad41fa360144c0e472c2d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ad440a360144c0e472d03 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ae67491cd7c772f8dba9b không có projectId.
+2025-05-23 19:14:16 warn: Notification 682ae67d91cd7c772f8dbb1d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682aea2491cd7c772f8dc399 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682b3b14f1423c2682201fa9 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682b3b5bf1423c2682202355 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682b7f07635018d7bf3bdaff không có projectId.
+2025-05-23 19:14:16 warn: Notification 682b8ba0fafd2c592828783f không có projectId.
+2025-05-23 19:14:16 warn: Notification 682b8e5b3499706aa42f6491 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682b8e623499706aa42f657d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682be2ab9b2a593cb4ed6e2d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682be2b09b2a593cb4ed6eb9 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682cbbc951646c04c9a1539b không có projectId.
+2025-05-23 19:14:16 warn: Notification 682d2ac66bbf367b76720a7a không có projectId.
+2025-05-23 19:14:16 warn: Notification 682d79915d232daf61cd3db1 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682d91537b94d63be841d69e không có projectId.
+2025-05-23 19:14:16 warn: Notification 682d919c7b94d63be841d9f9 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0a1d251bb6a04b66f45 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0a5d251bb6a04b67015 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0a8d251bb6a04b670d2 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0acd251bb6a04b6716a không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0b1d251bb6a04b67216 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0bcd251bb6a04b6729d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0c0d251bb6a04b67349 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0c2d251bb6a04b673e9 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0c4d251bb6a04b6747d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0c6d251bb6a04b67505 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0cbd251bb6a04b67571 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc0cdd251bb6a04b675be không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc18cd251bb6a04b67999 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc190d251bb6a04b67a24 không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc36ed251bb6a04b67b4d không có projectId.
+2025-05-23 19:14:16 warn: Notification 682dc371d251bb6a04b67b93 không có projectId.
+2025-05-23 19:14:16 warn: Notification 68301e0fd48d1e5eabf0a52b không có projectId.
+2025-05-23 19:14:16 info: Đã cập nhật projectModel cho notifications.
+2025-05-23 19:14:16 info: Đồng bộ dữ liệu hoàn tất.
+2025-05-23 19:16:02 info: [SyncService] Chuẩn bị dữ liệu đồng bộ. Năm: 2025, Loại CT: category
+2025-05-23 19:16:02 info: [SyncService] Lọc theo loại công trình: category. Số lượng còn lại: 35
+2025-05-23 19:16:02 info: [SyncService] Tìm thấy tổng cộng 35 công trình từ CategoryProject và MinorRepairProject.
+2025-05-23 19:16:13 info: [SyncService] Đã chuẩn bị 13 công trình để review.
+2025-05-23 19:21:19 info: Một người dùng đã kết nối: 4M-vLGsiqiIfqwLTAAAO
+2025-05-23 19:21:19 info: Một người dùng đã kết nối: tGWD9HF3gxcZRzU0AAAP
+2025-05-23 19:33:10 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 19:33:10 info: Một người dùng đã kết nối: oVq5iOpO9_Os9bUAAAAB
+2025-05-23 19:33:10 info: Một người dùng đã kết nối: 4qZTbngLW1Z7XyBKAAAD
+2025-05-23 19:33:10 info: Một người dùng đã kết nối: wRT0Fn5NagKML9F4AAAF
+2025-05-23 19:33:11 info: Một người dùng đã kết nối: Dk6pvSZYDxaUndlWAAAH
+2025-05-23 19:33:11 info: Một người dùng đã kết nối: _FpXh6WVwDjDtLKIAAAJ
+2025-05-23 19:33:11 info: Một người dùng đã kết nối: H611v2zwoAMzw0xyAAAL
+2025-05-23 19:33:11 info: MongoDB đã kết nối thành công.
+2025-05-23 19:33:17 info: Người dùng đã ngắt kết nối: oVq5iOpO9_Os9bUAAAAB
+2025-05-23 19:33:17 info: Người dùng đã ngắt kết nối: Dk6pvSZYDxaUndlWAAAH
+2025-05-23 19:33:17 info: Người dùng đã ngắt kết nối: 4qZTbngLW1Z7XyBKAAAD
+2025-05-23 19:33:17 info: Một người dùng đã kết nối: gxo_YlFKSRKP1PtBAAAN
+2025-05-23 19:34:21 info: Một người dùng đã kết nối: naoPapTsXnxHr9cUAAAQ
+2025-05-23 19:34:21 info: Một người dùng đã kết nối: ROcge68wdCgZrTmtAAAR
+2025-05-23 19:34:32 info: Người dùng đã ngắt kết nối: gxo_YlFKSRKP1PtBAAAN
+2025-05-23 19:34:32 info: Người dùng đã ngắt kết nối: ROcge68wdCgZrTmtAAAR
+2025-05-23 19:34:32 info: Người dùng đã ngắt kết nối: naoPapTsXnxHr9cUAAAQ
+2025-05-23 19:34:32 info: Một người dùng đã kết nối: RquM349gCulkXU8XAAAT
+2025-05-23 19:34:32 info: Một người dùng đã kết nối: tXBBuJqpawzYsgtkAAAV
+2025-05-23 19:36:33 info: Người dùng đã ngắt kết nối: RquM349gCulkXU8XAAAT
+2025-05-23 19:36:40 info: Một người dùng đã kết nối: SeiK5DxDUq7-Y3xaAAAX
+2025-05-23 19:38:34 error: Lỗi API từ chối công trình: Không tìm thấy công trình
+2025-05-23 19:38:34 error: Lỗi không xác định: Không tìm thấy công trình
+2025-05-23 20:02:16 info: Người dùng đã ngắt kết nối: tXBBuJqpawzYsgtkAAAV
+2025-05-23 20:02:16 info: Người dùng đã ngắt kết nối: SeiK5DxDUq7-Y3xaAAAX
+2025-05-23 20:02:16 info: Một người dùng đã kết nối: oRBAgretoTTB2KlsAAAZ
+2025-05-23 20:02:16 info: Một người dùng đã kết nối: wVnYfYfCdJd6nNuMAAAb
+2025-05-23 20:03:01 error: Lỗi API từ chối công trình: Không tìm thấy công trình
+2025-05-23 20:03:01 error: Lỗi không xác định: Không tìm thấy công trình
+2025-05-23 20:04:40 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 20:04:40 info: Một người dùng đã kết nối: t0WsS6y0RmTfxLRHAAAB
+2025-05-23 20:04:40 info: Một người dùng đã kết nối: zwak2Y1EVmtvqJRGAAAE
+2025-05-23 20:04:40 info: Một người dùng đã kết nối: XPDdkKvjiqGwMr5iAAAF
+2025-05-23 20:04:40 info: Một người dùng đã kết nối: HqsGyfkKS_6BqpLwAAAI
+2025-05-23 20:04:40 info: Một người dùng đã kết nối: e8QD9ZLu02hEUkLbAAAJ
+2025-05-23 20:04:41 info: MongoDB đã kết nối thành công.
+2025-05-23 20:21:28 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 20:21:28 info: Một người dùng đã kết nối: QTanCGrPORQjsg9aAAAB
+2025-05-23 20:21:28 info: Một người dùng đã kết nối: C7whwdWw1Uy7ekVqAAAD
+2025-05-23 20:21:28 info: MongoDB đã kết nối thành công.
+2025-05-23 20:21:29 info: Một người dùng đã kết nối: DoEaG9tEskOXpMOpAAAF
+2025-05-23 20:21:29 info: Một người dùng đã kết nối: Uo8HEOIIcq_UUHQgAAAH
+2025-05-23 20:21:32 info: Một người dùng đã kết nối: I72oggtPgRC2FpgKAAAJ
+2025-05-23 20:27:01 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 20:27:01 info: Một người dùng đã kết nối: AKDpvuS7nZOA44iAAAAC
+2025-05-23 20:27:01 info: Một người dùng đã kết nối: i_NromGZKPQjl-yXAAAD
+2025-05-23 20:27:01 info: MongoDB đã kết nối thành công.
+2025-05-23 20:27:04 info: Một người dùng đã kết nối: XEB1w1tc80WJ2WNcAAAF
+2025-05-23 20:27:04 info: Một người dùng đã kết nối: l_s_yHJ_r76Yl0QYAAAH
+2025-05-23 20:27:07 info: Một người dùng đã kết nối: KOLT9ge4ndTg3bp7AAAJ
+2025-05-23 20:44:45 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 20:44:45 info: Một người dùng đã kết nối: 0oLuHiC1u3tL83lcAAAB
+2025-05-23 20:44:45 info: MongoDB đã kết nối thành công.
+2025-05-23 20:44:46 info: Một người dùng đã kết nối: 0_dVLcgmN4ARMSZNAAAD
+2025-05-23 20:44:46 info: Một người dùng đã kết nối: 69EdXlxOMSwKFvIyAAAF
+2025-05-23 20:44:51 info: Một người dùng đã kết nối: HPw19x9RePWXMAQ4AAAH
+2025-05-23 20:44:52 info: Một người dùng đã kết nối: jed5tlemHZ0AKTVaAAAJ
+2025-05-23 20:44:58 info: Người dùng đã ngắt kết nối: 0oLuHiC1u3tL83lcAAAB
+2025-05-23 20:44:58 info: Người dùng đã ngắt kết nối: 0_dVLcgmN4ARMSZNAAAD
+2025-05-23 20:44:58 info: Một người dùng đã kết nối: JAi9EIedKPqdrKRvAAAL
+2025-05-23 20:44:58 info: Một người dùng đã kết nối: Zu_qnjzNpGPnuSa9AAAN
+2025-05-23 20:45:17 error: Lỗi khi lưu công trình "Cải tạo, sửa chữa, di chuyển tuyến ống đường Thác Bạc (từ ngã 3 đường Điện Biên Phủ đến Khách sạn Lacasa SaPa" từ Excel (sau validate): Regular expression is invalid: missing closing parenthesis
+2025-05-23 20:45:17 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Thác Bạc (từ nhà nghỉ Thanh Bình đến ngã ba đường Nguyễn Chí Thanh)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 20:45:18 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Nhánh nối 10 ( Cả 2 bên)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 20:50:01 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 20:50:02 info: Một người dùng đã kết nối: 8Caj42Kqzvo7WP7GAAAB
+2025-05-23 20:50:02 info: Một người dùng đã kết nối: eimaiOmubcqyhpg_AAAD
+2025-05-23 20:50:02 info: Một người dùng đã kết nối: gt2uOS3ItsrTeaoBAAAF
+2025-05-23 20:50:02 info: Một người dùng đã kết nối: bi2sCce7MNe9XIaQAAAH
+2025-05-23 20:50:02 info: Một người dùng đã kết nối: UAjemAxCfgTXl6_yAAAJ
+2025-05-23 20:50:02 info: MongoDB đã kết nối thành công.
+2025-05-23 20:50:30 warn: [Import Excel] Bỏ qua công trình trùng lặp: Công trình "Bổ sung máy bơm định lượng dự phòng Clo, phèn, polime" của đơn vị "Chi nhánh cấp nước SaPa" trong năm 2025 đã tồn tại trong CSDL.
+2025-05-23 20:55:01 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 20:55:01 info: Một người dùng đã kết nối: R3SzG5ay1oRtRgU-AAAB
+2025-05-23 20:55:01 info: Một người dùng đã kết nối: PYClpAK9iHCCKUA8AAAD
+2025-05-23 20:55:01 info: Một người dùng đã kết nối: fUfuiWGWpfJkQmMEAAAF
+2025-05-23 20:55:01 info: Một người dùng đã kết nối: V_16Fc24jM9I-s9qAAAH
+2025-05-23 20:55:01 info: Một người dùng đã kết nối: DZ8e9jGMrO68SxeJAAAJ
+2025-05-23 20:55:02 info: MongoDB đã kết nối thành công.
+2025-05-23 20:55:05 info: Người dùng đã ngắt kết nối: fUfuiWGWpfJkQmMEAAAF
+2025-05-23 20:55:05 info: Người dùng đã ngắt kết nối: DZ8e9jGMrO68SxeJAAAJ
+2025-05-23 20:55:05 info: Một người dùng đã kết nối: GO4pBMwritbFf4e4AAAL
+2025-05-23 20:55:05 info: Một người dùng đã kết nối: UtdtivNhR0KHyBvhAAAN
+2025-05-23 20:56:42 info: Một người dùng đã kết nối: Z2m7KjBcp3Ysb7o2AAAP
+2025-05-23 20:56:43 info: Một người dùng đã kết nối: 36o1sgwls_PiAVvEAAAR
+2025-05-23 20:56:43 info: Người dùng đã ngắt kết nối: UtdtivNhR0KHyBvhAAAN
+2025-05-23 20:56:43 info: Người dùng đã ngắt kết nối: GO4pBMwritbFf4e4AAAL
+2025-05-23 20:58:27 info: Người dùng đã ngắt kết nối: Z2m7KjBcp3Ysb7o2AAAP
+2025-05-23 20:58:27 info: Người dùng đã ngắt kết nối: 36o1sgwls_PiAVvEAAAR
+2025-05-23 20:58:27 info: Một người dùng đã kết nối: Xonl9iACaTtuhGquAAAT
+2025-05-23 20:58:28 info: Một người dùng đã kết nối: F3cCKlS82RU6uD81AAAV
+2025-05-23 21:01:31 info: Người dùng đã ngắt kết nối: Xonl9iACaTtuhGquAAAT
+2025-05-23 21:01:31 info: Người dùng đã ngắt kết nối: F3cCKlS82RU6uD81AAAV
+2025-05-23 21:01:31 info: Một người dùng đã kết nối: FCmXQbt3N_TFzRe5AAAX
+2025-05-23 21:01:31 info: Một người dùng đã kết nối: BktJIZdS15ItWyS-AAAZ
+2025-05-23 21:08:41 info: Một người dùng đã kết nối: gnn0T3fLr-4AynMBAAAb
+2025-05-23 21:08:49 error: Lỗi Controller kiểm tra trùng lặp Excel: Regular expression is invalid: missing closing parenthesis
+2025-05-23 21:08:49 error: Lỗi không xác định: Regular expression is invalid: missing closing parenthesis
+2025-05-23 21:08:49 error: Lỗi Controller kiểm tra trùng lặp Excel: Regular expression is invalid: missing closing parenthesis
+2025-05-23 21:08:49 error: Lỗi không xác định: Regular expression is invalid: missing closing parenthesis
+2025-05-23 21:31:31 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 21:31:32 info: Một người dùng đã kết nối: PxsBDPHCOKsWIZIRAAAB
+2025-05-23 21:31:32 info: Một người dùng đã kết nối: yKiZINw5bqSmXb2oAAAD
+2025-05-23 21:31:32 info: MongoDB đã kết nối thành công.
+2025-05-23 21:31:33 info: Một người dùng đã kết nối: EKExynI3q5Fk5vydAAAF
+2025-05-23 21:31:34 info: Một người dùng đã kết nối: MHvdDYj6Wnmi5WrQAAAH
+2025-05-23 21:31:34 info: Một người dùng đã kết nối: -9xEQyfJi9elOWTXAAAJ
+2025-05-23 21:31:35 info: Một người dùng đã kết nối: FiNbBi7DQL19dpCFAAAL
+2025-05-23 21:33:41 info: Người dùng đã ngắt kết nối: EKExynI3q5Fk5vydAAAF
+2025-05-23 21:33:51 info: Một người dùng đã kết nối: 0IrVgRLA4c07WyWSAAAN
+2025-05-23 21:35:14 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Kim Hải, Hồ Xuân Hương" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }. Mã sẽ để trống.
+2025-05-23 21:35:15 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Phạm Hồng Thái ( Đoạn từ SN 034 đến SN 048)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }. Mã sẽ để trống.
+2025-05-23 21:35:15 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa, thay thế tuyến ống cấp nước đường Lương Thế Vinh" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CS1" }. Mã sẽ để trống.
+2025-05-23 21:35:39 error: Lỗi API duyệt công trình: Không có yêu cầu nào đang chờ xử lý cho công trình này.
+2025-05-23 21:35:39 error: Lỗi không xác định: Không có yêu cầu nào đang chờ xử lý cho công trình này.
+2025-05-23 21:39:45 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Nhánh nối 10 ( Cả 2 bên)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 21:39:45 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Điện Biên Phủ (đoạn từ số nhà 814a đến số nhà 838)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 21:39:46 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa, di chuyển tuyến ống nước thô Thác Bạc - QL4D - phường Ô Quý Hồ - thị xã Sa Pa" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 21:40:00 info: Người dùng đã ngắt kết nối: PxsBDPHCOKsWIZIRAAAB
+2025-05-23 21:40:00 info: Người dùng đã ngắt kết nối: 0IrVgRLA4c07WyWSAAAN
+2025-05-23 21:40:00 info: Người dùng đã ngắt kết nối: FiNbBi7DQL19dpCFAAAL
+2025-05-23 21:40:01 info: Một người dùng đã kết nối: vtLBXuO_9Zdsrtp1AAAP
+2025-05-23 21:40:01 info: Một người dùng đã kết nối: FWp9fyUCgxLFcQlbAAAR
+2025-05-23 21:40:25 info: Người dùng đã ngắt kết nối: vtLBXuO_9Zdsrtp1AAAP
+2025-05-23 21:40:32 info: Một người dùng đã kết nối: DzAIPmSiEePu-r2qAAAT
+2025-05-23 21:41:04 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Nhánh nối 10 ( Cả 2 bên)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 21:41:04 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Điện Biên Phủ (đoạn từ số nhà 814a đến số nhà 838)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 21:41:05 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa, di chuyển tuyến ống nước thô Thác Bạc - QL4D - phường Ô Quý Hồ - thị xã Sa Pa" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 21:51:21 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 21:51:21 info: Một người dùng đã kết nối: ZLbKsnyC_MoWsaBDAAAB
+2025-05-23 21:51:21 info: Một người dùng đã kết nối: hTnMwMapcBV2J1BnAAAD
+2025-05-23 21:51:21 info: Một người dùng đã kết nối: 8Rae0J0t-tmxzSkWAAAF
+2025-05-23 21:51:21 info: Một người dùng đã kết nối: ELvZgcSwUFsP8VFYAAAH
+2025-05-23 21:51:21 info: Một người dùng đã kết nối: Oaooa7OMjwLe3OYEAAAJ
+2025-05-23 21:51:22 info: MongoDB đã kết nối thành công.
+2025-05-23 21:55:04 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 1/5. Retrying in 133.0088894287528ms.
+2025-05-23 21:55:04 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 2/5. Retrying in 201.5536242887589ms.
+2025-05-23 21:55:04 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 3/5. Retrying in 439.12512302990444ms.
+2025-05-23 21:55:05 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 4/5. Retrying in 834.8663120797788ms.
+2025-05-23 21:55:06 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 5/5. Retrying in 1636.094532956123ms.
+2025-05-23 21:55:07 error: Failed to update ProjectCodeCounter for {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"} after 5 retries.
+2025-05-23 21:55:07 warn: Không thể tạo mã cho công trình: Cải tạo, sửa chữa thay thế tuyến ống đường Nhánh nối 10 ( Cả 2 bên) do thiếu thông tin đơn vị/đợt. Mã sẽ để trống.
+2025-05-23 21:55:08 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 1/5. Retrying in 129.096690535489ms.
+2025-05-23 21:55:08 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 2/5. Retrying in 233.36046652351695ms.
+2025-05-23 21:55:08 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 3/5. Retrying in 415.6768288103506ms.
+2025-05-23 21:55:09 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 4/5. Retrying in 801.3456403378234ms.
+2025-05-23 21:55:10 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 5/5. Retrying in 1628.3572183820397ms.
+2025-05-23 21:55:11 error: Failed to update ProjectCodeCounter for {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"} after 5 retries.
+2025-05-23 21:55:11 warn: Không thể tạo mã cho công trình: Cải tạo, sửa chữa thay thế tuyến ống đường Điện Biên Phủ (đoạn từ số nhà 814a đến số nhà 838) do thiếu thông tin đơn vị/đợt. Mã sẽ để trống.
+2025-05-23 21:55:12 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 1/5. Retrying in 136.23982179848036ms.
+2025-05-23 21:55:12 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 2/5. Retrying in 233.91505789706338ms.
+2025-05-23 21:55:12 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 3/5. Retrying in 424.58927877712745ms.
+2025-05-23 21:55:13 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 4/5. Retrying in 847.5833901175426ms.
+2025-05-23 21:55:14 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 5/5. Retrying in 1600.4360112476272ms.
+2025-05-23 21:55:15 error: Failed to update ProjectCodeCounter for {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"} after 5 retries.
+2025-05-23 21:55:15 warn: Không thể tạo mã cho công trình: Cải tạo, sửa chữa, di chuyển tuyến ống nước thô Thác Bạc - QL4D - phường Ô Quý Hồ - thị xã Sa Pa do thiếu thông tin đơn vị/đợt. Mã sẽ để trống.
+2025-05-23 22:11:35 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 22:11:35 info: Một người dùng đã kết nối: q-2zsptX-lSFYsNvAAAB
+2025-05-23 22:11:35 info: Một người dùng đã kết nối: jOK9YmwUgwGv5QZyAAAE
+2025-05-23 22:11:35 info: Một người dùng đã kết nối: U92WJFMWWbdiQr1tAAAF
+2025-05-23 22:11:35 info: Một người dùng đã kết nối: POa_EMYzP_skb4RQAAAH
+2025-05-23 22:11:35 info: Một người dùng đã kết nối: h4CMp0JNi6GA_mnMAAAJ
+2025-05-23 22:11:36 info: MongoDB đã kết nối thành công.
+2025-05-23 22:12:09 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 1/5. Retrying in 298.57789778219075ms.
+2025-05-23 22:12:09 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 2/5. Retrying in 448.7943166075216ms.
+2025-05-23 22:12:10 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 3/5. Retrying in 809.3980741095111ms.
+2025-05-23 22:12:11 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 4/5. Retrying in 1670.0393657974964ms.
+2025-05-23 22:12:12 error: HẾT LƯỢT THỬ LẠI (5) cho ProjectCodeCounter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"} do lỗi E11000. Lỗi: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 22:12:12 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Nhánh nối 10 ( Cả 2 bên)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 22:12:13 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 1/5. Retrying in 210.0351416948033ms.
+2025-05-23 22:12:13 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 2/5. Retrying in 450.8569855617068ms.
+2025-05-23 22:12:14 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 3/5. Retrying in 858.0992824970485ms.
+2025-05-23 22:12:15 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 4/5. Retrying in 1678.7147268202039ms.
+2025-05-23 22:12:16 error: HẾT LƯỢT THỬ LẠI (5) cho ProjectCodeCounter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"} do lỗi E11000. Lỗi: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 22:12:16 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa thay thế tuyến ống đường Điện Biên Phủ (đoạn từ số nhà 814a đến số nhà 838)" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 22:12:17 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 1/5. Retrying in 258.82677788050654ms.
+2025-05-23 22:12:18 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 2/5. Retrying in 482.0940321871195ms.
+2025-05-23 22:12:18 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 3/5. Retrying in 829.0614731064203ms.
+2025-05-23 22:12:19 warn: Duplicate key error for counter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"}. Retry 4/5. Retrying in 1695.5000212514676ms.
+2025-05-23 22:12:21 error: HẾT LƯỢT THỬ LẠI (5) cho ProjectCodeCounter {"year":2025,"type":"category","allocationWaveShortCode":"00","unitShortCode":"CSP"} do lỗi E11000. Lỗi: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }
+2025-05-23 22:12:21 error: Lỗi tạo projectCode cho công trình "Cải tạo, sửa chữa, di chuyển tuyến ống nước thô Thác Bạc - QL4D - phường Ô Quý Hồ - thị xã Sa Pa" khi nhập Excel: Plan executor error during findAndModify :: caused by :: E11000 duplicate key error collection: test.projectcodecounters index: year_1_type_1_unitShortCode_1 dup key: { year: 2025, type: "category", unitShortCode: "CSP" }. Mã sẽ để trống.
+2025-05-23 23:02:50 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 23:02:51 info: Một người dùng đã kết nối: pM3IMYWckjs4Ls9PAAAB
+2025-05-23 23:02:51 info: Một người dùng đã kết nối: TVen0d0BEgc6eUe8AAAD
+2025-05-23 23:02:51 info: Một người dùng đã kết nối: xMoIijqH5MM2g-JrAAAF
+2025-05-23 23:02:51 info: Một người dùng đã kết nối: YJmSn2wWD0TyEzmtAAAH
+2025-05-23 23:02:51 info: Một người dùng đã kết nối: GURMIq6S1EkNGgbIAAAJ
+2025-05-23 23:02:51 info: MongoDB đã kết nối thành công.
+2025-05-23 23:03:14 info: Người dùng đã ngắt kết nối: pM3IMYWckjs4Ls9PAAAB
+2025-05-23 23:03:14 info: Người dùng đã ngắt kết nối: TVen0d0BEgc6eUe8AAAD
+2025-05-23 23:03:14 info: Một người dùng đã kết nối: 6BxzCrMFYPx1srhLAAAL
+2025-05-23 23:03:14 info: Một người dùng đã kết nối: xO7wq3laJOvEEz7_AAAN
+2025-05-23 23:09:44 info: Người dùng đã ngắt kết nối: 6BxzCrMFYPx1srhLAAAL
+2025-05-23 23:09:52 info: Một người dùng đã kết nối: akuyvwCyBe73xla1AAAP
+2025-05-23 23:22:34 info: Máy chủ đang chạy trên cổng 5000
+2025-05-23 23:22:34 info: Một người dùng đã kết nối: QvABwt3nIxr89IL4AAAB
+2025-05-23 23:22:34 info: Một người dùng đã kết nối: 1bxs1-tnH8QdTSzfAAAE
+2025-05-23 23:22:34 info: Một người dùng đã kết nối: Ehik_I6D4i88DWlxAAAF
+2025-05-23 23:22:34 info: Một người dùng đã kết nối: cPwqLdFSLb1IEDtcAAAI
+2025-05-23 23:22:34 info: Một người dùng đã kết nối: LSv4eLwqDYF62iHvAAAJ
+2025-05-23 23:22:34 info: MongoDB đã kết nối thành công.

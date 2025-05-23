@@ -281,6 +281,13 @@ export const importProjects = async ({ projects, projectType }) => {
   return data;
 };
 
+// API to check for duplicates before Excel import
+export const checkExcelDuplicatesAPI = async ({ projects, projectType }) => {
+  // Gửi projectType trong body thay vì query param
+  const { data } = await apiClient.post(`/api/projects/check-excel-duplicates`, { projects, projectType });
+  return data; // Array of { originalIndex, isDuplicate, existingProjectId, existingProjectName, excelProjectName }
+}
+
 // API to mark project as completed
 export const markProjectAsCompletedAPI = async ({ projectId, type }) => {
   const { data } = await apiClient.patch(`/api/projects/${projectId}/complete?type=${type}`);

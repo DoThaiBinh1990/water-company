@@ -68,18 +68,68 @@ async function generateProjectCode(projectType, financialYear, allocatedUnitName
     waveShortCode = '00';
   }
 
-  const counterQuery = { year: financialYear, type: projectType, allocationWaveShortCode: waveShortCode, unitShortCode: unitShortCode };
+  // Sửa counterQuery để khớp với unique index hiện tại (không bao gồm allocationWaveShortCode)
+  // Điều này có nghĩa là tất cả các đợt trong cùng năm, loại, đơn vị sẽ dùng chung một bộ đếm.
+  const counterQuery = {
+    year: financialYear,
+    type: projectType,
+    unitShortCode: unitShortCode
+  };
   let nextSerial;
+  // const Model = projectType === 'category' ? CategoryProject : MinorRepairProject; // Không cần nữa nếu dùng $inc
 
   if (previewMode) {
+    // Logic preview vẫn dựa trên counter hiện tại + 1
     const existingCounter = await ProjectCodeCounter.findOne(counterQuery);
     nextSerial = existingCounter ? existingCounter.currentSerial + 1 : 1;
   } else {
-    const counter = await ProjectCodeCounter.findOneAndUpdate(
-      counterQuery,
-      { $inc: { currentSerial: 1 } },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
-    );
+    // Implement retry logic for findOneAndUpdate with upsert
+    const MAX_RETRIES = 5;
+    let retries = 0;
+    let counter = null;
+
+    while (retries < MAX_RETRIES) {
+      try {
+        counter = await ProjectCodeCounter.findOneAndUpdate(
+          counterQuery,
+          // Sử dụng $inc để đảm bảo số serial tăng dần và duy nhất cho counterQuery này
+          { $inc: { currentSerial: 1 } }, 
+          { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true } // Thêm runValidators
+        );
+        break; // Success, exit loop
+      } catch (error) {
+        // Kiểm tra lỗi duplicate key một cách chặt chẽ hơn
+        const isDuplicateKeyError = error.code === 11000 || (error.name === 'MongoError' && error.message.includes('E11000'));
+        if (isDuplicateKeyError) {
+          retries++;
+          if (retries >= MAX_RETRIES) {
+            logger.error(
+              `HẾT LƯỢT THỬ LẠI (${MAX_RETRIES}) cho ProjectCodeCounter ${JSON.stringify(counterQuery)} ` +
+              `khi cố gắng $inc do lỗi E11000. Lỗi: ${error.message}`
+            );
+            throw error; // Ném lại lỗi E11000 nếu đã hết lượt thử
+          }
+          const delay = Math.pow(2, retries) * 100 + Math.random() * 100; // Tăng nhẹ base delay và jitter
+          logger.warn(`Duplicate key error for counter ${JSON.stringify(counterQuery)}. Retry ${retries}/${MAX_RETRIES}. Retrying in ${delay}ms.`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          // Other error, re-throw
+          logger.error(
+            `Lỗi không phải E11000 khi cập nhật ProjectCodeCounter cho ${JSON.stringify(counterQuery)} ` +
+            `khi cố gắng $inc: ${error.message}`, { stack: error.stack }
+          );
+          throw error;
+        }
+      }
+    }
+
+    if (!counter) {
+        // Trường hợp này không nên xảy ra nếu lỗi E11000 sau khi hết retry đã được throw ở trên.
+        // Nếu đến đây mà counter vẫn null, có thể là do MAX_RETRIES = 0 hoặc một lỗi logic khác.
+        logger.error(`Không thể lấy/cập nhật ProjectCodeCounter cho ${JSON.stringify(counterQuery)} sau khi thử lại và không có lỗi E11000 được ném ra. Trả về null.`);
+        return null; // Không thể tạo mã nếu không lấy được số serial
+    }
+    // Lấy số serial sau khi đã $inc thành công
     nextSerial = counter.currentSerial;
   }
 

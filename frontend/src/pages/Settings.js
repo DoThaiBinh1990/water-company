@@ -956,8 +956,7 @@ function Settings({ user }) {
         <div className="bg-white p-8 rounded-2xl shadow-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Đồng bộ dữ liệu công trình</h2>
           <p className="text-gray-600 mb-4">
-            Chức năng này sẽ giúp bạn kiểm tra và đồng bộ các công trình từ dữ liệu cũ (collection <code>projects</code>)
-            sang cấu trúc dữ liệu mới, đảm bảo các trường thông tin được cập nhật.
+            Chức năng này sẽ giúp kiểm tra và đồng bộ các công trình có form dữ liệu cũ sang form dữ liệu mới nhất.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
@@ -1121,6 +1120,7 @@ function Settings({ user }) {
             projectTypesList: projectTypes,
             constructionUnitsList: constructionUnits,
             allocationWavesList: allocationWaves,
+            currentUser: user, // Truyền user hiện tại
           }}
         />
       )}

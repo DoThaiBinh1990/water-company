@@ -2,10 +2,10 @@
 const mongoose = require('mongoose');
 const { CategoryProject, MinorRepairProject, User, SerialCounter, Notification } = require('../models');
 const { populateProjectFields, updateSerialNumbers, areDatesEqual } = require('../utils');
-const logger = require('../config/logger');
+const logger = require('../config/logger'); // Import logger
 const Joi = require('joi');
 const { generateProjectCode } = require('./helpers/projectCodeHelper'); // Import helper tạo mã CT
-const { userFieldToQuery } = require('./helpers/serviceHelpers');
+const { userFieldToQuery, escapeRegExp } = require('./helpers/serviceHelpers'); // Thêm escapeRegExp
 
 const getProjectsList = async (queryParams) => {
   const { user, type = 'category', page = 1, limit = 10, status, allocatedUnit, constructionUnit, allocationWave, assignedTo, search, minInitialValue, maxInitialValue, progress, pending, supervisor, estimator, reportDate, financialYear, isCompleted, projectType: categoryProjectTypeFilter } = queryParams;
@@ -139,7 +139,7 @@ const createNewProject = async (projectData, user, projectType, io) => {
     financialYear: parseInt(financialYear, 10),
     isCompleted: isCompleted === true || String(isCompleted).toLowerCase() === 'true',
     enteredBy: user.username,
-    projectCode: await generateProjectCode(projectType, parseInt(financialYear, 10), allocatedUnit), // Tạo projectCode
+    projectCode: await generateProjectCode(projectType, parseInt(financialYear, 10), allocatedUnit, projectData.allocationWave), // Thêm allocationWave
     createdBy: user.id,
   };
 
@@ -621,30 +621,33 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
   throw { statusCode: 403, message: 'Không có quyền xóa hoặc gửi yêu cầu xóa công trình này.' };
 };
 
+
 const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
   const Model = projectType === 'category' ? CategoryProject : MinorRepairProject;
   const validationResults = [];
   const projectsToSavePayloads = [];
   let hasAnyError = false;
 
+  // Define Joi schemas for validation
   const baseProjectSchema = Joi.object({
     name: Joi.string().trim().required().messages({ 'any.required': 'Tên công trình là bắt buộc.', 'string.empty': 'Tên công trình không được để trống.' }),
     allocatedUnit: Joi.string().trim().required().messages({ 'any.required': 'Đơn vị phân bổ là bắt buộc.', 'string.empty': 'Đơn vị phân bổ không được để trống.' }),
     location: Joi.string().trim().required().messages({ 'any.required': 'Địa điểm là bắt buộc.', 'string.empty': 'Địa điểm không được để trống.' }),
     scale: Joi.string().trim().required().messages({ 'any.required': 'Quy mô là bắt buộc.', 'string.empty': 'Quy mô không được để trống.' }),
-    financialYear: Joi.number().integer().min(2000).max(2100).optional().allow(null, ''), // Allow optional, will default if not provided
-    isCompleted: Joi.boolean().optional().allow(null, ''), // Allow optional
-    approvedBy: Joi.string().optional().allow(null, ''),
-    supervisor: Joi.string().optional().allow(null, ''),
+    financialYear: Joi.number().integer().min(2000).max(2100).optional().allow(null, ''),
+    isCompleted: Joi.boolean().optional().allow(null, ''),
+    approvedBy: Joi.string().optional().allow(null, ''), // Sẽ được resolve thành ID
+    supervisor: Joi.string().optional().allow(null, ''), // Sẽ được resolve thành ID
     initialValue: Joi.number().optional().allow(null, ''),
     taskDescription: Joi.string().optional().allow(null, ''),
     notes: Joi.string().optional().allow(null, ''),
     leadershipApproval: Joi.string().optional().allow(null, ''),
-  }).unknown(true);
+    projectCode: Joi.string().trim().uppercase().optional().allow(null, ''), // Cho phép projectCode từ Excel
+  }).unknown(true); // Cho phép các trường khác không được định nghĩa tường minh
 
   const categoryProjectImportSchema = baseProjectSchema.keys({
     projectType: Joi.string().trim().required().messages({ 'any.required': 'Loại công trình là bắt buộc.', 'string.empty': 'Loại công trình không được để trống.' }),
-    estimator: Joi.string().optional().allow(null, ''),
+    estimator: Joi.string().optional().allow(null, ''), // Sẽ được resolve thành ID
     durationDays: Joi.number().optional().allow(null, ''),
     startDate: Joi.date().iso().optional().allow(null, ''),
     completionDate: Joi.date().iso().optional().allow(null, ''),
@@ -661,29 +664,35 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
     paymentValue: Joi.number().optional().allow(null, '')
   });
 
-
   for (let i = 0; i < projectsToImport.length; i++) {
     const projectDataFromExcel = { ...projectsToImport[i] };
     const originalProjectNameForDisplay = projectDataFromExcel.name || `Hàng ${i + 1} trong Excel`;
     let dataToValidateAndSave = {};
 
-    try {
+    try { // Bắt đầu khối try cho việc xử lý từng project
       const schema = projectType === 'category' ? categoryProjectImportSchema : minorRepairProjectImportSchema;
-      const { error, value } = schema.validate(projectDataFromExcel, { abortEarly: false, stripUnknown: false });
-      if (error) { throw error; }
+      const { error: joiValidationError, value } = schema.validate(projectDataFromExcel, { abortEarly: false, stripUnknown: false });
+      if (joiValidationError) {
+        // Gắn một thuộc tính để dễ nhận diện lỗi Joi trong khối catch chung
+        joiValidationError.isJoiError = true;
+        throw joiValidationError;
+      }
       dataToValidateAndSave = value;
 
-      if (projectDataFromExcel.hasOwnProperty('financialYear')) {
-        dataToValidateAndSave.financialYear = projectDataFromExcel.financialYear ? parseInt(String(projectDataFromExcel.financialYear), 10) : new Date().getFullYear();
+      // Xử lý financialYear
+      if (dataToValidateAndSave.hasOwnProperty('financialYear')) {
+        dataToValidateAndSave.financialYear = dataToValidateAndSave.financialYear ? parseInt(String(dataToValidateAndSave.financialYear), 10) : new Date().getFullYear();
       } else {
         dataToValidateAndSave.financialYear = new Date().getFullYear();
       }
-      if (projectDataFromExcel.hasOwnProperty('isCompleted')) {
-        dataToValidateAndSave.isCompleted = projectDataFromExcel.isCompleted === true || String(projectDataFromExcel.isCompleted).toLowerCase() === 'true';
+      // Xử lý isCompleted
+      if (dataToValidateAndSave.hasOwnProperty('isCompleted')) {
+        dataToValidateAndSave.isCompleted = dataToValidateAndSave.isCompleted === true || String(dataToValidateAndSave.isCompleted).toLowerCase() === 'true';
       } else {
         dataToValidateAndSave.isCompleted = false;
       }
 
+      // Đảm bảo tất cả các trường model từ Excel được xem xét nếu chưa có trong dữ liệu đã validate
       const allModelFields = Object.keys(Model.schema.paths);
       allModelFields.forEach(modelFieldKey => {
         if (projectDataFromExcel.hasOwnProperty(modelFieldKey) && !dataToValidateAndSave.hasOwnProperty(modelFieldKey)) {
@@ -691,14 +700,16 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
         }
       });
 
+      // Validate quyền dựa trên đơn vị của người dùng
       if ((user.role === 'staff-branch' || user.role === 'manager-branch') && user.unit) {
         if (dataToValidateAndSave.allocatedUnit !== user.unit && !user.permissions.viewOtherBranchProjects) {
           throw new Error(`Đơn vị phân bổ "${dataToValidateAndSave.allocatedUnit}" không thuộc chi nhánh của bạn (${user.unit}).`);
         }
       }
 
+      // Resolve các trường tham chiếu người dùng
       const userRefFieldsToProcess = {
-        approvedBy: { required: user.role !== 'admin' },
+        approvedBy: { required: user.role !== 'admin' }, // Bắt buộc nếu không phải admin
         supervisor: { required: false },
         estimator: { required: false, categoryOnly: true }
       };
@@ -718,15 +729,15 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
               if (fieldName === 'approvedBy' && !userFoundById.permissions?.approve) {
                 throw new Error(`Người dùng "${userFoundById.fullName || userFoundById.username}" (ID: ${userIdentifier}) không có quyền phê duyệt.`);
               }
-              dataToValidateAndSave[fieldName] = userFoundById._id;
+              dataToValidateAndSave[fieldName] = userFoundById._id; // Lưu ID
             }
-          } else {
+          } else { // Không resolve được userIdentifier
             if (config.required) throw new Error(`Không tìm thấy người dùng với thông tin "${userIdentifier}" cho trường ${fieldName}.`);
             dataToValidateAndSave[fieldName] = null;
           }
-        } else if (config.required) {
+        } else if (config.required) { // UserIdentifier rỗng nhưng trường là bắt buộc
           throw new Error(`Trường ${fieldName} là bắt buộc.`);
-        } else {
+        } else { // UserIdentifier rỗng và trường không bắt buộc
           dataToValidateAndSave[fieldName] = null;
         }
       }
@@ -738,65 +749,134 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
 
       if (user.role === 'admin') {
         finalPayload.status = 'Đã duyệt';
-        finalPayload.approvedBy = user.id;
+        finalPayload.approvedBy = user.id; // Admin tự duyệt
         finalPayload.history.push({ action: 'approved', user: user.id, timestamp: new Date(), details: "Admin direct import" });
       } else {
         finalPayload.status = 'Chờ duyệt';
-        if (!finalPayload.approvedBy) {
+        if (!finalPayload.approvedBy) { // Đã validate ở trên
           throw new Error(`Người phê duyệt là bắt buộc khi nhập bởi người dùng không phải Admin.`);
         }
       }
 
-      finalPayload.financialYear = finalPayload.financialYear ? parseInt(String(finalPayload.financialYear), 10) : new Date().getFullYear();
-      finalPayload.isCompleted = finalPayload.isCompleted === true || String(finalPayload.isCompleted).trim().toLowerCase() === 'true';
-
-      // Convert date fields
+      // Chuyển đổi các trường ngày tháng (Joi đã validate là ISO string) thành Date objects
       ['reportDate', 'inspectionDate', 'paymentDate', 'startDate', 'completionDate'].forEach(dateField => {
         if (finalPayload.hasOwnProperty(dateField) && finalPayload[dateField]) {
-            finalPayload[dateField] = new Date(finalPayload[dateField]);
+          const dateVal = new Date(finalPayload[dateField]);
+          if (!isNaN(dateVal.getTime())) {
+            finalPayload[dateField] = dateVal;
+          } else {
+            // Nếu Joi đã pass mà new Date() vẫn lỗi, có thể là do Excel date number chưa được xử lý
+            // Hoặc frontend gửi định dạng không chuẩn ISO mà Joi lại chấp nhận.
+            // Thêm xử lý cho Excel date number nếu cần.
+            if (typeof finalPayload[dateField] === 'number' && finalPayload[dateField] > 25569) {
+                const excelDateNumber = finalPayload[dateField];
+                finalPayload[dateField] = new Date(Math.round((excelDateNumber - 25569) * 86400 * 1000));
+                if (isNaN(finalPayload[dateField].getTime())) {
+                    logger.warn(`Invalid Excel date number for ${dateField}: ${excelDateNumber} for project ${originalProjectNameForDisplay}`);
+                    finalPayload[dateField] = null;
+                }
+            } else {
+                logger.warn(`Invalid date string for ${dateField}: ${finalPayload[dateField]} for project ${originalProjectNameForDisplay}`);
+                finalPayload[dateField] = null;
+            }
+          }
         }
       });
 
+      // Dọn dẹp các trường không thuộc schema
       const schemaKeys = new Set(allModelFields);
       for (const key in finalPayload) {
-        if (!schemaKeys.has(key) && key !== 'history') {
+        if (!schemaKeys.has(key) && key !== 'history') { // Cho phép 'history' vì nó được push
           delete finalPayload[key];
         }
       }
-      delete finalPayload.type;
+      delete finalPayload.type; // 'type' từ req.body, không phải của schema project
 
       projectsToSavePayloads.push(finalPayload);
       validationResults.push({ success: true, projectName: originalProjectNameForDisplay, rowIndex: i });
 
-    } catch (error) {
-      const rowErrors = {};
-      if (error.details && Array.isArray(error.details)) {
-        error.details.forEach(detail => {
-          rowErrors[detail.path.join('.')] = detail.message;
-        });
-      } else {
-        rowErrors['general'] = error.message;
-      }
-      logger.error(`Lỗi validate công trình "${originalProjectNameForDisplay}" (hàng ${i + 1}) từ Excel:`, { message: error.message, data: projectDataFromExcel, path: 'importProjectsBatch' });
-      validationResults.push({ success: false, projectName: originalProjectNameForDisplay, error: error.message, rowIndex: i, field: error.field, details: rowErrors });
+    } catch (err) { // Khối catch chung
       hasAnyError = true;
-    }
-  }
+      const rowErrors = {};
+      let errorMessage = 'Lỗi không xác định trong quá trình xử lý.';
+      let errorField = null;
+
+      if (err.isJoiError || (err.details && Array.isArray(err.details))) { // Kiểm tra lỗi Joi
+        errorMessage = err.message;
+        if (err.details && Array.isArray(err.details)) {
+            err.details.forEach(detail => {
+                rowErrors[detail.path.join('.')] = detail.message;
+            });
+            errorField = err.details?.[0]?.path.join('.');
+        } else {
+            rowErrors['general'] = err.message;
+        }
+        logger.error(`Lỗi Joi validate công trình "${originalProjectNameForDisplay}" (hàng ${i + 1}) từ Excel:`, { message: err.message, data: projectDataFromExcel, path: 'importProjectsBatch' });
+      } else { // Các lỗi khác (custom hoặc không mong muốn)
+        errorMessage = err.message || 'Lỗi không xác định.';
+        rowErrors['general'] = errorMessage;
+        if (err.message.includes("không thuộc chi nhánh của bạn") || err.message.includes("Người phê duyệt là bắt buộc") || err.message.includes("Không tìm thấy người dùng") || err.message.includes("không có quyền phê duyệt")) {
+            logger.error(`Lỗi xử lý công trình "${originalProjectNameForDisplay}" (hàng ${i + 1}) từ Excel:`, { message: err.message, data: projectDataFromExcel, path: 'importProjectsBatch' });
+        } else {
+            logger.error(`Lỗi không xác định khi xử lý công trình "${originalProjectNameForDisplay}" (hàng ${i + 1}) từ Excel:`, { message: err.message, stack: err.stack, data: projectDataFromExcel, path: 'importProjectsBatch' });
+        }
+      }
+      validationResults.push({ success: false, projectName: originalProjectNameForDisplay, error: errorMessage, rowIndex: i, field: errorField, details: rowErrors });
+    } // Đóng khối try-catch chung
+  } // Đóng vòng lặp for
 
   if (hasAnyError) {
     const errorResponse = new Error('Có lỗi trong dữ liệu Excel. Vui lòng kiểm tra và thử lại.');
     errorResponse.statusCode = 400;
-    errorResponse.results = validationResults;
+    errorResponse.results = validationResults; // Gửi kết quả validate chi tiết về frontend
     throw errorResponse;
   }
 
   const savedProjectsResults = [];
   let importedCount = 0;
-  for (const projectPayload of projectsToSavePayloads) {
-    try {
+  for (let k = 0; k < projectsToSavePayloads.length; k++) {
+    const projectPayload = projectsToSavePayloads[k];
+    // Lấy rowIndex gốc từ validationResults để báo lỗi đúng hàng nếu có lỗi ở bước lưu
+    const originalRowIndex = validationResults.find(vr => vr.projectName === projectPayload.name && vr.success)?.rowIndex ?? k;
+
+    try { // Bắt đầu khối try cho việc lưu từng project
+      // Kiểm tra trùng lặp nghiêm ngặt trước khi lưu
+      const existingProject = await Model.findOne({
+        name: { $regex: `^${String(projectPayload.name).trim()}$`, $options: 'i' },
+        allocatedUnit: { $regex: `^${String(projectPayload.allocatedUnit).trim()}$`, $options: 'i' },
+        financialYear: projectPayload.financialYear
+      });
+
+      if (existingProject) {
+        const errorMessage = `Công trình "${projectPayload.name}" của đơn vị "${projectPayload.allocatedUnit}" trong năm ${projectPayload.financialYear} đã tồn tại trong CSDL.`;
+        logger.warn(`[Import Excel] Bỏ qua công trình trùng lặp: ${errorMessage}`);
+        savedProjectsResults.push({ success: false, projectName: projectPayload.name, error: errorMessage, rowIndex: originalRowIndex });
+        continue; // QUAN TRỌNG: Bỏ qua không lưu công trình này
+      }
+
+      // Tạo projectCode nếu chưa có hoặc rỗng
+      if (!projectPayload.projectCode || String(projectPayload.projectCode).trim() === '') {
+        try {
+            projectPayload.projectCode = await generateProjectCode(
+                projectType,
+                projectPayload.financialYear,
+                projectPayload.allocatedUnit, // Truyền tên hoặc ID
+                projectPayload.allocationWave // Truyền tên hoặc ID (chỉ cho category)
+            ); // Mặc định previewMode = false
+            if (!projectPayload.projectCode) {
+                // Điều này có thể xảy ra nếu generateProjectCode trả về null (ví dụ, không tìm thấy unit shortCode)
+                logger.warn(`Không thể tạo mã cho công trình: ${projectPayload.name} do thiếu thông tin đơn vị/đợt. Mã sẽ để trống.`);
+            }
+        } catch (codeGenError) {
+            logger.error(`Lỗi tạo projectCode cho công trình "${projectPayload.name}" khi nhập Excel: ${codeGenError.message}. Mã sẽ để trống.`);
+            projectPayload.projectCode = null; // Hoặc một giá trị mặc định nếu cần
+        }
+      }
+
+
       const project = new Model(projectPayload);
       let newProject = await project.save();
-      newProject = await populateProjectFields(newProject);
+      newProject = await populateProjectFields(newProject); // Populate để trả về đầy đủ thông tin
 
       if (projectPayload.status === 'Chờ duyệt') {
         const notification = new Notification({
@@ -806,24 +886,76 @@ const importProjectsBatch = async (projectsToImport, user, projectType, io) => {
           projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
           status: 'pending',
           userId: user.id,
-          recipientId: projectPayload.approvedBy
+          recipientId: projectPayload.approvedBy // Đã được resolve thành ID ở bước trước
         });
         await notification.save();
         if (io) io.emit('notification', { ...notification.toObject(), projectId: { _id: newProject._id, name: newProject.name, type: projectType } });
-      } else {
-        if (io) io.emit('project_updated', { ...newProject.toObject(), projectType });
+      } else { // Admin import, đã duyệt
+        if (io) io.emit('project_updated', { ...newProject.toObject(), projectType }); // Hoặc 'project_created'
       }
-      savedProjectsResults.push({ success: true, projectName: newProject.name, project: newProject.toObject() });
+      savedProjectsResults.push({ success: true, projectName: newProject.name, project: newProject.toObject(), rowIndex: originalRowIndex });
       importedCount++;
-    } catch (dbError) {
+    } catch (dbError) { // Đóng khối try cho việc lưu từng project
       logger.error(`Lỗi khi lưu công trình "${projectPayload.name}" từ Excel (sau validate):`, { message: dbError.message, data: projectPayload, path: 'importProjectsBatch' });
-      const criticalError = new Error(`Lỗi nghiêm trọng khi lưu công trình "${projectPayload.name}" đã validate: ${dbError.message}`);
-      criticalError.statusCode = 500;
-      throw criticalError;
-    }
+      // Thêm lỗi vào savedProjectsResults cho dòng cụ thể này
+      savedProjectsResults.push({ success: false, projectName: projectPayload.name, error: `Lỗi CSDL: ${dbError.message}`, rowIndex: originalRowIndex });
+      // Không throw lỗi ở đây để các công trình khác vẫn được xử lý,
+      // frontend sẽ nhận được mảng results và hiển thị trạng thái từng dòng.
+    } // Đóng khối catch cho việc lưu từng project
+  } // Đóng vòng lặp for thứ hai
+  // Kiểm tra xem có lỗi nào xảy ra trong quá trình lưu không
+  const hasSavingErrors = savedProjectsResults.some(r => !r.success);
+  if (hasSavingErrors) {
+    // Trả về kết quả hỗn hợp: một số thành công, một số thất bại.
+    // Frontend sẽ nhận mảng này và có thể hiển thị trạng thái từng dòng.
+    return {
+        message: `Hoàn tất nhập từ Excel. Đã nhập thành công ${importedCount} công trình. Một số công trình có thể đã gặp lỗi khi lưu.`,
+        results: savedProjectsResults, // Gửi kết quả chi tiết về frontend
+        partialSuccess: true
+    };
   }
+
   return { message: `Hoàn tất nhập từ Excel. Đã nhập thành công ${importedCount} công trình.`, results: savedProjectsResults };
 };
+
+
+const checkDuplicatesFromExcel = async (projectsFromExcel, projectType) => {
+  const Model = projectType === 'category' ? CategoryProject : MinorRepairProject;
+  const results = [];
+
+  for (let i = 0; i < projectsFromExcel.length; i++) {
+    const project = projectsFromExcel[i];
+    const { name, allocatedUnit, financialYear: rawFinancialYear } = project;
+    let isDuplicate = false;
+    let existingProjectName = null;
+    let existingProjectId = null;
+
+    const financialYear = rawFinancialYear ? parseInt(String(rawFinancialYear), 10) : new Date().getFullYear();
+
+    if (name && allocatedUnit && !isNaN(financialYear)) {
+      const existing = await Model.findOne({
+        name: { $regex: `^${escapeRegExp(String(name).trim())}$`, $options: 'i' },
+        allocatedUnit: { $regex: `^${escapeRegExp(String(allocatedUnit).trim())}$`, $options: 'i' },
+        financialYear: financialYear,
+      }).select('_id name'); // Chỉ lấy _id và name để hiển thị
+
+      if (existing) {
+        isDuplicate = true;
+        existingProjectId = existing._id.toString();
+        existingProjectName = existing.name;
+      }
+    }
+    results.push({
+      originalIndex: i, // Giữ lại index gốc từ mảng input để frontend map lại
+      isDuplicate,
+      existingProjectId,
+      existingProjectName,
+      excelProjectName: name, // Trả lại tên từ excel để dễ đối chiếu
+    });
+  }
+  return results;
+};
+
 
 module.exports = {
   getProjectsList,
@@ -831,4 +963,5 @@ module.exports = {
   updateProjectById,
   deleteProjectById,
   importProjectsBatch,
+  checkDuplicatesFromExcel,
 };
