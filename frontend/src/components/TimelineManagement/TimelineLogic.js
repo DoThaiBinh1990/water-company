@@ -82,37 +82,44 @@ export const useTimelineData = ({ user, timelineType, objectType, initialYear, f
   });
 
   // Hàm xử lý onDateChange từ Gantt chart
-  const handleDateChange = useCallback((taskId, newStartDate, newEndDate) => {
-      // newStartDate và newEndDate là Date objects từ frappe-gantt
-      // taskId ở đây thực chất là taskGantt._originalTask từ TimelineGanttChart
-      const projectId = taskId?._id || taskId?.id; // Lấy ID từ object công trình gốc
-      if (!projectId) {
-          toast.error('Lỗi: Không tìm thấy ID công trình để cập nhật ngày tháng.', { position: "top-center" });
-          return;
-      }
-      const updateData = {
-          startDate: newStartDate.toISOString().split('T')[0],
-          endDate: newEndDate.toISOString().split('T')[0],
-          // durationDays sẽ được tính lại ở backend hoặc frontend nếu cần
-      };
-      // console.log(`[TimelineLogic] handleDateChange called for task ${taskId}`, updateData);
-      if (timelineType === 'profile') updateProfileTimelineTaskMutation.mutate({ projectId: taskId, updateData });
-      else if (timelineType === 'construction') updateConstructionTimelineTaskMutation.mutate({ projectId, type: objectType, updateData });
+  const handleDateChange = useCallback((changedGanttTask) => {
+    // changedGanttTask là object task từ gantt-task-react,
+    // đã chứa _originalTask và start, end mới (là Date objects)
+    const originalTask = changedGanttTask?._originalTask;
+    if (!originalTask || (!originalTask._id && !originalTask.id)) {
+      toast.error('Lỗi: Không tìm thấy ID công trình gốc để cập nhật ngày tháng.', { position: "top-center" });
+      return;
+    }
+    const projectId = originalTask._id || originalTask.id;
+    const updateData = {
+      startDate: changedGanttTask.start.toISOString().split('T')[0], // Chuyển Date object thành string YYYY-MM-DD
+      endDate: changedGanttTask.end.toISOString().split('T')[0],   // Chuyển Date object thành string YYYY-MM-DD
+      // durationDays sẽ được tính lại ở backend hoặc frontend nếu cần
+    };
+    
+    if (timelineType === 'profile') {
+      updateProfileTimelineTaskMutation.mutate({ projectId, updateData });
+    } else if (timelineType === 'construction') {
+      updateConstructionTimelineTaskMutation.mutate({ projectId, type: objectType, updateData });
+    }
   }, [timelineType, objectType, updateProfileTimelineTaskMutation, updateConstructionTimelineTaskMutation]);
 
   // Hàm xử lý onProgressChange từ Gantt chart
-  const handleProgressChange = useCallback((taskId, newProgress) => {
-      const updateData = {
-          progress: parseInt(newProgress, 10) || 0, // Đảm bảo progress là số
-      };
-      // taskId ở đây thực chất là taskGantt._originalTask từ TimelineGanttChart
-      const projectId = taskId?._id || taskId?.id; // Lấy ID từ object công trình gốc
-      if (!projectId) {
-          toast.error('Lỗi: Không tìm thấy ID công trình để cập nhật tiến độ.', { position: "top-center" });
-      };
-      // console.log(`[TimelineLogic] handleProgressChange called for task ${taskId}`, updateData);
-      if (timelineType === 'profile') updateProfileTimelineTaskMutation.mutate({ projectId: taskId, updateData });
-      else if (timelineType === 'construction') updateConstructionTimelineTaskMutation.mutate({ projectId: taskId, type: objectType, updateData });
+  const handleProgressChange = useCallback((changedGanttTask) => {
+    const originalTask = changedGanttTask?._originalTask;
+    if (!originalTask || (!originalTask._id && !originalTask.id)) {
+      toast.error('Lỗi: Không tìm thấy ID công trình gốc để cập nhật tiến độ.', { position: "top-center" });
+      return;
+    }
+    const projectId = originalTask._id || originalTask.id;
+    const updateData = {
+      progress: parseInt(changedGanttTask.progress, 10) || 0, // Đảm bảo progress là số
+    };
+    if (timelineType === 'profile') {
+      updateProfileTimelineTaskMutation.mutate({ projectId, updateData });
+    } else if (timelineType === 'construction') {
+      updateConstructionTimelineTaskMutation.mutate({ projectId, type: objectType, updateData });
+    }
   }, [timelineType, objectType, updateProfileTimelineTaskMutation, updateConstructionTimelineTaskMutation]);
 
   // Lấy danh sách công trình đủ điều kiện để phân công

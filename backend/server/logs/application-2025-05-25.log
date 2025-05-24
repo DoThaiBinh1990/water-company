@@ -1,0 +1,54 @@
+2025-05-25 00:03:06 info: Người dùng đã ngắt kết nối: 6NQ0V4I82jWxSe-kAAAx
+2025-05-25 00:03:06 info: Người dùng đã ngắt kết nối: MUMS_jzQFwcbrUKEAAAz
+2025-05-25 00:03:07 info: Một người dùng đã kết nối: W13vuaKPr1Fq5EIuAAA1
+2025-05-25 00:03:07 info: Một người dùng đã kết nối: J2ctacFqjHZIlJw4AAA3
+2025-05-25 00:08:45 info: Người dùng đã ngắt kết nối: W13vuaKPr1Fq5EIuAAA1
+2025-05-25 00:08:45 info: Người dùng đã ngắt kết nối: J2ctacFqjHZIlJw4AAA3
+2025-05-25 00:08:45 info: Một người dùng đã kết nối: SBogQoPUvkP9tYTXAAA5
+2025-05-25 00:08:45 info: Một người dùng đã kết nối: Zkrf8SZJfkbRMMGRAAA7
+2025-05-25 00:12:59 info: Người dùng đã ngắt kết nối: SBogQoPUvkP9tYTXAAA5
+2025-05-25 00:12:59 info: Người dùng đã ngắt kết nối: Zkrf8SZJfkbRMMGRAAA7
+2025-05-25 00:12:59 info: Một người dùng đã kết nối: S-_lFwU54Y_i8_hhAAA9
+2025-05-25 00:12:59 info: Một người dùng đã kết nối: 9ForACUPVLNwKm4tAAA_
+2025-05-25 00:17:15 info: Người dùng đã ngắt kết nối: S-_lFwU54Y_i8_hhAAA9
+2025-05-25 00:17:15 info: Một người dùng đã kết nối: sCMTHGMXAKD7cahwAABB
+2025-05-25 00:17:28 info: Người dùng đã ngắt kết nối: 9ForACUPVLNwKm4tAAA_
+2025-05-25 00:17:28 info: Người dùng đã ngắt kết nối: sCMTHGMXAKD7cahwAABB
+2025-05-25 00:17:29 info: Một người dùng đã kết nối: eH2GKdiR_7FgcxlQAABD
+2025-05-25 00:17:29 info: Một người dùng đã kết nối: nB5q8Uv5ZItGNv3HAABF
+2025-05-25 00:24:21 info: Người dùng đã ngắt kết nối: eH2GKdiR_7FgcxlQAABD
+2025-05-25 00:24:21 info: Người dùng đã ngắt kết nối: nB5q8Uv5ZItGNv3HAABF
+2025-05-25 00:24:21 info: Một người dùng đã kết nối: SRmAaZuSF3Difeu_AABH
+2025-05-25 00:24:21 info: Một người dùng đã kết nối: lsgntA7CZv7SWCpPAABJ
+2025-05-25 00:46:03 info: [addHoliday Controller] Received req.body: {"year":2025,"date":"2025-07-02","description":"222"}, Type of req.body.year: number
+2025-05-25 00:46:04 info: Đã thêm ngày nghỉ 2025-07-02 cho năm 2025 bởi admin
+2025-05-25 00:46:14 info: Ngày nghỉ 2025-05-26 cho năm 2025 đã được xóa bởi admin
+2025-05-25 00:46:17 info: Ngày nghỉ 2025-05-28 cho năm 2025 đã được xóa bởi admin
+2025-05-25 00:46:19 info: Ngày nghỉ 2025-07-02 cho năm 2025 đã được xóa bởi admin
+2025-05-25 00:46:21 info: Ngày nghỉ 2025-07-03 cho năm 2025 đã được xóa bởi admin
+2025-05-25 00:50:59 info: Batch update profile timeline result for estimator 6824441608ab772b765f4d88, year 2025:
+2025-05-25 01:01:19 info: Người dùng đã ngắt kết nối: SRmAaZuSF3Difeu_AABH
+2025-05-25 01:01:19 info: Người dùng đã ngắt kết nối: lsgntA7CZv7SWCpPAABJ
+2025-05-25 01:01:19 info: Một người dùng đã kết nối: yWtOgNQf-SCe4fzgAABL
+2025-05-25 01:01:19 info: Một người dùng đã kết nối: _m1r4a5Y_LK7iAuXAABN
+2025-05-25 01:03:40 info: Batch update profile timeline result for estimator 682dc129d251bb6a04b6776a, year 2025:
+2025-05-25 01:05:23 info: Người dùng đã ngắt kết nối: yWtOgNQf-SCe4fzgAABL
+2025-05-25 01:05:23 info: Người dùng đã ngắt kết nối: _m1r4a5Y_LK7iAuXAABN
+2025-05-25 01:05:23 info: Một người dùng đã kết nối: GWzThedz-wc0WdS3AABP
+2025-05-25 01:05:24 info: Một người dùng đã kết nối: wx7tK8dAErzomsXiAABR
+2025-05-25 01:12:17 info: Người dùng đã ngắt kết nối: GWzThedz-wc0WdS3AABP
+2025-05-25 01:12:17 info: Người dùng đã ngắt kết nối: wx7tK8dAErzomsXiAABR
+2025-05-25 01:12:17 info: Một người dùng đã kết nối: bRlSCbhCqkJSCGTdAABT
+2025-05-25 01:12:17 info: Một người dùng đã kết nối: I7dEzmPsg2msrx6qAABV
+2025-05-25 01:20:48 info: Người dùng đã ngắt kết nối: bRlSCbhCqkJSCGTdAABT
+2025-05-25 01:20:48 info: Người dùng đã ngắt kết nối: I7dEzmPsg2msrx6qAABV
+2025-05-25 01:20:48 info: Một người dùng đã kết nối: tNjQ1SD3rYoNApuzAABX
+2025-05-25 01:20:48 info: Một người dùng đã kết nối: y6zV_ak3JatNQ_42AABZ
+2025-05-25 01:21:45 info: Một người dùng đã kết nối: 3UbN6r0Jap9nuoWEAABb
+2025-05-25 01:21:45 info: Một người dùng đã kết nối: 0R2zfkqkiEmkrde_AABd
+2025-05-25 01:21:46 info: Người dùng đã ngắt kết nối: tNjQ1SD3rYoNApuzAABX
+2025-05-25 01:21:46 info: Người dùng đã ngắt kết nối: y6zV_ak3JatNQ_42AABZ
+2025-05-25 01:25:10 info: Người dùng đã ngắt kết nối: 3UbN6r0Jap9nuoWEAABb
+2025-05-25 01:25:10 info: Người dùng đã ngắt kết nối: 0R2zfkqkiEmkrde_AABd
+2025-05-25 01:25:10 info: Một người dùng đã kết nối: OK-dtLguGhwoeeMXAABf
+2025-05-25 01:25:10 info: Một người dùng đã kết nối: Sg7eflNO183oOnExAABh

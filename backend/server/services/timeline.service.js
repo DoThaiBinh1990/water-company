@@ -44,6 +44,7 @@ const getProfileTimelineProjectsList = async (queryParams) => {
   const projects = await Model.find(query)
     .populate('profileTimeline.estimator', 'username fullName')
     .populate('profileTimeline.assignedBy', 'username fullName')
+    .populate('supervisor', 'username fullName') // Populate the main supervisor field
     .sort(sort);
 
   const formattedProjects = projects
@@ -106,6 +107,7 @@ const getConstructionTimelineProjectsList = async (queryParams) => {
   const projects = await Model.find(query)
     .populate('constructionTimeline.supervisor', 'username fullName')
     .populate('constructionTimeline.assignedBy', 'username fullName')
+    .populate('supervisor', 'username fullName') // Populate the main supervisor field
     .sort(sort);
 
   const formattedProjects = projects

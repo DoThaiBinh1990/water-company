@@ -5,6 +5,7 @@ import TimelineGanttChart from './TimelineGanttChart';
 import TimelineAssignmentModal from './TimelineAssignmentModal';
 import { FaHardHat, FaCalendarPlus } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
+import { ViewMode } from 'gantt-task-react'; // Import ViewMode
 import { getConstructionUnits, getHolidaysForYearAPI } from '../../apiService';
 import { toast } from 'react-toastify';
 
@@ -12,6 +13,7 @@ const ConstructionTimelineMinorRepair = ({ user, addMessage }) => {
   const currentYear = new Date().getFullYear();
   const [selectedConstructionUnit, setSelectedConstructionUnit] = useState('');
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [currentGanttViewMode, setCurrentGanttViewMode] = useState(ViewMode.Week); // State cho viewMode
 
   const { data: constructionUnitsList = [] } = useQuery({
     queryKey: ['constructionUnits'],
@@ -104,6 +106,14 @@ const ConstructionTimelineMinorRepair = ({ user, addMessage }) => {
             </button>
           )}
         </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-gray-700 self-center">Chế độ xem:</span>
+          {[ViewMode.Day, ViewMode.Week, ViewMode.Month].map(mode => (
+            <button key={mode} onClick={() => setCurrentGanttViewMode(mode)} className={`btn btn-xs ${currentGanttViewMode === mode ? 'btn-primary-focus' : 'btn-secondary'}`}>
+              {mode === ViewMode.Day ? 'Ngày' : mode === ViewMode.Week ? 'Tuần' : 'Tháng'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {showAssignmentModal && selectedConstructionUnit && (
@@ -128,12 +138,13 @@ const ConstructionTimelineMinorRepair = ({ user, addMessage }) => {
           <TimelineGanttChart
             // key={`${financialYear}-${selectedConstructionUnit}`} // Removed key to prevent unnecessary remounts
             tasks={timelineTasks}
-            viewMode="Week"
+            initialViewMode={currentGanttViewMode} // Truyền viewMode động
             onTaskClick={handleTaskClick}
             onDateChange={handleDateChange}
             onProgressChange={handleProgressChange}
             timelineType="construction"
             holidays={holidaysForModal} // Pass holidays
+            isUpdatingTimelineTask={isUpdatingTimelineTask}
           />
         </div>
       )}

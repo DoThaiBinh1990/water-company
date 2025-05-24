@@ -6,12 +6,14 @@ import TimelineAssignmentModal from './TimelineAssignmentModal'; // Import modal
 import { FaUserTie, FaCalendarPlus } from 'react-icons/fa'; // Thêm icon
 import { toast } from 'react-toastify';
 import { useQuery } from '@tanstack/react-query';
+import { ViewMode } from 'gantt-task-react'; // Import ViewMode
 import { getUsers, getHolidaysForYearAPI } from '../../apiService';
 
 const ProfileTimelineCategory = ({ user, addMessage }) => {
   const currentYear = new Date().getFullYear();
   const [selectedEstimator, setSelectedEstimator] = useState(''); // ID của người lập dự toán
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [currentGanttViewMode, setCurrentGanttViewMode] = useState(ViewMode.Week); // State cho viewMode, mặc định là Tuần
 
   const { data: usersList = [] } = useQuery({
     queryKey: ['users'],
@@ -112,6 +114,15 @@ const ProfileTimelineCategory = ({ user, addMessage }) => {
             </button>
           )}
         </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-gray-700 self-center">Chế độ xem:</span>
+          {[ViewMode.Day, ViewMode.Week, ViewMode.Month].map(mode => (
+            <button key={mode} onClick={() => setCurrentGanttViewMode(mode)} className={`btn btn-xs ${currentGanttViewMode === mode ? 'btn-primary-focus' : 'btn-secondary'}`}>
+              {mode === ViewMode.Day ? 'Ngày' : mode === ViewMode.Week ? 'Tuần' : 'Tháng'}
+            </button>
+          ))}
+        </div>
+
       </div>
 
       {showAssignmentModal && selectedEstimator && (
@@ -135,13 +146,14 @@ const ProfileTimelineCategory = ({ user, addMessage }) => {
     <div className="bg-white p-1 rounded-xl shadow-xl border border-gray-200">
           <TimelineGanttChart
             // key={`${financialYear}-${selectedEstimator}`} // Đã xóa key ở đây
-            tasks={timelineTasks}
-            viewMode="Week"
+            tasks={timelineTasks} // Đổi tên prop thành inputTasks nếu cần
+            initialViewMode={currentGanttViewMode} // Truyền viewMode động
             onTaskClick={handleTaskClick}
             onDateChange={handleDateChange}
             onProgressChange={handleProgressChange}
             timelineType="profile" // Truyền timelineType xuống
             holidays={holidaysForModal} // Pass holidays
+            isUpdatingTimelineTask={isUpdatingTimelineTask}
           />
         </div>
       )}

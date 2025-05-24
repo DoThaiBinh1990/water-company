@@ -1,48 +1,59 @@
 // d:\CODE\water-company\frontend\src\components\TimelineManagement\TimelineGanttChart.js
-import React, { useEffect, useRef, useState } from 'react';
-import Gantt from 'frappe-gantt';
-import { formatDateToLocale } from '../../utils/dateUtils';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Gantt, ViewMode } from 'gantt-task-react'; // Task, EventOption, StylingOption, DisplayOption không cần import trực tiếp nếu không dùng
+import "gantt-task-react/dist/index.css";
+import { formatDateToLocale, calculateEndDateClientSide } from '../../utils/dateUtils'; // Thêm calculateEndDateClientSide
 import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook
 import logger from '../../utils/logger'; // Import logger
 
-const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChange, onProgressChange, timelineType }) => {
-  const ganttRef = useRef(null);
-  const ganttInstance = useRef(null);
-  const [renderableTasksCount, setRenderableTasksCount] = useState(0);
+const TimelineGanttChart = ({ 
+  tasks: inputTasks = [], // Đổi tên để tránh nhầm lẫn và đặt giá trị mặc định
+  initialViewMode = ViewMode.Week, // Đổi tên prop để rõ ràng hơn
+  onTaskClick, 
+  onDateChange, 
+  onProgressChange, 
+  timelineType, 
+  holidays = [],
+  isUpdatingTimelineTask = false, // Thêm prop này với giá trị mặc định
+}) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  // Sử dụng trực tiếp initialViewMode, không cần state 'view' nội bộ nữa
+  // useEffect để đồng bộ view không còn cần thiết nếu dùng key prop hiệu quả
 
-  useEffect(() => {
-    logger.debug('[TimelineGanttChart] useEffect triggered. Input tasks prop:', JSON.stringify(tasks, null, 2));
-    logger.debug('[TimelineGanttChart] viewMode:', viewMode);
-    logger.debug('[TimelineGanttChart] timelineType:', timelineType);
+  const currentViewMode = isMobile ? ViewMode.Day : initialViewMode; 
+  
+  // Điều chỉnh columnWidth và listCellWidth cho phù hợp hơn với các viewMode
+  // listCellWidthValue là tổng chiều rộng của phần danh sách task bên trái (Tên CT, Bắt đầu, Kết thúc)
+  let columnWidthValue;
+  let listCellWidthValue = isMobile ? "200px" : "380px"; // Tăng chiều rộng để chứa 3 cột và tên dài hơn
 
-    const sourceTasks = Array.isArray(tasks) ? tasks : [];
-    logger.debug(`[TimelineGanttChart] sourceTasks.length: ${sourceTasks.length}`);
+  if (currentViewMode === ViewMode.Month) {
+    columnWidthValue = 150; 
+    listCellWidthValue = isMobile ? "180px" : "350px"; 
+  } else if (currentViewMode === ViewMode.Week) {
+    columnWidthValue = 120; // Tăng một chút cho view tuần
+  } else { // Day, QuarterDay, HalfDay
+    columnWidthValue = 80;  // Rộng hơn một chút cho view ngày để dễ đọc hơn
+  }
+
+  const formattedTasks = useMemo(() => {
+    logger.debug('[TimelineGanttChart] useMemo formattedTasks triggered. Input tasks:', JSON.stringify(inputTasks, null, 2));
+    const sourceTasks = Array.isArray(inputTasks) ? inputTasks : [];
 
     if (sourceTasks.length === 0) {
-        logger.info('[TimelineGanttChart] Input tasks prop is empty. Clearing Gantt if exists.');
-        setRenderableTasksCount(0);
-        if (ganttInstance.current) {
-            ganttInstance.current.destroy ? ganttInstance.current.destroy() : (ganttInstance.current.clear && ganttInstance.current.clear());
-            ganttInstance.current = null;
-        }
-        if (ganttRef.current) {
-            ganttRef.current.innerHTML = '';
-        }
-        return; // Exit early if no source tasks
+      logger.info('[TimelineGanttChart] Input tasks prop is empty.');
+      return [];
     }
 
+    // Lọc các task có id, name, và start hợp lệ ban đầu
     const validSourceTasks = sourceTasks.filter(task =>
         task &&
         typeof task.id !== 'undefined' &&
         typeof task.name === 'string' && task.name.trim() !== '' &&
         typeof task.start === 'string' && task.start.match(/^\d{4}-\d{2}-\d{2}$/) // Only require valid start here
     );
-    logger.debug(`[TimelineGanttChart] validSourceTasks.length (tasks with id, name, valid start string): ${validSourceTasks.length}`);
-    if (sourceTasks.length !== validSourceTasks.length) {
-      logger.warn('[TimelineGanttChart] Some tasks were filtered out by validSourceTasks criteria. Initial count:', sourceTasks.length, 'Valid count:', validSourceTasks.length);
-    }
 
+    // Tính toán overallMaxEndDate từ các task có end date hợp lệ
     let overallMaxEndDate = new Date(0);
     validSourceTasks.forEach(task => {
       if (task.end && task.end.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -53,23 +64,24 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
       }
     });
 
+    // Nếu không có end date hợp lệ nào, đặt mặc định là 3 tháng tới
     if (overallMaxEndDate.getTime() === new Date(0).getTime() && validSourceTasks.length > 0) {
       overallMaxEndDate = new Date();
       overallMaxEndDate.setMonth(overallMaxEndDate.getMonth() + 3);
-      logger.debug('[TimelineGanttChart] No valid end dates in tasks, defaulting overallMaxEndDate to 3 months from now:', overallMaxEndDate);
     } else if (validSourceTasks.length === 0) {
-        overallMaxEndDate = new Date(); // Default if no valid tasks
-        overallMaxEndDate.setMonth(overallMaxEndDate.getMonth() + 3);
-        logger.debug('[TimelineGanttChart] No valid source tasks, defaulting overallMaxEndDate to 3 months from now:', overallMaxEndDate);
+      overallMaxEndDate = new Date();
+      overallMaxEndDate.setMonth(overallMaxEndDate.getMonth() + 3);
     }
 
-
     const finalOverallMaxEndDateString = overallMaxEndDate.toISOString().split('T')[0];
-    logger.debug('[TimelineGanttChart] finalOverallMaxEndDateString for manual tasks without end:', finalOverallMaxEndDateString);
 
-    const formattedTasksForGantt = validSourceTasks
+    return validSourceTasks
       .map(task => {
-        const originalProjectData = task._originalTask?.project || task.project || task;
+        // task ở đây là một item từ inputTasks (dữ liệu gốc)
+        // Gán _originalTask bằng chính task này để getTooltipContent có thể truy cập
+        const originalTaskDataForThisFormattedTask = task; // Đây chính là dữ liệu gốc
+        // Khai báo lại originalProjectData ở đây để sử dụng trong scope này
+        const originalProjectData = task; 
         const timelineDetails = timelineType === 'profile' ? originalProjectData.profileTimeline : originalProjectData.constructionTimeline;
         const assignmentType = timelineDetails?.assignmentType || 'auto';
 
@@ -77,219 +89,302 @@ const TimelineGanttChart = ({ tasks, viewMode = 'Week', onTaskClick, onDateChang
 
         if (!taskEndDateStr) {
           if (task.start && timelineDetails?.durationDays > 0) {
-            const tempEndDate = new Date(task.start);
-            // Simple date addition, consider using a robust library or server-side calculation for holidays
-            tempEndDate.setDate(tempEndDate.getDate() + parseInt(timelineDetails.durationDays, 10));
-            taskEndDateStr = tempEndDate.toISOString().split('T')[0];
-            logger.debug(`[TimelineGanttChart] Calculated end date for task "${task.name}" (ID: ${task.id}) based on duration: ${taskEndDateStr}`);
+            // Sử dụng calculateEndDateClientSide
+            const excludeCriteria = timelineDetails?.excludeHolidays !== undefined ? timelineDetails.excludeHolidays : true;
+            const calculatedEnd = calculateEndDateClientSide(
+              task.start, // task.start đã là 'YYYY-MM-DD'
+              parseInt(timelineDetails.durationDays, 10),
+              excludeCriteria,
+              holidays // Truyền danh sách ngày nghỉ
+            );
+            if (calculatedEnd) {
+              taskEndDateStr = calculatedEnd.toISOString().split('T')[0];
+            } else {
+              logger.warn(`[TimelineGanttChart] Could not calculate end date for task "${task.name}" (ID: ${task.id}) with duration.`);
+            }
           } else if (assignmentType === 'manual' && task.start) {
-            // For manual tasks without end date or duration, use overall max end date
             taskEndDateStr = finalOverallMaxEndDateString;
-            logger.warn(`[TimelineGanttChart] Manual task "${task.name}" (ID: ${task.id}) has no end date or duration. Defaulting to overall max: ${taskEndDateStr}`);
           } else if (task.start) {
-            // Fallback for auto tasks without end/duration: end date is same as start date (duration 0)
             taskEndDateStr = task.start;
-            logger.warn(`[TimelineGanttChart] Task "${task.name}" (ID: ${task.id}) has start date but no end date or duration. Defaulting end date to start date: ${taskEndDateStr}`);
           }
         }
         
-        // Ensure taskEndDateStr is not null and is a valid date string before proceeding
         if (!task.start || !taskEndDateStr || !taskEndDateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
             logger.error(`[TimelineGanttChart] Task "${task.name}" (ID: ${task.id}) has invalid start or end date. Start: ${task.start}, End: ${taskEndDateStr}. Skipping.`);
             return null; // Skip this task
         }
 
         if (new Date(taskEndDateStr) < new Date(task.start)) {
-            logger.warn(`[TimelineGanttChart] Task "${task.name}" (ID: ${task.id}) has end date (${taskEndDateStr}) before start date (${task.start}). Adjusting end date to start date.`);
             taskEndDateStr = task.start;
         }
 
-        let customClassValue = ''; // Sẽ chỉ chứa một class duy nhất
+        // Xác định màu sắc cho task
+        let progressColor = '#16A34A'; // Tailwind green-600 (đậm hơn)
+        let barColor = '#86EFAC';      // Tailwind green-300 (đậm hơn)
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const taskEndDateObj = new Date(taskEndDateStr + "T00:00:00.000Z");
 
         if (task.progress === 100) {
-            customClassValue = 'gantt-task-completed';
+            progressColor = '#4B5563'; // Tailwind gray-600
+            barColor = '#D1D5DB';      // Tailwind gray-300
         } else if (taskEndDateObj < today) {
-            customClassValue = 'gantt-task-overdue';
+            progressColor = '#DC2626'; // Tailwind red-600
+            barColor = '#FCA5A5';      // Tailwind red-300
         } else if (assignmentType === 'manual') {
-            customClassValue = 'gantt-manual-task';
-        } else { // assignmentType === 'auto' (và không overdue/completed)
-            customClassValue = 'gantt-auto-task';
-        }
-
-        if (assignmentType === 'manual') {
-            // classNames.push('gantt-manual-task'); // Logic cũ đã được thay thế
+            progressColor = '#7C3AED'; // Tailwind violet-600
+            barColor = '#C4B5FD';      // Tailwind violet-300
         }
 
         return {
-          id: String(task.id || task._id),
+          id: String(task.id || task._id), // Đảm bảo ID là string
           name: task.name,
-          start: task.start,
-          end: taskEndDateStr,
+          start: new Date(task.start), // Chuyển sang Date object
+          end: new Date(taskEndDateStr), // Chuyển sang Date object
           progress: task.progress || 0,
-          dependencies: task.dependencies || '',
-          custom_class: customClassValue, // Chỉ gán một class duy nhất
-          _originalTask: task._originalTask || task
+          type: 'task', // Mặc định là 'task'
+          isDisabled: isUpdatingTimelineTask, // Ví dụ: disable task khi đang cập nhật
+          styles: { 
+            progressColor: progressColor, 
+            progressSelectedColor: progressColor, 
+            backgroundColor: barColor, 
+            backgroundSelectedColor: barColor, 
+          },
+          // Giữ lại task gốc để truy cập thông tin chi tiết khi click hoặc hover
+          _originalTask: originalTaskDataForThisFormattedTask 
         };
       })
-      .filter(ft => ft !== null && ft.start && ft.end && new Date(ft.start) <= new Date(ft.end)); // Ensure ft is not null before accessing properties
+      .filter(ft => ft !== null && ft.start && ft.end && ft.start.getTime() <= ft.end.getTime());
+  }, [inputTasks, timelineType, holidays, isUpdatingTimelineTask]); // Thêm isUpdatingTimelineTask vào dependencies
 
-    logger.debug(`[TimelineGanttChart] formattedTasksForGantt.length (after mapping and final filter): ${formattedTasksForGantt.length}`);
+  const handleTaskChange = (task) => {
+    logger.debug("Task change event (drag/resize):", task);
+    // Truyền toàn bộ object task đã được cập nhật từ gantt-task-react
+    if (onDateChange && task._originalTask) { 
+      onDateChange(task); 
+    }
+  };
+
+  const handleProgressTask = (task) => {
+    logger.debug("Progress change event:", task);
+    // Truyền toàn bộ object task đã được cập nhật
+    if (onProgressChange && task._originalTask) { 
+      onProgressChange(task);
+    }
+  };
+
+  const handleDblClick = (task) => {
+    // Có thể dùng để mở modal chỉnh sửa chi tiết task
+    logger.debug("Task double clicked:", task);
+    if (onTaskClick && task._originalTask) {
+      onTaskClick(task._originalTask);
+    }
+  };
+
+  const handleClick = (task) => {
+    logger.debug("Task clicked:", task);
+    if (onTaskClick && task._originalTask) {
+      onTaskClick(task._originalTask);
+    }
+  };
+
+  // Tooltip content
+  const getTooltipContent = (ganttEventData) => {
+    // ganttEventData là object lớn hơn, task thực sự nằm trong ganttEventData.task
+    const task = ganttEventData.task; 
+
+    if (!task) {
+      return <div style={{ padding: '5px', fontSize: '12px' }}>Lỗi: Không có dữ liệu task.</div>;
+    }
+
+    // _originalTask là project gốc mà chúng ta đã gán khi format task
+    // Dữ liệu công trình thực sự nằm trong task._originalTask.project
+    const actualProjectData = task._originalTask?.project;
+
+    if (typeof actualProjectData !== 'object' || actualProjectData === null) {
+      const taskName = task.name || 'Không xác định';
+      // Log cả ganttEventData để xem toàn bộ cấu trúc nếu cần
+      logger.warn(`[TooltipContent] Missing _originalTask for task: ${taskName} (ID: ${task.id}). Gantt Event Data:`, JSON.stringify(ganttEventData, null, 2));
+      return <div style={{ padding: '5px', fontSize: '12px', maxWidth: '250px', wordBreak: 'break-word' }}>Task: {taskName}<br/>Lỗi: Dữ liệu dự án gốc không hợp lệ.</div>;
+    }
+
+    const currentTimelineInfo = timelineType === 'profile' ? actualProjectData.profileTimeline : actualProjectData.constructionTimeline;
     
-    // Always call setRenderableTasksCount to update the UI about the number of tasks to render
-    setRenderableTasksCount(formattedTasksForGantt.length);
-
-    if (formattedTasksForGantt.length > 0) {
-      if (!ganttRef.current) {
-        logger.warn('[TimelineGanttChart] Gantt ref is not available on this effect run, but tasks exist. Gantt will initialize after re-render.');
-        return;
-      }
-
-      logger.debug('[TimelineGanttChart] Gantt ref IS available. Proceeding with Gantt initialization/update.');
-
-      if (ganttInstance.current) {
-        logger.debug('[TimelineGanttChart] Attempting to destroy/clear existing Gantt instance before re-init.');
-        ganttInstance.current.destroy ? ganttInstance.current.destroy() : (ganttInstance.current.clear && ganttInstance.current.clear());
-        ganttInstance.current = null;
-      }
-      
-      if (ganttRef.current) {
-         ganttRef.current.innerHTML = '';
-         logger.debug('[TimelineGanttChart] Cleared ganttRef.current innerHTML.');
-      } else {
-         logger.error('[TimelineGanttChart] CRITICAL: ganttRef.current became null unexpectedly after the check.');
-         return;
-      }
-
-      logger.debug('[TimelineGanttChart] Initializing Gantt with tasks. Count:', formattedTasksForGantt.length);
-      logger.debug('[TimelineGanttChart] Tasks being passed to Gantt constructor:', JSON.stringify(formattedTasksForGantt, null, 2));
-      try {
-        ganttInstance.current = new Gantt(ganttRef.current, formattedTasksForGantt, {
-          header_height: 50,
-          column_width: 35, // Giảm chiều rộng cột ngày để hiển thị nhiều ngày hơn
-          step: 24,
-          bar_height: isMobile ? 22 : 20, // Tăng nhẹ bar_height trên mobile để dễ chạm
-          bar_corner_radius: 2, // Giảm độ bo góc một chút
-          arrow_curve: 5,
-          padding: isMobile ? 12 : 16, // Giảm padding trên mobile
-          view_mode: isMobile ? 'Day' : viewMode, // Chế độ 'Day' cho mobile, prop viewMode cho desktop
-          date_format: 'YYYY-MM-DD',
-          language: 'vi',
-          custom_popup_html: (taskGantt) => {
-            const projectData = taskGantt._originalTask?.project;
-            if (!projectData) {
-              logger.error('[TimelineGanttChart] custom_popup_html: projectData is undefined. taskGantt:', taskGantt);
-              return `<div class="p-2 text-red-500">Lỗi: Không tìm thấy dữ liệu gốc cho task ${taskGantt.name}</div>`;
-            }
-            const currentTimelineInfo = timelineType === 'profile' ? projectData.profileTimeline : projectData.constructionTimeline;
-            const assignedBy = currentTimelineInfo?.assignedBy?.fullName || currentTimelineInfo?.assignedBy?.username || (typeof currentTimelineInfo?.assignedBy === 'string' ? currentTimelineInfo.assignedBy : 'N/A');            
-            let detailsHtml = `
-              <div class="gantt-custom-popup p-3 sm:p-4 text-xs sm:text-sm bg-white shadow-xl rounded-lg border border-gray-200 max-w-xs sm:max-w-md leading-relaxed">
-                <h5 class="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-blue-700">${taskGantt.name || 'N/A'}</h5>
-                <div class="space-y-1 sm:space-y-1.5">
-                  <p><strong>Mã CT:</strong> <span class="text-gray-700">${projectData.projectCode || 'N/A'}</span></p>                  
-                  <p><strong>Năm TC:</strong> <span class="text-gray-700">${projectData.financialYear || 'N/A'}</span></p>                  
-                  <p><strong>Đơn vị PB:</strong> <span class="text-gray-700">${projectData.allocatedUnit?.name || projectData.allocatedUnit || 'N/A'}</span></p>                  
-                  <p><strong>Loại PC:</strong> <span class="font-semibold ${currentTimelineInfo?.assignmentType === 'manual' ? 'text-purple-600' : 'text-green-600'}">${currentTimelineInfo?.assignmentType === 'manual' ? 'Thủ công' : 'Tự động'}</span></p>
-                  <hr class="my-1 sm:my-2 border-gray-200">
-                  <p><strong>BĐ (KH):</strong> <span class="text-gray-700">${formatDateToLocale(taskGantt.start)}</span></p>
-                  <p><strong>KT (KH):</strong> <span class="text-gray-700">${formatDateToLocale(taskGantt.end)}</span></p>
-                  <p><strong>Số ngày (KH):</strong> <span class="text-gray-700">${currentTimelineInfo?.durationDays || 'N/A'}</span></p>                  
-            `;
-            if (timelineType === 'profile') {
-              detailsHtml += `<p><strong>Người DT:</strong> <span class="text-gray-700">${projectData.profileTimeline?.estimator?.fullName || projectData.profileTimeline?.estimator?.username || 'N/A'}</span></p>`;
-            }
-            if (timelineType === 'construction') {
-              detailsHtml += `<p><strong>ĐVTC:</strong> <span class="text-gray-700">${projectData.constructionTimeline?.constructionUnit || 'N/A'}</span></p>`;
-              detailsHtml += `<p><strong>Người TD:</strong> <span class="text-gray-700">${projectData.constructionTimeline?.supervisor?.fullName || projectData.constructionTimeline?.supervisor?.username || 'N/A'}</span></p>`;
-            }
-            detailsHtml += `
-                <hr class="my-2">
-                <p class="mb-1"><strong>Tiến độ:</strong> <span class="font-semibold text-blue-600">${taskGantt.progress}%</span></p>
-                <p class="mb-1"><strong>Ngày BĐ (TT):</strong> ${formatDateToLocale(currentTimelineInfo?.actualStartDate)}</p>
-                <p class="mb-1"><strong>Ngày KT (TT):</strong> ${formatDateToLocale(currentTimelineInfo?.actualEndDate)}</p>
-                <p class="mb-1"><strong>Ghi chú TT:</strong> <span class="text-gray-700">${currentTimelineInfo?.statusNotes || 'N/A'}</span></p>
-                <p class="mt-2 pt-1.5 sm:mt-3 sm:pt-2 border-t border-gray-200 text-gray-600"><strong>Người PC:</strong> ${assignedBy}</p>
-                </div>
-              </div>
-            `;
-            return detailsHtml;
-          },
-          on_click: (taskGantt) => {
-            logger.debug('[TimelineGanttChart] Task clicked:', taskGantt);
-            if (onTaskClick && taskGantt?._originalTask) { // Pass original task object
-              onTaskClick(taskGantt._originalTask);
-            }
-          },
-          on_date_change: (taskGantt, start, end) => {
-            logger.debug('[TimelineGanttChart] Date changed:', taskGantt, start, end);
-            if (onDateChange && taskGantt?._originalTask) { // Pass original task object
-              onDateChange(taskGantt._originalTask, start, end); // Pass Date objects directly
-            }
-          },
-          on_progress_change: (taskGantt, progress) => {
-            logger.debug('[TimelineGanttChart] Progress changed:', taskGantt, progress);
-            if (onProgressChange && taskGantt?._originalTask) { // Pass original task object
-              onProgressChange(taskGantt._originalTask, progress);
-            }
-          },
-        });
-        logger.debug('[TimelineGanttChart] Gantt instance created:', ganttInstance.current);
-        logger.info('[TimelineGanttChart] Gantt chart successfully initialized/updated.');
-        if (ganttRef.current) {
-            logger.debug('[TimelineGanttChart] Inner HTML of ganttRef.current after initialization:', ganttRef.current.innerHTML.substring(0, 200) + "..."); // Log a snippet
+    const getFieldValue = (obj, path, defaultValue = 'N/A') => {
+        if (!obj || typeof obj !== 'object') return defaultValue;
+        const value = path.split('.').reduce((o, k) => (o && typeof o === 'object' && o[k] !== undefined && o[k] !== null) ? o[k] : undefined, obj);
+        // Xử lý trường hợp giá trị là object (ví dụ: user object)
+        if (typeof value === 'object' && value !== null) {
+            return String(value.fullName || value.username || value.name || defaultValue);
         }
-      } catch (error) {
-        logger.error('[TimelineGanttChart] Error initializing Gantt:', error);
-        if (ganttRef.current) {
-            ganttRef.current.innerHTML = `<div class="p-4 text-red-600 bg-red-100 border border-red-400 rounded">Lỗi khởi tạo biểu đồ Gantt: ${error.message}</div>`;
-        }
-      }
-    } else {
-      logger.info('[TimelineGanttChart] No tasks to render after final processing. Clearing Gantt if exists.');
-      if (ganttInstance.current) {
-        ganttInstance.current.destroy ? ganttInstance.current.destroy() : (ganttInstance.current.clear && ganttInstance.current.clear());
-        ganttInstance.current = null;
-      }
-      if (ganttRef.current) {
-        ganttRef.current.innerHTML = '';
+        return (value !== undefined && value !== null && String(value).trim() !== '') ? String(value) : defaultValue;
+    };
+    
+    const assignedByName = getFieldValue(currentTimelineInfo, 'assignedBy.fullName') !== 'N/A' 
+                           ? getFieldValue(currentTimelineInfo, 'assignedBy.fullName') 
+                           : getFieldValue(currentTimelineInfo, 'assignedBy.username', 'N/A');
+
+
+    let detailsHtml = `
+      <div style="padding: 12px; font-size: 13px; background-color: #fff; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); max-width: 380px; line-height: 1.6;">
+        <h5 style="font-size: 15px; font-weight: bold; margin-bottom: 10px; color: #1d4ed8; word-break: break-word;">${task.name || 'N/A'}</h5>
+        
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 5px 12px; color: #374151; margin-bottom: 8px;">
+          <p><strong>Mã CT:</strong></p><span style="word-break: break-all;">${getFieldValue(actualProjectData, 'projectCode')}</span>
+          <p><strong>Năm TC:</strong></p><span>${getFieldValue(actualProjectData, 'financialYear')}</span>
+          <p><strong>Quy mô:</strong></p><span style="word-break: break-word;">${getFieldValue(actualProjectData, 'scale')}</span>
+          <p><strong>Đơn vị PB:</strong></p><span style="word-break: break-word;">${getFieldValue(actualProjectData, 'allocatedUnit')}</span>
+          <p><strong>Loại PC:</strong></p><span style="font-weight: 600; color: ${getFieldValue(currentTimelineInfo, 'assignmentType') === 'manual' ? '#7c3aed' : '#15803d'};">${getFieldValue(currentTimelineInfo, 'assignmentType') === 'manual' ? 'Thủ công' : 'Tự động'}</span>
+          ${getFieldValue(actualProjectData, 'allocationWave') !== 'N/A' 
+            ? `<p><strong>Đợt PB:</strong></p><span style="word-break: break-word;">${getFieldValue(actualProjectData, 'allocationWave')}</span>` 
+            : ''}
+        </div>
+
+        <hr style="margin: 10px 0; border-color: #e5e7eb;">
+        <h6 style="font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 6px;">KẾ HOẠCH:</h6>
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 5px 12px; color: #374151; margin-bottom: 8px;">
+          <p><strong>Bắt đầu:</strong></p><span>${formatDateToLocale(task.start)}</span>
+          <p><strong>Kết thúc:</strong></p><span>${formatDateToLocale(task.end)}</span>          
+          <p><strong>Số ngày:</strong></p><span>${getFieldValue(currentTimelineInfo, 'durationDays', '')}</span>
+    `;
+    // Luôn hiển thị Người lập dự toán và Người theo dõi
+    const estimatorName = getFieldValue(actualProjectData, 'profileTimeline.estimator.fullName') !== 'N/A'
+                            ? getFieldValue(actualProjectData, 'profileTimeline.estimator.fullName')
+                            : getFieldValue(actualProjectData, 'profileTimeline.estimator.username', 'N/A');
+
+    const supervisorName = getFieldValue(actualProjectData, 'supervisor.fullName') !== 'N/A'
+                            ? getFieldValue(actualProjectData, 'supervisor.fullName') // Lấy từ supervisor chính của công trình
+                            : getFieldValue(actualProjectData, 'supervisor.username', 'N/A'); // Lấy từ supervisor chính của công trình
+
+    detailsHtml += `<p><strong>Người lập DT:</strong></p><span>${estimatorName}</span>`;
+    detailsHtml += `<p><strong>Người theo dõi:</strong></p><span>${supervisorName}</span>`;
+    
+    // Chỉ hiển thị ĐVTC nếu là timeline thi công và có dữ liệu
+    if (timelineType === 'construction') {
+      const constructionUnitValue = getFieldValue(currentTimelineInfo, 'constructionUnit'); // currentTimelineInfo là actualProjectData.constructionTimeline ở đây
+      if (constructionUnitValue !== 'N/A') { 
+        detailsHtml += `<p><strong>ĐVTC:</strong></p><span style="word-break: break-word;">${constructionUnitValue}</span>`;
       }
     }
 
-    return () => {
-      if (ganttInstance.current) {
-        logger.debug('[TimelineGanttChart] Cleaning up Gantt instance in useEffect cleanup.');
-        ganttInstance.current.destroy ? ganttInstance.current.destroy() : (ganttInstance.current.clear && ganttInstance.current.clear());
-        ganttInstance.current = null;
-      }
-    };
-  }, [tasks, viewMode, timelineType, onTaskClick, onDateChange, onProgressChange, isMobile]); // Thêm isMobile vào dependencies
+    detailsHtml += `
+        </div>
+        <hr style="margin: 10px 0; border-color: #e5e7eb;">
+        <h6 style="font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 6px;">THỰC TẾ:</h6>
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 5px 12px; color: #374151; margin-bottom: 8px;">
+          <p><strong>Tiến độ:</strong></p><span style="font-weight: 600; color: #1d4ed8;">${task.progress || 0}%</span>          
+          <p><strong>BĐ (TT):</strong></p><span>${formatDateToLocale(getFieldValue(currentTimelineInfo, 'actualStartDate', null))}</span>
+          <p><strong>KT (TT):</strong></p><span>${formatDateToLocale(getFieldValue(currentTimelineInfo, 'actualEndDate', null))}</span>
+        </div>
+        <p style="color: #374151; margin-top: 5px; word-break: break-word;"><strong>Ghi chú TT:</strong> ${getFieldValue(currentTimelineInfo, 'statusNotes', '')}</p>
+        <p style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; color: #4b5563;"><strong>Người PC:</strong> ${assignedByName}</p>
+      </div>
+    `;
+    // Trả về một React element có thể render chuỗi HTML
+    return <div dangerouslySetInnerHTML={{ __html: detailsHtml }} />;
+  };
+
+  // Tùy chỉnh header cho danh sách task
+  const TaskListHeader = ({ headerHeight, fontFamily, fontSize, rowWidth }) => {
+    return (
+      <div
+        className="gantt-table-header bg-gray-100 border-b border-gray-300 flex items-center" // Giữ flex items-center để căn giữa theo chiều dọc
+        style={{ height: headerHeight -1, fontFamily: fontFamily, fontSize: fontSize }} // -1 để border dưới không bị cắt
+      >
+        {/* Chiều rộng của cột Tên công trình sẽ là rowWidth (listCellWidthValue) trừ đi chiều rộng của 2 cột ngày */}
+        <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-left p-2 border-r border-gray-300" style={{ width: `calc(${rowWidth} - 170px)`, boxSizing: 'border-box', paddingLeft: '0.75rem' }}>Tên công trình</div>
+        <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-center p-2 border-r border-gray-300" style={{ width: '85px', boxSizing: 'border-box' }}>Bắt đầu</div>
+        <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-center p-2" style={{ width: '85px', boxSizing: 'border-box' }}>Kết thúc</div>
+      </div>
+    );
+  };
+
+  const TaskListTable = ({ tasks: ganttTasks, fontFamily, fontSize, rowWidth, rowHeight, locale, onExpanderClick }) => {
+    // rowWidth ở đây là tổng chiều rộng của listCellWidthValue
+    return (
+      ganttTasks.map(t => (
+        <div
+          className="gantt-table-row border-b border-gray-200 hover:bg-gray-50 flex items-center" // Giữ flex items-center
+          style={{ height: rowHeight, fontFamily: fontFamily, fontSize: fontSize }}
+          key={t.id}
+          // title={t.name} // Bỏ title ở đây vì ô tên đã có title riêng
+        >
+          <div 
+            className="gantt-table-row-item text-sm text-gray-800 pl-2 pr-1 py-1 border-r border-gray-200" 
+            style={{ 
+              width: `calc(${rowWidth} - 170px)`, // Chiều rộng cột tên
+              boxSizing: 'border-box', 
+              lineHeight: '1.4', 
+              display: '-webkit-box',
+              WebkitLineClamp: isMobile ? 2 : 3, // Giới hạn 2 dòng trên mobile, 3 dòng trên desktop
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              wordBreak: 'break-word',
+            }}
+            title={t.name} // Tooltip cho tên công trình khi bị cắt ngắn
+          >
+            {t.name}
+          </div>
+          <div className="gantt-table-row-item text-sm text-gray-700 text-center px-1 py-1 border-r border-gray-200" style={{ width: '85px', boxSizing: 'border-box' }}>
+            {formatDateToLocale(t.start)}
+          </div>
+          <div className="gantt-table-row-item text-sm text-gray-700 text-center px-1 py-1" style={{ width: '85px', boxSizing: 'border-box' }}>
+            {formatDateToLocale(t.end)}
+          </div>
+        </div>
+      ))
+    );
+  };
 
   return (
-    <div className="gantt-container relative w-full h-[600px] overflow-x-auto overflow-y-hidden border border-gray-300 rounded-md shadow-sm bg-white custom-scrollbar">
-      {renderableTasksCount === 0 ? (
+    <div className="gantt-container relative w-full h-[600px] overflow-auto border border-gray-300 rounded-md shadow-sm bg-white custom-scrollbar">
+      {formattedTasks.length === 0 ? (
         <div className="absolute inset-0 flex items-center justify-center text-gray-500 p-4">
           Không có dữ liệu timeline để hiển thị hoặc dữ liệu không hợp lệ.
         </div>
       ) : (
-        <svg ref={ganttRef} className="w-full h-full"></svg>
+        <Gantt
+          tasks={formattedTasks}
+          key={currentViewMode} // Thêm key để buộc re-render khi viewMode thay đổi
+          viewMode={currentViewMode}
+          onDateChange={handleTaskChange}
+          onProgressChange={handleProgressTask} // Sử dụng onProgressChange để cập nhật tiến độ
+          onClick={handleClick}
+          onDoubleClick={handleDblClick}
+          // onSelect={handleSelect} // Xử lý khi chọn task
+          // onDelete={handleTaskDelete} // Xử lý khi xóa task (nếu cho phép)
+          listCellWidth={listCellWidthValue} // Chiều rộng cột danh sách task
+          rowHeight={isMobile ? 60 : 55} // Tăng thêm chiều cao hàng để có không gian cho 2-3 dòng text
+          ganttHeight={580} // Chiều cao của phần biểu đồ
+          columnWidth={columnWidthValue} // Sử dụng giá trị đã tính toán
+          locale="vi" // Ngôn ngữ
+          TooltipContent={getTooltipContent} // Component tùy chỉnh cho tooltip
+          TaskListHeader={TaskListHeader} // Component tùy chỉnh cho header của danh sách task
+          TaskListTable={TaskListTable}   // Component tùy chỉnh cho bảng danh sách task
+          headerHeight={48} // Tăng chiều cao header một chút để tránh cắt chữ
+          // Các props khác có thể thêm:
+          barCornerRadius={3}
+          // handleWidth={8}
+          // barFill={60} // % fill của thanh bar
+          // barProgressColor="#22C55E" // Màu mặc định cho progress (sẽ bị ghi đè bởi styles trong task)
+          // barProgressSelectedColor="#16A34A"
+          // projectProgressColor="#A78BFA" // Màu cho project (nếu có type 'project')
+          // projectProgressSelectedColor="#8B5CF6"
+          // arrowColor="grey"
+          // arrowIndent={20}
+          // todayColor="rgba(252, 248, 227, 0.5)"
+        />
       )}
-      <style jsx global>{`
-        .gantt-custom-popup {}
-        .gantt-manual-task .bar-progress { fill: #7E22CE !important; } /* purple-600 */
-        .gantt-auto-task .bar-progress { fill: #16A34A !important; } /* green-600 */
-        .gantt-manual-task .bar { fill: #E9D5FF !important; } /* purple-200 */
-        .gantt-auto-task .bar { fill: #DCFCE7 !important; } /* green-200 */
-        .gantt-task-completed .bar-progress { fill: #6b7280 !important; }
-        .gantt-task-completed .bar { fill: #d1d5db !important; }
-        .gantt-task-overdue .bar-progress { fill: #DC2626 !important; } /* red-600 */
-        .gantt-task-overdue .bar { fill: #FEE2E2 !important; } /* red-200 */
-        .gantt-project-type-tuyen-mang .bar { /* fill: #fbbf24 !important; */ }
-      `}</style>
     </div>
   );
 };
 
 export default TimelineGanttChart;
+
+// TODO:
+// 1. Truyền isUpdatingTimelineTask từ component cha xuống để disable task khi đang cập nhật.
+// 2. Xem xét việc cho phép người dùng thay đổi viewMode (Day, Week, Month) từ UI và cập nhật state `view`.
+// 3. Kiểm tra kỹ logic `onDateChange` và `onProgressChange` trong `TimelineLogic.js` để đảm bảo chúng
+//    nhận đúng tham số từ `gantt-task-react` và gọi API cập nhật chính xác.
