@@ -126,4 +126,5 @@ module.exports = {
   ...projectCoreService,
   ...projectActionsService,
   ...timelineService,
+  markAllUserNotificationsAsProcessed: projectActionsService.markAllUserNotificationsAsProcessed, // Thêm dòng này
 };

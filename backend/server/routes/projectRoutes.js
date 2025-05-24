@@ -141,6 +141,19 @@ router.patch('/notifications/:id/read', authenticate, async (req, res, next) => 
   }
 });
 
+router.patch('/notifications/mark-all-as-processed', authenticate, async (req, res, next) => {
+  try {
+    // Service sẽ xử lý logic để chỉ giữ lại các thông báo "pending" thực sự cần action
+    const result = await projectService.markAllUserNotificationsAsProcessed(req.user, req.io); // Truyền cả object req.user
+    res.json(result);
+  } catch (error) {
+    logger.error("Lỗi API đánh dấu tất cả thông báo đã xử lý:", { userId: req.user.id, message: error.message, stack: error.stack });
+    if (error.statusCode) return res.status(error.statusCode).json({ message: error.message });
+    next(error);
+  }
+});
+
+
 // Rejected Projects route - Keep as is, it fetches data
 router.get('/rejected-projects', authenticate, async (req, res, next) => {
   try { 

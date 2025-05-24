@@ -4,6 +4,7 @@ import { Gantt, ViewMode } from 'gantt-task-react'; // Task, EventOption, Stylin
 import "gantt-task-react/dist/index.css";
 import { formatDateToLocale, calculateEndDateClientSide } from '../../utils/dateUtils'; // Thêm calculateEndDateClientSide
 import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook
+import ActualProgressModal from './ActualProgressModal'; // Import modal mới
 import logger from '../../utils/logger'; // Import logger
 
 const TimelineGanttChart = ({ 
@@ -13,12 +14,15 @@ const TimelineGanttChart = ({
   onDateChange, 
   onProgressChange, 
   timelineType, 
-  holidays = [],
+  holidays = [], // Danh sách ngày nghỉ cho tính toán endDate
   isUpdatingTimelineTask = false, // Thêm prop này với giá trị mặc định
+  onSaveActualProgress, // Hàm callback để lưu thông tin thực tế
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   // Sử dụng trực tiếp initialViewMode, không cần state 'view' nội bộ nữa
   // useEffect để đồng bộ view không còn cần thiết nếu dùng key prop hiệu quả
+  const [showActualProgressModal, setShowActualProgressModal] = useState(false);
+  const [selectedTaskForActualProgress, setSelectedTaskForActualProgress] = useState(null);
 
   const currentViewMode = isMobile ? ViewMode.Day : initialViewMode; 
   
@@ -175,10 +179,11 @@ const TimelineGanttChart = ({
   };
 
   const handleDblClick = (task) => {
-    // Có thể dùng để mở modal chỉnh sửa chi tiết task
     logger.debug("Task double clicked:", task);
-    if (onTaskClick && task._originalTask) {
-      onTaskClick(task._originalTask);
+    // Mở modal cập nhật tiến độ thực tế khi double click
+    if (task._originalTask?.project && onSaveActualProgress) { // Đảm bảo có project và hàm lưu
+      setSelectedTaskForActualProgress(task._originalTask.project); // task._originalTask.project là project gốc
+      setShowActualProgressModal(true);
     }
   };
 
@@ -186,7 +191,12 @@ const TimelineGanttChart = ({
     logger.debug("Task clicked:", task);
     if (onTaskClick && task._originalTask) {
       onTaskClick(task._originalTask);
+    } else if (task._originalTask?.project && onSaveActualProgress && isMobile) {
+      // Trên mobile, mở modal khi click (vì double click có thể khó)
+      setSelectedTaskForActualProgress(task._originalTask.project);
+      setShowActualProgressModal(true);
     }
+
   };
 
   // Tooltip content
@@ -227,10 +237,10 @@ const TimelineGanttChart = ({
 
 
     let detailsHtml = `
-      <div style="padding: 12px; font-size: 13px; background-color: #fff; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); max-width: 380px; line-height: 1.6;">
-        <h5 style="font-size: 15px; font-weight: bold; margin-bottom: 10px; color: #1d4ed8; word-break: break-word;">${task.name || 'N/A'}</h5>
+      <div style="padding: 10px; font-size: 12px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); max-width: 360px; line-height: 1.5;">
+        <h5 style="font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #1d4ed8; word-break: break-word;">${task.name || 'N/A'}</h5>
         
-        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 5px 12px; color: #374151; margin-bottom: 8px;">
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; color: #374151; margin-bottom: 6px;">
           <p><strong>Mã CT:</strong></p><span style="word-break: break-all;">${getFieldValue(actualProjectData, 'projectCode')}</span>
           <p><strong>Năm TC:</strong></p><span>${getFieldValue(actualProjectData, 'financialYear')}</span>
           <p><strong>Quy mô:</strong></p><span style="word-break: break-word;">${getFieldValue(actualProjectData, 'scale')}</span>
@@ -241,9 +251,9 @@ const TimelineGanttChart = ({
             : ''}
         </div>
 
-        <hr style="margin: 10px 0; border-color: #e5e7eb;">
-        <h6 style="font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 6px;">KẾ HOẠCH:</h6>
-        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 5px 12px; color: #374151; margin-bottom: 8px;">
+        <hr style="margin: 8px 0; border-color: #e0e0e0;">
+        <h6 style="font-size: 11px; font-weight: 600; color: #4b5563; margin-bottom: 5px;">KẾ HOẠCH:</h6>
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; color: #374151; margin-bottom: 6px;">
           <p><strong>Bắt đầu:</strong></p><span>${formatDateToLocale(task.start)}</span>
           <p><strong>Kết thúc:</strong></p><span>${formatDateToLocale(task.end)}</span>          
           <p><strong>Số ngày:</strong></p><span>${getFieldValue(currentTimelineInfo, 'durationDays', '')}</span>
@@ -270,15 +280,15 @@ const TimelineGanttChart = ({
 
     detailsHtml += `
         </div>
-        <hr style="margin: 10px 0; border-color: #e5e7eb;">
-        <h6 style="font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 6px;">THỰC TẾ:</h6>
-        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 5px 12px; color: #374151; margin-bottom: 8px;">
+        <hr style="margin: 8px 0; border-color: #e0e0e0;">
+        <h6 style="font-size: 11px; font-weight: 600; color: #4b5563; margin-bottom: 5px;">THỰC TẾ:</h6>
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; color: #374151; margin-bottom: 6px;">
           <p><strong>Tiến độ:</strong></p><span style="font-weight: 600; color: #1d4ed8;">${task.progress || 0}%</span>          
           <p><strong>BĐ (TT):</strong></p><span>${formatDateToLocale(getFieldValue(currentTimelineInfo, 'actualStartDate', null))}</span>
           <p><strong>KT (TT):</strong></p><span>${formatDateToLocale(getFieldValue(currentTimelineInfo, 'actualEndDate', null))}</span>
         </div>
-        <p style="color: #374151; margin-top: 5px; word-break: break-word;"><strong>Ghi chú TT:</strong> ${getFieldValue(currentTimelineInfo, 'statusNotes', '')}</p>
-        <p style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; color: #4b5563;"><strong>Người PC:</strong> ${assignedByName}</p>
+        <p style="color: #374151; margin-top: 4px; word-break: break-word; font-size: 11px;"><strong>Ghi chú TT:</strong> ${getFieldValue(currentTimelineInfo, 'statusNotes', '')}</p>
+        <p style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e0e0e0; color: #4b5563; font-size: 11px;"><strong>Người PC:</strong> ${assignedByName}</p>
       </div>
     `;
     // Trả về một React element có thể render chuỗi HTML
@@ -345,37 +355,53 @@ const TimelineGanttChart = ({
           Không có dữ liệu timeline để hiển thị hoặc dữ liệu không hợp lệ.
         </div>
       ) : (
-        <Gantt
-          tasks={formattedTasks}
-          key={currentViewMode} // Thêm key để buộc re-render khi viewMode thay đổi
-          viewMode={currentViewMode}
-          onDateChange={handleTaskChange}
-          onProgressChange={handleProgressTask} // Sử dụng onProgressChange để cập nhật tiến độ
-          onClick={handleClick}
-          onDoubleClick={handleDblClick}
-          // onSelect={handleSelect} // Xử lý khi chọn task
-          // onDelete={handleTaskDelete} // Xử lý khi xóa task (nếu cho phép)
-          listCellWidth={listCellWidthValue} // Chiều rộng cột danh sách task
-          rowHeight={isMobile ? 60 : 55} // Tăng thêm chiều cao hàng để có không gian cho 2-3 dòng text
-          ganttHeight={580} // Chiều cao của phần biểu đồ
-          columnWidth={columnWidthValue} // Sử dụng giá trị đã tính toán
-          locale="vi" // Ngôn ngữ
-          TooltipContent={getTooltipContent} // Component tùy chỉnh cho tooltip
-          TaskListHeader={TaskListHeader} // Component tùy chỉnh cho header của danh sách task
-          TaskListTable={TaskListTable}   // Component tùy chỉnh cho bảng danh sách task
-          headerHeight={48} // Tăng chiều cao header một chút để tránh cắt chữ
-          // Các props khác có thể thêm:
-          barCornerRadius={3}
-          // handleWidth={8}
-          // barFill={60} // % fill của thanh bar
-          // barProgressColor="#22C55E" // Màu mặc định cho progress (sẽ bị ghi đè bởi styles trong task)
-          // barProgressSelectedColor="#16A34A"
-          // projectProgressColor="#A78BFA" // Màu cho project (nếu có type 'project')
-          // projectProgressSelectedColor="#8B5CF6"
-          // arrowColor="grey"
-          // arrowIndent={20}
-          // todayColor="rgba(252, 248, 227, 0.5)"
-        />
+        <>
+          <Gantt
+            tasks={formattedTasks}
+            key={currentViewMode} // Thêm key để buộc re-render khi viewMode thay đổi
+            viewMode={currentViewMode}
+            onDateChange={handleTaskChange}
+            onProgressChange={handleProgressTask} // Sử dụng onProgressChange để cập nhật tiến độ
+            onClick={handleClick}
+            onDoubleClick={handleDblClick}
+            listCellWidth={listCellWidthValue} 
+            rowHeight={isMobile ? 60 : 55} 
+            ganttHeight={580} 
+            columnWidth={columnWidthValue} 
+            locale="vi" 
+            TooltipContent={getTooltipContent} 
+            TaskListHeader={TaskListHeader} 
+            TaskListTable={TaskListTable}   
+            headerHeight={48} 
+            barCornerRadius={3}
+          />
+          {selectedTaskForActualProgress && (
+            <ActualProgressModal
+              isOpen={showActualProgressModal}
+              onRequestClose={() => {
+                setShowActualProgressModal(false);
+                setSelectedTaskForActualProgress(null);
+              }}
+              taskProjectData={selectedTaskForActualProgress}
+              onSave={(actualData) => {
+                onSaveActualProgress({
+                  projectId: selectedTaskForActualProgress._id,
+                  actualData,
+                  callbacks: {
+                    onSuccess: () => {
+                      setShowActualProgressModal(false);
+                      setSelectedTaskForActualProgress(null);
+                      // Toast success đã được xử lý trong mutation của TimelineLogic
+                    },
+                    onError: () => { /* Modal sẽ không tự đóng khi có lỗi */ }
+                  }
+                });
+              }}
+              isSaving={isUpdatingTimelineTask} // Sử dụng lại state này cho modal
+              timelineType={timelineType}
+            />
+          )}
+        </>
       )}
     </div>
   );

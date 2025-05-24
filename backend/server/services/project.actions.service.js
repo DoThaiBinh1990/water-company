@@ -152,6 +152,18 @@ const approveProject = async (projectId, projectType, user, io) => {
   const populatedProject = await populateProjectFields(project);
   const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type: projectType };
 
+  // START: Thêm logic cập nhật tất cả thông báo pending liên quan đến project này
+  const relatedPendingNotifications = await Notification.find({
+    projectId: project._id,
+    status: 'pending'
+  });
+  for (const notif of relatedPendingNotifications) {
+    notif.status = 'processed';
+    await notif.save();
+    if (io) io.emit('notification_processed', notif._id);
+  }
+  // END: Thêm logic cập nhật
+
   if (notificationTypeToProcess && notificationTypeToProcess !== 'delete') {
     const pendingNotification = await Notification.findOne({
       projectId: project._id,
@@ -264,6 +276,18 @@ const rejectProject = async (projectId, projectType, reason, user, io) => {
           if (io) io.emit('notification_processed', pendingNotification._id);
         }
       }
+  // START: Thêm logic cập nhật tất cả thông báo pending liên quan đến project này
+  // (Đặc biệt quan trọng khi từ chối yêu cầu mới, vì project sẽ bị xóa khỏi collection chính)
+  const relatedPendingNotificationsAfterReject = await Notification.find({
+    originalProjectId: project._id, // Tìm theo originalProjectId nếu project đã bị xóa
+    status: 'pending'
+  });
+  for (const notif of relatedPendingNotificationsAfterReject) {
+    notif.status = 'processed';
+    await notif.save();
+    if (io) io.emit('notification_processed', notif._id);
+  }
+  // END: Thêm logic cập nhật
       const newProcessedNotification = new Notification({
         message: `Yêu cầu của bạn cho công trình "${project.name}" đã bị từ chối bởi ${user.username}. Lý do: ${reason}`,
         type: notificationForUserType,
@@ -295,6 +319,18 @@ const rejectProject = async (projectId, projectType, reason, user, io) => {
     await project.save({ validateModifiedOnly: true });
     const populatedProject = await populateProjectFields(project);
     const populatedProjectForNotification = { _id: populatedProject._id, name: populatedProject.name, type: projectType };
+
+  // START: Thêm logic cập nhật tất cả thông báo pending liên quan đến project này
+  const relatedPendingNotificationsAfterRejectAction = await Notification.find({
+    projectId: project._id,
+    status: 'pending'
+  });
+  for (const notif of relatedPendingNotificationsAfterRejectAction) {
+    notif.status = 'processed';
+    await notif.save();
+    if (io) io.emit('notification_processed', notif._id);
+  }
+  // END: Thêm logic cập nhật
 
     if (notificationTypeToProcess) {
       const pendingNotification = await Notification.findOne({
@@ -538,6 +574,102 @@ const moveProjectToNextFinancialYear = async (projectId, projectType, user, io) 
   return { message: `Công trình đã được chuyển sang năm tài chính ${project.financialYear}.`, project: populatedProject.toObject() };
 };
 
+/**
+ * Marks all 'pending' notifications for a user as 'processed',
+ * except for those that still require direct action (e.g., pending project approvals
+ * AND the current user has permission to act on them).
+ * @param {object} user - The authenticated user object (passed from controller, contains ID and permissions).
+ * @param {object} io - Socket.IO instance.
+ * @returns {Promise<object>} Result of the operation.
+ */
+const markAllUserNotificationsAsProcessed = async (user, io) => {
+  const userId = user.id; // Lấy ID từ object user
+  
+  const queryConditions = [
+    { userId: userId },
+    { recipientId: userId }
+  ];
+
+  if (user.permissions?.approve) {
+    // Nếu user có quyền approve, họ cũng có thể muốn đánh dấu đã đọc các thông báo chung (không có recipientId)
+    // hoặc các thông báo mà họ không phải là recipient trực tiếp nhưng vẫn thấy do quyền hạn.
+    queryConditions.push({ recipientId: { $exists: false } }); // Thông báo chung
+    // Cân nhắc: Có thể cần thêm logic để lấy các thông báo mà user này có quyền xem nhưng không phải là recipientId
+  }
+
+  const pendingNotificationsQuery = {
+    status: 'pending',
+    $or: queryConditions
+  };
+
+  const pendingNotifications = await Notification.find(pendingNotificationsQuery)
+    .populate('projectId'); // Populate projectId để kiểm tra trạng thái công trình
+
+  let processedCount = 0;
+  const notificationsToKeepPending = [];
+
+  for (const notif of pendingNotifications) {
+    let keepPending = false;
+    // Kiểm tra nếu là thông báo yêu cầu duyệt (new, edit, delete)
+    // và công trình liên quan vẫn còn đang ở trạng thái chờ duyệt tương ứng
+    // VÀ người dùng hiện tại có quyền duyệt
+    if (['new', 'edit', 'delete'].includes(notif.type) && notif.projectId) {
+      const project = notif.projectId; // Đã populate
+      // Chỉ giữ lại nếu người dùng có quyền duyệt VÀ công trình thực sự đang chờ
+      if (user.permissions?.approve) {
+        if (notif.type === 'new' && project.status === 'Chờ duyệt') {
+          keepPending = true;
+        } else if (notif.type === 'edit' && project.pendingEdit) {
+          keepPending = true;
+        } else if (notif.type === 'delete' && project.pendingDelete) {
+          keepPending = true;
+        }
+      }
+    }
+    // Nếu không phải là thông báo yêu cầu duyệt, hoặc người dùng không có quyền duyệt,
+    // Các loại thông báo khác (ví dụ: 'allocated', 'assigned', hoặc các thông báo thông tin)
+    // hoặc các thông báo 'new', 'edit', 'delete' mà user không có quyền duyệt
+    // sẽ không được `keepPending = true` ở đây, do đó sẽ được đánh dấu là processed.
+
+    if (!keepPending) {
+      notif.status = 'processed';
+      // Đảm bảo projectModel tồn tại và đúng nếu có projectId
+      if (notif.projectId && !notif.projectModel) {
+        logger.warn(`[MarkAllProcessed] Notification ID ${notif._id} for projectId ${notif.projectId} is missing projectModel. Attempting to determine...`);
+        const categoryProjectExists = await CategoryProject.exists({ _id: notif.projectId });
+        if (categoryProjectExists) {
+          notif.projectModel = 'CategoryProject';
+          logger.info(`[MarkAllProcessed] Determined projectModel for Notification ID ${notif._id} as CategoryProject.`);
+        } else {
+          const minorRepairProjectExists = await MinorRepairProject.exists({ _id: notif.projectId });
+          if (minorRepairProjectExists) {
+            notif.projectModel = 'MinorRepairProject';
+            logger.info(`[MarkAllProcessed] Determined projectModel for Notification ID ${notif._id} as MinorRepairProject.`);
+          } else {
+            logger.error(`[MarkAllProcessed] Could not determine projectModel for Notification ID ${notif._id} with projectId ${notif.projectId}. Project does not exist in either collection. Notification will likely fail to save.`);
+            // Nếu không xác định được projectModel và nó là bắt buộc,
+            // chúng ta không nên cố gắng save() vì sẽ gây lỗi validation.
+            // Bỏ qua việc cập nhật thông báo này.
+            notificationsToKeepPending.push(notif._id); // Coi như giữ lại hoặc bỏ qua
+            logger.warn(`[MarkAllProcessed] Skipped saving Notification ID ${notif._id} due to missing/invalid projectModel and non-existent project.`);
+            continue; // Chuyển sang thông báo tiếp theo
+          }
+        }
+      }
+      // Chỉ lưu nếu projectModel hợp lệ (hoặc không có projectId để bắt đầu)
+      if (notif.projectId && !notif.projectModel) { /* Đã continue ở trên nếu không xác định được */ }
+      else { await notif.save(); }
+      if (io) io.emit('notification_processed', notif._id);
+      processedCount++;
+    } else {
+      notificationsToKeepPending.push(notif._id);
+    }
+  }
+  logger.info(`[MarkAllProcessed] User ${userId}: ${processedCount} thông báo đã được đánh dấu xử lý. ${notificationsToKeepPending.length} thông báo được giữ lại.`);
+  return { message: `Đã xử lý ${processedCount} thông báo.`, processedCount, keptPendingCount: notificationsToKeepPending.length };
+};
+
+
 module.exports = {
   getRejectedProjectsList,
   approveProject,
@@ -546,4 +678,5 @@ module.exports = {
   permanentlyDeleteRejectedProject,
   markProjectAsCompleted,
   moveProjectToNextFinancialYear,
+  markAllUserNotificationsAsProcessed, // Export hàm mới
 };

@@ -11,7 +11,7 @@
  * @param {string[]} holidaysList - Array of holiday date strings in 'YYYY-MM-DD' format.
  * @returns {Date|null} The calculated end date, or null if inputs are invalid.
  */
-const calculateEndDate = async (startDate, durationDays, excludeHolidaysFlag, holidaysList = []) => { // Renamed excludeHolidays to avoid conflict with holidaysList
+const calculateEndDate = (startDate, durationDays, excludeHolidaysFlag, holidaysList = []) => { // Renamed excludeHolidays to avoid conflict with holidaysList
   if (!startDate || !durationDays || durationDays <= 0) {
     return startDate; // Or null, or throw error
   }
@@ -44,7 +44,7 @@ const calculateEndDate = async (startDate, durationDays, excludeHolidaysFlag, ho
  * @param {string[]} holidaysList - Array of holiday date strings in 'YYYY-MM-DD' format.
  * @returns {number|null} The number of working days, or null if inputs are invalid.
  */
-const calculateDurationDays = async (startDate, endDate, excludeHolidaysFlag, holidaysList = []) => {
+const calculateDurationDays = (startDate, endDate, excludeHolidaysFlag, holidaysList = []) => {
   if (!startDate || !endDate || new Date(startDate) > new Date(endDate)) {
     return null; // Invalid dates
   }

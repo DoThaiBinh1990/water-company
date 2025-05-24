@@ -316,14 +316,17 @@ const updateProfileTimelineTask = async (projectId, updateData, user) => {
   const holidayDoc = await Holiday.findOne({ year: project.financialYear });
   const holidaysList = holidayDoc && holidayDoc.holidays ? holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]) : [];
 
-  const allowedFields = ['startDate', 'endDate', 'durationDays', 'progress', 'statusNotes', 'assignmentType', 'excludeHolidays'];
+  const allowedFields = ['startDate', 'endDate', 'durationDays', 'progress', 'statusNotes', 'assignmentType', 'excludeHolidays', 'actualStartDate', 'actualEndDate'];
   const updatePayload = {};
   allowedFields.forEach(field => {
     if (updateData.hasOwnProperty(field)) {
-      if (['startDate', 'endDate'].includes(field) && typeof updateData[field] === 'string') {
+      // Xử lý các trường date (bao gồm cả actual dates)
+      if (['startDate', 'endDate', 'actualStartDate', 'actualEndDate'].includes(field) && typeof updateData[field] === 'string' && updateData[field].match(/^\d{4}-\d{2}-\d{2}$/)) {
         const dateObj = new Date(updateData[field] + "T00:00:00.000Z");
         if (!isNaN(dateObj.getTime())) updatePayload[`profileTimeline.${field}`] = dateObj;
         else logger.warn(`Invalid date string for field ${field}: ${updateData[field]}`);
+      } else if (['startDate', 'endDate', 'actualStartDate', 'actualEndDate'].includes(field) && updateData[field] === null) {
+        updatePayload[`profileTimeline.${field}`] = null; // Cho phép xóa ngày
       } else {
         updatePayload[`profileTimeline.${field}`] = updateData[field];
       }
@@ -332,13 +335,13 @@ const updateProfileTimelineTask = async (projectId, updateData, user) => {
 
   if (Object.keys(updatePayload).length === 0) return { message: 'Không có trường nào hợp lệ để cập nhật.', modifiedCount: 0 };
 
-  if (updateData.hasOwnProperty('startDate') && updateData.hasOwnProperty('endDate')) {
+  // Chỉ tính lại durationDays cho kế hoạch nếu cả startDate và endDate kế hoạch thay đổi
+  if (updateData.hasOwnProperty('startDate') && updateData.hasOwnProperty('endDate') && updatePayload['profileTimeline.startDate'] && updatePayload['profileTimeline.endDate']) {
     const newStartDate = updatePayload['profileTimeline.startDate'];
     const newEndDate = updatePayload['profileTimeline.endDate'];
     const excludeHolidays = updateData.hasOwnProperty('excludeHolidays') ? updateData.excludeHolidays : (project.profileTimeline?.excludeHolidays ?? true);
-    if (newStartDate && newEndDate) {
-      updatePayload['profileTimeline.durationDays'] = await calculateDurationDays(newStartDate, newEndDate, excludeHolidays, holidaysList);
-    }
+    // Không await ở đây nữa vì calculateDurationDays không còn là async
+    updatePayload['profileTimeline.durationDays'] = calculateDurationDays(newStartDate, newEndDate, excludeHolidays, holidaysList);
   }
   updatePayload['profileTimeline.assignedBy'] = user.id;
   if (updateData.assignmentType === 'manual' && !updatePayload['profileTimeline.estimator'] && project.profileTimeline?.estimator) {
@@ -381,14 +384,17 @@ const updateConstructionTimelineTask = async (projectId, updateData, user) => {
   const holidayDoc = await Holiday.findOne({ year: project.financialYear });
   const holidaysList = holidayDoc && holidayDoc.holidays ? holidayDoc.holidays.map(h => new Date(h.date).toISOString().split('T')[0]) : [];
 
-  const allowedFields = ['startDate', 'endDate', 'durationDays', 'progress', 'statusNotes', 'assignmentType', 'excludeHolidays'];
+  const allowedFields = ['startDate', 'endDate', 'durationDays', 'progress', 'statusNotes', 'assignmentType', 'excludeHolidays', 'actualStartDate', 'actualEndDate'];
   const updatePayload = {};
   allowedFields.forEach(field => {
     if (updateData.hasOwnProperty(field)) {
-      if (['startDate', 'endDate'].includes(field) && typeof updateData[field] === 'string') {
+      // Xử lý các trường date (bao gồm cả actual dates)
+      if (['startDate', 'endDate', 'actualStartDate', 'actualEndDate'].includes(field) && typeof updateData[field] === 'string' && updateData[field].match(/^\d{4}-\d{2}-\d{2}$/)) {
         const dateObj = new Date(updateData[field] + "T00:00:00.000Z");
         if (!isNaN(dateObj.getTime())) updatePayload[`constructionTimeline.${field}`] = dateObj;
         else logger.warn(`Invalid date string for field ${field}: ${updateData[field]}`);
+      } else if (['startDate', 'endDate', 'actualStartDate', 'actualEndDate'].includes(field) && updateData[field] === null) {
+        updatePayload[`constructionTimeline.${field}`] = null; // Cho phép xóa ngày
       } else {
         updatePayload[`constructionTimeline.${field}`] = updateData[field];
       }
@@ -397,13 +403,13 @@ const updateConstructionTimelineTask = async (projectId, updateData, user) => {
 
   if (Object.keys(updatePayload).length === 0) return { message: 'Không có trường nào hợp lệ để cập nhật.', modifiedCount: 0 };
 
-  if (updateData.hasOwnProperty('startDate') && updateData.hasOwnProperty('endDate')) {
+  // Chỉ tính lại durationDays cho kế hoạch nếu cả startDate và endDate kế hoạch thay đổi
+  if (updateData.hasOwnProperty('startDate') && updateData.hasOwnProperty('endDate') && updatePayload['constructionTimeline.startDate'] && updatePayload['constructionTimeline.endDate']) {
     const newStartDate = updatePayload['constructionTimeline.startDate'];
     const newEndDate = updatePayload['constructionTimeline.endDate'];
     const excludeHolidays = updateData.hasOwnProperty('excludeHolidays') ? updateData.excludeHolidays : (project.constructionTimeline?.excludeHolidays ?? true);
-    if (newStartDate && newEndDate) {
-      updatePayload['constructionTimeline.durationDays'] = await calculateDurationDays(newStartDate, newEndDate, excludeHolidays, holidaysList);
-    }
+    // Không await ở đây nữa
+    updatePayload['constructionTimeline.durationDays'] = calculateDurationDays(newStartDate, newEndDate, excludeHolidays, holidaysList);
   }
   updatePayload['constructionTimeline.assignedBy'] = user.id;
   if (updateData.assignmentType === 'manual') {

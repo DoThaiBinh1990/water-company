@@ -17,6 +17,8 @@ import {
   rejectEditProject as rejectEditAPI,
   approveDeleteProject as approveDeleteAPI,
   rejectDeleteProject as rejectDeleteAPI,
+  // apiClient as apiClientInstance // Đã có ở dưới
+  apiClient as apiClientInstance // Đổi tên để tránh trùng với apiClient từ apiService
 } from './apiService';
 import io from 'socket.io-client';
 import { ToastContainer, toast } from 'react-toastify';
@@ -30,7 +32,7 @@ const Login = React.lazy(() => import('./pages/Login'));
 const TimelineManagement = React.lazy(() => import('./components/TimelineManagement/TimelineManagement')); // Thêm Timeline Module
 
 
-const socket = io(apiClient.defaults.baseURL, {
+const socket = io(apiClientInstance.defaults.baseURL, {
   transports: ['websocket', 'polling'],
   withCredentials: true,
   autoConnect: false,
@@ -49,6 +51,9 @@ function App() {
   const [showHeader, ] = useState(true); // setShowHeader was unused
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  // State để giới hạn toast
+  const [lastToastTime, setLastToastTime] = useState(0);
+  const MIN_TOAST_INTERVAL = 5000; // 5 giây
   const {
     data: currentUserDataResult,
     isLoading: isLoadingUser,
@@ -84,7 +89,7 @@ function App() {
   const handleLogout = useCallback(() => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    delete apiClient.defaults.headers.common['Authorization'];
+    delete apiClientInstance.defaults.headers.common['Authorization'];
     setUser(null);
     setShowNotificationsModal(false);
     queryClientHook.clear();
@@ -148,10 +153,14 @@ function App() {
       // Luôn invalidate query cho tab 'pending' nếu user có quyền approve và đó là thông báo pending
       if (user?.permissions?.approve && notification.status === 'pending') {
         queryClientHook.invalidateQueries(['notifications', 'pending']);
-        toast.info(`Có yêu cầu mới: ${notification.message}`, { position: "top-right" }); // Chuyển vị trí toast
+        const now = Date.now();
+        if (now - lastToastTime > MIN_TOAST_INTERVAL) {
+          toast.info(`Có yêu cầu mới: ${notification.message}`, { position: "top-right" });
+          setLastToastTime(now);
+        }
       }
     };
-
+    
     const handleNotificationProcessed = (notificationId) => {
       // Invalidate query cho cả hai tab khi một thông báo được xử lý
       // (vì nó có thể chuyển từ pending sang processed)
@@ -167,7 +176,7 @@ function App() {
       socket.off('notification', handleNewNotification);
       socket.off('notification_processed', handleNotificationProcessed);
     };
-  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook]); // Thêm user vào dependency array
+  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook, lastToastTime, MIN_TOAST_INTERVAL]);
 
   // Effect để cập nhật tiêu đề tab trình duyệt dựa trên route
   useEffect(() => {
@@ -206,17 +215,28 @@ function App() {
         queryClientHook.invalidateQueries(['rejectedProjects']); // Thêm invalidate cho rejected projects
       },
       onError: (error) => {
-        console.error("Lỗi hành động thông báo:", error.response?.data?.message || error.message);
-        toast.error(error.response?.data?.message || 'Thao tác thất bại!', { position: "top-right" });
-        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
-        queryClientHook.invalidateQueries(['notifications', 'pending']);
+        const errorMessage = error.response?.data?.message || error.message || 'Thao tác thất bại!';
+        console.error("Lỗi hành động thông báo:", errorMessage);
+        // Kiểm tra xem lỗi có phải do thông báo/công trình đã được xử lý không
+        if (errorMessage.includes("không tồn tại hoặc đã được xử lý") || errorMessage.includes("không có yêu cầu")) {
+          toast.info("Thông báo này có thể đã được xử lý. Đang làm mới danh sách...", { position: "top-right" });
+          // Invalidate mạnh mẽ hơn để đảm bảo dữ liệu được làm mới
+          queryClientHook.invalidateQueries(['notifications', 'pending']);
+          queryClientHook.invalidateQueries(['notifications', 'processed']);
+          queryClientHook.invalidateQueries(['projects']); // Có thể cả projects nữa
+        } else {
+          toast.error(errorMessage, { position: "top-right" });
+        }
+        // Luôn invalidate notifications để cập nhật UI
+        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]); // Tab hiện tại
+        queryClientHook.invalidateQueries(['notifications', 'pending']); // Luôn cả tab pending
       },
     });
   };
 
   const showAppNotification = (message, type = 'info') => { // Đổi tên hàm để tránh trùng
     if (toast[type]) {
-      toast[type](message, { position: "top-right" }); // Gọi hàm toast với type tương ứng
+      toast[type](message, { position: "top-right" });
     } else {
       toast.info(message, { position: "top-right" });
     }
@@ -226,7 +246,7 @@ function App() {
     async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        queryClientHook.invalidateQueries(['notifications', 'pending']); // Dùng invalidate để trigger refetch
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
@@ -244,13 +264,13 @@ function App() {
     async (projectId) => {
       const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu sửa:");
       if (reason === null) throw new Error("Hủy bỏ thao tác."); // User cancelled
-      if (!reason || reason.trim() === "") {
+      if (!reason || reason.trim() === "") {        
         toast.error("Lý do từ chối không được để trống.", { position: "top-right" });
         throw new Error("Lý do từ chối không được để trống.");
       }
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        queryClientHook.invalidateQueries(['notifications', 'pending']);
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
@@ -268,7 +288,7 @@ function App() {
     async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
       if (!notification) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        queryClientHook.invalidateQueries(['notifications', 'pending']);
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
@@ -286,13 +306,13 @@ function App() {
     async (projectId) => {
       const reason = prompt("Vui lòng nhập lý do từ chối yêu cầu xóa:");
       if (reason === null) throw new Error("Hủy bỏ thao tác.");
-      if (!reason || reason.trim() === "") {
+      if (!reason || reason.trim() === "") {        
         toast.error("Lý do từ chối không được để trống.", { position: "top-right" });
         throw new Error("Lý do từ chối không được để trống.");
       }
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
       if (!notification) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        queryClientHook.invalidateQueries(['notifications', 'pending']);
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
@@ -326,6 +346,36 @@ function App() {
     rejectDeleteMutation.isLoading,
   ]);
 
+  const markNotificationAsProcessedMutation = useMutation({
+    mutationFn: (notificationId) => apiClientInstance.patch(`/api/notifications/${notificationId}/read`), // Sử dụng endpoint đã có
+    onSuccess: (data) => {
+      queryClientHook.invalidateQueries(['notifications', 'pending']);
+      queryClientHook.invalidateQueries(['notifications', 'processed']);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Lỗi khi đánh dấu thông báo!', { position: "top-right" });
+    }
+  });
+
+  const handleMarkNotificationAsProcessed = (notificationId) => {
+    markNotificationAsProcessedMutation.mutate(notificationId);
+  };
+
+  const markAllNotificationsAsProcessedMutation = useMutation({
+    mutationFn: () => apiClientInstance.patch('/api/notifications/mark-all-as-processed'),
+    onSuccess: (data) => {
+      toast.success(data.message || 'Đã đánh dấu các thông báo cũ là đã xử lý.', { position: "top-right" });
+      queryClientHook.invalidateQueries(['notifications', 'pending']);
+      queryClientHook.invalidateQueries(['notifications', 'processed']);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Lỗi khi đánh dấu tất cả thông báo!', { position: "top-right" });
+    }
+  });
+
+  const handleMarkAllAsProcessed = () => {
+    markAllNotificationsAsProcessedMutation.mutate();
+  };
 
   if (isLoadingUser && localStorage.getItem('token') && !user) {
     return (
@@ -342,7 +392,7 @@ function App() {
     <>
       <ToastContainer
         position="top-right" // Đổi vị trí
-        autoClose={3000}    // Giảm thời gian
+        autoClose={1000}    // Đặt thời gian mặc định là 1 giây
         hideProgressBar={false}
         newestOnTop={true}
         closeOnClick
@@ -351,6 +401,7 @@ function App() {
         draggable
         pauseOnHover
         theme="light"       // Hoặc "colored"
+        className="custom-toast-z-index" // Sử dụng class CSS tùy chỉnh
         limit={3}           // Giảm giới hạn
       />
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Đang tải...</div>}>
@@ -378,6 +429,8 @@ function App() {
                   approveDeleteAction={approveDeleteAction}
                   rejectDeleteAction={rejectDeleteAction}
                   isProcessingNotificationAction={isProcessingNotificationAction}
+                  handleMarkNotificationAsProcessed={handleMarkNotificationAsProcessed} // Truyền hàm này
+                  handleMarkAllAsProcessed={handleMarkAllAsProcessed} // Truyền hàm mới
                   setIsProcessingNotificationAction={setIsProcessingNotificationAction} // Truyền setter
                   showHeader={showHeader}
                   isSidebarOpen={isSidebarOpen}

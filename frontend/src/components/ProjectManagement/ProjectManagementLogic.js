@@ -300,7 +300,7 @@ const useProjectActions = (user, type, queryClient, addMessage) => {
     onSuccess: (data) => {
       let successMessage = data.message || (editProject ? 'Đã cập nhật công trình!' : 'Đã đăng ký công trình!');
       if (data?.project?.pendingEdit || (!editProject && data?.project?.status === 'Chờ duyệt')) {
-        successMessage += ' Công trình đang ở trạng thái "Chờ duyệt".';
+        // successMessage += ' Công trình đang ở trạng thái "Chờ duyệt".'; // Bỏ bớt thông báo này
       }
       addMessage(successMessage, 'success');
       setFormData(initialFormData());

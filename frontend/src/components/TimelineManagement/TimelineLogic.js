@@ -122,6 +122,31 @@ export const useTimelineData = ({ user, timelineType, objectType, initialYear, f
     }
   }, [timelineType, objectType, updateProfileTimelineTaskMutation, updateConstructionTimelineTaskMutation]);
 
+  // Hàm xử lý lưu thông tin thực tế từ ActualProgressModal
+  const handleSaveActualProgress = useCallback(({ projectId, actualData, callbacks }) => {
+    // actualData: { actualStartDate, actualEndDate, progress, statusNotes }
+    if (!projectId) {
+      toast.error('Lỗi: Không có ID công trình để cập nhật thông tin thực tế.', { position: "top-center" });
+      callbacks?.onError?.();
+      return;
+    }
+    const updatePayload = { ...actualData }; // progress và statusNotes đã có, thêm actualStartDate, actualEndDate
+
+    if (timelineType === 'profile') {
+      updateProfileTimelineTaskMutation.mutate({ projectId, updateData: updatePayload }, {
+        onSuccess: () => callbacks?.onSuccess?.(),
+        onError: () => callbacks?.onError?.(),
+      });
+    } else if (timelineType === 'construction') {
+      // type (objectType) đã được bao gồm trong closure của updateConstructionTimelineTaskMutation
+      updateConstructionTimelineTaskMutation.mutate({ projectId, type: objectType, updateData: updatePayload }, {
+        onSuccess: () => callbacks?.onSuccess?.(),
+        onError: () => callbacks?.onError?.(),
+      });
+    }
+  }, [timelineType, objectType, updateProfileTimelineTaskMutation, updateConstructionTimelineTaskMutation]);
+
+
   // Lấy danh sách công trình đủ điều kiện để phân công
   // (Chưa có timeline, hoặc assignmentType là 'auto', và chưa hoàn thành)
   const projectsForAssignmentQueryKey = useMemo(() => {
@@ -195,5 +220,6 @@ export const useTimelineData = ({ user, timelineType, objectType, initialYear, f
     isUpdatingTimelineTask: updateProfileTimelineTaskMutation.isLoading || updateConstructionTimelineTaskMutation.isLoading,
     handleDateChange,
     handleProgressChange, // Export handler cho onProgressChange
+    handleSaveActualProgress, // Export hàm lưu thông tin thực tế
   };
 };

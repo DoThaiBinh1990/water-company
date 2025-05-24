@@ -1,5 +1,5 @@
 // d:\CODE\water-company\frontend\src\components\Header.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaBell, FaCheckCircle, FaTimesCircle, FaUserCircle, FaBars, FaTimes, FaSpinner } from 'react-icons/fa'; // Thêm FaSpinner
 import Modal from 'react-modal';
 
@@ -20,6 +20,8 @@ function Header({
   rejectDeleteAction,
   isProcessingNotificationAction, // State từ App.js
   setIsProcessingNotificationAction, // Setter từ App.js
+  handleMarkNotificationAsProcessed, // Hàm mới từ App.js
+  handleMarkAllAsProcessed, // Hàm mới để đánh dấu tất cả đã xử lý
   isSidebarOpen,
   setIsSidebarOpen,
 }) {
@@ -150,7 +152,7 @@ function Header({
                         ${isProcessingNotificationAction || isNotificationsLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={isProcessingNotificationAction || isNotificationsLoading}
           >
-            Chưa xử lý ({unreadNotificationsCount})
+            Chưa xử lý ({currentNotificationTab === 'pending' ? unreadNotificationsCount : ''})
           </button>
           <button
             onClick={() => handleTabChange('processed')}
@@ -161,6 +163,20 @@ function Header({
           >
             Đã xử lý
           </button>
+          {/* Nút "Đánh dấu đã đọc" nên nằm cùng hàng với các tab, và chỉ hiển thị khi tab "Chưa xử lý" active */}
+          {currentNotificationTab === 'pending' && unreadNotificationsCount > 0 && (
+            <button
+              onClick={() => {
+                if (window.confirm(`Bạn có chắc muốn đánh dấu tất cả ${unreadNotificationsCount} thông báo chưa xử lý là đã đọc (trừ các yêu cầu duyệt còn hiệu lực)?`)) {
+                  handleMarkAllAsProcessed();
+                }
+              }}
+              className={`ml-auto py-1 px-2 text-xs font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50`}
+              disabled={isProcessingNotificationAction || isNotificationsLoading || unreadNotificationsCount === 0}
+            >
+              Đánh dấu đã đọc ({unreadNotificationsCount})
+            </button>
+          )}
         </div>
 
         <div className={`flex-grow overflow-y-auto p-4 bg-white transition-opacity duration-300 ease-in-out ${tabFade ? 'opacity-100' : 'opacity-0'}`}>
@@ -182,6 +198,16 @@ function Header({
               <div
                 key={notification._id}
                 className="p-3 mb-2 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+                onClick={() => {
+                  if (currentNotificationTab === 'pending' &&
+                      notification.status === 'pending' && // Thêm kiểm tra này
+                      !(user?.permissions?.approve && notification.projectId?._id && ['edit', 'delete', 'new'].includes(notification.type)) &&
+                      typeof handleMarkNotificationAsProcessed === 'function' &&
+                      !isProcessingNotificationAction // Chỉ cho phép nếu không có action nào đang chạy
+                  ) {
+                    handleMarkNotificationAsProcessed(notification._id);
+                  }
+                }}
               >
                 <p className="text-sm font-medium text-gray-800">
                   {notification.message}

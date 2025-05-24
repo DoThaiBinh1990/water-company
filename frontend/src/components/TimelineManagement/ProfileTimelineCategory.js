@@ -32,6 +32,7 @@ const ProfileTimelineCategory = ({ user, addMessage }) => {
     handleDateChange, // Nhận handler onDateChange từ useTimelineData
     handleProgressChange, // Nhận handler onProgressChange
     isUpdatingTimelineTask, // Nhận trạng thái loading
+    handleSaveActualProgress, // Lấy hàm này từ hook
   } = useTimelineData({
     user,
     timelineType: 'profile',
@@ -57,9 +58,7 @@ const ProfileTimelineCategory = ({ user, addMessage }) => {
   const financialYearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
 
   const handleTaskClick = (project) => {
-    // console.log('Task clicked:', project);
-    // Hiển thị modal chi tiết công việc hoặc điều hướng
-    addMessage(`Đã click vào công trình: ${project.name}`, 'info');
+    // addMessage(`Đã click vào công trình: ${project.name}`, 'info'); // Bỏ thông báo này
   };
 
   const handleOpenAssignmentModal = () => {
@@ -154,6 +153,7 @@ const ProfileTimelineCategory = ({ user, addMessage }) => {
             timelineType="profile" // Truyền timelineType xuống
             holidays={holidaysForModal} // Pass holidays
             isUpdatingTimelineTask={isUpdatingTimelineTask}
+            onSaveActualProgress={handleSaveActualProgress} // Truyền prop xuống GanttChart
           />
         </div>
       )}

@@ -77,3 +77,10 @@
     margin-bottom: 8px !important;
   }
 }
+
+/* d:\CODE\water-company\frontend\src\toastify-custom.css */
+/* ... các style hiện có của bạn ... */
+
+.Toastify__toast-container--top-right.custom-toast-z-index {
+  z-index: 9999999 !important; /* Giá trị z-index rất cao và !important */
+}

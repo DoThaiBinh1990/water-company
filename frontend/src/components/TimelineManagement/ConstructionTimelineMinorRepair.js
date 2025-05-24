@@ -32,6 +32,7 @@ const ConstructionTimelineMinorRepair = ({ user, addMessage }) => {
     isLoadingProjectsToAssign,
     saveTimelineAssignments,
     isUpdatingTimelineTask,
+    handleSaveActualProgress, // Lấy hàm này từ hook
   } = useTimelineData({
     user,
     timelineType: 'construction',
@@ -51,7 +52,7 @@ const ConstructionTimelineMinorRepair = ({ user, addMessage }) => {
   const financialYearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
 
   const handleTaskClick = (project) => {
-    addMessage(`Đã click vào công trình: ${project.name}`, 'info');
+    // addMessage(`Đã click vào công trình: ${project.name}`, 'info'); // Bỏ thông báo này
   };
 
   const handleOpenAssignmentModal = () => {
@@ -145,6 +146,7 @@ const ConstructionTimelineMinorRepair = ({ user, addMessage }) => {
             timelineType="construction"
             holidays={holidaysForModal} // Pass holidays
             isUpdatingTimelineTask={isUpdatingTimelineTask}
+            onSaveActualProgress={handleSaveActualProgress} // Truyền prop xuống GanttChart
           />
         </div>
       )}
