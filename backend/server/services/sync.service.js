@@ -1,10 +1,11 @@
 // d:\CODE\water-company\backend\server\services\sync.service.js
 const mongoose = require('mongoose');
-const { CategoryProject, MinorRepairProject, AllocatedUnit, User } = require('../models');
+const { CategoryProject, MinorRepairProject, AllocatedUnit, User, RejectedProject } = require('../models'); // Thêm RejectedProject
 const { userFieldToQuery } = require('./helpers/serviceHelpers');
 const { generateProjectCode } = require('./helpers/projectCodeHelper');
 const logger = require('../config/logger');
-const { categoryFormConfig, minorRepairFormConfig } = require('../config/formConfigs'); // Import form configs
+const { categoryFormConfig, minorRepairFormConfig } = require('../config/formConfigs');
+const { updateSerialNumbers } = require('../utils/serialNumber.util'); // Import updateSerialNumbers
 
 /**
  * Prepares project data for synchronization, identifying missing fields and auto-filled values based on form configs.
@@ -219,6 +220,35 @@ const prepareProjectsForSyncService = async (targetFinancialYear, targetProjectT
   return preparedProjects;
 };
 
+/**
+ * Deletes an original project by its ID and type.
+ * This is intended for use from the sync review modal to remove duplicates.
+ * @param {string} projectId - The ID of the project to delete.
+ * @param {string} projectType - The type of the project ('category' or 'minor_repair').
+ * @param {object} userPerformingAction - The user performing the action.
+ * @returns {Promise<object>} A success message.
+ */
+const deleteOriginalProjectByIdService = async (projectId, projectType, userPerformingAction) => {
+  logger.info(`[SyncService] Yêu cầu xóa công trình gốc. ID: ${projectId}, Loại: ${projectType}, User: ${userPerformingAction.username}`);
+  const Model = projectType === 'category' ? CategoryProject : MinorRepairProject;
+
+  const project = await Model.findById(projectId);
+  if (!project) {
+    throw { statusCode: 404, message: 'Không tìm thấy công trình gốc để xóa.' };
+  }
+
+  // Thực hiện xóa
+  await Model.deleteOne({ _id: projectId });
+  logger.info(`[SyncService] Đã xóa công trình gốc ID: ${projectId} từ collection ${Model.modelName}.`);
+
+  // Cập nhật lại số thứ tự cho các công trình còn lại cùng loại
+  await updateSerialNumbers(projectType);
+  logger.info(`[SyncService] Đã cập nhật số thứ tự cho loại công trình: ${projectType} sau khi xóa.`);
+
+  return { message: `Công trình "${project.name || projectId}" đã được xóa vĩnh viễn.` };
+};
+
 module.exports = {
   prepareProjectsForSyncService,
+  deleteOriginalProjectByIdService,
 };

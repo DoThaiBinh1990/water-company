@@ -218,6 +218,12 @@ export const executeSyncDataAPI = async (payload) => {
   return data;
 };
 
+// API để xóa một công trình gốc từ modal review đồng bộ
+export const deleteOriginalProjectAPI = async ({ projectId, projectType }) => {
+  const { data } = await apiClient.delete(`/api/sync-projects/delete-original/${projectType}/${projectId}`);
+  return data; // { message }
+};
+
 // Project Management
 export const getProjects = async (params) => {
   const { data } = await apiClient.get('/api/projects', { params });

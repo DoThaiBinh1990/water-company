@@ -24,4 +24,10 @@ router.post('/sync-projects/execute', authenticate, async (req, res, next) => { 
   }
 });
 
+// Route để xóa một công trình gốc (duplicate) từ modal review
+router.delete('/sync-projects/delete-original/:type/:id', authenticate, (req, res, next) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ admin mới có quyền xóa công trình này.' });
+  syncController.deleteOriginalProjectController(req, res, next);
+});
+
 module.exports = router;

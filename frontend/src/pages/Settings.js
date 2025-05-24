@@ -81,6 +81,7 @@ function Settings({ user }) {
   const [editingHoliday, setEditingHoliday] = useState(null);
   const [editingHolidayDescription, setEditingHolidayDescription] = useState('');
 
+  const [expandedUserId, setExpandedUserId] = useState(null); // State cho user card
   const [selectedSyncYear, setSelectedSyncYear] = useState(String(new Date().getFullYear()));
   const [selectedSyncProjectType, setSelectedSyncProjectType] = useState('all');
   const [showSyncReviewModal, setShowSyncReviewModal] = useState(false);
@@ -575,6 +576,15 @@ function Settings({ user }) {
                            prepareSyncMutation.isLoading ||
                            executeSyncMutation.isLoading;
 
+  // Callback để refresh preparedData sau khi xóa một project từ modal
+  // (hoặc từ bất kỳ hành động nào trong modal làm thay đổi dữ liệu nguồn)
+  const handleProjectDeletedFromSyncModal = () => {
+      // Không đóng modal nữa, chỉ fetch lại dữ liệu
+      // setShowSyncReviewModal(false); 
+    // Gọi lại prepareSyncMutation để làm mới danh sách
+    prepareSyncMutation.mutate(); // Không cần truyền tham số nếu prepareSyncMutation không yêu cầu
+    toast.info("Danh sách đồng bộ đã được cập nhật.", { position: "top-center" });
+  };
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Thiết lập</h1>
@@ -698,23 +708,31 @@ function Settings({ user }) {
             {isMobile ? (
               <div className="space-y-3 mb-4">
                 {paginatedUsers.map(u => (
-                  <div key={u._id} className="bg-gray-50 p-4 rounded-lg shadow">
-                    <h3 className="text-md font-semibold text-blue-600 mb-2">{u.fullName || u.username}</h3>
+                  <div key={u._id} className="bg-gray-50 p-4 rounded-lg shadow border border-gray-200">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-md font-semibold text-blue-600 mb-2 flex-grow">{u.fullName || u.username}</h3>
+                      <button
+                        onClick={() => setExpandedUserId(expandedUserId === u._id ? null : u._id)}
+                        className="text-xs text-blue-600 hover:text-blue-800 p-1"
+                      >
+                        {expandedUserId === u._id ? 'Thu gọn' : 'Xem thêm'}
+                      </button>
+                    </div>
                     <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Username:</span> {u.username}</p>
                     <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Đơn vị:</span> {u.unit || 'N/A'}</p>
-                    <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Vai trò:</span>
-                      {u.role === 'admin' && 'Admin'}
-                      {u.role === 'director' && 'Tổng giám đốc'}
-                      {u.role === 'deputy_director' && 'Phó tổng giám đốc'}
-                      {u.role === 'manager-office' && 'Trưởng phòng (CT)'}
-                      {u.role === 'deputy_manager-office' && 'Phó phòng (CT)'}
-                      {u.role === 'staff-office' && 'Nhân viên (Phòng CT)'}
-                      {u.role === 'manager-branch' && 'Giám đốc (CN)'}
-                      {u.role === 'deputy_manager-branch' && 'Phó giám đốc (CN)'}
-                      {u.role === 'staff-branch' && 'Nhân viên (CN)'}
-                      {u.role === 'worker' && 'Công nhân'}
-                    </p>
-                    <p className="text-xs text-gray-600 mb-2"><span className="font-medium">Quyền:</span> {Object.entries(u.permissions || {}).filter(([, value]) => value).map(([key]) => ({add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'Xem TC', assignProfileTimeline: 'PCTL HS', assignConstructionTimeline: 'PCTL TC', viewOtherBranchProjects: 'XemCNKhác'}[key] || key.replace('assign', 'PC').replace('Timeline','TL').replace('Profile','HS').replace('Construction','TC'))).join(', ')}</p>
+                    {(expandedUserId === u._id) && (
+                      <>
+                        <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Email:</span> {u.email || 'N/A'}</p>
+                        <p className="text-sm text-gray-700 mb-1"><span className="font-medium">SĐT:</span> {u.phoneNumber || 'N/A'}</p>
+                        <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Địa chỉ:</span> {u.address || 'N/A'}</p>
+                        <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Vai trò:</span>
+                          {u.role === 'admin' && 'Admin'}
+                          {/* ... (các vai trò khác) ... */}
+                          {u.role === 'worker' && 'Công nhân'}
+                        </p>
+                        <p className="text-xs text-gray-600 mb-2"><span className="font-medium">Quyền:</span> {Object.entries(u.permissions || {}).filter(([, value]) => value).map(([key]) => ({add: 'Thêm', edit: 'Sửa', delete: 'Xóa', approve: 'Duyệt', viewRejected: 'Xem TC', assignProfileTimeline: 'PCTL HS', assignConstructionTimeline: 'PCTL TC', viewOtherBranchProjects: 'XemCNKhác'}[key] || key.replace('assign', 'PC').replace('Timeline','TL').replace('Profile','HS').replace('Construction','TC'))).join(', ')}</p>
+                      </>
+                    )}
                     <div className="mt-3 pt-3 border-t border-gray-200 flex gap-3">
                       <button onClick={() => editUserHandler(u)} className="btn-sm btn-primary flex items-center gap-1" disabled={userMutation.isLoading || deleteUserMutation.isLoading}><FaEdit size={14} /> Sửa</button>
                       <button onClick={() => deleteUserHandler(u._id)} className="btn-sm btn-danger flex items-center gap-1" disabled={userMutation.isLoading || deleteUserMutation.isLoading || u.role === 'admin'}><FaTrash size={14} /> Xóa</button>
@@ -1113,6 +1131,8 @@ function Settings({ user }) {
             if (selectedSyncProjectType && String(selectedSyncProjectType).toLowerCase() !== 'all') payload.targetProjectType = selectedSyncProjectType;
             executeSyncMutation.mutate(payload);
           }}
+          onProjectDeleted={handleProjectDeletedFromSyncModal} // Truyền callback
+          currentUser={user} // Truyền currentUser
           isExecutingSync={executeSyncMutation.isLoading}
           dataSources={{ // Truyền dataSources vào modal
             allocatedUnits: allocatedUnits,

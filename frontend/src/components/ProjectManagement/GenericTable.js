@@ -1,5 +1,5 @@
 // d:\CODE\water-company\frontend\src\components\ProjectManagement\GenericTable.js
-import React from 'react';
+import React, { useState } from 'react'; // Thêm useState
 import { FaInfoCircle } from 'react-icons/fa';
 import { formatCurrency, getNestedProperty } from '../../utils/helpers';
 // formatDateToLocale sẽ được truyền qua props từ ProjectManagement.js
@@ -24,8 +24,8 @@ function GenericTable({
   usersList = [],
   formatDateToLocale, // Nhận hàm này qua props
 }) {
-  const isMobile = useMediaQuery('(max-width: 768px)'); // Ví dụ: breakpoint cho mobile là 768px
-
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [expandedRowId, setExpandedRowId] = useState(null); // State để theo dõi card được mở rộng
 
   const getCellDisplayData = (project, fieldPath, currentUsersList = []) => {
     let originalValueFromProject = getNestedProperty(project, fieldPath);
@@ -142,19 +142,35 @@ function GenericTable({
     return (
       <div className="mt-4 space-y-3">
         {data.map((project, index) => (
-          <div key={project._id || `project-card-${index}`} className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-md font-semibold text-blue-600 mb-2">
-              {(currentPage - 1) * itemsPerPage + index + 1}. {project.name}
-            </h3>
-            {/* Hiển thị một số cột quan trọng - bạn có thể tùy chỉnh cột nào hiển thị */}
-            {columns.slice(0, 4).map(col => ( // Ví dụ: hiển thị 4 cột đầu tiên
-              <div key={col.field} className="text-sm mb-1.5">
-                <span className="font-medium text-gray-600">{col.header}: </span>
-                {/* renderCellContent có thể cần điều chỉnh để phù hợp với card */}
-                <span className="text-gray-800">{renderCellContent(project, col)}</span>
-              </div>
-            ))}
-            {/* Nút hành động */}
+          <div key={project._id || `project-card-${index}`} className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+            <div className="flex justify-between items-start">
+              <h3 className="text-md font-semibold text-blue-700 mb-2 flex-grow">
+                {(currentPage - 1) * itemsPerPage + index + 1}. {project.name}
+              </h3>
+              <button
+                onClick={() => setExpandedRowId(expandedRowId === project._id ? null : project._id)}
+                className="text-xs text-blue-600 hover:text-blue-800 p-1"
+              >
+                {expandedRowId === project._id ? 'Thu gọn' : 'Xem thêm'}
+              </button>
+            </div>
+
+            {/* Hiển thị các cột */}
+            {columns.map((col, colIndex) => {
+              // Bỏ qua cột tên nếu đã hiển thị ở tiêu đề card
+              if (col.field === 'name') return null;
+              // Chỉ hiển thị một số cột ban đầu, hoặc tất cả nếu card được mở rộng
+              if (!expandedRowId && colIndex >= 3 && col.field !== 'status') return null; // Ví dụ: hiển thị 3 cột đầu + cột status
+              if (expandedRowId && expandedRowId !== project._id && colIndex >=3 && col.field !== 'status') return null;
+
+              return (
+                <div key={col.field} className={`text-sm mb-1.5 ${expandedRowId === project._id ? 'block' : (colIndex < 3 || col.field === 'status' ? 'block' : 'hidden')}`}>
+                  <span className="font-medium text-gray-600">{col.header}: </span>
+                  <span className="text-gray-800">{renderCellContent(project, col)}</span>
+                </div>
+              );
+            })}
+
             {renderActions && (
               <div className="mt-3 pt-3 border-t border-gray-200 flex flex-wrap gap-2">
                 {renderActions(project, isPendingTab)}

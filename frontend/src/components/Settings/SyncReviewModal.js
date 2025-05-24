@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import { FaSave, FaTimes, FaExclamationTriangle, FaCheckCircle, FaTrash, FaSpinner } from 'react-icons/fa'; // Thêm FaTrash, FaSpinner
 import { toast } from 'react-toastify';
 import { categoryFormConfig, minorRepairFormConfig } from '../../config/formConfigs'; // Để lấy thông tin trường
-import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { formatDateToLocale } from '../../utils/dateUtils';
 import { useMutation, useQueryClient } from '@tanstack/react-query'; // Thêm useMutation, useQueryClient
 import { deleteProject as deleteProjectAPI } from '../../apiService'; // API để xóa
@@ -18,6 +18,7 @@ const SyncReviewModal = ({
   onConfirmSync,
   isExecutingSync,
   dataSources, // Nhận dataSources từ Settings.js
+  onProjectDeleted, // Callback để thông báo cho Settings.js rằng một project đã bị xóa
   currentUser, // Nhận currentUser để kiểm tra quyền admin
 }) => {
   const [projectsToSync, setProjectsToSync] = useState([]);
@@ -153,38 +154,23 @@ const SyncReviewModal = ({
     mutationFn: ({ projectId, projectType }) => deleteProjectAPI({ projectId, type: projectType }),
     onSuccess: (data, variables) => {
       toast.success(data.message || `Đã xóa công trình ${variables.projectId}.`, { autoClose: 3000 });
-      // Cập nhật lại preparedData ở component cha (Settings.js) bằng cách gọi lại prepareSyncMutation
-      // Hoặc, nếu muốn xử lý ngay tại modal:
-      // Cần một cách để component cha (Settings.js) gọi lại prepareSyncMutation
-      // và truyền preparedData mới xuống.
-      // Cách đơn giản hơn là đóng modal và yêu cầu người dùng mở lại để thấy thay đổi.
-      // Hoặc, nếu có hàm refetchPreparedData từ props:
-      // if (typeof refetchPreparedData === 'function') refetchPreparedData();
-      // Hiện tại, để đơn giản, sẽ đóng modal và người dùng cần "Chuẩn bị & Review" lại.
-      // Để cập nhật UI ngay lập tức trong modal:
-      // 1. Xóa project khỏi preparedData (cần hàm setPreparedData từ props)
-      // 2. Xóa project khỏi projectsToSync
-      // 3. Xóa project khỏi editableData
-      // Vì preparedData là prop, ta không thể sửa trực tiếp.
-      // Giải pháp tốt nhất là Settings.js quản lý preparedData và truyền hàm để refresh nó.
-      // Tạm thời, sẽ đóng modal và yêu cầu người dùng làm mới.
-      onRequestClose(); // Đóng modal sau khi xóa
+      // Gọi callback để Settings.js fetch lại preparedData
+      // Modal sẽ không đóng, mà sẽ được cập nhật với dữ liệu mới.
+      if (typeof onProjectDeleted === 'function') {
+        onProjectDeleted();
+      }
       queryClient.invalidateQueries(['projects']); // Invalidate các query liên quan đến projects
     },
     onError: (error) => toast.error(error.response?.data?.message || 'Lỗi khi xóa công trình!', { autoClose: 4000 }),
-  });
+});
 
-  const renderFieldValue = (value, fieldName) => {
-    if (fieldName.toLowerCase().includes('date') && value) {
-        return formatDateToLocale(value);
-    }
-    if (typeof value === 'boolean') return value ? 'Có' : 'Không';
-    // Xử lý trường hợp value là object
-    if (typeof value === 'object' && value !== null && !React.isValidElement(value)) {
-      return '[Dữ liệu đối tượng]'; // Hoặc JSON.stringify(value) để debug
-    }
-    return value || 'N/A';
+const renderFieldValue = (value, fieldName) => {
+  if (fieldName.toLowerCase().includes('date') && value) {
+      return formatDateToLocale(value);
   }
+  if (typeof value === 'boolean') return value ? 'Có' : 'Không';
+  return value !== null && value !== undefined ? String(value) : 'N/A';
+}
 
   const systemLockedFields = useMemo(() => [
     // Các trường hệ thống không bao giờ cho sửa ở màn hình này
@@ -288,17 +274,20 @@ const SyncReviewModal = ({
                       <span className="font-semibold">Công trình này (trùng tên, đơn vị, năm) đã tồn tại trong hệ thống mới và sẽ không được đồng bộ.</span>
                     </div>
                     {currentUser?.role === 'admin' && (
-                      <button
-                        onClick={() => {
-                          if (window.confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN công trình "${p.originalData.name || p._id}" này khỏi hệ thống? Hành động này không thể hoàn tác.`)) {
-                            deleteProjectMutation.mutate({ projectId: p._id, projectType: p.projectType });
-                          }
-                        }}
-                        className={`btn btn-danger btn-sm flex items-center gap-1 ${deleteProjectMutation.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={deleteProjectMutation.isLoading || isExecutingSync}
-                      >
-                        {deleteProjectMutation.isLoading && deleteProjectMutation.variables?.projectId === p._id ? <FaSpinner className="animate-spin" /> : <FaTrash />} Xóa vĩnh viễn
-                      </button>
+                  <div className="mt-2">
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Bạn có chắc chắn muốn XÓA VĨNH VIỄN công trình "${p.originalData.name || p._id}" này khỏi hệ thống? Hành động này không thể hoàn tác.`)) {
+                          // Gọi API xóa công trình gốc
+                          deleteProjectMutation.mutate({ projectId: p._id, projectType: p.projectType });
+                        }
+                      }}
+                      className={`btn btn-danger btn-sm flex items-center gap-1 ${deleteProjectMutation.isLoading && deleteProjectMutation.variables?.projectId === p._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={deleteProjectMutation.isLoading && deleteProjectMutation.variables?.projectId === p._id || isExecutingSync}
+                    >
+                      {deleteProjectMutation.isLoading && deleteProjectMutation.variables?.projectId === p._id ? <FaSpinner className="animate-spin" /> : <FaTrash />} Xóa vĩnh viễn (khỏi DB)
+                    </button>
+                  </div>
                     )}
                   </div>
                 )}

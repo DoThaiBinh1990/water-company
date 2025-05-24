@@ -1,7 +1,6 @@
 // d:\CODE\water-company\backend\server\services\project.standardize.service.js
 const mongoose = require('mongoose');
-const { CategoryProject, MinorRepairProject, AllocatedUnit, AllocationWave, ProjectType: ModelProjectType } = require('../models');
-// const { generateProjectCode } = require('./helpers/projectCodeHelper'); // Không dùng trực tiếp ở đây nữa
+const { CategoryProject, MinorRepairProject, AllocatedUnit, AllocationWave, ProjectType: ModelProjectType, ProjectCodeCounter } = require('../models');
 const logger = require('../config/logger');
 
 // Hàm nội bộ để tạo mã chuẩn hóa, khác với generateProjectCode ở chỗ nó nhận sequenceNumber trực tiếp
@@ -15,302 +14,313 @@ async function generateStandardizedCodeInternal(projectTypeString, financialYear
     }
     // allocationWaveShortCode đã được cung cấp (hoặc '00')
     if (projectTypeString === 'minor_repair') {
-        return `${typePrefix}${yearSuffix}${allocatedUnitShortCode}${dddFormatted}`; // Không bao gồm allocationWaveShortCode cho SCN
+        return `${typePrefix}${yearSuffix}${allocatedUnitShortCode}${dddFormatted}`;
     } else { // Cho 'category'
         return `${typePrefix}${allocationWaveShortCode}${yearSuffix}${allocatedUnitShortCode}${dddFormatted}`;
     }
 }
 
-
 const prepareStandardizationScope = async (queryParams) => {
     const { financialYear, projectType: projectTypeString, allocatedUnitId, allocationWaveId } = queryParams;
-    // Loại công trình và Đơn vị phân bổ cụ thể là bắt buộc cho logic chuẩn hóa này
-    if (!projectTypeString || !allocatedUnitId) {
-        throw { statusCode: 400, message: 'Loại công trình và Đơn vị phân bổ cụ thể là bắt buộc để chuẩn hóa.' };
-    }
-    if (!mongoose.Types.ObjectId.isValid(allocatedUnitId)) {
-        throw { statusCode: 400, message: 'ID Đơn vị phân bổ không hợp lệ.' };
+
+    if (!projectTypeString) {
+        throw { statusCode: 400, message: 'Loại công trình là bắt buộc để chuẩn bị chuẩn hóa.' };
     }
 
+    let unitsToQuery = [];
+    if (allocatedUnitId) {
+        if (!mongoose.Types.ObjectId.isValid(allocatedUnitId)) {
+            throw { statusCode: 400, message: 'ID Đơn vị phân bổ không hợp lệ.' };
+        }
+        const singleUnit = await AllocatedUnit.findById(allocatedUnitId).select('shortCode name');
+        if (!singleUnit) throw { statusCode: 404, message: 'Không tìm thấy đơn vị phân bổ được chỉ định.' };
+        if (!singleUnit.shortCode) throw { statusCode: 400, message: `Đơn vị "${singleUnit.name}" không có mã viết tắt.` };
+        unitsToQuery.push(singleUnit);
+    } else {
+        unitsToQuery = await AllocatedUnit.find({ shortCode: { $exists: true, $ne: null, $ne: '' } }).select('shortCode name');
+        if (unitsToQuery.length === 0) {
+            logger.info('[Prepare Standardization] Không có đơn vị nào có mã viết tắt để chuẩn bị.');
+            return [];
+        }
+    }
 
     const Model = projectTypeString === 'category' ? CategoryProject : (projectTypeString === 'minor_repair' ? MinorRepairProject : null);
     if (!Model) throw { statusCode: 400, message: 'Loại công trình không hợp lệ.' };
 
-    const allocatedUnit = await AllocatedUnit.findById(allocatedUnitId).select('shortCode name');
-    if (!allocatedUnit || !allocatedUnit.shortCode) {
-        throw { statusCode: 404, message: 'Không tìm thấy đơn vị phân bổ hoặc đơn vị không có mã viết tắt.' };
-    }
-    const unitShortCode = allocatedUnit.shortCode;
+    const allProjectsToReview = [];
 
-    let waveShortCode = '00';
-    let allocationWaveName = null; // Dùng để query nếu allocationWaveId được cung cấp
-    if (projectTypeString === 'category' && allocationWaveId) {
-        if (mongoose.Types.ObjectId.isValid(allocationWaveId)) { // Chỉ xử lý nếu là ID hợp lệ
-            const wave = await AllocationWave.findById(allocationWaveId).select('shortCode name');
-            if (!wave) { // Nếu ID hợp lệ nhưng không tìm thấy đợt
-                 logger.warn(`Đợt phân bổ với ID "${allocationWaveId}" không tìm thấy. Sẽ không lọc theo đợt này.`);
-                 // waveShortCode vẫn là '00', allocationWaveName là null
-            } else {
-                if (wave.shortCode) {
-                    waveShortCode = wave.shortCode;
+    for (const currentUnit of unitsToQuery) {
+        const unitShortCode = currentUnit.shortCode;
+        const unitName = currentUnit.name;
+
+        let waveShortCodeForFiltering = '00';
+        let allocationWaveNameForQuery = null;
+        if (projectTypeString === 'category' && allocationWaveId) {
+            if (mongoose.Types.ObjectId.isValid(allocationWaveId)) {
+                const wave = await AllocationWave.findById(allocationWaveId).select('shortCode name');
+                if (wave) {
+                    if (wave.shortCode) waveShortCodeForFiltering = wave.shortCode;
+                    allocationWaveNameForQuery = wave.name;
                 } else {
-                    logger.warn(`Đợt phân bổ "${wave.name}" (ID: ${allocationWaveId}) không có mã shortCode. Sẽ sử dụng "00" cho mã công trình, nhưng vẫn lọc theo tên đợt.`);
+                    logger.warn(`[Prepare Standardization Unit: ${unitName}] Đợt phân bổ ID "${allocationWaveId}" không tìm thấy.`);
                 }
-                allocationWaveName = wave.name; // Dùng để query
             }
         }
-        // Nếu allocationWaveId là rỗng (Tất cả đợt), waveShortCode vẫn là '00' và allocationWaveName là null
-    }
 
-    const query = {
-        allocatedUnit: allocatedUnit.name, // Luôn lọc theo đơn vị đã chọn
-    };
-
-    if (financialYear && String(financialYear).trim() !== '') { // Chỉ thêm nếu financialYear có giá trị
-        query.financialYear = parseInt(financialYear, 10);
-    }
-
-    if (projectTypeString === 'category') {
-        if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && allocationWaveName) {
-            // Nếu một đợt cụ thể được chọn và tìm thấy
-            query.allocationWave = allocationWaveName;
-        } else if (!allocationWaveId || String(allocationWaveId).trim() === '') {
-            // Nếu chọn "Tất cả đợt" (allocationWaveId rỗng), không thêm bộ lọc allocationWave
-            // Điều này sẽ bao gồm cả công trình có đợt và không có đợt.
+        const query = {
+            allocatedUnit: unitName,
+        };
+        if (financialYear && String(financialYear).trim() !== '') {
+            query.financialYear = parseInt(financialYear, 10);
         }
-        // Trường hợp allocationWaveId hợp lệ nhưng không tìm thấy wave đã được xử lý ở trên (không thêm vào query)
-    }
-    // MinorRepairProject không có allocationWave, nên không cần thêm điều kiện
-
-    const projectsInScope = await Model.find(query)
-        .select(
-            '_id name projectCode createdAt financialYear allocatedUnit' +
-            (projectTypeString === 'category' ? ' allocationWave projectType' : '') // Chỉ select allocationWave và projectType cho CategoryProject
-        )
-        .populate(
-            projectTypeString === 'category' ? { path: 'projectType', select: 'name' } : undefined
-        )
-        .sort({ createdAt: 1 });
-
-
-
-    let firstNonPerfectIndex = -1;
-    const projectsToStandardizeResult = [];
-
-    for (let i = 0; i < projectsInScope.length; i++) {
-        const project = projectsInScope[i];
-        const expectedSequenceNumber = i + 1;
-
-        // Xác định waveShortCode cho mã kỳ vọng dựa trên đợt của công trình hiện tại (nếu có)
-        // HOẶC waveShortCode từ bộ lọc nếu một đợt cụ thể được chọn
-        let currentProjectWaveShortCode = '00';
         if (projectTypeString === 'category') {
-            if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && waveShortCode !== '00') {
-                // Nếu lọc theo một đợt cụ thể CÓ shortCode, dùng shortCode đó
-                currentProjectWaveShortCode = waveShortCode;
-            } else if (project.allocationWave) {
-                // Nếu không lọc theo đợt cụ thể, hoặc đợt cụ thể không có shortCode,
-                // thử lấy shortCode từ chính công trình đó (nếu nó thuộc một đợt có shortCode)
-                const projectWaveDoc = await AllocationWave.findOne({ name: project.allocationWave }).select('shortCode');
-                if (projectWaveDoc && projectWaveDoc.shortCode) {
-                    currentProjectWaveShortCode = projectWaveDoc.shortCode;
+            if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && allocationWaveNameForQuery) {
+                query.allocationWave = allocationWaveNameForQuery;
+            }
+        }
+
+        const projectsInUnitScope = await Model.find(query)
+            .select('_id name projectCode createdAt financialYear allocatedUnit' + (projectTypeString === 'category' ? ' allocationWave projectType' : ''))
+            .sort({ createdAt: 1 });
+
+        let firstNonPerfectIndexInUnit = -1;
+        for (let i = 0; i < projectsInUnitScope.length; i++) {
+            const project = projectsInUnitScope[i];
+            const expectedSequenceNumber = i + 1;
+            let currentProjectWaveShortCodeForExpected = '00';
+
+            if (projectTypeString === 'category') {
+                if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && waveShortCodeForFiltering !== '00') {
+                    currentProjectWaveShortCodeForExpected = waveShortCodeForFiltering;
+                } else if (project.allocationWave) {
+                    const projectWaveDoc = await AllocationWave.findOne({ name: project.allocationWave }).select('shortCode');
+                    if (projectWaveDoc && projectWaveDoc.shortCode) {
+                        currentProjectWaveShortCodeForExpected = projectWaveDoc.shortCode;
+                    }
+                }
+            }
+
+            const expectedCode = await generateStandardizedCodeInternal(
+                projectTypeString,
+                project.financialYear,
+                unitShortCode,
+                currentProjectWaveShortCodeForExpected,
+                expectedSequenceNumber
+            );
+
+            if (project.projectCode !== expectedCode) {
+                if (firstNonPerfectIndexInUnit === -1) {
+                    firstNonPerfectIndexInUnit = i;
                 }
             }
         }
 
-
-        const expectedCode = await generateStandardizedCodeInternal(
-            projectTypeString,
-            project.financialYear,
-            unitShortCode, // Luôn là unitShortCode của đơn vị đã chọn
-            currentProjectWaveShortCode,
-            expectedSequenceNumber
-        );
-
-        if (project.projectCode !== expectedCode) {
-            if (firstNonPerfectIndex === -1) {
-                firstNonPerfectIndex = i;
+        if (firstNonPerfectIndexInUnit !== -1) {
+            for (let i = firstNonPerfectIndexInUnit; i < projectsInUnitScope.length; i++) {
+                const project = projectsInUnitScope[i];
+                allProjectsToReview.push({
+                    _id: project._id,
+                    name: project.name,
+                    currentProjectCode: project.projectCode,
+                    createdAt: project.createdAt,
+                    allocatedUnitName: unitName,
+                });
             }
         }
-        // Thêm tất cả công trình vào danh sách review, nhưng chỉ những cái từ firstNonPerfectIndex mới thực sự "cần chuẩn hóa"
-        // Frontend sẽ quyết định hiển thị như thế nào, backend trả về những gì nó tìm thấy
-        // Yêu cầu là "danh sách sẽ chỉ hiện 5 công trình chưa được chuẩn hoá đê người dùng thực hiện chuẩn hoá mã công trình."
-        // Backend sẽ trả về tất cả những công trình có mã không khớp VÀ nằm sau chuỗi hoàn hảo đầu tiên.
     }
 
-    if (firstNonPerfectIndex !== -1) {
-        for (let i = firstNonPerfectIndex; i < projectsInScope.length; i++) {
-            const project = projectsInScope[i];
-            // Mã kỳ vọng ở đây không quan trọng bằng việc nó nằm trong danh sách cần chuẩn hóa
-            projectsToStandardizeResult.push({
-                _id: project._id,
-                name: project.name,
-                currentProjectCode: project.projectCode,
-                createdAt: project.createdAt,
-            });
-        }
-    }
-    return projectsToStandardizeResult;
+    allProjectsToReview.sort((a, b) => {
+        if (a.allocatedUnitName < b.allocatedUnitName) return -1;
+        if (a.allocatedUnitName > b.allocatedUnitName) return 1;
+        return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+
+    return allProjectsToReview;
 };
 
 const executeStandardization = async (bodyParams, userPerformingAction) => {
     const { financialYear, projectType: projectTypeString, allocatedUnitId, allocationWaveId } = bodyParams;
-    // Loại công trình và Đơn vị phân bổ cụ thể là bắt buộc
-    if (!projectTypeString || !allocatedUnitId) {
-        throw { statusCode: 400, message: 'Loại công trình và Đơn vị phân bổ cụ thể là bắt buộc để chuẩn hóa.' };
-    }
-    if (!mongoose.Types.ObjectId.isValid(allocatedUnitId)) {
-        throw { statusCode: 400, message: 'ID Đơn vị phân bổ không hợp lệ.' };
+
+    if (!projectTypeString) {
+        throw { statusCode: 400, message: 'Loại công trình là bắt buộc để chuẩn hóa.' };
     }
 
     const Model = projectTypeString === 'category' ? CategoryProject : (projectTypeString === 'minor_repair' ? MinorRepairProject : null);
     if (!Model) throw { statusCode: 400, message: 'Loại công trình không hợp lệ.' };
 
-    const session = await mongoose.startSession();
-    let updatedCount = 0;
+    let unitsToProcess = [];
+    if (allocatedUnitId) {
+        if (!mongoose.Types.ObjectId.isValid(allocatedUnitId)) {
+            throw { statusCode: 400, message: 'ID Đơn vị phân bổ không hợp lệ.' };
+        }
+        const singleUnit = await AllocatedUnit.findById(allocatedUnitId).select('shortCode name');
+        if (!singleUnit) {
+            throw { statusCode: 404, message: 'Không tìm thấy đơn vị phân bổ được chỉ định.' };
+        }
+        if (!singleUnit.shortCode) {
+             throw { statusCode: 400, message: `Đơn vị "${singleUnit.name}" không có mã viết tắt, không thể chuẩn hóa.` };
+        }
+        unitsToProcess.push(singleUnit);
+    } else {
+        unitsToProcess = await AllocatedUnit.find({ shortCode: { $exists: true, $ne: null, $ne: '' } }).select('shortCode name');
+        if (unitsToProcess.length === 0) {
+            logger.info('[Standardize Execute] Không tìm thấy đơn vị nào có mã viết tắt để chuẩn hóa.');
+            return { message: 'Không có đơn vị nào hợp lệ để chuẩn hóa.', updatedCount: 0 };
+        }
+        logger.info(`[Standardize Execute] Sẽ chuẩn hóa cho ${unitsToProcess.length} đơn vị.`);
+    }
 
-    try {
-        await session.withTransaction(async () => {
-            const allocatedUnit = await AllocatedUnit.findById(allocatedUnitId).session(session).select('shortCode name');
-            if (!allocatedUnit || !allocatedUnit.shortCode) {
-                throw { statusCode: 404, message: 'Không tìm thấy đơn vị phân bổ hoặc đơn vị không có mã viết tắt.' };
-            }
-            const unitShortCode = allocatedUnit.shortCode;
+    let totalUpdatedCount = 0;
+    const errors = [];
 
-            let filterWaveShortCode = '00'; // Dùng cho mã mới nếu lọc theo đợt cụ thể
-            let allocationWaveNameForQuery = null; // Dùng để query
-            if (projectTypeString === 'category' && allocationWaveId) {
-                if (mongoose.Types.ObjectId.isValid(allocationWaveId)) {
-                    const wave = await AllocationWave.findById(allocationWaveId).session(session).select('shortCode name');
-                    if (wave) { // Chỉ xử lý nếu tìm thấy đợt
-                        if (wave.shortCode) filterWaveShortCode = wave.shortCode;
-                        allocationWaveNameForQuery = wave.name;
-                    } else {
-                        logger.warn(`Đợt phân bổ với ID "${allocationWaveId}" không tìm thấy khi thực thi chuẩn hóa. Sẽ không lọc theo đợt này.`);
-                    }
-                }
-            }
+    for (const currentAllocatedUnit of unitsToProcess) {
+        const session = await mongoose.startSession();
+        try {
+            await session.withTransaction(async () => {
+                const unitShortCode = currentAllocatedUnit.shortCode;
+                const unitName = currentAllocatedUnit.name;
+                let currentUnitUpdatedCount = 0;
 
-            const query = {
-                allocatedUnit: allocatedUnit.name,
-            };
-            if (financialYear && String(financialYear).trim() !== '') {
-                query.financialYear = parseInt(financialYear, 10);
-            }
-            if (projectTypeString === 'category') {
-                if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && allocationWaveNameForQuery) {
-                     query.allocationWave = allocationWaveNameForQuery;
-                }
-                // Nếu "Tất cả đợt", không lọc theo allocationWave
-            }
-
-            const projectsInScope = await Model.find(query)
-                .select('_id name projectCode createdAt history financialYear allocationWave') // Thêm allocationWave để xác định mã
-                .sort({ createdAt: 1 })
-                .session(session);
-
-            let firstNonPerfectIndex = -1;
-            for (let i = 0; i < projectsInScope.length; i++) {
-                const project = projectsInScope[i];
-                const expectedSequenceNumber = i + 1;
-
-                let currentProjectWaveShortCodeForExpected = '00';
-                 if (projectTypeString === 'category') {
-                    if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && filterWaveShortCode !== '00') {
-                        currentProjectWaveShortCodeForExpected = filterWaveShortCode;
-                    } else if (project.allocationWave) {
-                        const projectWaveDoc = await AllocationWave.findOne({ name: project.allocationWave }).session(session).select('shortCode');
-                        if (projectWaveDoc && projectWaveDoc.shortCode) {
-                            currentProjectWaveShortCodeForExpected = projectWaveDoc.shortCode;
+                let filterWaveShortCode = '00';
+                let allocationWaveNameForQuery = null;
+                if (projectTypeString === 'category' && allocationWaveId) {
+                    if (mongoose.Types.ObjectId.isValid(allocationWaveId)) {
+                        const wave = await AllocationWave.findById(allocationWaveId).session(session).select('shortCode name');
+                        if (wave) {
+                            if (wave.shortCode) filterWaveShortCode = wave.shortCode;
+                            allocationWaveNameForQuery = wave.name;
+                        } else {
+                            logger.warn(`[Standardize Execute Unit: ${unitName}] Đợt phân bổ ID "${allocationWaveId}" không tìm thấy. Sẽ không lọc theo đợt này cho đơn vị ${unitName}.`);
                         }
                     }
                 }
 
-                const expectedCode = await generateStandardizedCodeInternal(
-                    projectTypeString,
-                    project.financialYear,
-                    unitShortCode,
-                    currentProjectWaveShortCodeForExpected,
-                    expectedSequenceNumber
-                );
-                if (project.projectCode !== expectedCode) {
-                    firstNonPerfectIndex = i;
-                    break;
+                const query = {
+                    allocatedUnit: unitName,
+                };
+                if (financialYear && String(financialYear).trim() !== '') {
+                    query.financialYear = parseInt(financialYear, 10);
                 }
-            }
-
-            if (firstNonPerfectIndex === -1 && projectsInScope.length > 0) {
-                return; // Tất cả đã hoàn hảo
-            }
-            if (projectsInScope.length === 0) return; // Không có gì để làm
-
-            const bulkOps = [];
-            for (let i = firstNonPerfectIndex; i < projectsInScope.length; i++) {
-                const project = projectsInScope[i];
-                const newSequenceNumber = i + 1;
-
-                let newProjectWaveShortCode = '00';
-                 if (projectTypeString === 'category') {
-                    if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && filterWaveShortCode !== '00') {
-                        // Nếu đang chuẩn hóa theo một đợt cụ thể CÓ shortCode, mã mới sẽ dùng shortCode đó
-                        newProjectWaveShortCode = filterWaveShortCode;
-                    } else if (project.allocationWave) {
-                        // Nếu không, mã mới sẽ dựa trên đợt hiện tại của công trình (nếu có shortCode)
-                        const projectWaveDoc = await AllocationWave.findOne({ name: project.allocationWave }).session(session).select('shortCode');
-                        if (projectWaveDoc && projectWaveDoc.shortCode) {
-                            newProjectWaveShortCode = projectWaveDoc.shortCode;
-                        }
+                if (projectTypeString === 'category') {
+                    if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && allocationWaveNameForQuery) {
+                         query.allocationWave = allocationWaveNameForQuery;
                     }
                 }
 
-                const newStandardCode = await generateStandardizedCodeInternal(
-                    projectTypeString,
-                    project.financialYear,
-                    unitShortCode,
-                    newProjectWaveShortCode,
-                    newSequenceNumber
-                );
+                const projectsInScope = await Model.find(query)
+                    .select('_id name projectCode createdAt history financialYear allocationWave')
+                    .sort({ createdAt: 1 })
+                    .session(session);
 
-                if (project.projectCode !== newStandardCode) {
-                    const oldCode = project.projectCode;
-                    // project.projectCode = newStandardCode; // Sẽ set trong bulkOps
-                    const historyEntry = {
-                        action: 'code_standardized',
-                        user: userPerformingAction.id,
-                        timestamp: new Date(),
-                        details: {
-                            note: `Mã công trình được chuẩn hóa từ ${oldCode || 'chưa có'} thành ${newStandardCode}.`,
-                            changes: [{ field: 'projectCode', oldValue: oldCode, newValue: newStandardCode }]
-                        }
-                    };
+                if (projectsInScope.length === 0) {
+                    logger.info(`[Standardize Execute Unit: ${unitName}] Không có công trình nào trong scope để chuẩn hóa.`);
+                    return; 
+                }
 
-                    bulkOps.push({
-                        updateOne: {
-                            filter: { _id: project._id },
-                            update: {
-                                $set: { projectCode: newStandardCode },
-                                $push: { history: historyEntry }
+                const bulkOps = [];
+                for (let i = 0; i < projectsInScope.length; i++) {
+                    const project = projectsInScope[i];
+                    const newSequenceNumber = i + 1;
+
+                    let newProjectWaveShortCode = '00';
+                    if (projectTypeString === 'category') {
+                        if (allocationWaveId && mongoose.Types.ObjectId.isValid(allocationWaveId) && filterWaveShortCode !== '00') {
+                            newProjectWaveShortCode = filterWaveShortCode;
+                        } else if (project.allocationWave) {
+                            const projectWaveDoc = await AllocationWave.findOne({ name: project.allocationWave }).session(session).select('shortCode');
+                            if (projectWaveDoc && projectWaveDoc.shortCode) {
+                                newProjectWaveShortCode = projectWaveDoc.shortCode;
                             }
                         }
-                    });
-                    updatedCount++;
+                    }
+
+                    const newStandardCode = await generateStandardizedCodeInternal(
+                        projectTypeString,
+                        project.financialYear,
+                        unitShortCode,
+                        newProjectWaveShortCode,
+                        newSequenceNumber
+                    );
+
+                    if (project.projectCode !== newStandardCode) {
+                        const oldCode = project.projectCode;
+                        const historyEntry = {
+                            action: 'code_standardized',
+                            user: userPerformingAction.id,
+                            timestamp: new Date(),
+                            details: {
+                                note: `Mã CT chuẩn hóa từ ${oldCode || 'chưa có'} thành ${newStandardCode} cho đơn vị ${unitName}.`,
+                                changes: [{ field: 'projectCode', oldValue: oldCode, newValue: newStandardCode }]
+                            }
+                        };
+                        bulkOps.push({
+                            updateOne: {
+                                filter: { _id: project._id },
+                                update: {
+                                    $set: { projectCode: newStandardCode },
+                                    $push: { history: historyEntry }
+                                }
+                            }
+                        });
+                        currentUnitUpdatedCount++;
+                    }
                 }
+
+                if (bulkOps.length > 0) {
+                    await Model.bulkWrite(bulkOps, { session });
+                    logger.info(`[Standardize Execute Unit: ${unitName}] Đã cập nhật mã cho ${currentUnitUpdatedCount} công trình.`);
+
+                    // Chỉ cập nhật ProjectCodeCounter nếu không lọc theo một đợt cụ thể
+                    if (!allocationWaveId || !mongoose.Types.ObjectId.isValid(allocationWaveId) || !allocationWaveNameForQuery) {
+                        // Xác định năm tài chính hiệu lực cho bộ đếm
+                        // Ưu tiên financialYear từ request, nếu không có thì lấy từ công trình đầu tiên trong scope
+                        const effectiveYearForCounter = (financialYear && String(financialYear).trim() !== '')
+                            ? parseInt(financialYear, 10)
+                            : (projectsInScope.length > 0 ? projectsInScope[0].financialYear : null);
+
+                        if (!effectiveYearForCounter) {
+                             logger.error(`[Standardize Execute Unit: ${unitName}] Không thể xác định năm tài chính để cập nhật bộ đếm.`);
+                        } else {
+                            const counterQueryForUpdate = {
+                                year: effectiveYearForCounter,
+                                type: projectTypeString,
+                                unitShortCode: unitShortCode,
+                                // Không bao gồm allocationWaveShortCode vì bộ đếm hiện tại là chung
+                            };
+                            const maxSequenceNumberInScope = projectsInScope.length;
+
+                            await ProjectCodeCounter.findOneAndUpdate(
+                                counterQueryForUpdate,
+                                { currentSerial: maxSequenceNumberInScope },
+                                { upsert: true, new: true, session }
+                            );
+                            logger.info(`[Standardize Execute Unit: ${unitName}] Đã đồng bộ ProjectCodeCounter cho ${JSON.stringify(counterQueryForUpdate)} thành currentSerial: ${maxSequenceNumberInScope}.`);
+                        }
+                    } else {
+                         logger.info(`[Standardize Execute Unit: ${unitName}] Chuẩn hóa cho đợt cụ thể "${allocationWaveNameForQuery}". Bỏ qua cập nhật ProjectCodeCounter (vì nó là bộ đếm chung).`);
+                    }
+                }
+                totalUpdatedCount += currentUnitUpdatedCount;
+            }); 
+        } catch (error) {
+            logger.error(`[Standardize Execute Unit: ${currentAllocatedUnit.name}] Lỗi trong quá trình chuẩn hóa: ${error.message}`, { stack: error.stack });
+            errors.push({ unitName: currentAllocatedUnit.name, error: error.message });
+        } finally {
+            if (session.inTransaction()) {
+                await session.abortTransaction();
+                logger.warn(`[Standardize Execute Unit: ${currentAllocatedUnit.name}] Transaction aborted.`);
             }
-            if (bulkOps.length > 0) {
-                await Model.bulkWrite(bulkOps, { session });
-            }
-        });
-    } catch (error) {
-        logger.error('Lỗi trong quá trình thực thi chuẩn hóa mã:', error);
-        throw error;
-    } finally {
-        if (session.inTransaction()) {
-            await session.abortTransaction();
-            logger.warn('Transaction aborted due to an error or incomplete execution in executeStandardization.');
+            session.endSession();
         }
-        session.endSession();
+    } 
+
+    if (errors.length > 0) {
+        const errorMessages = errors.map(e => `Đơn vị ${e.unitName}: ${e.error}`).join('; ');
+        // Ném lỗi để controller có thể bắt và trả về status code phù hợp
+        throw { statusCode: 500, message: `Hoàn tất chuẩn hóa với một số lỗi. Tổng cộng ${totalUpdatedCount} mã được cập nhật. Lỗi: ${errorMessages}`, updatedCount: totalUpdatedCount, errors };
     }
-    return { message: `Đã chuẩn hóa thành công ${updatedCount} mã công trình.`, updatedCount };
+
+    return { message: `Đã chuẩn hóa thành công ${totalUpdatedCount} mã công trình trên ${unitsToProcess.length} đơn vị.`, updatedCount: totalUpdatedCount };
 };
 
 module.exports = {

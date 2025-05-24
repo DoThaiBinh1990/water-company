@@ -92,27 +92,25 @@ const ProjectCodeStandardization = ({ user }) => {
       toast.warn('Vui lòng chọn Loại công trình.', { position: "top-center" });
       return;
     }
-    if (!filters.allocatedUnitId) { // Nếu "Tất cả đơn vị" được chọn
-      toast.warn('Vui lòng chọn một Đơn vị phân bổ cụ thể để xem công trình.', { position: "top-center" });
-      return;
-    }
+    // Bỏ kiểm tra bắt buộc allocatedUnitId ở đây.
+    // Nếu allocatedUnitId rỗng, backend sẽ hiểu là "tất cả đơn vị".
     const params = { ...filters };
+    if (!filters.allocatedUnitId) {
+      params.allocatedUnitId = ''; // Gửi chuỗi rỗng nếu không chọn đơn vị
+    }
     // Đảm bảo allocationWaveId là rỗng nếu không phải category hoặc không được chọn
     if (filters.projectType === 'minor_repair' || !filters.allocationWaveId) {
       params.allocationWaveId = '';
     }
     prepareMutation.mutate(params);
   };
-
   const handleExecuteStandardization = () => {
-    // Logic kiểm tra allocatedUnitId đã được thực hiện khi mở modal
-    // và nút "Xác nhận" cũng sẽ bị vô hiệu hóa nếu allocatedUnitId rỗng.
-    // Tuy nhiên, để an toàn, có thể kiểm tra lại ở đây.
-    if (!filters.allocatedUnitId) {
-      toast.error('Lỗi: Đơn vị phân bổ không được chọn để thực hiện chuẩn hóa.', { position: "top-center" });
-      return;
-    }
+    // Bỏ kiểm tra bắt buộc allocatedUnitId ở đây.
+    // Backend sẽ xử lý trường hợp allocatedUnitId rỗng.
     const payload = { ...filters };
+    if (!filters.allocatedUnitId) {
+      payload.allocatedUnitId = ''; // Gửi chuỗi rỗng nếu không chọn đơn vị
+    }
     if (filters.projectType === 'minor_repair' || !filters.allocationWaveId) {
       payload.allocationWaveId = '';
     }
@@ -120,18 +118,18 @@ const ProjectCodeStandardization = ({ user }) => {
   };
 
   const isLoading = isLoadingAllocatedUnits || isLoadingAllocationWaves || prepareMutation.isLoading || executeMutation.isLoading;
-  const isPrepareDisabled = isLoading || !filters.allocatedUnitId; // Vô hiệu hóa nếu "Tất cả đơn vị"
+  const isPrepareDisabled = isLoading || !filters.projectType; // Chỉ cần chọn Loại công trình
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
         <FaListAlt className="text-blue-600" /> Chuẩn hóa Mã Công trình
       </h2>
-      <p className="text-sm text-gray-600 mb-6">
+      <p className="text-sm text-gray-600 mb-2">
         Tính năng này giúp lọc và sắp xếp lại mã của các công trình theo một logic chuẩn (Loại CT, Năm, Đơn vị PB, Số thứ tự theo ngày tạo).
         Chỉ những công trình có mã chưa đúng chuẩn hoặc nằm ngoài chuỗi mã chuẩn liên tiếp sẽ được đề xuất để chuẩn hóa.
-        <strong className="text-red-600"> Yêu cầu chọn một Đơn vị phân bổ cụ thể.</strong>
       </p>
+      <p className="text-sm text-orange-600 mb-6">Lưu ý: Nếu không chọn "Đơn vị phân bổ", hệ thống sẽ chuẩn hóa cho tất cả các đơn vị. Quá trình này có thể mất nhiều thời gian.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-end">
         <div>
@@ -148,9 +146,9 @@ const ProjectCodeStandardization = ({ user }) => {
           </select>
         </div>
         <div>
-          <label htmlFor="allocatedUnitIdStd" className="form-label">Đơn vị phân bổ <span className="text-red-500">*</span></label>
+          <label htmlFor="allocatedUnitIdStd" className="form-label">Đơn vị phân bổ</label>
           <select id="allocatedUnitIdStd" name="allocatedUnitId" value={filters.allocatedUnitId} onChange={handleFilterChange} className="form-input" disabled={isLoading || allocatedUnits.length === 0}>
-            <option value="">Tất cả đơn vị (Không xem/chuẩn hóa)</option>
+            <option value="">Tất cả đơn vị</option>
             {allocatedUnits.map(unit => <option key={unit._id} value={unit._id}>{unit.name}</option>)}
           </select>
         </div>
@@ -227,6 +225,7 @@ const ProjectCodeStandardization = ({ user }) => {
                   <div key={p._id} className="bg-white p-3 rounded-lg shadow border border-gray-200">
                     <p className="text-xs text-gray-500">STT: {index + 1}</p>
                     <h4 className="text-sm font-semibold text-blue-600 mb-1">{p.name}</h4>
+                    <p className="text-xs text-gray-700"><span className="font-medium">Đơn vị:</span> {p.allocatedUnitName || 'N/A'}</p>
                     <p className="text-xs text-gray-700">
                       <span className="font-medium">Mã hiện tại:</span> {p.currentProjectCode || 'Chưa có'}
                     </p>
@@ -243,6 +242,7 @@ const ProjectCodeStandardization = ({ user }) => {
                     <tr>
                       <th className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r">STT</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r">Tên công trình</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r">Đơn vị PB</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r">Mã hiện tại</th>
                       <th className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Ngày tạo</th>
                     </tr>
@@ -252,6 +252,7 @@ const ProjectCodeStandardization = ({ user }) => {
                       <tr key={p._id} className="hover:bg-gray-50">
                         <td className="px-3 py-2 text-center text-xs text-gray-700 border-r">{index + 1}</td>
                         <td className="px-3 py-2 text-xs text-gray-800 border-r">{p.name}</td>
+                        <td className="px-3 py-2 text-xs text-gray-700 border-r">{p.allocatedUnitName || 'N/A'}</td>
                         <td className="px-3 py-2 text-xs text-gray-700 border-r">{p.currentProjectCode || 'Chưa có'}</td>
                         <td className="px-3 py-2 text-center text-xs text-gray-700">{formatDateToLocale(p.createdAt)}</td>
                       </tr>
@@ -276,8 +277,8 @@ const ProjectCodeStandardization = ({ user }) => {
             <button
               type="button"
               onClick={handleExecuteStandardization}
-              disabled={executeMutation.isLoading || !filters.allocatedUnitId} // Vô hiệu hóa nếu allocatedUnitId rỗng
-              className={`btn btn-danger flex items-center justify-center gap-2 ${!filters.allocatedUnitId ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={executeMutation.isLoading || !filters.projectType} // Chỉ cần projectType
+              className={`btn btn-danger flex items-center justify-center gap-2 ${!filters.projectType ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {executeMutation.isLoading ? <FaSpinner className="animate-spin" /> : <FaSyncAlt />}
               Xác nhận Chuẩn hóa ({projectsToReview.length})
