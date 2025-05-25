@@ -102,14 +102,14 @@ const approveProject = async (projectId, projectType, user, io) => {
   let successMessage = '';
   let eventToEmit = '';
   let notificationForUserType = '';
-  let userToNotify = null;
+  let userToNotifyForProcessedResult = null; // Đổi tên biến để rõ ràng hơn
 
   if (project.pendingEdit) {
     notificationTypeToProcess = 'edit';
     successMessage = 'Yêu cầu sửa đã được duyệt.';
     eventToEmit = 'project_updated';
     notificationForUserType = 'edit_approved';
-    userToNotify = project.pendingEdit.requestedBy;
+    userToNotifyForProcessedResult = project.pendingEdit.requestedBy; // Người yêu cầu sửa sẽ nhận thông báo kết quả
 
     const { changes } = project.pendingEdit;
     // Khi duyệt YC sửa, người duyệt chính của công trình KHÔNG thay đổi,
@@ -136,7 +136,7 @@ const approveProject = async (projectId, projectType, user, io) => {
     successMessage = 'Công trình đã được duyệt.';
     eventToEmit = 'project_approved';
     notificationForUserType = 'new_approved';
-    userToNotify = project.createdBy;
+    userToNotifyForProcessedResult = project.createdBy; // Người tạo công trình sẽ nhận thông báo kết quả
 
     project.status = 'Đã duyệt';
     project.approvedBy = user.id;
@@ -148,7 +148,7 @@ const approveProject = async (projectId, projectType, user, io) => {
     eventToEmit = 'project_deleted';
     notificationForUserType = 'delete_approved';
     const deleteRequestAction = project.history.find(h => h.action === 'delete_requested');
-    userToNotify = deleteRequestAction ? deleteRequestAction.user : project.createdBy;
+    userToNotifyForProcessedResult = deleteRequestAction ? deleteRequestAction.user : project.createdBy; // Người yêu cầu xóa sẽ nhận thông báo kết quả
 
     const projectIdToDelete = project._id;
     const originalCreator = project.createdBy;
@@ -175,7 +175,7 @@ const approveProject = async (projectId, projectType, user, io) => {
       type: notificationForUserType,
       projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
       status: 'processed',
-      userId: userToNotify, // Người tạo yêu cầu xóa hoặc người tạo công trình
+      userId: userToNotifyForProcessedResult, 
       originalProjectId: projectIdToDelete, // Lưu ID gốc của project đã xóa
     });
     await deletedConfirmationNotification.save();
@@ -208,14 +208,15 @@ const approveProject = async (projectId, projectType, user, io) => {
     }
   }
 
-  if (userToNotify) {
+  if (userToNotifyForProcessedResult) {
       const newProcessedNotification = new Notification({
         message: `Yêu cầu ${notificationTypeToProcess === 'new' ? 'tạo mới' : (notificationTypeToProcess === 'edit' ? 'sửa' : 'xóa')} công trình "${populatedProject.name}" của bạn đã được duyệt bởi ${user.username}.`,
         type: notificationForUserType,
         projectId: populatedProject._id,
         projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-        status: 'processed',
-        userId: userToNotify,
+        // Đặt status là 'pending' cho thông báo kết quả này
+        status: 'pending', // Sẽ được client đánh dấu là 'processed' khi người dùng xem
+        userId: userToNotifyForProcessedResult, // Gán đúng userId cho thông báo kết quả
       });
       await newProcessedNotification.save();
       if (io) {
@@ -282,13 +283,13 @@ const rejectProject = async (projectId, projectType, reason, user, io) => {
     let successMessage = '';
     let eventToEmit = 'project_updated';
     let notificationForUserType = '';
-    let userToNotify = project.createdBy;
+    let userToNotifyForProcessedResult = null; // Đổi tên biến
 
     if (project.pendingEdit) {
       notificationTypeToProcess = 'edit';
       successMessage = 'Yêu cầu sửa đã bị từ chối.';
       notificationForUserType = 'edit_rejected';
-      userToNotify = project.pendingEdit.requestedBy;
+      userToNotifyForProcessedResult = project.pendingEdit.requestedBy; // Người yêu cầu sửa
 
       project.pendingEdit = null;
       project.history.push({ action: 'edit_rejected', user: user.id, timestamp: new Date(), details: { reason } });
@@ -298,6 +299,7 @@ const rejectProject = async (projectId, projectType, reason, user, io) => {
       successMessage = 'Công trình đã bị từ chối và chuyển vào danh sách từ chối.';
       eventToEmit = 'project_rejected_and_removed';
       notificationForUserType = 'new_rejected';
+      userToNotifyForProcessedResult = project.createdBy; // Người tạo công trình
 
       const originalProjectData = project.toObject();
       const rejectedData = {
@@ -339,8 +341,9 @@ const rejectProject = async (projectId, projectType, reason, user, io) => {
         type: notificationForUserType,
         originalProjectId: project._id, // Lưu ID gốc
         projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-        status: 'processed',
-        userId: userToNotify,
+        // Đặt status là 'pending' cho thông báo kết quả này
+        status: 'pending', // Sẽ được client đánh dấu là 'processed' khi người dùng xem
+        userId: userToNotifyForProcessedResult,
       });
       await newProcessedNotification.save();
       if (io) {
@@ -354,7 +357,7 @@ const rejectProject = async (projectId, projectType, reason, user, io) => {
       successMessage = 'Yêu cầu xóa đã bị từ chối.';
       notificationForUserType = 'delete_rejected';
       const deleteRequestAction = project.history.find(h => h.action === 'delete_requested');
-      userToNotify = deleteRequestAction ? deleteRequestAction.user : project.createdBy;
+      userToNotifyForProcessedResult = deleteRequestAction ? deleteRequestAction.user : project.createdBy; // Người yêu cầu xóa
 
       project.pendingDelete = false;
       project.history.push({ action: 'delete_rejected', user: user.id, timestamp: new Date(), details: { reason } });
@@ -385,8 +388,9 @@ const rejectProject = async (projectId, projectType, reason, user, io) => {
       type: notificationForUserType,
       projectId: populatedProject._id,
       projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-      status: 'processed',
-      userId: userToNotify,
+      // Đặt status là 'pending' cho thông báo kết quả này
+      status: 'pending', // Sẽ được client đánh dấu là 'processed' khi người dùng xem
+      userId: userToNotifyForProcessedResult, // Gán đúng userId cho thông báo kết quả
     });
     await newProcessedNotification.save();
 
@@ -487,7 +491,8 @@ const restoreRejectedProject = async (rejectedProjectId, user, io) => {
       type: 'new_approved', // Hoặc một type riêng cho restore nếu cần
       projectId: newProject._id,
       projectModel: rejectedProject.projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-      status: 'processed',
+      // Đặt status là 'pending' cho thông báo kết quả này
+      status: 'pending', // Sẽ được client đánh dấu là 'processed' khi người dùng xem
       userId: newProject.createdBy, // Thông báo cho người tạo gốc
     });
     await notification.save();

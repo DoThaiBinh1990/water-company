@@ -141,6 +141,7 @@ function App() {
 
   // Refs cho các handlers của socket
   const notificationHandlerRef = React.useRef(null);
+  const processedNotificationIds = React.useRef(new Set()); // Set để theo dõi ID thông báo đã hiển thị toast
   const notificationProcessedHandlerRef = React.useRef(null);
 
   // Effect để cập nhật các refs cho handlers khi dependencies của chúng thay đổi
@@ -148,6 +149,13 @@ function App() {
     // console.log('[APP_DEBUG] Updating notificationHandlerRef. Current user state:', user ? user._id : 'null', 'LastToastTime:', lastToastTime);
     const handleNewNotificationInternal = (notification) => {
       console.log('[APP_NOTIFICATION_DEBUG] Received new notification event. Invalidating queries.');
+
+      // Kiểm tra xem toast cho notification này đã được hiển thị chưa
+      if (notification._id && processedNotificationIds.current.has(notification._id)) {
+        console.log(`[APP_NOTIFICATION_DEBUG] Toast for notification ID ${notification._id} already shown. Skipping.`);
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] }); // Vẫn invalidate để cập nhật số đếm
+        return;
+      }
       queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
 
       // Lấy user state hiện tại của App component.
@@ -180,20 +188,27 @@ function App() {
       let toastMessage = notification.message;
 
       const currentUserId = currentUserToUse._id;
-      const notificationCreatorId = notification.userId?._id; 
-      const notificationRecipientId = notification.recipientId?._id;
+      // Sửa cách lấy ID: notification.userId và notification.recipientId từ backend là string ID, không phải object
+      const notificationCreatorId = typeof notification.userId === 'string' ? notification.userId : notification.userId?._id;
+      const notificationRecipientId = typeof notification.recipientId === 'string' ? notification.recipientId : notification.recipientId?._id;
+
+      console.log(`[APP_NOTIFICATION_DEBUG] Corrected Notification Creator ID: ${notificationCreatorId}`);
+      console.log(`[APP_NOTIFICATION_DEBUG] Corrected Notification Recipient ID: ${notificationRecipientId}`);
   
       if (notification.status === 'pending' && notification.projectId && ['new', 'edit', 'delete'].includes(notification.type)) {
         const projectName = notification.projectId?.name || (notification.type === 'new' ? 'mới' : (notification.type === 'edit' || notification.type === 'delete' ? 'hiện tại' : ''));
         const creatorName = notification.userId?.fullName || notification.userId?.username || 'Một người dùng';
 
         // Case 1: Người dùng hiện tại là người tạo yêu cầu
-        // Và thông báo này không phải là kết quả xử lý (ví dụ: không phải là new_approved)
-        if (notificationCreatorId === currentUserId && !notification.type.includes('_approved') && !notification.type.includes('_rejected')) {
-          shouldToast = true;
+        // và thông báo này là YÊU CẦU ĐANG CHỜ DUYỆT (type: new, edit, delete) do CHÍNH HỌ tạo,
+        // và thông báo này CHƯA PHẢI là kết quả (không chứa _approved, _rejected)
+        if (notificationCreatorId === currentUserId && ['new', 'edit', 'delete'].includes(notification.type)) {
+          shouldToast = true; // Người tạo YC sẽ nhận toast
           if (notification.type === 'new') toastMessage = `Yêu cầu tạo công trình "${projectName}" của bạn đang chờ duyệt.`;
           else if (notification.type === 'edit') toastMessage = `Yêu cầu sửa công trình "${projectName}" của bạn đang chờ duyệt.`;
           else if (notification.type === 'delete') toastMessage = `Yêu cầu xóa công trình "${projectName}" của bạn đang chờ duyệt.`;
+          console.log(`[APP_TOAST_DEBUG] Case 1: User (${currentUserId}) is creator of PENDING request. Toast: ${shouldToast}, Msg: "${toastMessage}"`);
+
         }
         // Case 2: Người dùng hiện tại là người duyệt (và không phải người tạo)
         // Và thông báo này được gửi trực tiếp cho họ (recipientId)
@@ -201,10 +216,12 @@ function App() {
                  notificationCreatorId !== currentUserId && 
                  notificationRecipientId && 
                  notificationRecipientId === currentUserId) {
-          // Chỉ toast nếu user này là người nhận trực tiếp của thông báo YÊU CẦU DUYỆT
+          // Người duyệt được chỉ định sẽ nhận toast
           shouldToast = true;
           let actionText = notification.type === 'new' ? 'tạo' : (notification.type === 'edit' ? 'sửa' : (notification.type === 'delete' ? 'xóa' : 'xử lý'));
           toastMessage = `${creatorName} đã gửi yêu cầu ${actionText} công trình "${projectName}" cần bạn duyệt.`;
+          console.log(`[APP_TOAST_DEBUG] Case 2: User (${currentUserId}) is designated approver for PENDING request (Recipient: ${notificationRecipientId}). Toast: ${shouldToast}, Msg: "${toastMessage}"`);
+
         }
         // Case 3: Thông báo chung cho người có quyền duyệt (không có recipientId cụ thể)
         // và người dùng hiện tại không phải người tạo, và có quyền duyệt
@@ -223,21 +240,34 @@ function App() {
             // Giả sử backend đã gửi đúng recipientId cho YC sửa, thì không cần thêm logic phức tạp ở đây.
         }
       }
+      // Case 4: Thông báo KẾT QUẢ (processed) cho người tạo yêu cầu
       else if (notificationCreatorId === currentUserId && notification.status === 'processed') {
         const relevantProcessedTypes = ['new_approved', 'edit_approved', 'delete_approved', 'new_rejected', 'edit_rejected', 'delete_rejected'];
+        
         if (relevantProcessedTypes.includes(notification.type)) {
-          const approverUsernameInMessage = currentUserToUse.username;
+          // Kiểm tra xem người dùng hiện tại có phải là người thực hiện hành động duyệt/từ chối không
+          // Ví dụ: "Yêu cầu của bạn đã được duyệt bởi UserA."
+          // Nếu message chứa "bởi UserA" và UserA là currentUserToUse, thì không toast.
+          // Sử dụng cả username và fullName để kiểm tra, vì message từ backend có thể dùng một trong hai
+          const performingUserIdentifier = currentUserToUse.username || currentUserToUse.fullName;
           let processedByCurrentUser = false;
-          if (approverUsernameInMessage && typeof approverUsernameInMessage === 'string') {
-              const processedByString = ` bởi ${approverUsernameInMessage}`;
-              if (notification.type.endsWith('_approved') && notification.message.endsWith(`${processedByString}.`)) {
-                  processedByCurrentUser = true;
-              } else if (notification.type.endsWith('_rejected') && notification.message.includes(`${processedByString}. Lý do: `)) {
+          if (performingUserIdentifier && typeof notification.message === 'string') {
+              const processedByPattern = ` bởi ${performingUserIdentifier}`; // Kiểm tra " bởi username" hoặc " bởi fullname"
+              // Thêm kiểm tra cho trường hợp tên người dùng/fullName có thể nằm trong message mà không có " bởi "
+              // Ví dụ: "testadmin đã duyệt yêu cầu của bạn." (ít khả năng hơn với cấu trúc hiện tại)
+              // Để đơn giản, ta chỉ kiểm tra " bởi UserX"
+              if (notification.message.includes(processedByPattern) || notification.message.startsWith(performingUserIdentifier + " đã")) {
                   processedByCurrentUser = true;
               }
           }
+          console.log(`[APP_TOAST_DEBUG] Case 4: Processed notification for creator. Type: ${notification.type}, Processed by current user: ${processedByCurrentUser}, Message: "${notification.message}"`);
+
           if (!processedByCurrentUser) {
-            shouldToast = true;
+            shouldToast = true; // Người tạo YC sẽ nhận toast khi YC của họ được người khác xử lý
+            // toastMessage đã được set từ notification.message (từ backend)
+            toastMessage = notification.message; // Đảm bảo toastMessage được cập nhật từ notification.message
+            // toastMessage đã được set từ notification.message (từ backend) và thường là đủ thông tin
+            // toastMessage đã được set từ notification.message (từ backend)
           }
         }
       }
@@ -246,18 +276,34 @@ function App() {
       
       if (shouldToast) {
         const now = Date.now();
+        const toastId = notification._id || `toast-${Date.now()}`; // Tạo toastId trước
+
         if (now - lastToastTime > MIN_TOAST_INTERVAL) {
-          let toastTypeToUse = 'info'; // Mặc định xanh
-          // Bỏ điều kiện đổi sang 'warn' cho thông báo cần duyệt.
-          // Giờ đây, các thông báo này sẽ sử dụng màu 'info' (xanh dương).
+          let toastTypeToUse = 'info'; // Mặc định là info (xanh dương)
+
+          // Khôi phục logic: Nếu là người duyệt nhận yêu cầu (Case 2) -> màu cam (warn)
+          // Case 2: Người dùng hiện tại là người duyệt (và không phải người tạo)
+          // Và thông báo này được gửi trực tiếp cho họ (recipientId)
+          if (currentUserToUse.permissions?.approve &&
+              notificationCreatorId !== currentUserId &&
+              notificationRecipientId &&
+              notificationRecipientId === currentUserId &&
+              notification.status === 'pending' && // Chỉ warn cho yêu cầu đang chờ
+              ['new', 'edit', 'delete'].includes(notification.type)
+          ) {
+            toastTypeToUse = 'warning'; 
+          }
           
-            console.log(`[APP_NOTIFICATION_DEBUG] Displaying toast. Type: ${toastTypeToUse}, ID: ${notification._id || `fallback-${Date.now()}`}`);
-            if (toastTypeToUse === 'warn') {
-              toast.warn(toastMessage, { position: "top-right", toastId: notification._id || `warn-${Date.now()}` });
-            } else {
-              toast.info(toastMessage, { position: "top-right", toastId: notification._id || `info-${Date.now()}` });
-            }
-            setLastToastTime(now);
+          console.log(`[APP_NOTIFICATION_DEBUG] Displaying toast. Type: ${toastTypeToUse}, ID: ${toastId}, Message: "${toastMessage}"`);
+          
+          if (toastTypeToUse === 'warning') {
+            toast.warning(toastMessage, { position: "top-right", toastId: toastId });
+          } else { // Bao gồm Case 1 (người tạo YC pending) và Case 4 (người tạo YC nhận kết quả processed)
+            toast.info(toastMessage, { position: "top-right", toastId: toastId });
+          }
+
+          if (notification._id) processedNotificationIds.current.add(notification._id); // Thêm ID vào set đã xử lý
+          setLastToastTime(now);
         } else {
           console.log(`[APP_NOTIFICATION_DEBUG] Toast throttled. Last toast time: ${lastToastTime}, Now: ${now}`);
         }
@@ -265,53 +311,55 @@ function App() {
     };
 
     // Cập nhật ref với handler mới nhất (có closure đúng với `user` hiện tại)
-    notificationHandlerRef.current = handleNewNotificationInternal;
+    notificationHandlerRef.current = handleNewNotificationInternal; // Gán vào ref
 
-    const handleNotificationProcessed = (notificationId) => {
+    const handleNotificationProcessedInternal = (notificationId) => { // Đổi tên để tránh nhầm lẫn
+      console.log(`[APP_SOCKET_DEBUG] Received 'notification_processed' for ID: ${notificationId}. Invalidating queries.`);
       queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
+      // Có thể xóa ID khỏi processedNotificationIds.current nếu cần hiển thị lại toast (ít dùng)
     };
+    notificationProcessedHandlerRef.current = handleNotificationProcessedInternal; // Gán vào ref
 
-    // QUAN TRỌNG: Chỉ kết nối socket và thiết lập listeners NẾU `user` đã được load.
-    if (user && socket) {
+  }, [user, queryClientHook, lastToastTime, MIN_TOAST_INTERVAL, setLastToastTime]); // Dependencies cho các giá trị mà handler sử dụng
+  
+  // Effect chính cho Socket.IO: quản lý kết nối và gán/gỡ listeners
+  useEffect(() => {
+    console.log('[APP_SOCKET_DEBUG] Socket useEffect triggered. User:', user ? user._id : 'null', 'Socket connected:', socket.connected);
+    
+    // Chỉ thực hiện các thao tác socket nếu có user hợp lệ (có _id)
+    if (user && user._id) {
       if (!socket.connected) { 
-        console.log('[APP_SOCKET_DEBUG] User exists and socket not connected, attempting to connect...');
+        console.log('[APP_SOCKET_DEBUG] User exists and socket not connected. Attempting to connect...');
         socket.connect();
       }
 
-      // Wrapper để gọi handler mới nhất từ ref
-      const notificationEventCallback = (notification) => {
+      const onNotification = (notification) => {
         if (notificationHandlerRef.current) {
           notificationHandlerRef.current(notification);
         }
       };
+      const onNotificationProcessed = (notificationId) => {
+        if (notificationProcessedHandlerRef.current) {
+          notificationProcessedHandlerRef.current(notificationId);
+        }
+      };
       
-      // Gỡ listener cũ trước khi thêm mới để tránh trùng lặp nếu useEffect chạy lại
-      socket.off('notification'); 
-      socket.on('notification', notificationEventCallback);
+      socket.on('notification', onNotification);
+      socket.on('notification_processed', onNotificationProcessed);
 
-      socket.off('notification_processed'); 
-      socket.on('notification_processed', handleNotificationProcessed);
-
-    } else if (!user && socket && socket.connected) { 
-      console.log('[APP_SOCKET_DEBUG] No user, but socket is connected. Disconnecting.');
-      socket.disconnect();
-      // Gỡ bỏ listeners khi không có user và socket đang ngắt kết nối
-      socket.off('notification');
+      // Cleanup function cho useEffect này
+      return () => {
+        console.log('[APP_SOCKET_DEBUG] Cleanup: Removing socket listeners for "notification" and "notification_processed".');
+        socket.off('notification', onNotification);
+        socket.off('notification_processed', onNotificationProcessed);
+      };
+    } else { // Không có user hoặc user không hợp lệ
+      console.log('[APP_SOCKET_DEBUG] No valid user. Ensuring socket is disconnected and listeners are off.');
+      socket.disconnect(); // Ngắt kết nối nếu không có user
+      socket.off('notification'); // Gỡ bỏ tất cả listeners nếu socket bị ngắt
       socket.off('notification_processed');
     }
-    
-    // Cleanup function
-    return () => {
-      console.log('[APP_SOCKET_DEBUG] useEffect cleanup: Removing listeners.');
-      socket.off('notification');
-      socket.off('notification_processed');
-      // Nếu user không còn (logout) và socket vẫn kết nối, ngắt kết nối
-      if (!user && socket && socket.connected) {
-        console.log('[APP_SOCKET_DEBUG] Cleanup (no user): Disconnecting socket.');
-        socket.disconnect();
-      }
-    };
-  }, [user, queryClientHook, socket]); // Bỏ lastToastTime, MIN_TOAST_INTERVAL
+  }, [user]); // Chỉ phụ thuộc vào `user`. `socket` instance là stable.
   
   // Effect để cập nhật tiêu đề tab trình duyệt dựa trên route
   useEffect(() => {
