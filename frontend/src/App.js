@@ -15,6 +15,8 @@ import {
   getProjectStatus,
   approveEditProject as approveEditAPI,
   rejectEditProject as rejectEditAPI,
+  approveProject as approveNewProjectAPI, // Thêm API cho approve new
+  rejectProject as rejectNewProjectAPI,   // Thêm API cho reject new
   approveDeleteProject as approveDeleteAPI,
   rejectDeleteProject as rejectDeleteAPI,
   // apiClient as apiClientInstance // Đã có ở dưới
@@ -47,7 +49,7 @@ function App() {
   const queryClientHook = useReactQueryClient();
 
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-  const [currentNotificationTab, setCurrentNotificationTab] = useState('pending');
+  // const [currentNotificationTab, setCurrentNotificationTab] = useState('pending'); // Bỏ tab
   const [showHeader, ] = useState(true); // setShowHeader was unused
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -99,11 +101,11 @@ function App() {
   const {
     data: notifications = [],
     isLoading: isNotificationsLoading,
-    refetch: refetchNotifications
+    refetch: refetchNotifications // Giữ lại refetchNotifications nếu cần gọi thủ công ở đâu đó
   } = useQuery({
-    queryKey: ['notifications', currentNotificationTab], // Query key phụ thuộc vào tab hiện tại
-    queryFn: () => fetchNotificationsAPI(currentNotificationTab), // Gọi API với status tương ứng
-    enabled: !!user && showNotificationsModal, // Chỉ fetch khi user đăng nhập và modal hiển thị
+    queryKey: ['notificationsForAllRelevantToUser'],
+    queryFn: () => fetchNotificationsAPI(),
+    enabled: !!user, // Query sẽ chạy ngầm khi user đăng nhập để cập nhật chuông thông báo
     onError: (error) => {
       console.error("Lỗi tải thông báo (useQuery):", error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Lỗi tải thông báo!', { position: "top-center" });
@@ -131,42 +133,73 @@ function App() {
     }
   }, [isLoadingUser, isErrorUser, currentUserDataResult, userErrorObject, handleLogout]);
 
+  // Effect for socket connection management based on user state
   useEffect(() => {
     if (user) {
-      if (!socket.connected) { // Đảm bảo socket chỉ connect khi có user
+      if (!socket.connected) {
         socket.connect();
-      }
-      if (showNotificationsModal) {
-        refetchNotifications();
       }
     } else {
       if (socket.connected) {
         socket.disconnect();
       }
     }
+  }, [user]); // Dependency là user
+
+  // Effect for socket event listeners
+  useEffect(() => {
+    if (!user) { // Không thiết lập listeners nếu không có user
+      socket.off('notification');
+      socket.off('notification_processed');
+      return;
+    }
 
     const handleNewNotification = (notification) => {
-      // Invalidate query cho tab hiện tại nếu modal đang mở
-      if (showNotificationsModal) {
-        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
+      // Luôn invalidate query để cập nhật số đếm trên chuông và danh sách
+      queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
+
+      // Logic hiển thị toast
+      let shouldToast = false;
+      let toastMessage = notification.message; // Mặc định lấy message từ backend
+      
+      if (user) { // Đảm bảo user object tồn tại
+        if (notification.status === 'pending' && notification.projectId && ['new', 'edit', 'delete'].includes(notification.type)) {
+          // Case 1: User hiện tại là người gửi yêu cầu này
+          if (notification.userId?._id === user.id) {
+            // Và yêu cầu này không phải là tự gửi cho chính mình để duyệt (trừ khi user không có quyền duyệt)
+            if (notification.recipientId !== user.id || (notification.recipientId === user.id && !user.permissions?.approve)) {
+              shouldToast = true;
+              if (notification.type === 'new') toastMessage = `Yêu cầu tạo công trình "${notification.projectId?.name || 'mới'}" của bạn đang chờ duyệt.`;
+              else if (notification.type === 'edit') toastMessage = `Yêu cầu sửa công trình "${notification.projectId?.name || ''}" của bạn đang chờ duyệt.`;
+              else if (notification.type === 'delete') toastMessage = `Yêu cầu xóa công trình "${notification.projectId?.name || ''}" của bạn đang chờ duyệt.`;
+            } else if (user.permissions?.approve && (notification.recipientId === user.id || !notification.recipientId)) {
+              // Sender cũng là approver và thông báo này là cho họ duyệt (hoặc chung) -> dùng message gốc
+              shouldToast = true;
+            }
+          }
+          // Case 2: User hiện tại là người duyệt (và không phải người gửi)
+          else if (user.permissions?.approve && (notification.recipientId === user.id || !notification.recipientId)) {
+            shouldToast = true; // Dùng message gốc từ backend
+          }
+        } 
+        // Case 3: User hiện tại là người gửi và yêu cầu của họ đã được xử lý
+        else if (notification.userId?._id === user.id && notification.status === 'processed') {
+          shouldToast = true; // Dùng message gốc từ backend
+        }
       }
-      // Luôn invalidate query cho tab 'pending' nếu user có quyền approve và đó là thông báo pending
-      if (user?.permissions?.approve && notification.status === 'pending') {
-        queryClientHook.invalidateQueries(['notifications', 'pending']);
+
+      if (shouldToast) {
         const now = Date.now();
         if (now - lastToastTime > MIN_TOAST_INTERVAL) {
-          toast.info(`Có yêu cầu mới: ${notification.message}`, { position: "top-right" });
+          toast.info(toastMessage, { position: "top-right" });
           setLastToastTime(now);
         }
       }
     };
     
     const handleNotificationProcessed = (notificationId) => {
-      // Invalidate query cho cả hai tab khi một thông báo được xử lý
-      // (vì nó có thể chuyển từ pending sang processed)
-      queryClientHook.invalidateQueries(['notifications', 'pending']);
-      queryClientHook.invalidateQueries(['notifications', 'processed']);
-      // Có thể thêm logic để cập nhật cache trực tiếp nếu muốn tối ưu hơn
+      // Invalidate query khi một thông báo được xử lý
+      queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
     };
 
     socket.on('notification', handleNewNotification);
@@ -176,7 +209,7 @@ function App() {
       socket.off('notification', handleNewNotification);
       socket.off('notification_processed', handleNotificationProcessed);
     };
-  }, [user, showNotificationsModal, currentNotificationTab, refetchNotifications, queryClientHook, lastToastTime, MIN_TOAST_INTERVAL]);
+  }, [user, queryClientHook, lastToastTime, MIN_TOAST_INTERVAL]);
 
   // Effect để cập nhật tiêu đề tab trình duyệt dựa trên route
   useEffect(() => {
@@ -208,11 +241,10 @@ function App() {
       mutationFn,
       onSuccess: (data) => {
         toast.success(data?.message || successMessageKey || "Thao tác thành công!", { position: "top-right" });
-        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]);
-        queryClientHook.invalidateQueries(['notifications', 'pending']);
-        queryClientHook.invalidateQueries(['projects']);
-        queryClientHook.invalidateQueries(['pendingProjects']);
-        queryClientHook.invalidateQueries(['rejectedProjects']); // Thêm invalidate cho rejected projects
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
+        queryClientHook.invalidateQueries({ queryKey: ['projects'] });
+        queryClientHook.invalidateQueries({ queryKey: ['pendingProjects'] });
+        queryClientHook.invalidateQueries({ queryKey: ['rejectedProjects'] }); // Thêm invalidate cho rejected projects
       },
       onError: (error) => {
         const errorMessage = error.response?.data?.message || error.message || 'Thao tác thất bại!';
@@ -220,16 +252,14 @@ function App() {
         // Kiểm tra xem lỗi có phải do thông báo/công trình đã được xử lý không
         if (errorMessage.includes("không tồn tại hoặc đã được xử lý") || errorMessage.includes("không có yêu cầu")) {
           toast.info("Thông báo này có thể đã được xử lý. Đang làm mới danh sách...", { position: "top-right" });
-          // Invalidate mạnh mẽ hơn để đảm bảo dữ liệu được làm mới
-          queryClientHook.invalidateQueries(['notifications', 'pending']);
-          queryClientHook.invalidateQueries(['notifications', 'processed']);
-          queryClientHook.invalidateQueries(['projects']); // Có thể cả projects nữa
         } else {
           toast.error(errorMessage, { position: "top-right" });
         }
         // Luôn invalidate notifications để cập nhật UI
-        queryClientHook.invalidateQueries(['notifications', currentNotificationTab]); // Tab hiện tại
-        queryClientHook.invalidateQueries(['notifications', 'pending']); // Luôn cả tab pending
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
+        queryClientHook.invalidateQueries({ queryKey: ['projects'] });
+        queryClientHook.invalidateQueries({ queryKey: ['pendingProjects'] });
+        queryClientHook.invalidateQueries({ queryKey: ['rejectedProjects'] });
       },
     });
   };
@@ -246,13 +276,13 @@ function App() {
     async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
-        queryClientHook.invalidateQueries(['notifications', 'pending']); // Dùng invalidate để trigger refetch
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
       const statusData = await getProjectStatus({ projectId, type });
       if (!statusData.pendingEdit) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        await queryClientHook.refetchQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
       return approveEditAPI({ projectId, type });
@@ -270,13 +300,13 @@ function App() {
       }
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'edit' && n.status === 'pending');
       if (!notification) {
-        queryClientHook.invalidateQueries(['notifications', 'pending']);
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
       const statusData = await getProjectStatus({ projectId, type });
       if (!statusData.pendingEdit) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        await queryClientHook.refetchQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Công trình không có yêu cầu sửa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
       return rejectEditAPI({ projectId, type, reason }); // Truyền reason
@@ -284,17 +314,50 @@ function App() {
     'Đã từ chối yêu cầu sửa công trình!'
   );
 
+  const approveNewProjectMutation = useProjectActionMutation(
+    async (projectId) => {
+      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'new' && n.status === 'pending');
+      if (!notification) {
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
+        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
+      }
+      const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
+      // Không cần kiểm tra statusData cho 'new' vì nó luôn là 'Chờ duyệt' nếu thông báo tồn tại
+      return approveNewProjectAPI({ projectId, type });
+    },
+    'Đã duyệt công trình mới!'
+  );
+
+  const rejectNewProjectMutation = useProjectActionMutation(
+    async (projectId) => {
+      const reason = prompt("Vui lòng nhập lý do từ chối công trình mới:");
+      if (reason === null) throw new Error("Hủy bỏ thao tác.");
+      if (!reason || reason.trim() === "") {
+        toast.error("Lý do từ chối không được để trống.", { position: "top-right" });
+        throw new Error("Lý do từ chối không được để trống.");
+      }
+      const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'new' && n.status === 'pending');
+      if (!notification) {
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
+        throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
+      }
+      const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
+      return rejectNewProjectAPI({ projectId, type, reason });
+    },
+    'Đã từ chối công trình mới!'
+  );
+
   const approveDeleteMutation = useProjectActionMutation(
     async (projectId) => {
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
       if (!notification) {
-        queryClientHook.invalidateQueries(['notifications', 'pending']);
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
       const statusData = await getProjectStatus({ projectId, type });
       if (!statusData.pendingDelete) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        await queryClientHook.refetchQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Công trình không có yêu cầu xóa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
       return approveDeleteAPI({ projectId, type });
@@ -312,13 +375,13 @@ function App() {
       }
       const notification = notifications.find(n => n.projectId?._id === projectId && n.type === 'delete' && n.status === 'pending');
       if (!notification) {
-        queryClientHook.invalidateQueries(['notifications', 'pending']);
+        queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Thông báo không tồn tại hoặc đã được xử lý. Danh sách thông báo đã được làm mới.");
       }
       const type = notification.projectModel === 'CategoryProject' ? 'category' : 'minor_repair';
       const statusData = await getProjectStatus({ projectId, type });
       if (!statusData.pendingDelete) {
-        await queryClientHook.refetchQueries(['notifications', 'pending']);
+        await queryClientHook.refetchQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
         throw new Error("Công trình không có yêu cầu xóa đang chờ duyệt. Danh sách thông báo đã được làm mới.");
       }
       return rejectDeleteAPI({ projectId, type, reason }); // Truyền reason
@@ -326,20 +389,26 @@ function App() {
     'Đã từ chối yêu cầu xóa công trình!'
   );
 
+  const approveNewProjectAction = (projectId) => approveNewProjectMutation.mutate(projectId);
+  const rejectNewProjectAction = (projectId) => rejectNewProjectMutation.mutate(projectId);
   const approveEditAction = (projectId) => approveEditMutation.mutate(projectId);
   const rejectEditAction = (projectId) => rejectEditMutation.mutate(projectId);
   const approveDeleteAction = (projectId) => approveDeleteMutation.mutate(projectId);
   const rejectDeleteAction = (projectId) => rejectDeleteMutation.mutate(projectId);
 
   const [isProcessingNotificationAction, setIsProcessingNotificationAction] = useState(false);
+
   // Cập nhật isProcessingNotificationAction dựa trên trạng thái của các mutation
   useEffect(() => {
     const processing = approveEditMutation.isLoading ||
                        rejectEditMutation.isLoading ||
                        approveDeleteMutation.isLoading ||
-                       rejectDeleteMutation.isLoading;
+                       rejectDeleteMutation.isLoading ||
+                       approveNewProjectMutation.isLoading ||
+                       rejectNewProjectMutation.isLoading;
     setIsProcessingNotificationAction(processing);
   }, [
+    approveNewProjectMutation.isLoading, rejectNewProjectMutation.isLoading,
     approveEditMutation.isLoading,
     rejectEditMutation.isLoading,
     approveDeleteMutation.isLoading,
@@ -349,8 +418,7 @@ function App() {
   const markNotificationAsProcessedMutation = useMutation({
     mutationFn: (notificationId) => apiClientInstance.patch(`/api/notifications/${notificationId}/read`), // Sử dụng endpoint đã có
     onSuccess: (data) => {
-      queryClientHook.invalidateQueries(['notifications', 'pending']);
-      queryClientHook.invalidateQueries(['notifications', 'processed']);
+      queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Lỗi khi đánh dấu thông báo!', { position: "top-right" });
@@ -365,8 +433,7 @@ function App() {
     mutationFn: () => apiClientInstance.patch('/api/notifications/mark-all-as-processed'),
     onSuccess: (data) => {
       toast.success(data.message || 'Đã đánh dấu các thông báo cũ là đã xử lý.', { position: "top-right" });
-      queryClientHook.invalidateQueries(['notifications', 'pending']);
-      queryClientHook.invalidateQueries(['notifications', 'processed']);
+      queryClientHook.invalidateQueries({ queryKey: ['notificationsForAllRelevantToUser'] });
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Lỗi khi đánh dấu tất cả thông báo!', { position: "top-right" });
@@ -392,7 +459,7 @@ function App() {
     <>
       <ToastContainer
         position="top-right" // Đổi vị trí
-        autoClose={1000}    // Đặt thời gian mặc định là 1 giây
+        autoClose={5000}    // Đặt thời gian mặc định là 5 giây
         hideProgressBar={false}
         newestOnTop={true}
         closeOnClick
@@ -421,10 +488,12 @@ function App() {
                   showNotificationsModal={showNotificationsModal}
                   setShowNotificationsModal={setShowNotificationsModal}
                   fetchNotificationsByStatus={refetchNotifications} // Truyền hàm refetch
-                  currentNotificationTab={currentNotificationTab}
-                  setCurrentNotificationTab={setCurrentNotificationTab}
+                  // currentNotificationTab={currentNotificationTab} // Bỏ
+                  // setCurrentNotificationTab={setCurrentNotificationTab} // Bỏ
                   isNotificationsLoading={isNotificationsLoading}
                   approveEditAction={approveEditAction}
+                  approveNewProjectAction={approveNewProjectAction} // Truyền action mới
+                  rejectNewProjectAction={rejectNewProjectAction}   // Truyền action mới
                   rejectEditAction={rejectEditAction}
                   approveDeleteAction={approveDeleteAction}
                   rejectDeleteAction={rejectDeleteAction}

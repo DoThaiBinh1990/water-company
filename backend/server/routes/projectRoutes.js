@@ -65,28 +65,32 @@ router.patch('/projects/:id/reject', authenticate, async (req, res, next) => {
 router.get('/notifications', authenticate, async (req, res, next) => {
   try {
     const { status } = req.query; // 'pending' or 'processed'
-    let query = {};
+    const user = req.user;
+    let queryConditions = [];
 
     if (status) {
-      query.status = status;
-    }
-
-    if (req.user.permissions.approve) {
-      // They see all based on status filter.
+      // Client yêu cầu một status cụ thể
+      if (user.permissions?.approve) {
+        // Approver thấy các thông báo có status đó mà họ là recipient hoặc là thông báo chung
+        queryConditions.push({ recipientId: user.id, status: status });
+        queryConditions.push({ recipientId: { $exists: false }, status: status });
+      }
+      // Mọi user đều thấy thông báo có status đó mà họ là người tạo/liên quan (userId)
+      queryConditions.push({ userId: user.id, status: status });
     } else {
-      const userSpecificOrConditions = [
-        { userId: req.user.id },
-        { recipientId: req.user.id }
-      ];
-      
-      if (query.$or) {
-        query.$and = [ { $or: query.$or }, { $or: userSpecificOrConditions } ];
-        delete query.$or;
-      } else {
-        query.$or = userSpecificOrConditions;
+      // Client không yêu cầu status cụ thể (App.js gọi để lấy tất cả thông báo liên quan)
+      // 1. Thông báo mà user này là người tạo (userId) - lấy cả pending và processed
+      queryConditions.push({ userId: user.id });
+      // 2. Thông báo mà user này là người nhận trực tiếp (recipientId) - lấy cả pending và processed
+      queryConditions.push({ recipientId: user.id });
+      // 3. Nếu user có quyền duyệt, lấy thêm các thông báo pending chung (không có recipientId cụ thể)
+      if (user.permissions?.approve) {
+        queryConditions.push({ recipientId: { $exists: false }, status: 'pending' });
       }
     }
-    
+
+    const query = queryConditions.length > 0 ? { $or: queryConditions } : {};
+
     const notifications = await Notification.find(query)
       .populate('userId', 'username fullName')
       .populate('recipientId', 'username fullName')

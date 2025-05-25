@@ -124,7 +124,11 @@ export const deleteConstructionUnit = async (unitId) => {
 
 // Notifications
 export const getNotificationsByStatus = async (status) => {
-  const { data } = await apiClient.get(`/api/notifications?status=${status}`);
+  let queryString = '/api/notifications';
+  if (status) { // Chỉ thêm query param nếu status có giá trị (không phải undefined, null, chuỗi rỗng)
+    queryString += `?status=${status}`;
+  }
+  const { data } = await apiClient.get(queryString);
   return data || []; // Đảm bảo luôn trả về một mảng
 };
 

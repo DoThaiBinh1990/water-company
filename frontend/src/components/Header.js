@@ -1,5 +1,5 @@
 // d:\CODE\water-company\frontend\src\components\Header.js
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react'; // Thêm useMemo
 import { FaBell, FaCheckCircle, FaTimesCircle, FaUserCircle, FaBars, FaTimes, FaSpinner } from 'react-icons/fa'; // Thêm FaSpinner
 import Modal from 'react-modal';
 
@@ -11,9 +11,11 @@ function Header({
   showNotificationsModal,
   setShowNotificationsModal,
   fetchNotificationsByStatus, // Đây là hàm refetch từ useQuery
-  currentNotificationTab,
-  setCurrentNotificationTab,
+  // currentNotificationTab, // Bỏ
+  // setCurrentNotificationTab, // Bỏ
   isNotificationsLoading, // Trạng thái loading từ useQuery
+  approveNewProjectAction, // Action mới
+  rejectNewProjectAction,  // Action mới
   approveEditAction,
   rejectEditAction,
   approveDeleteAction,
@@ -40,20 +42,23 @@ function Header({
     }
   };
 
-  const [tabFade, setTabFade] = useState(false);
+  // Tính unreadNotificationsCount dựa trên các thông báo pending mà user có thể action
+  const unreadNotificationsCount = useMemo(() => {
+    if (!user || !Array.isArray(notifications)) return 0;
+    // Chỉ user có quyền approve mới có "unread notifications" cần action ở đây
+    if (!user.permissions?.approve) return 0;
 
-  useEffect(() => {
-    if (showNotificationsModal) {
-        setTabFade(false); // Reset fade
-        setTimeout(() => setTabFade(true), 50); // Kích hoạt fade sau một chút
-    }
-  }, [currentNotificationTab, showNotificationsModal]);
-
-  const unreadNotificationsCount = notifications.filter(n => n.status === 'pending').length;
-
+    return notifications.filter(n =>
+      n.status === 'pending' &&
+      n.projectId?._id && // Phải có project ID
+      ['new', 'edit', 'delete'].includes(n.type) && // Phải là loại cần action
+      (!n.recipientId || n.recipientId?._id === user.id) // Hoặc là thông báo chung, hoặc gửi cho chính user này
+    ).length;
+  }, [notifications, user]);
+  
   const handleTabChange = (tab) => {
     if (isProcessingNotificationAction || isNotificationsLoading) return;
-    setCurrentNotificationTab(tab);
+    // setCurrentNotificationTab(tab); // Bỏ
     // fetchNotificationsByStatus sẽ tự động được gọi do queryKey thay đổi trong App.js
     // Hoặc nếu bạn muốn fetch ngay lập tức:
     // queryClientHook.refetchQueries(['notifications', tab]); // Nếu bạn có queryClientHook ở đây
@@ -94,10 +99,10 @@ function Header({
               // Không cần gọi fetchNotificationsByStatus ở đây nữa,
               // vì `enabled: !!user && showNotificationsModal` trong useQuery của App.js sẽ tự động kích hoạt fetch
               // hoặc khi tab thay đổi, queryKey thay đổi cũng sẽ fetch.
-              // Nếu muốn đảm bảo tab 'pending' được chọn khi mở:
-              if (currentNotificationTab !== 'pending') {
-                handleTabChange('pending');
-              }
+              // // Nếu muốn đảm bảo tab 'pending' được chọn khi mở: // Không cần nữa
+              // if (currentNotificationTab !== 'pending') {
+              //   handleTabChange('pending');
+              // }
             }}
             className={`relative bell-icon p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 ${unreadNotificationsCount > 0 ? 'has-notifications' : ''}`}
             aria-label="Thông báo"
@@ -144,63 +149,45 @@ function Header({
             <FaTimes size={16} />
           </button>
         </div>
-        <div className="border-b border-gray-200 px-2 pt-2 bg-gray-50">
-          <button
-            onClick={() => handleTabChange('pending')}
-            className={`py-2 px-4 text-sm font-medium rounded-t-md
-                        ${currentNotificationTab === 'pending' ? 'border-b-2 border-blue-500 text-blue-600 bg-white' : 'text-gray-500 hover:text-blue-500 hover:bg-gray-100'}
-                        ${isProcessingNotificationAction || isNotificationsLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={isProcessingNotificationAction || isNotificationsLoading}
-          >
-            Chưa xử lý ({currentNotificationTab === 'pending' ? unreadNotificationsCount : ''})
-          </button>
-          <button
-            onClick={() => handleTabChange('processed')}
-            className={`py-2 px-4 text-sm font-medium rounded-t-md
-                        ${currentNotificationTab === 'processed' ? 'border-b-2 border-blue-500 text-blue-600 bg-white' : 'text-gray-500 hover:text-blue-500 hover:bg-gray-100'}
-                        ${isProcessingNotificationAction || isNotificationsLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={isProcessingNotificationAction || isNotificationsLoading}
-          >
-            Đã xử lý
-          </button>
+        <div className="border-b border-gray-200 px-4 py-2 bg-gray-50 flex justify-end">
           {/* Nút "Đánh dấu đã đọc" nên nằm cùng hàng với các tab, và chỉ hiển thị khi tab "Chưa xử lý" active */}
-          {currentNotificationTab === 'pending' && unreadNotificationsCount > 0 && (
+          {/* Chỉ hiển thị nút này nếu có bất kỳ thông báo pending nào */}
+          {notifications.filter(n => n.status === 'pending').length > 0 && (
             <button
               onClick={() => {
-                if (window.confirm(`Bạn có chắc muốn đánh dấu tất cả ${unreadNotificationsCount} thông báo chưa xử lý là đã đọc (trừ các yêu cầu duyệt còn hiệu lực)?`)) {
+                if (window.confirm(`Bạn có chắc muốn đánh dấu tất cả ${notifications.filter(n => n.status === 'pending').length} thông báo đang chờ là đã đọc (trừ các yêu cầu duyệt còn hiệu lực)?`)) {
                   handleMarkAllAsProcessed();
                 }
               }}
               className={`ml-auto py-1 px-2 text-xs font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50`}
-              disabled={isProcessingNotificationAction || isNotificationsLoading || unreadNotificationsCount === 0}
+              disabled={isProcessingNotificationAction || isNotificationsLoading || notifications.filter(n => n.status === 'pending').length === 0}
             >
-              Đánh dấu đã đọc ({unreadNotificationsCount})
+              Đánh dấu tất cả đã đọc ({notifications.filter(n => n.status === 'pending').length})
             </button>
           )}
         </div>
 
-        <div className={`flex-grow overflow-y-auto p-4 bg-white transition-opacity duration-300 ease-in-out ${tabFade ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`flex-grow overflow-y-auto p-4 bg-white`}>
           {isNotificationsLoading && (
             <div className="flex flex-col items-center justify-center py-10 text-gray-500">
               <FaSpinner className="animate-spin text-2xl mb-2" />
               Đang tải thông báo...
             </div>
           )}
-          {!isNotificationsLoading && notifications.filter(n => n.status === currentNotificationTab).length === 0 && (
+          {!isNotificationsLoading && notifications.length === 0 && (
             <p className="text-gray-500 text-center py-10">
               Không có thông báo nào.
             </p>
           )}
           {!isNotificationsLoading && notifications
-            .filter(n => n.status === currentNotificationTab)
+            // .filter(n => n.status === currentNotificationTab) // Không cần filter nữa
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .map(notification => (
               <div
                 key={notification._id}
                 className="p-3 mb-2 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
                 onClick={() => {
-                  if (currentNotificationTab === 'pending' &&
-                      notification.status === 'pending' && // Thêm kiểm tra này
+                  if (notification.status === 'pending' &&
                       !(user?.permissions?.approve && notification.projectId?._id && ['edit', 'delete', 'new'].includes(notification.type)) &&
                       typeof handleMarkNotificationAsProcessed === 'function' &&
                       !isProcessingNotificationAction // Chỉ cho phép nếu không có action nào đang chạy
@@ -210,30 +197,65 @@ function Header({
                 }}
               >
                 <p className="text-sm font-medium text-gray-800">
-                  {notification.message}
+                  {(() => {
+                    let displayMessage = notification.message;
+                    if (user && notification.status === 'pending' && notification.projectId && ['new', 'edit', 'delete'].includes(notification.type)) {
+                      if (notification.userId?._id === user.id && notification.recipientId !== user.id) {
+                        if (notification.type === 'new') displayMessage = `Yêu cầu tạo công trình "${notification.projectId?.name || 'mới'}" của bạn đang chờ duyệt.`;
+                        else if (notification.type === 'edit') displayMessage = `Yêu cầu sửa công trình "${notification.projectId?.name || ''}" của bạn đang chờ duyệt.`;
+                        else if (notification.type === 'delete') displayMessage = `Yêu cầu xóa công trình "${notification.projectId?.name || ''}" của bạn đang chờ duyệt.`;
+                      }
+                      // Trường hợp người duyệt nhận thông báo pending, notification.message từ backend đã đúng
+                    }
+                    // Trường hợp thông báo processed, notification.message từ backend đã đúng
+                    return displayMessage;
+                  })()}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   {notification.projectId?.name ? `CT: ${notification.projectId.name} (${notification.projectModel === 'CategoryProject' ? 'DM' : 'SCN'})` : 'Thông báo chung'}
                   {' - '}
-                  {new Date(notification.createdAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {new Date(notification.createdAt).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })},
+                  Người tạo YC: {notification.userId?.fullName || notification.userId?.username || 'N/A'}
                 </p>
-                {currentNotificationTab === 'pending' && user?.permissions?.approve && notification.projectId?._id && (
-                  <div className="flex gap-3 mt-3">
+                {/* Điều kiện hiển thị nút Duyệt/Từ chối: User có quyền, thông báo là pending, có projectId, loại new/edit/delete VÀ thông báo đó là chung hoặc gửi cho chính user này */}
+                {notification.status === 'pending' && user?.permissions?.approve && notification.projectId?._id && ['new', 'edit', 'delete'].includes(notification.type) && (!notification.recipientId || notification.recipientId?._id === user.id) && (
+                  <div className="flex gap-2 mt-3"> {/* Giảm gap */}
+                    {/* Nút Approve */}
                     <button
-                      onClick={() => handleActionWrapper(notification.type === 'edit' ? approveEditAction : approveDeleteAction, notification.projectId._id)}
-                      className={`btn-sm btn-success flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Ngăn event click của div cha
+                        if (notification.type === 'new') handleActionWrapper(approveNewProjectAction, notification.projectId._id);
+                        else if (notification.type === 'edit') handleActionWrapper(approveEditAction, notification.projectId._id);
+                        else if (notification.type === 'delete') handleActionWrapper(approveDeleteAction, notification.projectId._id);
+                      }}
+                      className={`btn-xs btn-success flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={isProcessingNotificationAction}
                     >
                       <FaCheckCircle size={14} /> {isProcessingNotificationAction ? "Đang..." : "Duyệt"}
                     </button>
+                    {/* Nút Reject */}
                     <button
-                      onClick={() => handleActionWrapper(notification.type === 'edit' ? rejectEditAction : rejectDeleteAction, notification.projectId._id)}
-                      className={`btn-sm btn-warning flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (notification.type === 'new') handleActionWrapper(rejectNewProjectAction, notification.projectId._id);
+                        else if (notification.type === 'edit') handleActionWrapper(rejectEditAction, notification.projectId._id);
+                        else if (notification.type === 'delete') handleActionWrapper(rejectDeleteAction, notification.projectId._id);
+                      }}
+                      className={`btn-xs btn-warning flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={isProcessingNotificationAction}
                     >
                       <FaTimesCircle size={14} /> {isProcessingNotificationAction ? "Đang..." : "Từ chối"}
                     </button>
                   </div>
+                )}
+                {/* Hiển thị trạng thái nếu là processed hoặc user không có quyền action */}
+                {notification.status === 'processed' && (
+                  <p className="text-xs text-green-600 mt-1 italic">Đã xử lý</p>
+                )}
+                {/* Điều kiện hiển thị "Đang chờ xử lý...": Thông báo pending VÀ (user không có quyền duyệt HOẶC thông báo không phải loại new/edit/delete có projectId HOẶC thông báo là new/edit/delete nhưng gửi cho người khác) */}
+                {notification.status === 'pending' &&
+                 !(user?.permissions?.approve && notification.projectId?._id && ['new', 'edit', 'delete'].includes(notification.type) && (!notification.recipientId || notification.recipientId?._id === user.id)) && (
+                  <p className="text-xs text-yellow-600 mt-1 italic">Đang chờ xử lý...</p>
                 )}
               </div>
             ))}
@@ -241,7 +263,7 @@ function Header({
         <div className="p-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
           <button
             onClick={() => { if (!isProcessingNotificationAction) setShowNotificationsModal(false); }}
-            className={`w-full py-2 px-4 rounded-md text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 transition-colors ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full py-2 px-4 rounded-lg text-sm font-medium bg-gray-600 text-white hover:bg-gray-700 transition-colors ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={isProcessingNotificationAction}
           >
             Đóng

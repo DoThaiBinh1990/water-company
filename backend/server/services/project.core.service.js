@@ -228,7 +228,7 @@ const createNewProject = async (projectData, user, projectType, io) => {
 
   if (isPending) {
     const newProjectNotification = new Notification({
-      message: `Yêu cầu thêm công trình mới "${newProject.name}" đã được gửi để duyệt`,
+      message: `Có yêu cầu thêm công trình mới "${newProject.name}" từ ${user.username} cần bạn duyệt.`,
       type: 'new',
       projectId: newProject._id,
       projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
@@ -466,7 +466,7 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
 
         if (project.approvedBy) {
             const requestEditUnapprovedNotification = new Notification({
-                message: `Yêu cầu sửa công trình "${populatedProjectRequestEditUnapproved.name}" (chưa duyệt) bởi ${user.username}`,
+                message: `Có yêu cầu sửa công trình "${populatedProjectRequestEditUnapproved.name}" (chưa duyệt) từ ${user.username} cần bạn duyệt.`,
                 type: 'edit', projectId: populatedProjectRequestEditUnapproved._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id,
                 recipientId: project.approvedBy
             });
@@ -509,7 +509,7 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
         if (project.approvedBy) {
             const populatedProjectForNotification = { _id: populatedProjectRequestEditApproved._id, name: populatedProjectRequestEditApproved.name, type: projectType };
             const requestEditApprovedNotification = new Notification({
-              message: `Yêu cầu sửa công trình "${populatedProjectRequestEditApproved.name}" bởi ${user.username}`,
+              message: `Có yêu cầu sửa công trình "${populatedProjectRequestEditApproved.name}" từ ${user.username} cần bạn duyệt.`,
               type: 'edit', projectId: populatedProjectRequestEditApproved._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id,
               recipientId: project.approvedBy
             });
@@ -590,7 +590,7 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
             await project.save();
             const populatedProjectForNotification = { _id: project._id, name: project.name, type: projectType };
             const requestDeleteUnapprovedNotification = new Notification({
-                message: `Yêu cầu xóa công trình "${project.name}" (chưa duyệt) bởi ${user.username}`,
+                message: `Có yêu cầu xóa công trình "${project.name}" (chưa duyệt) từ ${user.username} cần bạn duyệt.`,
                 type: 'delete', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
                 status: 'pending', userId: user.id, recipientId: originalApproverId || project.approvedBy
             });
@@ -608,7 +608,7 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
             await project.save();
             const populatedProjectForNotification = { _id: project._id, name: project.name, type: projectType };
             const requestDeleteApprovedNotification = new Notification({
-                message: `Yêu cầu xóa công trình "${project.name}" bởi ${user.username}`,
+                message: `Có yêu cầu xóa công trình "${project.name}" từ ${user.username} cần bạn duyệt.`,
                 type: 'delete', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
                 status: 'pending', userId: user.id, recipientId: originalApproverId || project.approvedBy
             });

@@ -4,6 +4,14 @@ import { getStatusDisplay, getBaseStatusInfo } from '../utils/helpers'; // Remov
 import { formatDateToLocale } from '../utils/dateUtils'; // Import formatDateToLocale
 import React from 'react'; // Import React để sử dụng JSX trong render functions
 
+// Utility function for displaying user
+const getUserDisplay = (value) => {
+  if (value && typeof value === 'object') {
+    return value.fullName || value.username || 'N/A';
+  }
+  return typeof value === 'string' && value ? value : 'N/A';
+};
+
 const commonFields = {
   name: {
     header: 'Tên công trình',
@@ -24,13 +32,7 @@ const commonFields = {
     field: 'supervisor', // Backend nên trả về object user đã populate (với fullName) hoặc string ID
     width: '160px',
     minWidth: '120px',
-    render: (project, cellData) => { // cellData chứa isChanged, displayValue, originalValue
-      const getUserDisplay = (value) => {
-        if (value && typeof value === 'object') {
-          return value.fullName || value.username || 'N/A';
-        }
-        return typeof value === 'string' && value ? value : 'N/A'; // Hiển thị ID nếu không resolve được
-      };
+    render: (project, cellData) => {
       // formatDateToLocale sẽ được truyền vào GenericTable và sử dụng ở đó
       const currentDisplay = getUserDisplay(cellData.displayValue);
       const isCurrentNA = currentDisplay === 'N/A';
@@ -161,13 +163,6 @@ const commonFields = {
       return tooltipLines.join('\n');
     },
     render: (project, cellData) => { // cellData chứa isChanged, displayValue, originalValue
-      const getUserDisplay = (value) => {
-        if (value && typeof value === 'object') {
-          return value.fullName || value.username || 'N/A';
-        }
-        return typeof value === 'string' && value ? value : 'N/A';
-      };
-
       let currentDisplayValue = cellData.displayValue;
       // Ưu tiên hiển thị người duyệt từ history nếu không có thay đổi đang chờ duyệt cho trường này
       if (!cellData.isChanged) {
@@ -285,15 +280,8 @@ const commonFields = {
     field: 'estimator',
     width: '160px',
     minWidth: '120px',
-    align: 'center', // Giữ align center
-    render: (project, cellData) => { // cellData chứa isChanged, displayValue, originalValue
-      const getUserDisplay = (value) => {
-        if (value && typeof value === 'object') {
-          return value.fullName || value.username || 'N/A';
-        }
-        return typeof value === 'string' && value ? value : 'N/A'; // Hiển thị ID nếu không resolve được
-      };
-
+    align: 'center',
+    render: (project, cellData) => {
       const currentDisplay = getUserDisplay(cellData.displayValue);
       const isCurrentNA = currentDisplay === 'N/A';
 
