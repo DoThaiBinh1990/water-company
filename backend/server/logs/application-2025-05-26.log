@@ -344,3 +344,29 @@
 2025-05-26 01:55:21 error: Lỗi không xác định: Bạn không có quyền hoặc không được chỉ định để duyệt yêu cầu này.
 2025-05-26 01:55:33 error: Lỗi API duyệt công trình: Bạn không có quyền hoặc không được chỉ định để duyệt yêu cầu này.
 2025-05-26 01:55:33 error: Lỗi không xác định: Bạn không có quyền hoặc không được chỉ định để duyệt yêu cầu này.
+2025-05-26 02:01:45 info: Máy chủ đang chạy trên cổng 5000
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: 9lvRJGlzJPFf1HdvAAAC
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: P4wWySg2D3TRVQMSAAAD
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: Ie0-wcY1UXGP_enyAAAF
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: l5T8QdsIGp9qjVKYAAAI
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: 09zX5eK9CsEl1GSQAAAJ
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: Ib0Em00FVOFDvxLZAAAL
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: bcE4gMugUeXdTKjhAAAN
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: 9P9-_LIgUwwWObCTAAAP
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: erzp8l2A4JkwwY33AAAR
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: L-Xle4VfXSH19OQ6AAAT
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: e_8v7U3hlPQLsd3pAAAV
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: z9r0nyAmIitzB2SUAAAX
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: 1EEuZicGkM57MZF1AAAZ
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: Ck6grc-OwnNjjoedAAAb
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: xFXemNe5JqA8rPUyAAAd
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: OrbbRiV-fb3cg5hqAAAf
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: YXIR8Lw5Jtg6LKlOAAAh
+2025-05-26 02:01:45 info: Một người dùng đã kết nối: PQ_AXm2fZl4EYfARAAAj
+2025-05-26 02:01:46 info: MongoDB đã kết nối thành công.
+2025-05-26 02:01:57 info: Người dùng đã ngắt kết nối: 9lvRJGlzJPFf1HdvAAAC
+2025-05-26 02:01:57 info: Người dùng đã ngắt kết nối: z9r0nyAmIitzB2SUAAAX
+2025-05-26 02:01:57 info: Một người dùng đã kết nối: YTLZoG6vlDxq-5qkAAAl
+2025-05-26 02:01:58 info: Một người dùng đã kết nối: vDzVdQty1Ry3O3eZAAAn
+2025-05-26 02:02:17 info: [MarkViewedProcessed] User 682dc129d251bb6a04b6776a: 1 thông báo "chỉ xem" đã được đánh dấu xử lý.
+2025-05-26 02:04:42 info: [MarkViewedProcessed] User 682dc129d251bb6a04b6776a: 1 thông báo "chỉ xem" đã được đánh dấu xử lý.

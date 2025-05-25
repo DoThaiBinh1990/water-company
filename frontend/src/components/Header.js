@@ -276,12 +276,12 @@ function Header({
                 {/* Bỏ các nút hành động Duyệt/Từ chối */}
                 {/* Hiển thị trạng thái nếu là processed hoặc user không có quyền action */}
                 {notification.status === 'processed' && (
-                  <p className="text-xs text-green-600 mt-1 italic">Đã xử lý</p>
+                  <p className="text-xs text-green-600 mt-1 italic">Đã xem</p>
                 )}
                 {/* Điều kiện hiển thị "Đang chờ xử lý...": Thông báo pending VÀ (user không có quyền duyệt HOẶC thông báo không phải loại new/edit/delete có projectId HOẶC thông báo là new/edit/delete nhưng gửi cho người khác) */}
                 {notification.status === 'pending' &&
                  !(user?.permissions?.approve && notification.projectId?._id && ['new', 'edit', 'delete'].includes(notification.type) && (!notification.recipientId || notification.recipientId?._id === user.id)) && (
-                  <p className="text-xs text-yellow-600 mt-1 italic">Đang chờ xử lý...</p>
+                  <p className="text-xs text-yellow-600 mt-1 italic">Chưa xem</p>
                 )}
               </div>
             ))}
