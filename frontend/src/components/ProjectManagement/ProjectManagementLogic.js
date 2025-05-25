@@ -238,8 +238,11 @@ const useProjectActions = (user, type, queryClient, addMessage) => {
     const baseData = {
       name: project.name || '', allocatedUnit: project.allocatedUnit || '',
       supervisor: getUserId(project.supervisor), taskDescription: project.taskDescription || '',
-      notes: project.notes || '', approvedBy: getUserId(project.approvedBy),
-      createdBy: getUserId(project.createdBy) || user?._id || '',
+      notes: project.notes || '', 
+      // Khi sửa, approvedBy trên form nên là người duyệt hiện tại của công trình (nếu có)
+      // hoặc người duyệt trong pendingEdit (nếu đang sửa một YC sửa)
+      approvedBy: getUserId(project.pendingEdit?.data?.approvedBy || project.approvedBy),
+      createdBy: getUserId(project.createdBy), // Giữ createdBy gốc khi sửa, không cho thay đổi trên form
       financialYear: project.financialYear || new Date().getFullYear(),
       isCompleted: project.isCompleted === true, // Ensure boolean
     };

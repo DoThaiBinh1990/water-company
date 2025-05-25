@@ -234,7 +234,8 @@ const createNewProject = async (projectData, user, projectType, io) => {
       projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
       status: 'pending',
       userId: user.id,
-      recipientId: dataToSave.approvedBy
+    // Gán recipientId là người duyệt đã được resolve từ input, nếu có
+    recipientId: dataToSave.approvedBy ? dataToSave.approvedBy.toString() : null
     });
     await newProjectNotification.save();
     if (io) {
@@ -277,7 +278,8 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
           delete currentUpdateData.projectCode;
           logger.warn(`User ${user.username} (không phải admin) đã cố gắng sửa projectCode. Thay đổi này đã bị bỏ qua.`);
       }
-      forbiddenFields.push('approvedBy');
+      // Bỏ 'approvedBy' ra khỏi forbiddenFields để user thường có thể chọn người duyệt khi tạo YC sửa
+      // forbiddenFields.push('approvedBy'); 
   }
   forbiddenFields.forEach(field => delete currentUpdateData[field]);
 
@@ -320,6 +322,14 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     currentUpdateData.approvedBy = null; // Allow clearing approver if admin
   }
 
+  // Xác định người duyệt cho yêu cầu sửa này (designatedApproverForEditRequest)
+  // và người duyệt sẽ nhận thông báo (recipientForEditRequestNotification)
+  // Ưu tiên người duyệt được chọn trong currentUpdateData (nếu có và hợp lệ).
+  // Nếu không, giữ nguyên người duyệt hiện tại của công trình.
+  let designatedApproverForEditRequest = project.approvedBy; // Người duyệt hiện tại của công trình
+  if (currentUpdateData.approvedBy) { // Nếu có người duyệt mới được chọn trong form
+    designatedApproverForEditRequest = currentUpdateData.approvedBy; // Gán cho pendingEdit.data
+  }
 
   if (currentUpdateData.financialYear) {
     const parsedYear = parseInt(currentUpdateData.financialYear, 10);
@@ -380,7 +390,10 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     let notificationMessage = `Công trình "${project.name}" đã được cập nhật bởi quản trị viên ${user.username}.`;
     let notifyUserTarget = project.createdBy;
     let notificationActionType = 'edit';
-
+    // Nếu admin thay đổi người duyệt, thì người duyệt mới cũng cần được thông báo (nếu khác admin)
+    // Tuy nhiên, logic hiện tại của admin là cập nhật trực tiếp, không tạo pendingEdit.
+    // Thông báo cho người tạo là chính.
+    
     if (originalStatus === 'Chờ duyệt' && (currentUpdateData.status === 'Đã duyệt' || (currentUpdateData.approvedBy && currentUpdateData.approvedBy.toString() === user.id.toString()))) {
         project.status = 'Đã duyệt';
         if (!project.approvedBy || project.approvedBy.toString() !== user.id.toString()) {
@@ -391,7 +404,7 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
         notificationActionType = 'new_approved';
     }
     else if (originalStatus === 'Chờ duyệt' && project.status === 'Chờ duyệt' && project.approvedBy) {
-      notificationMessage = `Công trình "${project.name}" (đang chờ duyệt bởi ${project.approvedBy?.fullName || project.approvedBy?.username || 'N/A'}) đã được cập nhật bởi quản trị viên ${user.username}. Vui lòng kiểm tra.`;
+      notificationMessage = `Công trình "${project.name}" (đang chờ duyệt bởi ${getUserDisplay(project.approvedBy)}) đã được cập nhật bởi quản trị viên ${user.username}. Vui lòng kiểm tra.`;
       notifyUserTarget = project.approvedBy;
     }
 
@@ -427,8 +440,8 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
         if (project.approvedBy && project.approvedBy.toString() !== user.id.toString()) {
             const directEditNotification = new Notification({
                 message: `Công trình "${project.name}" đang chờ duyệt đã được cập nhật bởi ${user.username}. Vui lòng kiểm tra.`,
-                type: 'edit', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-                status: 'pending', userId: user.id, recipientId: project.approvedBy
+                type: 'edit', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id, 
+                recipientId: project.approvedBy ? (project.approvedBy._id || project.approvedBy).toString() : null
             });
             await directEditNotification.save();
             if (io) io.emit('notification', { ...directEditNotification.toObject(), projectId: { _id: project._id, name: project.name, type: projectType } });
@@ -453,6 +466,10 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
               if (normalizedVal1 !== normalizedVal2) changed = true;
             }
             if (changed) changesArray.push({ field, oldValue: project[field], newValue: updateFieldValue });
+        // Nếu trường approvedBy thay đổi, đảm bảo nó được lưu vào pendingEdit.data
+        if (field === 'approvedBy' && changed) {
+          pendingEditDataForStorage.approvedBy = updateFieldValue;
+        }
           }
         }
         if (changesArray.length === 0) {
@@ -460,15 +477,20 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
           return { message: 'Không có thay đổi nào được ghi nhận để yêu cầu sửa.', project: populatedNoChangeProject.toObject(), updated: false, pending: true };
         }
         project.pendingEdit = { data: currentUpdateData, changes: changesArray, requestedBy: user.id, requestedAt: new Date() };
-        project.history.push({ action: 'edit_requested', user: user.id, timestamp: new Date(), details: { changes: changesArray, note: 'Edit request on unapproved project by non-creator' } });
+    // Đảm bảo pendingEdit.data.approvedBy được cập nhật bằng designatedApproverForEditRequest
+    // designatedApproverForEditRequest đã được xác định ở trên, ưu tiên currentUpdateData.approvedBy
+    if (designatedApproverForEditRequest && (!project.pendingEdit.data.approvedBy || project.pendingEdit.data.approvedBy.toString() !== designatedApproverForEditRequest.toString())) {
+        project.pendingEdit.data.approvedBy = designatedApproverForEditRequest;
+    }
+    project.history.push({ action: 'edit_requested', user: user.id, timestamp: new Date(), details: { changes: changesArray, note: 'Edit request on unapproved project by non-creator', designatedApprover: designatedApproverForEditRequest } });
         await project.save({ validateModifiedOnly: true });
         const populatedProjectRequestEditUnapproved = await populateProjectFields(project);
 
-        if (project.approvedBy) {
+        if (designatedApproverForEditRequest) { // Gửi thông báo cho người duyệt được chỉ định cho YC sửa này
             const requestEditUnapprovedNotification = new Notification({
                 message: `Có yêu cầu sửa công trình "${populatedProjectRequestEditUnapproved.name}" (chưa duyệt) từ ${user.username} cần bạn duyệt.`,
-                type: 'edit', projectId: populatedProjectRequestEditUnapproved._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id,
-                recipientId: project.approvedBy
+                type: 'edit', projectId: populatedProjectRequestEditUnapproved._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id, 
+                recipientId: designatedApproverForEditRequest ? (designatedApproverForEditRequest._id || designatedApproverForEditRequest).toString() : null
             });
             await requestEditUnapprovedNotification.save();
             if (io) io.emit('notification', { ...requestEditUnapprovedNotification.toObject(), projectId: { _id: populatedProjectRequestEditUnapproved._id, name: populatedProjectRequestEditUnapproved.name, type: projectType } });
@@ -502,16 +524,21 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
         }
 
         project.pendingEdit = { data: currentUpdateData, changes: changesArray, requestedBy: user.id, requestedAt: new Date() };
-        project.history.push({ action: 'edit_requested', user: user.id, timestamp: new Date(), details: { changes: changesArray } });
+        // Đảm bảo pendingEdit.data.approvedBy được cập nhật bằng designatedApproverForEditRequest
+        if (designatedApproverForEditRequest && (!project.pendingEdit.data.approvedBy || project.pendingEdit.data.approvedBy.toString() !== designatedApproverForEditRequest.toString())) {
+            project.pendingEdit.data.approvedBy = designatedApproverForEditRequest;
+        }
+        project.history.push({ action: 'edit_requested', user: user.id, timestamp: new Date(), details: { changes: changesArray, designatedApprover: designatedApproverForEditRequest } });
         await project.save({ validateModifiedOnly: true });
         const populatedProjectRequestEditApproved = await populateProjectFields(project);
-
-        if (project.approvedBy) {
+        
+        // Gửi thông báo cho người duyệt được chỉ định cho YC sửa này (designatedApproverForEditRequest)
+        if (designatedApproverForEditRequest) {
             const populatedProjectForNotification = { _id: populatedProjectRequestEditApproved._id, name: populatedProjectRequestEditApproved.name, type: projectType };
             const requestEditApprovedNotification = new Notification({
-              message: `Có yêu cầu sửa công trình "${populatedProjectRequestEditApproved.name}" từ ${user.username} cần bạn duyệt.`,
-              type: 'edit', projectId: populatedProjectRequestEditApproved._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id,
-              recipientId: project.approvedBy
+              message: `Có yêu cầu sửa công trình "${populatedProjectRequestEditApproved.name}" từ ${user.username} cần bạn duyệt (Người duyệt YC: ${designatedApproverForEditRequest ? (await User.findById(designatedApproverForEditRequest).select('fullName username'))?.fullName || (await User.findById(designatedApproverForEditRequest).select('fullName username'))?.username : 'N/A'}).`,
+              type: 'edit', projectId: populatedProjectRequestEditApproved._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject', status: 'pending', userId: user.id, 
+              recipientId: designatedApproverForEditRequest ? (designatedApproverForEditRequest._id || designatedApproverForEditRequest).toString() : null
             });
             await requestEditApprovedNotification.save();
             if (io) io.emit('notification', { ...requestEditApprovedNotification.toObject(), projectId: populatedProjectForNotification });
@@ -592,7 +619,7 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
             const requestDeleteUnapprovedNotification = new Notification({
                 message: `Có yêu cầu xóa công trình "${project.name}" (chưa duyệt) từ ${user.username} cần bạn duyệt.`,
                 type: 'delete', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-                status: 'pending', userId: user.id, recipientId: originalApproverId || project.approvedBy
+                status: 'pending', userId: user.id, recipientId: (originalApproverId || project.approvedBy) ? (originalApproverId || project.approvedBy).toString() : null
             });
             await requestDeleteUnapprovedNotification.save();
             if (io) io.emit('notification', { ...requestDeleteUnapprovedNotification.toObject(), projectId: populatedProjectForNotification });
@@ -610,7 +637,8 @@ const deleteProjectById = async (projectId, projectType, user, io) => {
             const requestDeleteApprovedNotification = new Notification({
                 message: `Có yêu cầu xóa công trình "${project.name}" từ ${user.username} cần bạn duyệt.`,
                 type: 'delete', projectId: project._id, projectModel: projectType === 'category' ? 'CategoryProject' : 'MinorRepairProject',
-                status: 'pending', userId: user.id, recipientId: originalApproverId || project.approvedBy
+            status: 'pending', userId: user.id, 
+            recipientId: (originalApproverId || project.approvedBy) ? (originalApproverId || project.approvedBy).toString() : null
             });
             await requestDeleteApprovedNotification.save();
             if (io) io.emit('notification', { ...requestDeleteApprovedNotification.toObject(), projectId: populatedProjectForNotification });

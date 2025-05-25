@@ -7,16 +7,14 @@ export const categoryFormConfig = {
       name: 'basic',
       label: 'Thông tin Cơ bản',
       fields: [
-        { name: 'name', label: 'Tên danh mục công trình', type: 'text', required: true, placeholder: 'Nhập tên công trình' },
+        { name: 'name', label: 'Tên danh mục công trình', type: 'textarea', rows: 2, required: true, placeholder: 'Nhập tên công trình', fullWidth: true },
         { name: 'projectCode', label: 'Mã công trình', type: 'text', placeholder: 'Sẽ được tạo tự động', disabled: true }, // Thêm trường projectCode, admin có thể sửa khi edit
         { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
-        { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' }, // Thêm trường isCompleted
+        { name: 'scale', label: 'Quy mô', type: 'textarea', rows: 2, required: true, placeholder: 'VD: Tuyến ống D100, Nâng cấp TBA...', fullWidth: true },
+        { name: 'location', label: 'Địa điểm Xây dựng', type: 'text', required: true, placeholder: 'Nhập địa điểm cụ thể' },
         { name: 'allocatedUnit', label: 'Đơn vị phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
         { name: 'projectType', label: 'Loại công trình', type: 'select', required: true, optionsSource: 'projectTypes' },
-        { name: 'scale', label: 'Quy mô', type: 'text', required: true, placeholder: 'VD: Tuyến ống D100, Nâng cấp TBA...' },
-        { name: 'location', label: 'Địa điểm Xây dựng', type: 'text', required: true, placeholder: 'Nhập địa điểm cụ thể' },
         { name: 'approvedBy', label: 'Người phê duyệt', type: 'select', required: true, optionsSource: 'approvers' },
-        { name: 'createdBy', label: 'Người tạo', type: 'select', required: true, optionsSource: 'users' }, // Thêm createdBy với optionsSource
       ],
     },
     {
@@ -56,13 +54,12 @@ const initialMinorRepairFormConfig = { // Đổi tên biến tạm thời
       name: 'basic',
       label: 'Thông tin Cơ bản',
       fields: [
-        { name: 'name', label: 'Tên công trình/Sự cố', type: 'text', required: true, placeholder: 'Nhập tên hoặc mô tả sự cố' },
+        { name: 'name', label: 'Tên công trình/Sự cố', type: 'textarea', rows: 2, required: true, placeholder: 'Nhập tên hoặc mô tả sự cố', fullWidth: true },
         { name: 'projectCode', label: 'Mã công trình', type: 'text', placeholder: 'Sẽ được tạo tự động', disabled: true }, // Thêm trường projectCode
         { name: 'financialYear', label: 'Năm tài chính', type: 'text', numeric: true, required: true, placeholder: 'VD: 2024' },
-        { name: 'isCompleted', label: 'Đã hoàn thành', type: 'checkbox' }, // Thêm trường isCompleted
-        { name: 'allocatedUnit', label: 'Đơn vị quản lý/phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
+        { name: 'scale', label: 'Quy mô/Hiện trạng', type: 'textarea', rows: 2, required: true, placeholder: 'Mô tả quy mô hoặc hiện trạng sự cố', fullWidth: true },
         { name: 'location', label: 'Địa điểm xảy ra sự cố', type: 'text', required: true, placeholder: 'Nhập địa điểm cụ thể' },
-        { name: 'scale', label: 'Quy mô/Hiện trạng', type: 'textarea', rows: 2, required: true, placeholder: 'Mô tả quy mô hoặc hiện trạng sự cố' },
+        { name: 'allocatedUnit', label: 'Đơn vị quản lý/phân bổ', type: 'select', required: true, optionsSource: 'allocatedUnits' },
         { name: 'reportDate', label: 'Ngày nhận thông tin/xảy ra sự cố', type: 'date', required: true },
         { name: 'approvedBy', label: 'Người phê duyệt', type: 'select', required: true, optionsSource: 'approvers' },
       ],
@@ -92,7 +89,8 @@ const initialMinorRepairFormConfig = { // Đổi tên biến tạm thời
 // Thêm trường createdBy vào tab 'basic' sau khi initialMinorRepairFormConfig đã được định nghĩa
 const updatedMinorRepairTabs = initialMinorRepairFormConfig.tabs.map(tab => {
     if (tab.name === 'basic') {
-      return { ...tab, fields: [...tab.fields, { name: 'createdBy', label: 'Người tạo', type: 'select', required: true, optionsSource: 'users' }] };
+      // Không thêm createdBy ở đây nữa vì đã xóa khỏi form
+      return { ...tab };
     }
     return tab;
 });

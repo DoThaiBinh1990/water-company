@@ -390,3 +390,8 @@ export const executeProjectCodeStandardizationAPI = async (payload) => {
   const { data } = await apiClient.post('/api/projects/standardize/execute', payload);
   return data; // { message, updatedCount }
 };
+
+export const markViewedNotificationsAsProcessedAPI = async () => {
+  const { data } = await apiClient.patch('/api/notifications/mark-viewed-as-processed');
+  return data;
+};

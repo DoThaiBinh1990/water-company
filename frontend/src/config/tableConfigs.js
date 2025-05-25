@@ -1,7 +1,7 @@
 // d:\CODE\water-company\frontend\src\config\tableConfigs.js
-import { FaUser } from 'react-icons/fa'; // Loại bỏ các icon không dùng trực tiếp ở đây
-import { getStatusDisplay, getBaseStatusInfo } from '../utils/helpers'; // Remove formatDate import
-import { formatDateToLocale } from '../utils/dateUtils'; // Import formatDateToLocale
+import { FaUser } from 'react-icons/fa';
+import { getStatusDisplay, getBaseStatusInfo } from '../utils/helpers';
+import { formatDateToLocale } from '../utils/dateUtils';
 import React from 'react'; // Import React để sử dụng JSX trong render functions
 
 // Utility function for displaying user
@@ -18,22 +18,21 @@ const commonFields = {
     field: 'name',
     width: '300px',
     minWidth: '250px',
-    sticky: '2', // Use '2' to match .sticky-col-2 in App.css
-    // 'left' is handled by .sticky-col-2 CSS using var(--sticky-col-1-width)
-    align: 'left', // Explicit align for style prop
+    sticky: '2',
+    align: 'left',
     tooltipRender: (project) => `Tên: ${project.name}\nLoại: ${project.projectType || 'N/A'}`,
   },
-  projectCode: { header: 'Mã CT', field: 'projectCode', width: '130px', minWidth: '110px', align: 'center', sticky: '3' }, // projectCode is now a direct property of commonFields
+  projectCode: { header: 'Mã CT', field: 'projectCode', width: '130px', minWidth: '110px', align: 'center', sticky: '3' },
   allocatedUnit: { header: 'Đơn vị PB', field: 'allocatedUnit', width: '160px', minWidth: '130px', align: 'center' },
   location: { header: 'Địa điểm', field: 'location', width: '220px', minWidth: '180px', align: 'left' },
-  scale: { header: 'Quy mô', field: 'scale', width: '300px', minWidth: '250px', align: 'left', className: 'align-left break-words' }, // Increased width, align left
+  scale: { header: 'Quy mô', field: 'scale', width: '300px', minWidth: '250px', align: 'left', className: 'align-left break-words' },
   supervisor: {
     header: 'Người theo dõi',
-    field: 'supervisor', // Backend nên trả về object user đã populate (với fullName) hoặc string ID
+    field: 'supervisor',
     width: '160px',
     minWidth: '120px',
+    align: 'center',
     render: (project, cellData) => {
-      // formatDateToLocale sẽ được truyền vào GenericTable và sử dụng ở đó
       const currentDisplay = getUserDisplay(cellData.displayValue);
       const isCurrentNA = currentDisplay === 'N/A';
 
@@ -60,41 +59,33 @@ const commonFields = {
       if (isCurrentNA) {
         return <span className="text-gray-400 italic text-xs">{currentDisplay}</span>;
       }
-      return currentDisplay; // Return plain if not N/A and not changed
+      return currentDisplay;
     }
   },
   leadershipApproval: { header: 'Bút phê LĐ', field: 'leadershipApproval', width: '250px', minWidth: '200px', align: 'left', className: 'align-left break-words' },
   notes: { header: 'Ghi chú', field: 'notes', width: '280px', minWidth: '220px', align: 'left', className: 'align-left break-words' },
   status: {
     header: 'Trạng thái',
-    field: 'status', // Field này sẽ được cellData.displayValue và cellData.originalValue sử dụng
+    field: 'status',
     width: '180px',
     minWidth: '150px',
     align: 'center',
     render: (project, cellData, isPendingTab) => {
-      // 1. Lấy thông tin hiển thị trạng thái tổng thể của dự án (ví dụ: "Đang YC sửa", "Chờ duyệt mới")
       const overallStatusInfo = getStatusDisplay(project, isPendingTab);
-
       const assignedTo = project.assignedTo;
       let assignedToDisplay = 'N/A';
       if (assignedTo) {
         if (typeof assignedTo === 'object' && (assignedTo.fullName || assignedTo.username)) {
           assignedToDisplay = assignedTo.fullName || assignedTo.username;
         } else if (typeof assignedTo === 'string') {
-          // GenericTable sẽ cố gắng resolve nếu usersList được truyền vào và assignedTo là ID
-          // Nếu không, nó sẽ là một chuỗi tên.
-          assignedToDisplay = assignedTo; 
+          assignedToDisplay = assignedTo;
         }
       }
 
-      // 2. Nếu trường 'status' cụ thể đang được sửa đổi trong pendingEdit
       let specificStatusChangeDisplay = null;
       if (cellData.isChanged) {
-        // cellData.displayValue là giá trị status mới được đề xuất (ví dụ: "Hoàn thành")
-        // cellData.originalValue là giá trị status cũ (ví dụ: "Đang thực hiện")
         const newStatusInfo = getBaseStatusInfo(cellData.displayValue);
         const oldStatusInfo = getBaseStatusInfo(cellData.originalValue);
-
         specificStatusChangeDisplay = (
           <div className="mt-1 text-center">
             <span className="cell-changed-value font-semibold block text-xs">
@@ -111,7 +102,6 @@ const commonFields = {
 
       return (
         <div>
-          {/* Hiển thị trạng thái tổng thể của dự án */}
           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${overallStatusInfo.colorClass} flex items-center justify-center`}>
             {overallStatusInfo.text}
             {assignedTo && !isPendingTab && project.status !== 'Chờ duyệt' && !project.pendingEdit && !project.pendingDelete && (
@@ -129,149 +119,159 @@ const commonFields = {
   approvedBy: {
     header: 'Người duyệt',
     field: 'approvedBy',
-    width: '160px',
-    minWidth: '130px',
-    align: 'center',
+    width: '200px',
+    minWidth: '180px',
+    align: 'left',
     tooltipRender: (project) => {
-      if (!project.history || project.history.length === 0) {
-        const currentApproverData = project.approvedBy;
-        const currentApproverName = (currentApproverData && typeof currentApproverData === 'object' && (currentApproverData.fullName || currentApproverData.username))
-                                    ? (currentApproverData.fullName || currentApproverData.username)
-                                    : (typeof currentApproverData === 'string' ? currentApproverData : 'N/A');
-        return `Người duyệt: ${currentApproverName}`;
-      }
-      const approvalActions = project.history.filter(h => ['approved', 'edit_approved', 'rejected', 'edit_rejected', 'delete_approved', 'delete_rejected'].includes(h.action));
-      if (approvalActions.length === 0) {
-        const currentApprover = project.approvedBy ? (project.approvedBy.fullName || project.approvedBy.username) : 'Chưa duyệt';
-        return `Người duyệt hiện tại: ${currentApprover}`;
-      }
-
-      const tooltipLines = approvalActions.map(h => {
-        const userName = (h.user && typeof h.user === 'object') ? (h.user.fullName || h.user.username) : 'N/A';
-        let actionText = h.action;
-        if (h.action === 'approved') actionText = 'Duyệt mới';
-        else if (h.action === 'edit_approved') actionText = 'Duyệt sửa';
-        else if (h.action === 'rejected') actionText = 'Từ chối mới';
-        else if (h.action === 'edit_rejected') actionText = 'Từ chối sửa';
-        else if (h.action === 'delete_approved') actionText = 'Duyệt xóa'; // Giữ nguyên
-        else if (h.action === 'delete_rejected') actionText = 'Từ chối xóa';        
-        return `${actionText} bởi ${userName} (${formatDateToLocale(h.timestamp)})`;
-      });
-      
-      const currentApprover = project.approvedBy ? (project.approvedBy.fullName || project.approvedBy.username) : 'Chưa có người duyệt';
-      tooltipLines.unshift(`Người duyệt hiện tại: ${currentApprover}`);
+      const currentApproverDisplay = project.approvedBy ? getUserDisplay(project.approvedBy) : 'Chưa có';
+      let tooltipLines = [`Người duyệt được chỉ định/gốc: ${currentApproverDisplay}`];
+      project.history?.filter(h => ['approved', 'edit_approved', 'delete_approved', 'rejected', 'edit_rejected', 'delete_rejected'].includes(h.action))
+        .forEach(h => {
+          const userName = getUserDisplay(h.user);
+          let actionText = h.action;
+          if (h.action === 'approved') actionText = 'Duyệt mới';
+          else if (h.action === 'edit_approved') actionText = 'Duyệt sửa';
+          else if (h.action === 'delete_approved') actionText = 'Duyệt xóa';
+          else if (h.action === 'rejected') actionText = 'Từ chối mới';
+          else if (h.action === 'edit_rejected') actionText = 'Từ chối sửa';
+          else if (h.action === 'delete_rejected') actionText = 'Từ chối xóa';
+          tooltipLines.push(`${actionText} bởi ${userName} (${formatDateToLocale(h.timestamp)})`);
+        });
       return tooltipLines.join('\n');
     },
-    render: (project, cellData) => { // cellData chứa isChanged, displayValue, originalValue
-      let currentDisplayValue = cellData.displayValue;
-      // Ưu tiên hiển thị người duyệt từ history nếu không có thay đổi đang chờ duyệt cho trường này
-      if (!cellData.isChanged) {
-        const lastApprovalAction = project.history?.filter(h => h.action === 'approved' || h.action === 'edit_approved').pop();
-        if (lastApprovalAction && lastApprovalAction.user) {
-          currentDisplayValue = lastApprovalAction.user; // Đây là object user đã populate
+    render: (project) => {
+      if (!project) return 'N/A';
+
+      let latestApproverName = 'N/A';
+      let latestApprovalDate = null;
+      let latestApprovalActionText = '';
+
+      let originalApproverName = null;
+      let originalApprovalDate = null;
+
+      if (project.status === 'Chờ duyệt' && project.approvedBy) {
+        latestApproverName = getUserDisplay(project.approvedBy);
+        latestApprovalActionText = '(Chờ duyệt mới)';
+      } else if (project.pendingEdit && project.approvedBy) {
+        latestApproverName = getUserDisplay(project.approvedBy);
+        latestApprovalActionText = '(Chờ duyệt sửa)';
+      } else if (project.pendingDelete && project.approvedBy) {
+        latestApproverName = getUserDisplay(project.approvedBy);
+        latestApprovalActionText = '(Chờ duyệt xóa)';
+      } else if (project.status === 'Đã duyệt' && project.history && project.history.length > 0) {
+        const approvalActions = project.history.filter(h => ['approved', 'edit_approved', 'delete_approved'].includes(h.action));
+        const latestAction = approvalActions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+        if (latestAction && latestAction.user) {
+          latestApproverName = getUserDisplay(latestAction.user);
+          latestApprovalDate = latestAction.timestamp;
+          if (latestAction.action === 'approved') latestApprovalActionText = '(Duyệt mới)';
+          else if (latestAction.action === 'edit_approved') latestApprovalActionText = '(Duyệt sửa)';
+          else if (latestAction.action === 'delete_approved') latestApprovalActionText = '(Duyệt xóa)';
+        } else if (project.approvedBy) {
+            latestApproverName = getUserDisplay(project.approvedBy);
+            latestApprovalActionText = '(Đã duyệt)';
+        }
+      } else if (project.approvedBy) {
+        latestApproverName = getUserDisplay(project.approvedBy);
+        latestApprovalActionText = '(Đã duyệt)';
+      }
+
+      const firstApprovalAction = project.history?.find(h => h.action === 'approved');
+      if (firstApprovalAction && firstApprovalAction.user) {
+        const firstApprover = getUserDisplay(firstApprovalAction.user);
+        if (latestApproverName !== firstApprover || (latestApprovalDate && firstApprovalAction.timestamp && new Date(latestApprovalDate).getTime() !== new Date(firstApprovalAction.timestamp).getTime())) {
+          originalApproverName = firstApprover;
+          originalApprovalDate = firstApprovalAction.timestamp;
         }
       }
-      // Nếu cellData.isChanged, currentDisplayValue đã là giá trị mới (ID hoặc object đã resolve)
 
-      const currentDisplay = getUserDisplay(currentDisplayValue);
+      let dateDisplay = latestApprovalDate ? ` (${formatDateToLocale(latestApprovalDate)})` : '';
+      if (latestApprovalActionText.includes('Chờ duyệt')) dateDisplay = '';
 
-      if (cellData.isChanged) {
-        const originalDisplay = getUserDisplay(cellData.originalValue);
+      const mainDisplay = `${latestApproverName} ${latestApprovalActionText}${dateDisplay}`;
+
+      if (originalApproverName) {
+        const originalDateDisplay = originalApprovalDate ? ` (${formatDateToLocale(originalApprovalDate)})` : '';
         return (
           <>
-            <span className="cell-changed-value font-semibold">{currentDisplay}</span>
-            {cellData.originalValue !== undefined && (
-              <span className="cell-changed-original-value block text-xs text-gray-500 mt-0.5 italic">
-                (Cũ: {originalDisplay})
-              </span>
-            )}
+            <span>{mainDisplay}</span>
+            <span className="block text-xs italic text-gray-500 mt-0.5">
+              (Duyệt lần đầu: {originalApproverName}{originalDateDisplay})
+            </span>
           </>
         );
       }
-      if (currentDisplay === 'N/A' && project.approvedBy) { // Fallback nếu history không có và cellData không đổi
-        return getUserDisplay(project.approvedBy);
-        }
-      return currentDisplay;
+      return mainDisplay;
     }
   },
   createdBy: {
     header: 'Người tạo/YC',
     field: 'createdBy',
-    width: '160px',
-    minWidth: '130px',
-    align: 'center',
+    width: '200px',
+    minWidth: '180px',
+    align: 'left',
     tooltipRender: (project) => {
       let tooltipLines = [];
       const creationAction = project.history?.find(h => h.action === 'created');
       if (creationAction && creationAction.user) {
-        const creator = creationAction.user;
-        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDateToLocale(creationAction.timestamp)})`);
-      } else if (project.createdBy) { 
-        const creator = project.createdBy;
-        tooltipLines.push(`Tạo bởi: ${creator.fullName || creator.username} (${formatDateToLocale(project.createdAt)})`);
-      } else if (project.createdAt && project.enteredBy) {
-        tooltipLines.push(`Người tạo: ${project.enteredBy || 'N/A'} (${formatDateToLocale(project.createdAt)})`);
+        tooltipLines.push(`Tạo bởi: ${getUserDisplay(creationAction.user)} (${formatDateToLocale(creationAction.timestamp)})`);
+      } else if (project.createdBy) {
+        tooltipLines.push(`Tạo bởi: ${getUserDisplay(project.createdBy)} (${formatDateToLocale(project.createdAt)})`);
       }
 
-      const editRequestActions = project.history?.filter(h => h.action === 'edit_requested');
-      if (editRequestActions && editRequestActions.length > 0) {
-        tooltipLines.push("--- Yêu cầu sửa ---");
-        editRequestActions.forEach(h => {
-          const requester = h.user; // Giữ nguyên
-          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDateToLocale(h.timestamp)})`); // Sửa ở đây
+      project.history?.filter(h => ['edit_requested', 'delete_requested'].includes(h.action))
+        .forEach(h => {
+          const actionText = h.action === 'edit_requested' ? 'YC sửa' : 'YC xóa';
+          tooltipLines.push(`${actionText} bởi ${getUserDisplay(h.user)} (${formatDateToLocale(h.timestamp)})`);
         });
-      }
-
-      const deleteRequestActions = project.history?.filter(h => h.action === 'delete_requested');
-      if (deleteRequestActions && deleteRequestActions.length > 0) {
-        tooltipLines.push("--- Yêu cầu xóa ---");
-        deleteRequestActions.forEach(h => {
-          const requester = h.user; // Giữ nguyên
-          tooltipLines.push(`  Bởi: ${requester.fullName || requester.username} (${formatDateToLocale(h.timestamp)})`); // Sửa ở đây
-        });
-      }
       return tooltipLines.join('\n');
     },
     render: (project) => {
-        let displayUser = 'N/A';
-        let actionText = '';
-        let originalCreatorName = project.enteredBy || 'N/A'; // Lấy người tạo gốc từ enteredBy
+      if (!project) return 'N/A';
 
-        if (project.createdBy && typeof project.createdBy === 'object') {
-            originalCreatorName = project.createdBy.fullName || project.createdBy.username || project.enteredBy || 'N/A';
-        }
+      let currentActionUserName = 'N/A';
+      let currentActionDate = null;
+      let currentActionText = '';
 
+      const originalCreatorName = getUserDisplay(project.createdBy);
+      const creationActionFromHistory = project.history?.find(h => h.action === 'created');
+      const originalCreationDate = creationActionFromHistory?.timestamp || project.createdAt;
 
-        // Ưu tiên hiển thị người yêu cầu gần nhất nếu có và project đang trong trạng thái pending
-        const lastEditRequest = project.history?.filter(h => h.action === 'edit_requested').pop();
-        const lastDeleteRequest = project.history?.filter(h => h.action === 'delete_requested').pop();
-
-        if (project.pendingEdit && lastEditRequest && lastEditRequest.user) {
-            const requester = lastEditRequest.user;
-            displayUser = requester.fullName || requester.username;
-            actionText = '(YC sửa)';
-        } else if (project.pendingDelete && lastDeleteRequest && lastDeleteRequest.user) {
-            const requester = lastDeleteRequest.user;
-            displayUser = requester.fullName || requester.username;
-            actionText = '(YC xóa)';
+      if (project.pendingEdit && project.pendingEdit.requestedBy) {
+        currentActionUserName = getUserDisplay(project.pendingEdit.requestedBy);
+        currentActionDate = project.pendingEdit.requestedAt;
+        currentActionText = '(YC sửa)';
+      } else if (project.pendingDelete) {
+        const deleteRequestAction = project.history?.filter(h => h.action === 'delete_requested').pop();
+        if (deleteRequestAction && deleteRequestAction.user) {
+          currentActionUserName = getUserDisplay(deleteRequestAction.user);
+          currentActionDate = deleteRequestAction.timestamp;
+          currentActionText = '(YC xóa)';
         } else {
-            // Hiển thị người tạo gốc từ history hoặc project.createdBy
-            const creationAction = project.history?.find(h => h.action === 'created');
-            if (creationAction && creationAction.user) {
-                const creator = creationAction.user;
-                displayUser = creator.fullName || creator.username;
-            } else if (project.createdBy && typeof project.createdBy === 'object') {
-                const creator = project.createdBy;
-                displayUser = creator.fullName || creator.username;
-            } else if (project.enteredBy) {
-                displayUser = project.enteredBy;
-            }
+            currentActionUserName = originalCreatorName;
+            currentActionText = '(YC xóa)';
         }
-        
-        if (actionText) {
-            return <span title={`Người tạo gốc: ${originalCreatorName}`}>{displayUser} {actionText}</span>;
-        }
-        return displayUser;
+      } else {
+        currentActionUserName = originalCreatorName;
+        currentActionDate = originalCreationDate;
+        currentActionText = '(Tạo)';
+      }
+
+      const mainDateDisplay = currentActionDate ? ` (${formatDateToLocale(currentActionDate)})` : '';
+      const mainDisplay = `${currentActionUserName} ${currentActionText}${mainDateDisplay}`;
+
+      if (currentActionText !== '(Tạo)' && currentActionUserName !== originalCreatorName) {
+        const originalDateDisplay = originalCreationDate ? ` (${formatDateToLocale(originalCreationDate)})` : '';
+        return (
+          <div className="flex flex-col">
+            <span>{mainDisplay}</span>
+            <span className="text-xs italic text-gray-500 mt-0.5">
+              (Tạo bởi: {originalCreatorName}{originalDateDisplay})
+            </span>
+          </div>
+        );
+      }
+      return mainDisplay;
     }
   },
   projectType: { header: 'Loại CT', field: 'projectType', width: '150px', minWidth: '120px', align: 'center' },
@@ -308,19 +308,19 @@ const commonFields = {
       if (isCurrentNA) {
         return <span className="text-gray-400 italic text-xs">{currentDisplay}</span>;
       }
-      return currentDisplay; // Return plain if not N/A and not changed
+      return currentDisplay;
     }
   },
-  startDate: { header: 'Ngày BĐ', field: 'startDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' }, // format: 'date' sẽ được GenericTable xử lý
-  completionDate: { header: 'Ngày HT', field: 'completionDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' }, // format: 'date' sẽ được GenericTable xử lý
+  startDate: { header: 'Ngày BĐ', field: 'startDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' },
+  completionDate: { header: 'Ngày HT', field: 'completionDate', width: '120px', minWidth: '100px', format: 'date', align: 'center' },
   initialValue: { header: 'Giá trị PB', field: 'initialValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
   estimatedValue: { header: 'Giá trị DT', field: 'estimatedValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
   contractValue: { header: 'Giá trị GK', field: 'contractValue', width: '160px', minWidth: '130px', format: 'currency', align: 'right' },
-  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '160px', minWidth: '130px', align: 'center' }, 
+  constructionUnit: { header: 'Đơn vị TC', field: 'constructionUnit', width: '160px', minWidth: '130px', align: 'center' },
   progress: { header: 'Tiến độ TC', field: 'progress', width: '180px', minWidth: '150px', align: 'left' },
   feasibility: { header: 'Khả năng TH', field: 'feasibility', width: '180px', minWidth: '150px', align: 'left' },
-  durationDays: { header: 'Số ngày TH', field: 'durationDays', width: '120px', minWidth: '100px', align: 'center' }, // Changed to center
-  allocationWave: { header: 'Phân bổ đợt', field: 'allocationWave', width: '160px', minWidth: '130px', align: 'center' }, // Changed to center
+  durationDays: { header: 'Số ngày TH', field: 'durationDays', width: '120px', minWidth: '100px', align: 'center' },
+  allocationWave: { header: 'Phân bổ đợt', field: 'allocationWave', width: '160px', minWidth: '130px', align: 'center' },
   reportDate: { header: 'Ngày xảy ra SC', field: 'reportDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
   inspectionDate: { header: 'Ngày kiểm tra', field: 'inspectionDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
   paymentDate: { header: 'Ngày thanh toán', field: 'paymentDate', width: '160px', minWidth: '130px', format: 'date', align: 'center' },
@@ -353,16 +353,6 @@ export const categoryProjectColumns = [
   commonFields.createdBy,
 ];
 
-// Cần thêm import formatDateToLocale vào RejectedProjectTable.js
-// và GenericTable.js để sử dụng hàm này cho các cột format: 'date'
-// GenericTable.js đã được sửa để nhận formatDateToLocale qua props
-// RejectedProjectTable.js cần import trực tiếp
-
-// File RejectedProjectTable.js cần import formatDateToLocale từ dateUtils
-// File GenericTable.js cần được truyền formatDateToLocale từ component cha (ProjectManagement.js)
-// File tableConfigs.js không cần import formatDate nữa vì logic format đã chuyển vào GenericTable.js
-
-
 export const minorRepairProjectColumns = [
   commonFields.name,
   commonFields.projectCode,
@@ -370,7 +360,7 @@ export const minorRepairProjectColumns = [
   commonFields.location,
   commonFields.scale,
   commonFields.reportDate,
-  commonFields.supervisor, // Đã được cập nhật ở commonFields
+  commonFields.supervisor,
   commonFields.inspectionDate,
   commonFields.paymentDate,
   commonFields.paymentValue,

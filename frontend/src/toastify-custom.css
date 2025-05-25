@@ -1,86 +1,97 @@
 /* d:\CODE\water-company\frontend\src\toastify-custom.css */
+
+/* Container chung của Toast */
 .Toastify__toast-container {
-  z-index: 999999 !important; /* Đảm bảo toast luôn ở trên cùng */
+  padding: 0; /* Bỏ padding mặc định nếu cần để kiểm soát hoàn toàn */
+  /* z-index đã được xử lý bằng class custom-toast-z-index trong App.js */
 }
 
+/* Tùy chỉnh chung cho tất cả các loại Toast */
 .Toastify__toast {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* Hoặc font bạn muốn */
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  padding: 10px 16px !important; /* Điều chỉnh padding */
-  min-height: auto !important; /* Cho phép toast co giãn theo nội dung */
-  font-size: 0.875rem !important; /* 14px */
+  font-family: 'Inter', sans-serif; /* Hoặc font chữ bạn đang sử dụng trong dự án */
+  border-radius: 8px; /* Bo góc mềm mại hơn */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Bóng đổ tinh tế, sâu hơn một chút */
+  padding: 14px 20px; /* Tăng nhẹ padding cho thoải mái */
+  color: #ffffff; /* Màu chữ mặc định là trắng cho dễ đọc trên nền gradient */
+  opacity: 0.95; /* Có thể thêm chút trong suốt nhẹ */
+  margin-bottom: 10px; /* Khoảng cách giữa các toast */
 }
 
-.Toastify__toast--success {
-  background-color: var(--success-bg) !important;
-  color: var(--success-text) !important;
-  border-left: 4px solid var(--success) !important;
-}
-.Toastify__toast--success .Toastify__progress-bar {
-  background: var(--success) !important;
-}
+/* Loại bỏ icon mặc định nếu bạn muốn dùng icon từ thư viện (ví dụ: react-icons) trong nội dung toast */
+/* .Toastify__toast-icon {
+  display: none;
+} */
 
-.Toastify__toast--error {
-  background-color: var(--error-bg) !important;
-  color: var(--error-text) !important;
-  border-left: 4px solid var(--error) !important;
-}
-.Toastify__toast--error .Toastify__progress-bar {
-  background: var(--error) !important;
-}
-
+/* Toast Info (Xanh dương nhạt - thông báo chung) */
 .Toastify__toast--info {
-  background-color: var(--info-bg) !important;
-  color: var(--info-text) !important;
-  border-left: 4px solid var(--primary) !important; /* Sử dụng var(--primary) cho info */
+  background: linear-gradient(135deg, #5C9DFF, #3B82F6); /* Gradient xanh dương hiện đại */
 }
-.Toastify__toast--info .Toastify__progress-bar {
-  background: var(--primary) !important;
+.Toastify__progress-bar--info {
+  background: #BBDEFB; /* Màu thanh progress nhạt hơn, tương phản tốt */
 }
 
+/* Toast Success (Xanh lá cây nhạt) */
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #4ADE80, #16A34A); /* Gradient xanh lá tươi tắn */
+}
+.Toastify__progress-bar--success {
+  background: #A7F3D0;
+}
+
+/* Toast Warning (Cam nhạt - thay cho vàng) */
 .Toastify__toast--warning {
-  background-color: var(--warning-bg) !important;
-  color: var(--warning-text) !important;
-  border-left: 4px solid var(--warning) !important;
+  background: linear-gradient(135deg, #FDBA74, #F59E0B); /* Gradient cam/vàng cam */
 }
-.Toastify__toast--warning .Toastify__progress-bar {
-  background: var(--warning) !important;
+.Toastify__progress-bar--warning {
+  background: #FEF3C7;
 }
 
+/* Toast Error (Đỏ nhạt) */
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #F87171, #DC2626); /* Gradient đỏ */
+}
+.Toastify__progress-bar--error {
+  background: #FECACA;
+}
+
+/* Tùy chỉnh icon đóng (nếu bạn muốn) */
 .Toastify__close-button {
-  color: inherit !important; /* Màu nút đóng theo màu chữ của toast */
-  opacity: 0.6 !important;
-  align-self: center !important; /* Căn giữa nút đóng theo chiều dọc */
+  color: white;
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
 }
-.Toastify__close-button:hover,
-.Toastify__close-button:focus {
-  opacity: 1 !important;
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+.Toastify__close-button > svg { /* Tăng kích thước icon đóng một chút */
+  height: 18px;
+  width: 18px;
 }
 
-/* Responsive adjustments for toast container if needed */
-@media (max-width: 600px) {
-  .Toastify__toast-container--top-right,
-  .Toastify__toast-container--bottom-right {
-    right: 10px !important;
-    width: calc(100% - 20px) !important;
-    max-width: 400px; /* Giới hạn chiều rộng tối đa trên mobile */
-  }
-   .Toastify__toast-container--top-center,
-  .Toastify__toast-container--bottom-center {
-    width: calc(100% - 20px) !important;
-    max-width: 400px;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-  }
+/* Tùy chỉnh thanh progress */
+.Toastify__progress-bar {
+  height: 3px; /* Độ dày thanh progress */
+  opacity: 0.8;
+}
+
+/* Đảm bảo z-index của toast container đủ cao - đã có trong App.js */
+/* .custom-toast-z-index {
+  z-index: 999999 !important;
+} */
+
+/* Responsive adjustments if needed */
+@media (max-width: 768px) {
   .Toastify__toast {
-    margin-bottom: 8px !important;
+    padding: 12px 16px;
+    font-size: 0.9rem; /* Giảm font size một chút trên mobile */
   }
-}
-
-/* d:\CODE\water-company\frontend\src\toastify-custom.css */
-/* ... các style hiện có của bạn ... */
-
-.Toastify__toast-container--top-right.custom-toast-z-index {
-  z-index: 9999999 !important; /* Giá trị z-index rất cao và !important */
+  .Toastify__toast-container--top-right,
+  .Toastify__toast-container--bottom-right,
+  .Toastify__toast-container--top-left,
+  .Toastify__toast-container--bottom-left {
+    /* Điều chỉnh vị trí trên mobile nếu cần, ví dụ: */
+    /* right: 10px; 
+    left: 10px;
+    width: auto; */
+  }
 }

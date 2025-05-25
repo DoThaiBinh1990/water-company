@@ -291,7 +291,11 @@ const notificationSchema = new mongoose.Schema({
   message: { type: String, required: true },
   type: { type: String, enum: ['new', 'edit', 'delete', 'new_approved', 'edit_approved', 'delete_approved', 'new_rejected', 'edit_rejected', 'delete_rejected', 'allocated', 'assigned'], required: true },
   projectId: { type: mongoose.Schema.Types.ObjectId, refPath: 'projectModel' },
-  projectModel: { type: String, required: true, enum: ['CategoryProject', 'MinorRepairProject'] },
+  projectModel: {
+    type: String,
+    enum: ['CategoryProject', 'MinorRepairProject'],
+    required: function() { return this.status === 'pending'; } // Chỉ bắt buộc khi status là 'pending'
+  },
   status: { type: String, enum: ['pending', 'processed'], default: 'pending' },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User tạo yêu cầu
   recipientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User nhận thông báo (người cần duyệt)

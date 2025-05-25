@@ -41,16 +41,62 @@ function ProjectTableActions({
   // const currentAllocateWave = allocateWaves && project._id ? allocateWaves[project._id] : ''; // Removed
   // const currentAssignPerson = assignPersons && project._id ? assignPersons[project._id] : ''; // Removed
 
+  // Helper function để kiểm tra quyền duyệt/từ chối cho yêu cầu cụ thể này
+  const canUserActOnThisRequest = (projectToCheck) => {
+    // console.log(`[PTA Debug] Checking canUserActOnThisRequest for project ID: ${projectToCheck?._id}, Name: ${projectToCheck?.name}`);
+    // console.log(`[PTA Debug] Current user ID: ${user?._id}, Username: ${user?.username}`);
+    // console.log(`[PTA Debug] Project approvedBy (raw):`, projectToCheck?.approvedBy);
+    // console.log(`[PTA Debug] Project pendingEdit.data.approvedBy (raw):`, projectToCheck?.pendingEdit?.data?.approvedBy);
+
+    // 1. Admin luôn có quyền thực hiện action nếu họ có quyền duyệt chung
+    if (user?.role === 'admin' && user?.permissions?.approve) {
+      // console.log('[PTA Debug] User is admin with approve permission. Returning true.');
+      return true;
+    }
+
+    let designatedApproverIdString = null;
+
+    // Ưu tiên người duyệt được gán cho YÊU CẦU SỬA (pendingEdit)
+    if (projectToCheck?.pendingEdit?.data?.approvedBy) {
+      const approverForEdit = projectToCheck.pendingEdit.data.approvedBy;
+      if (typeof approverForEdit === 'string') {
+        designatedApproverIdString = approverForEdit;
+      } else if (typeof approverForEdit === 'object' && approverForEdit._id) {
+        designatedApproverIdString = String(approverForEdit._id);
+      }
+    // Nếu không có YC sửa, hoặc YC sửa không có người duyệt riêng,
+    // thì kiểm tra người duyệt của YÊU CẦU TẠO MỚI hoặc YÊU CẦU XÓA
+    } else if (projectToCheck && (projectToCheck.status === 'Chờ duyệt' || projectToCheck.pendingDelete) && projectToCheck.approvedBy) {
+      const mainApprover = projectToCheck.approvedBy;
+      if (typeof mainApprover === 'string') {
+        designatedApproverIdString = mainApprover;
+      } else if (typeof mainApprover === 'object' && mainApprover._id) {
+        designatedApproverIdString = String(mainApprover._id);
+      }
+    }
+    // console.log(`[PTA Debug] Designated approver ID string (processed): ${designatedApproverIdString}`);
+
+    if (designatedApproverIdString) { // Nếu có người duyệt cụ thể được gán và đã lấy được ID dạng string
+      const canAct = String(user._id) === designatedApproverIdString;
+      // console.log(`[PTA Debug] Comparison: String(user._id) === designatedApproverIdString -> ${String(user._id)} === ${designatedApproverIdString} = ${canAct}`);
+      return canAct; // Nếu người dùng hiện tại là người được chỉ định, cho phép action (bất kể quyền approve chung)
+    }
+    // Nếu không có ai cụ thể được chỉ định, kiểm tra quyền duyệt chung của user
+    console.log(`[PTA Debug] No designated approver. Checking general approve permission: ${user?.permissions?.approve}`);
+    return !!user?.permissions?.approve; // Chỉ cho phép nếu user có quyền duyệt chung (và không có người được chỉ định)
+  };
+  const isActionAllowedForThis = canUserActOnThisRequest(project);
+  // console.log(`[PTA Debug] Final isActionAllowedForThis for project ${project?._id}: ${isActionAllowedForThis}`);
   return (
     <div className="flex justify-center items-center gap-1 flex-wrap">
-      {!isPendingTab && (
+      {!isPendingTab && !hasPendingAction && ( // Chỉ hiển thị nút Sửa/Xóa/Hoàn thành/Chuyển năm khi không có YC đang chờ
         <>
           {canEdit && (
             <div className="action-btn-wrapper" title={project.pendingEdit ? "YC sửa đang chờ" : project.pendingDelete ? "YC xóa đang chờ" : "Sửa/Xem"}>
               <button
                 onClick={() => openEditModal(project)}
-                className={`btn-icon btn-icon-teal ${isSubmitting || hasPendingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isSubmitting || hasPendingAction}
+                className={`btn-icon btn-icon-teal ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSubmitting}
               >
                 <FaEdit size={18} />
               </button>
@@ -60,8 +106,8 @@ function ProjectTableActions({
             <div className="action-btn-wrapper" title={project.pendingDelete ? "Đang chờ duyệt xóa" : "Xóa/YC Xóa"}>
               <button
                 onClick={() => deleteProject(project._id)}
-                className={`btn-icon btn-icon-red ${isSubmitting || hasPendingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isSubmitting || hasPendingAction}
+                className={`btn-icon btn-icon-red ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSubmitting}
               >
                 <FaTrash size={18} />
               </button>
@@ -69,7 +115,7 @@ function ProjectTableActions({
           )}
           {/* Nút Đánh dấu hoàn thành và Chuyển năm */}
           {/* Giả sử activeTab được truyền vào props nếu cần */}
-          {canMarkComplete && !project.isCompleted && !hasPendingAction && (!isPendingTab) && (
+          {canMarkComplete && !project.isCompleted && ( // Chỉ hiển thị khi chưa hoàn thành và không có YC đang chờ (đã check ở group ngoài)
             <div className="action-btn-wrapper" title="Đánh dấu hoàn thành">
               <button
                 onClick={() => markProjectAsCompleted(project._id)}
@@ -80,7 +126,7 @@ function ProjectTableActions({
               </button>
             </div>
           )}
-          {canMoveNextYear && !project.isCompleted && !hasPendingAction && (!isPendingTab) &&( // Chỉ cho phép chuyển năm nếu chưa hoàn thành và không ở tab pending
+          {canMoveNextYear && !project.isCompleted && ( // Chỉ hiển thị khi chưa hoàn thành và không có YC đang chờ (đã check ở group ngoài)
             <div className="action-btn-wrapper" title="Chuyển sang năm sau">
               <button
                 onClick={() => moveProjectToNextYear(project._id)}
@@ -135,52 +181,52 @@ function ProjectTableActions({
         </>
       )}
 
-      {isPendingTab && canApprove && (
+      {isPendingTab && isActionAllowedForThis && ( // Chỉ hiển thị nếu user này được phép action
         <>
           {project.status === 'Chờ duyệt' && !project.pendingEdit && !project.pendingDelete && (
             <div className="flex items-center gap-1">
               <div className="action-btn-wrapper" title="Duyệt mới">
                 <button onClick={() => approveProject(project._id)} className={`btn-icon btn-icon-green ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}>
-                  {isSubmitting ? <FaSpinner className="animate-spin" /> : <FaCheckCircle size={20} />}
+                  {isSubmitting && project._id === window.currentActionProjectId ? <FaSpinner className="animate-spin" /> : <FaCheckCircle size={20} />}
                 </button>
               </div>
               <div className="action-btn-wrapper" title="Từ chối mới">
                 <button onClick={() => rejectProject(project._id)} className={`btn-icon btn-icon-orange ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}>
-                  {isSubmitting ? <FaSpinner className="animate-spin" /> : <FaTimesCircle size={20} />}
+                  {isSubmitting && project._id === window.currentActionProjectId ? <FaSpinner className="animate-spin" /> : <FaTimesCircle size={20} />}
                 </button>
               </div>
             </div>
           )}
           {project.pendingEdit && project.status === 'Đã duyệt' && (
             <div className="flex items-center gap-1">
-              <div className="action-btn-wrapper" title="Xem YC sửa">
+              <div className="action-btn-wrapper" title="Xem chi tiết YC sửa">
                  <button onClick={() => openEditModal(project)} className={`btn-icon btn-icon-teal ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}><FaEdit size={18} /></button>
               </div>
               <div className="action-btn-wrapper" title="Duyệt YC sửa">
                 <button onClick={() => approveEditProject(project._id)} className={`btn-icon btn-icon-blue ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}>
-                  {isSubmitting ? <FaSpinner className="animate-spin" /> : <FaCheckCircle size={20} />}
+                  {isSubmitting && project._id === window.currentActionProjectId ? <FaSpinner className="animate-spin" /> : <FaCheckCircle size={20} />}
                 </button>
               </div>
               <div className="action-btn-wrapper" title="Từ chối YC sửa">
                 <button onClick={() => rejectEditProject(project._id)} className={`btn-icon btn-icon-yellow ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}>
-                  {isSubmitting ? <FaSpinner className="animate-spin" /> : <FaTimesCircle size={20} />}
+                  {isSubmitting && project._id === window.currentActionProjectId ? <FaSpinner className="animate-spin" /> : <FaTimesCircle size={20} />}
                 </button>
               </div>
             </div>
           )}
           {project.pendingDelete && project.status === 'Đã duyệt' && (
             <div className="flex items-center gap-1">
-              <div className="action-btn-wrapper" title="Xem YC xóa">
+              <div className="action-btn-wrapper" title="Xem chi tiết YC xóa">
                  <button onClick={() => openEditModal(project)} className={`btn-icon btn-icon-teal ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}><FaEdit size={18} /></button>
               </div>
               <div className="action-btn-wrapper" title="Duyệt YC xóa">
                 <button onClick={() => approveDeleteProject(project._id)} className={`btn-icon btn-icon-red ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}>
-                  {isSubmitting ? <FaSpinner className="animate-spin" /> : <FaCheckCircle size={20} />}
+                  {isSubmitting && project._id === window.currentActionProjectId ? <FaSpinner className="animate-spin" /> : <FaCheckCircle size={20} />}
                 </button>
               </div>
               <div className="action-btn-wrapper" title="Từ chối YC xóa">
                 <button onClick={() => rejectDeleteProject(project._id)} className={`btn-icon btn-icon-gray ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}>
-                  {isSubmitting ? <FaSpinner className="animate-spin" /> : <FaTimesCircle size={20} />}
+                  {isSubmitting && project._id === window.currentActionProjectId ? <FaSpinner className="animate-spin" /> : <FaTimesCircle size={20} />}
                 </button>
               </div>
             </div>

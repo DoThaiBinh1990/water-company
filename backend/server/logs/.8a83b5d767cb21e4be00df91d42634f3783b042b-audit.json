@@ -49,6 +49,11 @@
             "date": 1748106186870,
             "name": "D:\\CODE\\water-company\\backend\\server\\logs\\application-2025-05-25.log",
             "hash": "6ae357aa3977bbff813df4b91bcbc3a711f9da15ef79c36adb4abf7009fcee4e"
+        },
+        {
+            "date": 1748193271035,
+            "name": "D:\\CODE\\water-company\\backend\\server\\logs\\application-2025-05-26.log",
+            "hash": "d5cd2e8927027ce5673b109892e4a98ed52e6dc74e2aeb24626f04e047bc6718"
         }
     ],
     "hashType": "sha256"

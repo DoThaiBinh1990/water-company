@@ -92,17 +92,16 @@ function GenericFormModal({
 
   const isFieldDisabled = (field) => {
     if (isSubmitting) return true;
-    if (editProject && field.name === 'approvedBy') {
-        if (editProject.status === 'Đã duyệt' && user.role !== 'admin') {
-            return true;
-        } // Admin có thể sửa approvedBy ngay cả khi đã duyệt
-    }
+
     // Chỉ admin mới được sửa projectCode, và chỉ khi đang edit
     if (field.name === 'projectCode') {
         if (!editProject || user.role !== 'admin') { // Nếu là tạo mới, hoặc không phải admin khi edit
             return true;
         }
     }
+    // Trường 'approvedBy' sẽ không còn bị khóa đặc biệt ở đây nữa.
+    // Nó sẽ tuân theo thuộc tính 'disabled' trong formConfig (nếu có),
+    // hoặc sẽ cho phép chỉnh sửa.
     return field.disabled || false;
   };
 

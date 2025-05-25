@@ -12,48 +12,75 @@ function Header({
   setShowNotificationsModal,
   fetchNotificationsByStatus, // Đây là hàm refetch từ useQuery
   // currentNotificationTab, // Bỏ
-  // setCurrentNotificationTab, // Bỏ
   isNotificationsLoading, // Trạng thái loading từ useQuery
-  approveNewProjectAction, // Action mới
-  rejectNewProjectAction,  // Action mới
-  approveEditAction,
-  rejectEditAction,
-  approveDeleteAction,
-  rejectDeleteAction,
+  // approveNewProjectAction, // Bỏ - Action mới
+  // rejectNewProjectAction,  // Bỏ - Action mới
+  // approveEditAction, // Bỏ
+  // rejectEditAction,  // Bỏ
+  // approveDeleteAction, // Bỏ
+  // rejectDeleteAction,  // Bỏ
   isProcessingNotificationAction, // State từ App.js
-  setIsProcessingNotificationAction, // Setter từ App.js
-  handleMarkNotificationAsProcessed, // Hàm mới từ App.js
+  // setIsProcessingNotificationAction, // Bỏ - Setter từ App.js
+  // handleMarkNotificationAsProcessed, // Bỏ - Hàm mới từ App.js
   handleMarkAllAsProcessed, // Hàm mới để đánh dấu tất cả đã xử lý
   isSidebarOpen,
   setIsSidebarOpen,
 }) {
 
-  const handleActionWrapper = async (actionCallback, projectId) => {
-    if (isProcessingNotificationAction) return;
-    // setIsProcessingNotificationAction(true); // App.js sẽ tự quản lý state này dựa trên các mutation
-    try {
-      await actionCallback(projectId);
-      // Không cần gọi fetchNotificationsByStatus ở đây nữa vì App.js sẽ invalidate query
-    } catch (error) {
-      console.error("Lỗi khi thực hiện hành động thông báo từ Header:", error);
-      // Toast lỗi đã được xử lý trong mutation của App.js
-    } finally {
-      // setIsProcessingNotificationAction(false); // App.js sẽ tự quản lý
-    }
-  };
+  // const handleActionWrapper = async (actionCallback, projectId) => {
+  //   if (isProcessingNotificationAction) return;
+  //   // setIsProcessingNotificationAction(true); // App.js sẽ tự quản lý state này dựa trên các mutation
+  //   try {
+  //     await actionCallback(projectId);
+  //     // Không cần gọi fetchNotificationsByStatus ở đây nữa vì App.js sẽ invalidate query
+  //   } catch (error) {
+  //     console.error("Lỗi khi thực hiện hành động thông báo từ Header:", error);
+  //     // Toast lỗi đã được xử lý trong mutation của App.js
+  //   } finally {
+  //     // setIsProcessingNotificationAction(false); // App.js sẽ tự quản lý
+  //   }
+  // };
 
   // Tính unreadNotificationsCount dựa trên các thông báo pending mà user có thể action
   const unreadNotificationsCount = useMemo(() => {
     if (!user || !Array.isArray(notifications)) return 0;
-    // Chỉ user có quyền approve mới có "unread notifications" cần action ở đây
-    if (!user.permissions?.approve) return 0;
+    
+    let count = 0;
+    const currentUserId = user._id;
+    const relevantProcessedTypesForSender = ['new_approved', 'edit_approved', 'delete_approved', 'new_rejected', 'edit_rejected', 'delete_rejected'];
 
-    return notifications.filter(n =>
-      n.status === 'pending' &&
-      n.projectId?._id && // Phải có project ID
-      ['new', 'edit', 'delete'].includes(n.type) && // Phải là loại cần action
-      (!n.recipientId || n.recipientId?._id === user.id) // Hoặc là thông báo chung, hoặc gửi cho chính user này
-    ).length;
+    notifications.forEach(n => {      
+      // Điều kiện để một thông báo PENDING được tính là "chưa đọc" cho người DUYỆT:
+      // 1. User có quyền duyệt.
+      // 2. Thông báo có status là 'pending'.
+      // 3. Thông báo thuộc loại 'new', 'edit', hoặc 'delete'.
+      // 4. Nếu là 'edit' hoặc 'delete', phải có projectId._id. Nếu là 'new', projectId có thể chưa có.
+      // 5. User hiện tại KHÔNG PHẢI là người tạo ra thông báo này.
+      // 6. User hiện tại là người nhận trực tiếp HOẶC thông báo này là chung (không có recipientId).
+      const isActionableNewRequest = n.type === 'new';
+      const hasProjectIdForEditOrDelete = (n.type === 'edit' || n.type === 'delete') && n.projectId?._id;
+
+      // Điều kiện 1: Thông báo PENDING mà user hiện tại cần DUYỆT
+      if (user.permissions?.approve &&
+          n.status === 'pending' &&
+          (isActionableNewRequest || hasProjectIdForEditOrDelete) && // Điều kiện projectId linh hoạt
+          ['new', 'edit', 'delete'].includes(n.type) &&
+          n.userId?._id !== currentUserId && 
+          (!n.recipientId?._id || n.recipientId?._id === currentUserId)) { 
+        count++;
+      }
+      // Điều kiện 2: Thông báo PROCESSED (kết quả yêu cầu) cho người GỬI
+      // và chúng vẫn đang là 'pending' (cho đến khi người gửi mở modal xem thông báo,
+      // lúc đó markViewedAsProcessedAPI sẽ chuyển chúng thành 'processed').
+      else if (n.userId?._id === currentUserId &&
+               n.status === 'pending' && // Đếm khi còn là pending
+               relevantProcessedTypesForSender.includes(n.type) 
+               // && !n.markedAsReadBySender // Bỏ comment nếu có trường này
+               ) { 
+        count++; 
+      }
+    });
+    return count;
   }, [notifications, user]);
   
   const handleTabChange = (tab) => {
@@ -181,33 +208,61 @@ function Header({
           )}
           {!isNotificationsLoading && notifications
             // .filter(n => n.status === currentNotificationTab) // Không cần filter nữa
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .sort((a, b) => {
+              const isAPendingForCurrentUser = user?.permissions?.approve && a.status === 'pending' && ['new', 'edit', 'delete'].includes(a.type) && a.userId?._id !== user._id && (!a.recipientId?._id || a.recipientId?._id === user._id);
+              const isBPendingForCurrentUser = user?.permissions?.approve && b.status === 'pending' && ['new', 'edit', 'delete'].includes(b.type) && b.userId?._id !== user._id && (!b.recipientId?._id || b.recipientId?._id === user._id);
+
+              const isAPendingResultForSender = a.userId?._id === user._id && a.status === 'pending' && ['new_approved', 'edit_approved', 'delete_approved', 'new_rejected', 'edit_rejected', 'delete_rejected'].includes(a.type);
+              const isBPendingResultForSender = b.userId?._id === user._id && b.status === 'pending' && ['new_approved', 'edit_approved', 'delete_approved', 'new_rejected', 'edit_rejected', 'delete_rejected'].includes(b.type);
+
+              const aIsImportant = isAPendingForCurrentUser || isAPendingResultForSender;
+              const bIsImportant = isBPendingForCurrentUser || isBPendingResultForSender;
+
+              if (aIsImportant && !bIsImportant) return -1; // a lên trước
+              if (!aIsImportant && bIsImportant) return 1;  // b lên trước
+
+              // Nếu cả hai cùng quan trọng hoặc không quan trọng, sắp xếp theo thời gian
+              return new Date(b.createdAt) - new Date(a.createdAt);
+            })
             .map(notification => (
               <div
                 key={notification._id}
-                className="p-3 mb-2 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
-                onClick={() => {
-                  if (notification.status === 'pending' &&
-                      !(user?.permissions?.approve && notification.projectId?._id && ['edit', 'delete', 'new'].includes(notification.type)) &&
-                      typeof handleMarkNotificationAsProcessed === 'function' &&
-                      !isProcessingNotificationAction // Chỉ cho phép nếu không có action nào đang chạy
-                  ) {
-                    handleMarkNotificationAsProcessed(notification._id);
+                className={`p-3 mb-2 rounded-lg shadow-sm hover:shadow-md transition-shadow border 
+                  ${notification.status === 'pending' && user?.permissions?.approve && ['new', 'edit', 'delete'].includes(notification.type) && notification.userId?._id !== user._id && (!notification.recipientId?._id || notification.recipientId?._id === user._id)
+                    ? 'bg-sky-100 border-sky-300' // Cần duyệt (Đổi sang xanh da trời nhạt - sky)
+                    : (notification.status === 'pending' && notification.userId?._id === user._id && ['new_approved', 'edit_approved', 'delete_approved', 'new_rejected', 'edit_rejected', 'delete_rejected'].includes(notification.type)
+                      ? 'bg-blue-100 border-blue-300' // Kết quả YC của mình
+                      : 'bg-gray-50 border-gray-200') // Mặc định
                   }
-                }}
+                  ${notification.status === 'processed' ? 'opacity-80' : ''}
+                `}
+                // onClick={() => { // Bỏ logic onClick này
+                //   if (notification.status === 'pending' &&
+                //       !(user?.permissions?.approve && notification.projectId?._id && ['edit', 'delete', 'new'].includes(notification.type)) &&
+                //       typeof handleMarkNotificationAsProcessed === 'function' &&
+                //       !isProcessingNotificationAction // Chỉ cho phép nếu không có action nào đang chạy
+                //   ) {
+                //     handleMarkNotificationAsProcessed(notification._id);
+                //   }
+                // }}
               >
                 <p className="text-sm font-medium text-gray-800">
                   {(() => {
                     let displayMessage = notification.message;
                     if (user && notification.status === 'pending' && notification.projectId && ['new', 'edit', 'delete'].includes(notification.type)) {
                       if (notification.userId?._id === user.id && notification.recipientId !== user.id) {
+                        // User là người gửi, và không phải tự gửi cho mình duyệt
                         if (notification.type === 'new') displayMessage = `Yêu cầu tạo công trình "${notification.projectId?.name || 'mới'}" của bạn đang chờ duyệt.`;
                         else if (notification.type === 'edit') displayMessage = `Yêu cầu sửa công trình "${notification.projectId?.name || ''}" của bạn đang chờ duyệt.`;
                         else if (notification.type === 'delete') displayMessage = `Yêu cầu xóa công trình "${notification.projectId?.name || ''}" của bạn đang chờ duyệt.`;
+                      } else if (user.permissions?.approve && (notification.recipientId === user.id || !notification.recipientId)) {
+                        // User là người duyệt, message từ backend đã đúng
+                        // Hoặc user tự gửi cho mình duyệt và có quyền duyệt
+                        displayMessage = notification.message;
                       }
-                      // Trường hợp người duyệt nhận thông báo pending, notification.message từ backend đã đúng
                     }
-                    // Trường hợp thông báo processed, notification.message từ backend đã đúng
+                    // Trường hợp thông báo processed, message từ backend đã đúng (ví dụ: "Yêu cầu của bạn đã được duyệt/từ chối")
+                    // Hoặc thông báo pending mà user không phải người gửi và cũng không phải người duyệt (ví dụ: thông báo chung cho người khác)
                     return displayMessage;
                   })()}
                 </p>
@@ -218,36 +273,7 @@ function Header({
                   Người tạo YC: {notification.userId?.fullName || notification.userId?.username || 'N/A'}
                 </p>
                 {/* Điều kiện hiển thị nút Duyệt/Từ chối: User có quyền, thông báo là pending, có projectId, loại new/edit/delete VÀ thông báo đó là chung hoặc gửi cho chính user này */}
-                {notification.status === 'pending' && user?.permissions?.approve && notification.projectId?._id && ['new', 'edit', 'delete'].includes(notification.type) && (!notification.recipientId || notification.recipientId?._id === user.id) && (
-                  <div className="flex gap-2 mt-3"> {/* Giảm gap */}
-                    {/* Nút Approve */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Ngăn event click của div cha
-                        if (notification.type === 'new') handleActionWrapper(approveNewProjectAction, notification.projectId._id);
-                        else if (notification.type === 'edit') handleActionWrapper(approveEditAction, notification.projectId._id);
-                        else if (notification.type === 'delete') handleActionWrapper(approveDeleteAction, notification.projectId._id);
-                      }}
-                      className={`btn-xs btn-success flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={isProcessingNotificationAction}
-                    >
-                      <FaCheckCircle size={14} /> {isProcessingNotificationAction ? "Đang..." : "Duyệt"}
-                    </button>
-                    {/* Nút Reject */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (notification.type === 'new') handleActionWrapper(rejectNewProjectAction, notification.projectId._id);
-                        else if (notification.type === 'edit') handleActionWrapper(rejectEditAction, notification.projectId._id);
-                        else if (notification.type === 'delete') handleActionWrapper(rejectDeleteAction, notification.projectId._id);
-                      }}
-                      className={`btn-xs btn-warning flex items-center gap-1 ${isProcessingNotificationAction ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={isProcessingNotificationAction}
-                    >
-                      <FaTimesCircle size={14} /> {isProcessingNotificationAction ? "Đang..." : "Từ chối"}
-                    </button>
-                  </div>
-                )}
+                {/* Bỏ các nút hành động Duyệt/Từ chối */}
                 {/* Hiển thị trạng thái nếu là processed hoặc user không có quyền action */}
                 {notification.status === 'processed' && (
                   <p className="text-xs text-green-600 mt-1 italic">Đã xử lý</p>
