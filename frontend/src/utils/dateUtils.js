@@ -84,3 +84,27 @@ export const formatDateToLocale = (dateString) => {
     return 'N/A'; // Hoặc trả về dateString gốc: return String(dateString);
   }
 };
+
+/**
+ * Helper function to compare dates (handles strings YYYY-MM-DD and Date objects).
+ * Compares only the date part, ignoring time.
+ * @param {Date|string|null|undefined} date1 - The first date.
+ * @param {Date|string|null|undefined} date2 - The second date.
+ * @returns {boolean} True if the dates are the same day, false otherwise.
+ */
+export const areDatesEqualClientSide = (date1, date2) => {
+  if (date1 === null && date2 === null) return true;
+  if (date1 === undefined && date2 === undefined) return true;
+  if (!date1 || !date2) return false; // If one is null/undefined and other is not
+
+  const normalizeDate = (d) => {
+    if (!d) return null;
+    if (d instanceof Date) return d.toISOString().split('T')[0];
+    if (typeof d === 'string') {
+      const parsed = new Date(d); // Handles full ISO strings or YYYY-MM-DD
+      if (!isNaN(parsed.getTime())) return parsed.toISOString().split('T')[0];
+    }
+    return String(d).split('T')[0]; // Fallback for YYYY-MM-DD string
+  };
+  return normalizeDate(date1) === normalizeDate(date2);
+};

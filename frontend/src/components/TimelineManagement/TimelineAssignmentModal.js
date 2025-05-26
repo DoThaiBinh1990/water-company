@@ -282,7 +282,7 @@ const TimelineAssignmentModal = ({
         content: {
           position: 'relative', // Để inset: 'auto' hoạt động đúng
           inset: 'auto',        // Ngăn react-modal áp dụng top/left/right/bottom mặc định
-          maxWidth: '1250px',   // Giới hạn chiều rộng tối đa chung
+          maxWidth: '1350px',   // Tăng chiều rộng tối đa của modal
           maxHeight: '90vh',
           overflow: 'hidden',
           display: 'flex',
@@ -348,7 +348,7 @@ const TimelineAssignmentModal = ({
                               className={`bg-white p-4 rounded-lg shadow-md border ${snapshot.isDragging ? 'border-blue-500 shadow-xl' : 'border-gray-200'}`}
                             >
                               <div className="flex justify-between items-start mb-1"> {/* items-start để icon kéo thẳng hàng với text */}
-                                <div>
+                                <div className="min-w-0"> {/* Cho phép div này thu nhỏ trong flexbox */}
                                   <p className="text-xs text-gray-600">
                                     Thứ tự: <span className="font-semibold">{index + 1}</span>
                                   </p>
@@ -411,8 +411,8 @@ const TimelineAssignmentModal = ({
                       <th className="px-2 md:px-3 py-2 md:py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{ width: '30px' }}></th>
                       <th className="px-2 md:px-3 py-2 md:py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{ width: '50px' }}>STT PC</th>
                       <th className="px-2 md:px-3 py-2 md:py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '180px'}}>Tên CT</th>
-                      <th className="px-2 md:px-3 py-2 md:py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '120px'}}>ĐV PB</th> 
-                      <th className="px-2 md:px-3 py-2 md:py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '120px'}}>Loại</th>
+                      <th className="px-2 md:px-3 py-2 md:py-3 text-left text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '120px'}}>ĐV PB</th>
+                      <th className="px-2 md:px-3 py-2 md:py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '140px'}}>Loại</th> {/* Tăng thêm minWidth */}
                       <th className="px-2 md:px-3 py-2 md:py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '120px'}}>Ngày BĐ</th>
                       <th className="px-2 md:px-3 py-2 md:py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '80px'}}>Số ngày</th>
                       <th className="px-2 md:px-3 py-2 md:py-3 text-center text-xs font-semibold uppercase tracking-wider border-r border-blue-400" style={{minWidth: '120px'}}>Ngày KT</th>
@@ -448,7 +448,12 @@ const TimelineAssignmentModal = ({
                                   </td>
                                   <td className="px-1.5 md:px-3 py-1 md:py-2 whitespace-nowrap text-xs md:text-sm text-gray-700 border-r border-gray-300 align-middle">{assign.allocatedUnit}</td>
                                   <td className="px-1.5 md:px-3 py-1 md:py-2 border-r border-gray-300 align-middle">
-                                    <select value={assign.assignmentType} onChange={(e) => handleAssignmentChange(index, 'assignmentType', e.target.value)} className="form-select pl-1.5 md:pl-2 pr-6 md:pr-8 text-xs md:text-sm rounded-md md:rounded-lg shadow-sm border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full transition-all duration-150">
+                                    <select
+                                      value={assign.assignmentType}
+                                      onChange={(e) => handleAssignmentChange(index, 'assignmentType', e.target.value)}
+                                      className="form-select text-xs md:text-sm rounded-md md:rounded-lg shadow-sm border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full transition-all duration-150"
+                                      style={{ paddingLeft: '0.5rem', paddingRight: '2rem' }} // Điều chỉnh padding cho desktop
+                                    >
                                       <option value="auto">Tự động</option>
                                       <option value="manual">Thủ công</option>
                                     </select>

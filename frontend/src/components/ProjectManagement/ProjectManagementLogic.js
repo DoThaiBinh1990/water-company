@@ -12,6 +12,7 @@ import {
   apiClient, importProjects as importProjectsAPI,
   markProjectAsCompletedAPI, moveProjectToNextFinancialYearAPI,
 } from '../../apiService';
+import { areDatesEqualClientSide } from '../../utils/dateUtils'; // Import hàm so sánh ngày
 import { generateExcelTemplate, readExcelData } from '../../utils/excelHelper';
 
 const socket = io(apiClient.defaults.baseURL, {
@@ -299,6 +300,41 @@ const useProjectActions = (user, type, queryClient, addMessage) => {
       if (isCategory && payload.estimator === '') payload.estimator = null;
 
       return editProject ? updateProject({ projectId: editProject._id, type, data: payload }) : createProject(payload);
+    },
+    onMutate: async (projectPayload) => {
+      // Logic này chỉ chạy khi đang SỬA công trình (editProject tồn tại)
+      if (editProject) {
+        const timelineToCompare = isCategory ? editProject.profileTimeline : editProject.constructionTimeline;
+
+        if (timelineToCompare && timelineToCompare.assignmentType === 'auto') {
+          let datesChanged = false;
+          const formStartDate = projectPayload.startDate; // Đây là string 'YYYY-MM-DD' từ formData
+          const timelineStartDate = timelineToCompare.startDate; // Đây là Date object hoặc ISO string từ DB
+
+          const formCompletionDate = projectPayload.completionDate; // String 'YYYY-MM-DD'
+          const timelineCompletionDate = timelineToCompare.endDate; // Date object hoặc ISO string
+
+          const formDurationDays = projectPayload.durationDays ? parseInt(String(projectPayload.durationDays), 10) : null;
+          const timelineDurationDays = timelineToCompare.durationDays ? parseInt(String(timelineToCompare.durationDays), 10) : null;
+
+          if (!areDatesEqualClientSide(formStartDate, timelineStartDate)) {
+            datesChanged = true;
+          }
+          if (isCategory && !areDatesEqualClientSide(formCompletionDate, timelineCompletionDate)) {
+            datesChanged = true;
+          }
+          if (formDurationDays !== timelineDurationDays) {
+            datesChanged = true;
+          }
+
+          if (datesChanged) {
+            // Gán cờ vào projectPayload để nó được gửi đi trong mutationFn
+            // Lưu ý: projectPayload ở đây là bản sao, không phải formData gốc
+            projectPayload.forceManualTimeline = true;
+          }
+        }
+      }
+      // Không cần return gì từ onMutate nếu không dùng cho optimistic updates
     },
     onSuccess: (data) => {
       let successMessage = data.message || (editProject ? 'Đã cập nhật công trình!' : 'Đã đăng ký công trình!');

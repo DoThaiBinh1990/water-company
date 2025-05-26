@@ -1,7 +1,7 @@
 // d:\CODE\water-company\backend\server\services\project.core.service.js
 const mongoose = require('mongoose');
-const { CategoryProject, MinorRepairProject, User, SerialCounter, Notification } = require('../models');
-const { populateProjectFields, updateSerialNumbers, areDatesEqual } = require('../utils');
+const { CategoryProject, MinorRepairProject, User, SerialCounter, Notification, Holiday } = require('../models'); // Thêm Holiday
+const { populateProjectFields, updateSerialNumbers, areDatesEqual } = require('../utils'); // areDatesEqual từ backend utils
 const logger = require('../config/logger'); // Import logger
 const Joi = require('joi');
 const { generateProjectCode } = require('./helpers/projectCodeHelper'); // Import helper tạo mã CT
@@ -256,7 +256,8 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
   const Model = projectType === 'category' ? CategoryProject : MinorRepairProject;
   const project = await Model.findById(projectId);
 
-  if (!project) {
+  // Populate timeline fields before further processing
+  if (!project) { // Check project existence first
     throw { statusCode: 404, message: 'Không tìm thấy công trình' };
   }
 
@@ -269,7 +270,10 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
   const isUserAdmin = user.role === 'admin';
   const isCreator = project.createdBy.toString() === user.id.toString();
 
-  const currentUpdateData = { ...updateData };
+  // Tách forceManualTimeline ra khỏi updateData, phần còn lại là actualUpdateData
+  const { forceManualTimeline, ...actualUpdateData } = updateData;
+  const currentUpdateData = { ...actualUpdateData }; // Sử dụng actualUpdateData để cập nhật
+
   const forbiddenFields = ['createdBy', 'enteredBy', 'categorySerialNumber', 'minorRepairSerialNumber', 'status', 'pendingEdit', 'pendingDelete', 'history'];
 
   if (!isUserAdmin) {
@@ -346,21 +350,65 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
     }
   });
 
-  // Nếu là CategoryProject và các trường ngày tháng hồ sơ ở gốc được cập nhật
-  // thì cập nhật profileTimeline và set assignmentType = 'manual'
-  if (projectType === 'category' && (currentUpdateData.hasOwnProperty('startDate') || currentUpdateData.hasOwnProperty('completionDate') || currentUpdateData.hasOwnProperty('durationDays'))) {
-    const newProfileTimelineData = {
-      startDate: currentUpdateData.startDate !== undefined ? currentUpdateData.startDate : project.startDate,
-      endDate: currentUpdateData.completionDate !== undefined ? currentUpdateData.completionDate : project.completionDate,
-      durationDays: currentUpdateData.durationDays !== undefined ? (parseInt(String(currentUpdateData.durationDays), 10) || null) : project.durationDays,
-      assignmentType: 'manual',
-      estimator: currentUpdateData.estimator !== undefined ? currentUpdateData.estimator : project.estimator, // Cập nhật estimator nếu có
-      // Giữ lại các trường khác của profileTimeline nếu có
-      ...(project.profileTimeline || {}),
-    };
-    // Ghi đè các trường đã cập nhật
-    Object.assign(newProfileTimelineData, { startDate: newProfileTimelineData.startDate, endDate: newProfileTimelineData.endDate, durationDays: newProfileTimelineData.durationDays, assignmentType: 'manual', estimator: newProfileTimelineData.estimator });
-    currentUpdateData.profileTimeline = newProfileTimelineData;
+  // Xử lý cập nhật timeline dựa trên forceManualTimeline và assignmentType hiện tại
+  if (projectType === 'category') {
+    let profileTimelineUpdates = {};
+    let shouldUpdateProfileTimeline = false;
+    const pt = project.profileTimeline || {}; // Lấy profileTimeline hoặc object rỗng nếu chưa có
+
+    if (forceManualTimeline && pt.assignmentType === 'auto') {
+      profileTimelineUpdates.assignmentType = 'manual';
+      if (currentUpdateData.hasOwnProperty('startDate')) profileTimelineUpdates.startDate = currentUpdateData.startDate ? new Date(currentUpdateData.startDate) : null;
+      if (currentUpdateData.hasOwnProperty('durationDays')) profileTimelineUpdates.durationDays = currentUpdateData.durationDays ? parseInt(String(currentUpdateData.durationDays), 10) : null;
+      if (currentUpdateData.hasOwnProperty('completionDate')) profileTimelineUpdates.endDate = currentUpdateData.completionDate ? new Date(currentUpdateData.completionDate) : null; // Form dùng completionDate
+      if (currentUpdateData.hasOwnProperty('estimator')) profileTimelineUpdates.estimator = currentUpdateData.estimator; // Đã resolve ở trên
+      profileTimelineUpdates.assignedBy = user.id;
+      shouldUpdateProfileTimeline = true;
+    } else if (pt.assignmentType === 'manual') {
+      // Nếu đã là manual, cho phép cập nhật từ form nếu có
+      if (currentUpdateData.hasOwnProperty('startDate')) { profileTimelineUpdates.startDate = currentUpdateData.startDate ? new Date(currentUpdateData.startDate) : null; shouldUpdateProfileTimeline = true; }
+      if (currentUpdateData.hasOwnProperty('durationDays')) { profileTimelineUpdates.durationDays = currentUpdateData.durationDays ? parseInt(String(currentUpdateData.durationDays), 10) : null; shouldUpdateProfileTimeline = true; }
+      if (currentUpdateData.hasOwnProperty('completionDate')) { profileTimelineUpdates.endDate = currentUpdateData.completionDate ? new Date(currentUpdateData.completionDate) : null; shouldUpdateProfileTimeline = true; }
+      if (currentUpdateData.hasOwnProperty('estimator')) { profileTimelineUpdates.estimator = currentUpdateData.estimator; shouldUpdateProfileTimeline = true; }
+      if (shouldUpdateProfileTimeline) profileTimelineUpdates.assignedBy = user.id;
+    } else { // assignmentType là 'auto' và không có forceManualTimeline
+      // Chỉ cập nhật estimator nếu nó thay đổi trên form
+      if (currentUpdateData.hasOwnProperty('estimator') &&
+          ((pt.estimator && currentUpdateData.estimator?.toString() !== pt.estimator.toString()) || (!pt.estimator && currentUpdateData.estimator))) {
+        profileTimelineUpdates.estimator = currentUpdateData.estimator;
+        profileTimelineUpdates.assignedBy = user.id;
+        shouldUpdateProfileTimeline = true;
+      }
+    }
+
+    // Tính lại endDate cho profileTimeline nếu cần (khi là manual và startDate/durationDays thay đổi)
+    const isNowManualForProfile = profileTimelineUpdates.assignmentType === 'manual' || (pt.assignmentType === 'manual' && !profileTimelineUpdates.hasOwnProperty('assignmentType'));
+    if (shouldUpdateProfileTimeline && isNowManualForProfile) {
+      const newStartDate = profileTimelineUpdates.startDate !== undefined ? profileTimelineUpdates.startDate : pt.startDate;
+      const newDuration = profileTimelineUpdates.durationDays !== undefined ? profileTimelineUpdates.durationDays : pt.durationDays;
+      const newEndDateFromForm = profileTimelineUpdates.endDate; // Đã lấy từ completionDate
+
+      if (newStartDate && newDuration > 0 && newEndDateFromForm === undefined) { // Chỉ tính nếu endDate không được set trực tiếp từ form
+        const holidayDoc = await Holiday.findOne({ year: project.financialYear });
+        const holidaysList = holidayDoc?.holidays?.map(h => new Date(h.date).toISOString().split('T')[0]) || [];
+        const excludeHolidays = currentUpdateData.hasOwnProperty('excludeHolidays') ? currentUpdateData.excludeHolidays : (pt.excludeHolidays ?? true);
+        if (currentUpdateData.hasOwnProperty('excludeHolidays')) profileTimelineUpdates.excludeHolidays = excludeHolidays;
+
+        profileTimelineUpdates.endDate = calculateEndDate(new Date(newStartDate), newDuration, excludeHolidays, holidaysList);
+      } else if (newStartDate && !newDuration && newEndDateFromForm === undefined) {
+        profileTimelineUpdates.endDate = null;
+      }
+    }
+
+    if (shouldUpdateProfileTimeline) {
+      // Gộp các thay đổi vào project.profileTimeline
+      project.profileTimeline = { ...(project.profileTimeline || {}), ...profileTimelineUpdates };
+      // Đồng bộ ngược các trường chính của project từ profileTimeline
+      if (project.profileTimeline.startDate) project.startDate = project.profileTimeline.startDate;
+      if (project.profileTimeline.endDate) project.completionDate = project.profileTimeline.endDate;
+      if (project.profileTimeline.durationDays) project.durationDays = project.profileTimeline.durationDays;
+      if (project.profileTimeline.estimator) project.estimator = project.profileTimeline.estimator;
+    }
   }
 
   // Xử lý sửa projectCode bởi Admin
@@ -385,7 +433,7 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
 
   if (isUserAdmin) {
     const originalStatus = project.status;
-    Object.assign(project, currentUpdateData);
+    // Object.assign(project, currentUpdateData); // Không dùng Object.assign nữa, gán từng trường ở dưới
     let action = 'edited';
     let notificationMessage = `Công trình "${project.name}" đã được cập nhật bởi quản trị viên ${user.username}.`;
     let notifyUserTarget = project.createdBy;
@@ -408,6 +456,26 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
       notifyUserTarget = project.approvedBy;
     }
 
+    // Gán các trường từ currentUpdateData vào project, trừ các trường đã xử lý (timeline, projectCode)
+    for (const key in currentUpdateData) {
+        if (!key.startsWith('profileTimeline.') && !key.startsWith('constructionTimeline.') && key !== 'projectCode') {
+            // Đối với các trường ngày tháng chính của project, nếu timeline là 'auto' và không forceManual,
+            // thì không cho form ghi đè (trừ estimator/supervisor).
+            const isMainDateFieldForProfile = ['startDate', 'completionDate', 'durationDays', 'estimator'].includes(key);
+            let allowMainFieldUpdate = true;
+
+            if (isMainDateFieldForProfile && projectType === 'category' && project.profileTimeline?.assignmentType === 'auto' && !forceManualTimeline) {
+                if (key !== 'estimator') { // Estimator vẫn cho phép cập nhật
+                    allowMainFieldUpdate = false;
+                }
+            }
+            // Tương tự cho constructionTimeline nếu có
+
+            if (allowMainFieldUpdate) {
+                project[key] = currentUpdateData[key];
+            }
+        }
+    }
     project.pendingEdit = null;
     project.history.push({ action, user: user.id, timestamp: new Date(), details: { changes: project.pendingEdit?.changes || 'Admin direct edit' } });
     await project.save({ validateModifiedOnly: true });
@@ -432,7 +500,26 @@ const updateProjectById = async (projectId, projectType, updateData, user, io) =
 
     if (project.status !== 'Đã duyệt') {
       if (canEditDirectlyUnapproved) {
-        Object.assign(project, currentUpdateData);
+        // Object.assign(project, currentUpdateData); // Không dùng Object.assign
+        for (const key in currentUpdateData) {
+            if (!key.startsWith('profileTimeline.') && !key.startsWith('constructionTimeline.') && key !== 'projectCode') {
+                const isMainDateFieldForProfile = ['startDate', 'completionDate', 'durationDays', 'estimator'].includes(key);
+                let allowMainFieldUpdate = true;
+
+                if (isMainDateFieldForProfile && projectType === 'category' && project.profileTimeline?.assignmentType === 'auto' && !forceManualTimeline) {
+                    if (key !== 'estimator') {
+                        allowMainFieldUpdate = false;
+                    }
+                }
+                // Tương tự cho constructionTimeline
+
+                if (allowMainFieldUpdate) {
+                    project[key] = currentUpdateData[key];
+                }
+            }
+        }
+
+
         project.history.push({ action: 'edited', user: user.id, timestamp: new Date(), details: { note: 'User edit while pending approval' } });
         await project.save({ validateModifiedOnly: true });
         const populatedProjectDirectEdit = await populateProjectFields(project);
