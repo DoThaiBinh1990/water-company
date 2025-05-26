@@ -4,6 +4,7 @@ import { Gantt, ViewMode } from 'gantt-task-react'; // Task, EventOption, Stylin
 import "gantt-task-react/dist/index.css";
 import { formatDateToLocale, calculateEndDateClientSide } from '../../utils/dateUtils'; // Thêm calculateEndDateClientSide
 import { useMediaQuery } from '../../hooks/useMediaQuery'; // Import hook
+import { toast } from 'react-toastify'; // Import toast
 import ActualProgressModal from './ActualProgressModal'; // Import modal mới
 import logger from '../../utils/logger'; // Import logger
 
@@ -16,6 +17,7 @@ const TimelineGanttChart = ({
   timelineType, 
   holidays = [], // Danh sách ngày nghỉ cho tính toán endDate
   isUpdatingTimelineTask = false, // Thêm prop này với giá trị mặc định
+  user, // Thêm user prop
   onSaveActualProgress, // Hàm callback để lưu thông tin thực tế
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -28,17 +30,21 @@ const TimelineGanttChart = ({
   
   // Điều chỉnh columnWidth và listCellWidth cho phù hợp hơn với các viewMode
   // listCellWidthValue là tổng chiều rộng của phần danh sách task bên trái (Tên CT, Bắt đầu, Kết thúc)
-  let columnWidthValue;
-  let listCellWidthValue = isMobile ? "200px" : "380px"; // Tăng chiều rộng để chứa 3 cột và tên dài hơn
+  let columnWidthValue; 
+  // Trên mobile, chỉ hiển thị tên task, nên listCellWidth có thể nhỏ hơn.
+  // Trên desktop, giữ nguyên hoặc tăng để chứa 3 cột (Tên, BĐ, KT).
+  // Sửa: Nếu là mobile, ẩn hoàn toàn task list bằng cách đặt width là ""
+  let listCellWidthValue = isMobile ? "" : "380px"; 
 
   if (currentViewMode === ViewMode.Month) {
     columnWidthValue = 150; 
-    listCellWidthValue = isMobile ? "180px" : "350px"; 
+    // Giữ listCellWidthValue đã set ở trên, không cần thay đổi theo viewMode nữa nếu cấu trúc cột cố định
   } else if (currentViewMode === ViewMode.Week) {
     columnWidthValue = 120; // Tăng một chút cho view tuần
   } else { // Day, QuarterDay, HalfDay
     columnWidthValue = 80;  // Rộng hơn một chút cho view ngày để dễ đọc hơn
   }
+
 
   const formattedTasks = useMemo(() => {
     logger.debug('[TimelineGanttChart] useMemo formattedTasks triggered. Input tasks:', JSON.stringify(inputTasks, null, 2));
@@ -180,23 +186,66 @@ const TimelineGanttChart = ({
 
   const handleDblClick = (task) => {
     logger.debug("Task double clicked:", task);
-    // Mở modal cập nhật tiến độ thực tế khi double click
-    if (task._originalTask?.project && onSaveActualProgress) { // Đảm bảo có project và hàm lưu
-      setSelectedTaskForActualProgress(task._originalTask.project); // task._originalTask.project là project gốc
-      setShowActualProgressModal(true);
+    const projectData = task._originalTask?.project;
+
+    if (projectData && onSaveActualProgress) {
+      let canUpdate = false;
+      if (user?.role === 'admin' || user?.permissions?.approve) { // Thêm điều kiện user.permissions.approve
+        canUpdate = true;
+      } else if (user) {
+        if (timelineType === 'profile') {
+          const estimatorId = projectData.profileTimeline?.estimator?._id || projectData.profileTimeline?.estimator;
+          if (estimatorId && String(estimatorId) === String(user._id)) {
+            canUpdate = true;
+          }
+        } else if (timelineType === 'construction') {
+          const supervisorInTimelineId = projectData.constructionTimeline?.supervisor?._id || projectData.constructionTimeline?.supervisor;
+          if (supervisorInTimelineId && String(supervisorInTimelineId) === String(user._id)) {
+            canUpdate = true;
+          }
+        }
+      }
+
+      if (canUpdate) {
+        setSelectedTaskForActualProgress(projectData);
+        setShowActualProgressModal(true);
+      } else {
+        toast.warn('Bạn không có quyền cập nhật tiến độ cho công trình này.', { position: "top-center" });
+      }
     }
   };
 
   const handleClick = (task) => {
     logger.debug("Task clicked:", task);
-    if (onTaskClick && task._originalTask) {
-      onTaskClick(task._originalTask);
-    } else if (task._originalTask?.project && onSaveActualProgress && isMobile) {
-      // Trên mobile, mở modal khi click (vì double click có thể khó)
-      setSelectedTaskForActualProgress(task._originalTask.project);
-      setShowActualProgressModal(true);
-    }
+    const projectData = task._originalTask?.project;
 
+    if (isMobile && projectData && onSaveActualProgress) {
+      let canUpdate = false;
+      if (user?.role === 'admin' || user?.permissions?.approve) { // Thêm điều kiện user.permissions.approve
+        canUpdate = true;
+      } else if (user) {
+        if (timelineType === 'profile') {
+          const estimatorId = projectData.profileTimeline?.estimator?._id || projectData.profileTimeline?.estimator;
+          if (estimatorId && String(estimatorId) === String(user._id)) {
+            canUpdate = true;
+          }
+        } else if (timelineType === 'construction') {
+          const supervisorInTimelineId = projectData.constructionTimeline?.supervisor?._id || projectData.constructionTimeline?.supervisor;
+          if (supervisorInTimelineId && String(supervisorInTimelineId) === String(user._id)) {
+            canUpdate = true;
+          }
+        }
+      }
+
+      if (canUpdate) {
+        setSelectedTaskForActualProgress(projectData);
+        setShowActualProgressModal(true);
+      } else {
+        toast.warn('Bạn không có quyền cập nhật tiến độ cho công trình này.', { position: "top-center" });
+      }
+    } else if (onTaskClick && task._originalTask) { // Logic cũ cho desktop click (nếu có và không phải mobile)
+      onTaskClick(task._originalTask); 
+    }
   };
 
   // Tooltip content
@@ -212,7 +261,7 @@ const TimelineGanttChart = ({
     // Dữ liệu công trình thực sự nằm trong task._originalTask.project
     const actualProjectData = task._originalTask?.project;
 
-    if (typeof actualProjectData !== 'object' || actualProjectData === null) {
+    if (!actualProjectData || typeof actualProjectData !== 'object') {
       const taskName = task.name || 'Không xác định';
       // Log cả ganttEventData để xem toàn bộ cấu trúc nếu cần
       logger.warn(`[TooltipContent] Missing _originalTask for task: ${taskName} (ID: ${task.id}). Gantt Event Data:`, JSON.stringify(ganttEventData, null, 2));
@@ -237,11 +286,11 @@ const TimelineGanttChart = ({
 
 
     let detailsHtml = `
-      <div style="padding: 10px; font-size: 12px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); max-width: 360px; line-height: 1.5;">
-        <h5 style="font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #1d4ed8; word-break: break-word;">${task.name || 'N/A'}</h5>
+      <div style="padding: ${isMobile ? '8px' : '10px'}; font-size: ${isMobile ? '11px' : '12px'}; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); max-width: ${isMobile ? '260px' : '360px'}; line-height: 1.4;">
+        <h5 style="font-size: ${isMobile ? '13px' : '14px'}; font-weight: bold; margin-bottom: ${isMobile ? '6px' : '8px'}; color: #1d4ed8; word-break: break-word;">${task.name || 'N/A'}</h5>
         
-        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; color: #374151; margin-bottom: 6px;">
-          <p><strong>Mã CT:</strong></p><span style="word-break: break-all;">${getFieldValue(actualProjectData, 'projectCode')}</span>
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: ${isMobile ? '3px 8px' : '4px 10px'}; color: #374151; margin-bottom: ${isMobile ? '4px' : '6px'};">
+          <p style="font-weight: 600;">Mã CT:</p><span style="word-break: break-all;">${getFieldValue(actualProjectData, 'projectCode')}</span>
           <p><strong>Năm TC:</strong></p><span>${getFieldValue(actualProjectData, 'financialYear')}</span>
           <p><strong>Quy mô:</strong></p><span style="word-break: break-word;">${getFieldValue(actualProjectData, 'scale')}</span>
           <p><strong>Đơn vị PB:</strong></p><span style="word-break: break-word;">${getFieldValue(actualProjectData, 'allocatedUnit')}</span>
@@ -252,8 +301,8 @@ const TimelineGanttChart = ({
         </div>
 
         <hr style="margin: 8px 0; border-color: #e0e0e0;">
-        <h6 style="font-size: 11px; font-weight: 600; color: #4b5563; margin-bottom: 5px;">KẾ HOẠCH:</h6>
-        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; color: #374151; margin-bottom: 6px;">
+        <h6 style="font-size: ${isMobile ? '10px' : '11px'}; font-weight: 600; color: #4b5563; margin-bottom: ${isMobile ? '4px' : '5px'};">KẾ HOẠCH:</h6>
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: ${isMobile ? '3px 8px' : '4px 10px'}; color: #374151; margin-bottom: ${isMobile ? '4px' : '6px'};">
           <p><strong>Bắt đầu:</strong></p><span>${formatDateToLocale(task.start)}</span>
           <p><strong>Kết thúc:</strong></p><span>${formatDateToLocale(task.end)}</span>          
           <p><strong>Số ngày:</strong></p><span>${getFieldValue(currentTimelineInfo, 'durationDays', '')}</span>
@@ -280,15 +329,15 @@ const TimelineGanttChart = ({
 
     detailsHtml += `
         </div>
-        <hr style="margin: 8px 0; border-color: #e0e0e0;">
-        <h6 style="font-size: 11px; font-weight: 600; color: #4b5563; margin-bottom: 5px;">THỰC TẾ:</h6>
-        <div style="display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; color: #374151; margin-bottom: 6px;">
+        <hr style="margin: ${isMobile ? '6px 0' : '8px 0'}; border-color: #e0e0e0;">
+        <h6 style="font-size: ${isMobile ? '10px' : '11px'}; font-weight: 600; color: #4b5563; margin-bottom: ${isMobile ? '4px' : '5px'};">THỰC TẾ:</h6>
+        <div style="display: grid; grid-template-columns: max-content 1fr; gap: ${isMobile ? '3px 8px' : '4px 10px'}; color: #374151; margin-bottom: ${isMobile ? '4px' : '6px'};">
           <p><strong>Tiến độ:</strong></p><span style="font-weight: 600; color: #1d4ed8;">${task.progress || 0}%</span>          
           <p><strong>BĐ (TT):</strong></p><span>${formatDateToLocale(getFieldValue(currentTimelineInfo, 'actualStartDate', null))}</span>
           <p><strong>KT (TT):</strong></p><span>${formatDateToLocale(getFieldValue(currentTimelineInfo, 'actualEndDate', null))}</span>
         </div>
-        <p style="color: #374151; margin-top: 4px; word-break: break-word; font-size: 11px;"><strong>Ghi chú TT:</strong> ${getFieldValue(currentTimelineInfo, 'statusNotes', '')}</p>
-        <p style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e0e0e0; color: #4b5563; font-size: 11px;"><strong>Người PC:</strong> ${assignedByName}</p>
+        <p style="color: #374151; margin-top: ${isMobile ? '3px' : '4px'}; word-break: break-word; font-size: ${isMobile ? '10px' : '11px'};"><strong>Ghi chú TT:</strong> ${getFieldValue(currentTimelineInfo, 'statusNotes', '')}</p>
+        <p style="margin-top: ${isMobile ? '6px' : '8px'}; padding-top: ${isMobile ? '4px' : '6px'}; border-top: 1px solid #e0e0e0; color: #4b5563; font-size: ${isMobile ? '10px' : '11px'};"><strong>Người PC:</strong> ${assignedByName}</p>
       </div>
     `;
     // Trả về một React element có thể render chuỗi HTML
@@ -302,10 +351,13 @@ const TimelineGanttChart = ({
         className="gantt-table-header bg-gray-100 border-b border-gray-300 flex items-center" // Giữ flex items-center để căn giữa theo chiều dọc
         style={{ height: headerHeight -1, fontFamily: fontFamily, fontSize: fontSize }} // -1 để border dưới không bị cắt
       >
-        {/* Chiều rộng của cột Tên công trình sẽ là rowWidth (listCellWidthValue) trừ đi chiều rộng của 2 cột ngày */}
-        <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-left p-2 border-r border-gray-300" style={{ width: `calc(${rowWidth} - 170px)`, boxSizing: 'border-box', paddingLeft: '0.75rem' }}>Tên công trình</div>
-        <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-center p-2 border-r border-gray-300" style={{ width: '85px', boxSizing: 'border-box' }}>Bắt đầu</div>
-        <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-center p-2" style={{ width: '85px', boxSizing: 'border-box' }}>Kết thúc</div>
+        {!isMobile && ( // Chỉ render header cho desktop
+          <>
+            <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-left p-2 border-r border-gray-300" style={{ width: `calc(${rowWidth} - 170px)`, boxSizing: 'border-box', paddingLeft: '0.75rem' }}>Tên công trình</div>
+            <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-center p-2 border-r border-gray-300" style={{ width: '85px', boxSizing: 'border-box' }}>Bắt đầu</div>
+            <div className="gantt-table-header-item text-sm font-semibold text-gray-700 text-center p-2" style={{ width: '85px', boxSizing: 'border-box' }}>Kết thúc</div>
+          </>
+        )}
       </div>
     );
   };
@@ -320,29 +372,13 @@ const TimelineGanttChart = ({
           key={t.id}
           // title={t.name} // Bỏ title ở đây vì ô tên đã có title riêng
         >
-          <div 
-            className="gantt-table-row-item text-sm text-gray-800 pl-2 pr-1 py-1 border-r border-gray-200" 
-            style={{ 
-              width: `calc(${rowWidth} - 170px)`, // Chiều rộng cột tên
-              boxSizing: 'border-box', 
-              lineHeight: '1.4', 
-              display: '-webkit-box',
-              WebkitLineClamp: isMobile ? 2 : 3, // Giới hạn 2 dòng trên mobile, 3 dòng trên desktop
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              wordBreak: 'break-word',
-            }}
-            title={t.name} // Tooltip cho tên công trình khi bị cắt ngắn
-          >
-            {t.name}
-          </div>
-          <div className="gantt-table-row-item text-sm text-gray-700 text-center px-1 py-1 border-r border-gray-200" style={{ width: '85px', boxSizing: 'border-box' }}>
-            {formatDateToLocale(t.start)}
-          </div>
-          <div className="gantt-table-row-item text-sm text-gray-700 text-center px-1 py-1" style={{ width: '85px', boxSizing: 'border-box' }}>
-            {formatDateToLocale(t.end)}
-          </div>
+          {!isMobile && ( // Chỉ render nội dung task list cho desktop
+            <>
+              <div className="gantt-table-row-item text-sm text-gray-800 pl-2 pr-1 py-1 border-r border-gray-200" style={{ width: `calc(${rowWidth} - 170px)`, boxSizing: 'border-box', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', wordBreak: 'break-word' }} title={t.name} > {t.name} </div>
+              <div className="gantt-table-row-item text-sm text-gray-700 text-center px-1 py-1 border-r border-gray-200" style={{ width: '85px', boxSizing: 'border-box' }}> {formatDateToLocale(t.start)} </div>
+              <div className="gantt-table-row-item text-sm text-gray-700 text-center px-1 py-1" style={{ width: '85px', boxSizing: 'border-box' }}> {formatDateToLocale(t.end)} </div>
+            </>
+          )}
         </div>
       ))
     );

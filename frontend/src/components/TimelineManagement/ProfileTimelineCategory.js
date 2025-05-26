@@ -153,6 +153,7 @@ const ProfileTimelineCategory = ({ user, addMessage }) => {
             timelineType="profile" // Truyền timelineType xuống
             holidays={holidaysForModal} // Pass holidays
             isUpdatingTimelineTask={isUpdatingTimelineTask}
+            user={user} // Truyền user xuống
             onSaveActualProgress={handleSaveActualProgress} // Truyền prop xuống GanttChart
           />
         </div>

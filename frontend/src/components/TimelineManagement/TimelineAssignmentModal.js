@@ -55,6 +55,7 @@ const TimelineAssignmentModal = ({
         return {
           projectId: p._id,
           projectName: p.name,
+          projectCode: p.projectCode, // Đã thêm projectCode
           allocatedUnit: p.allocatedUnit || 'N/A',
           // Lấy số thứ tự gốc của công trình
           originalSerialNumber: p.categorySerialNumber || p.minorRepairSerialNumber || null,
@@ -101,10 +102,10 @@ const TimelineAssignmentModal = ({
         }
 
         if (currentTaskStartDate) {
-          let tempStartDate = new Date(currentTaskStartDate);
+          let tempStartDate = new Date(currentTaskStartDate); // Tạo bản sao để không thay đổi currentTaskStartDate gốc
           if (newAssign.excludeHolidays) {
-            while (currentTaskStartDate.getDay() === 0 || currentTaskStartDate.getDay() === 6 || holidays.includes(currentTaskStartDate.toISOString().split('T')[0])) {
-                currentTaskStartDate.setDate(currentTaskStartDate.getDate() + 1);
+            while (tempStartDate.getDay() === 0 || tempStartDate.getDay() === 6 || holidays.includes(tempStartDate.toISOString().split('T')[0])) {
+                tempStartDate.setDate(tempStartDate.getDate() + 1);
             }
           }
           newAssign.startDate = tempStartDate.toISOString().split('T')[0];
@@ -167,26 +168,24 @@ const TimelineAssignmentModal = ({
     const assignmentAtIndex = newAssignments[index];
     const oldAssignmentType = assignmentAtIndex.assignmentType;
 
+    // Gán giá trị mới cho trường đang thay đổi
     assignmentAtIndex[field] = value;
 
-    // Nếu thay đổi assignmentType từ manual sang auto, xóa ngày để tính lại
-    if (field === 'assignmentType' && oldAssignmentType === 'manual' && value === 'auto') {
+    // Xử lý logic chuyển đổi assignmentType và reset ngày
+    if (field === 'assignmentType') {
+      if (oldAssignmentType === 'manual' && value === 'auto') {
+        // Chuyển từ manual sang auto: reset ngày để useEffect tính lại
         assignmentAtIndex.startDate = '';
         assignmentAtIndex.endDate = '';
         // durationDays có thể giữ lại hoặc xóa tùy yêu cầu. Hiện tại giữ lại.
+      }
+      // Nếu người dùng chủ động chuyển từ auto sang manual,
+      // người dùng sẽ tự nhập ngày.
+    } else if (['startDate', 'durationDays', 'endDate', 'excludeHolidays'].includes(field)) {
+      // Khi người dùng thay đổi các trường ngày tháng, không tự động đổi assignmentType nữa.
+      // useEffect sẽ tự tính toán lại ngày dựa trên assignmentType hiện tại.
+      // Nếu assignmentType là 'manual' và người dùng sửa startDate/durationDays, useEffect sẽ tính lại endDate.
     }
-    // Nếu thay đổi durationDays, excludeHolidays hoặc startDate của task auto, xóa endDate để tính lại
-    if (assignmentAtIndex.assignmentType === 'auto' && 
-        (field === 'durationDays' || field === 'excludeHolidays' || field === 'startDate')) {
-        assignmentAtIndex.endDate = '';
-    }
-
-    // Nếu thay đổi startDate, durationDays, hoặc excludeHolidays của task MANUAL, xóa endDate để tính lại
-    if (assignmentAtIndex.assignmentType === 'manual' && 
-        (field === 'startDate' || field === 'durationDays' || field === 'excludeHolidays')) {
-        assignmentAtIndex.endDate = ''; 
-    }
-
     setAssignments(newAssignments);
   };
 
@@ -351,14 +350,11 @@ const TimelineAssignmentModal = ({
                               <div className="flex justify-between items-start mb-1"> {/* items-start để icon kéo thẳng hàng với text */}
                                 <div>
                                   <p className="text-xs text-gray-600">
-                                    STT PC: <span className="font-semibold">{index + 1}</span>
-                                    {assign.originalSerialNumber && assign.originalSerialNumber !== (index + 1) && (
-                                      <span className="ml-2 text-orange-500 font-semibold" title={`Số thứ tự gốc của công trình: ${assign.originalSerialNumber}`}>
-                                        (Gốc: {assign.originalSerialNumber} <FaExclamationTriangle className="inline mb-0.5" size={10}/>)
-                                      </span>
-                                    )}
+                                    Thứ tự: <span className="font-semibold">{index + 1}</span>
                                   </p>
-                                  <h3 className="text-base font-semibold text-blue-700 truncate pr-2 mt-0.5">{assign.projectName}</h3>
+                                  <h3 className="text-base font-semibold text-blue-700 truncate pr-2 mt-0.5" title={`${assign.projectName}${assign.projectCode ? ` (${assign.projectCode})` : ''}`}>
+                                    {assign.projectName} {assign.projectCode && <span className="text-sm text-gray-500 font-normal">({assign.projectCode})</span>}
+                                  </h3>
                                 </div>
                                 <div {...providedDraggable.dragHandleProps} className="p-2 cursor-grab text-gray-500 hover:text-blue-600">
                                   ⠿
@@ -444,9 +440,9 @@ const TimelineAssignmentModal = ({
                                   <td className="px-1 md:px-3 py-1 md:py-2 text-center text-xs md:text-sm text-gray-700 border-r border-gray-300 align-middle">{index + 1}</td>
                                   <td className="px-1.5 md:px-3 py-1 md:py-2 whitespace-normal text-xs md:text-sm text-gray-800 font-medium border-r border-gray-300 align-middle">
                                     {assign.projectName}
-                                    {assign.originalSerialNumber && assign.originalSerialNumber !== (index + 1) && (
-                                      <span className="ml-1 text-orange-500 text-xs italic" title={`Số thứ tự gốc của công trình: ${assign.originalSerialNumber}`}>
-                                        (Gốc: {assign.originalSerialNumber} <FaExclamationTriangle className="inline mb-0.5" size={10}/>)
+                                    {assign.projectCode && (
+                                      <span className="ml-1 text-gray-500 text-xs" title={`Mã công trình: ${assign.projectCode}`}>
+                                        ({assign.projectCode})
                                       </span>
                                     )}
                                   </td>

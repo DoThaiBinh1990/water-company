@@ -370,3 +370,61 @@
 2025-05-26 02:01:58 info: Một người dùng đã kết nối: vDzVdQty1Ry3O3eZAAAn
 2025-05-26 02:02:17 info: [MarkViewedProcessed] User 682dc129d251bb6a04b6776a: 1 thông báo "chỉ xem" đã được đánh dấu xử lý.
 2025-05-26 02:04:42 info: [MarkViewedProcessed] User 682dc129d251bb6a04b6776a: 1 thông báo "chỉ xem" đã được đánh dấu xử lý.
+2025-05-26 07:50:50 info: Máy chủ đang chạy trên cổng 5000
+2025-05-26 07:50:53 info: MongoDB đã kết nối thành công.
+2025-05-26 07:51:40 error: Lỗi xác thực token: jwt expired
+2025-05-26 07:51:41 error: Lỗi xác thực token: jwt expired
+2025-05-26 07:53:52 info: Một người dùng đã kết nối: qeDiSbgw9zvyBO9vAAAB
+2025-05-26 07:53:52 info: Một người dùng đã kết nối: LYuOe0TZ7b1tPmA1AAAD
+2025-05-26 08:02:04 error: Lỗi xác thực token: jwt expired
+2025-05-26 08:02:05 error: Lỗi xác thực token: jwt expired
+2025-05-26 08:02:14 info: Một người dùng đã kết nối: _lwqCS2zLu3Bx0LPAAAF
+2025-05-26 08:02:14 info: Một người dùng đã kết nối: 3NOtIRB6exjzzvo_AAAH
+2025-05-26 08:02:24 info: Một người dùng đã kết nối: jhcbhd4UWlZeW8cRAAAJ
+2025-05-26 08:02:25 info: Một người dùng đã kết nối: WWE5GqW3R5ZwMmu4AAAL
+2025-05-26 08:13:39 info: Người dùng đã ngắt kết nối: qeDiSbgw9zvyBO9vAAAB
+2025-05-26 08:13:39 info: Người dùng đã ngắt kết nối: LYuOe0TZ7b1tPmA1AAAD
+2025-05-26 08:13:39 info: Một người dùng đã kết nối: WCzm3AMeFxIT9BlEAAAN
+2025-05-26 08:13:39 info: Một người dùng đã kết nối: 83_h2YlCVl9MxWINAAAP
+2025-05-26 08:20:40 info: Máy chủ đang chạy trên cổng 5000
+2025-05-26 08:20:40 info: Một người dùng đã kết nối: 0xFXPCyNDEYAIbR7AAAC
+2025-05-26 08:20:40 info: Một người dùng đã kết nối: MJUqflUu-iq4KlNEAAAD
+2025-05-26 08:20:40 info: Một người dùng đã kết nối: dy7Ks7Ed3mMWOZbQAAAG
+2025-05-26 08:20:40 info: Một người dùng đã kết nối: SRIAjh6czDoxJ3hqAAAH
+2025-05-26 08:20:40 info: MongoDB đã kết nối thành công.
+2025-05-26 08:20:42 info: Một người dùng đã kết nối: WV_zX3D2WGTtvb13AAAJ
+2025-05-26 08:20:43 info: Một người dùng đã kết nối: g_mnC_cTuP3z3lbGAAAL
+2025-05-26 08:20:46 info: Người dùng đã ngắt kết nối: dy7Ks7Ed3mMWOZbQAAAG
+2025-05-26 08:20:46 info: Người dùng đã ngắt kết nối: g_mnC_cTuP3z3lbGAAAL
+2025-05-26 08:20:46 info: Một người dùng đã kết nối: WRruTpsxzPpJGMFTAAAN
+2025-05-26 08:20:46 info: Một người dùng đã kết nối: H_fJj544SvoPd9zCAAAP
+2025-05-26 08:21:00 info: Người dùng đã ngắt kết nối: WRruTpsxzPpJGMFTAAAN
+2025-05-26 08:21:03 info: Một người dùng đã kết nối: NjjBbLGcIAi1RuoHAAAR
+2025-05-26 08:21:22 info: Người dùng đã ngắt kết nối: NjjBbLGcIAi1RuoHAAAR
+2025-05-26 08:21:38 info: Một người dùng đã kết nối: N7OnpCKTNPOmwbLSAAAT
+2025-05-26 08:25:51 info: Người dùng đã ngắt kết nối: N7OnpCKTNPOmwbLSAAAT
+2025-05-26 08:25:56 info: Một người dùng đã kết nối: kWRsdZD2sSv62k32AAAV
+2025-05-26 08:25:56 info: Một người dùng đã kết nối: hFxd0L33neUqYRiCAAAW
+2025-05-26 08:26:33 info: Người dùng đã ngắt kết nối: kWRsdZD2sSv62k32AAAV
+2025-05-26 08:26:33 info: Người dùng đã ngắt kết nối: hFxd0L33neUqYRiCAAAW
+2025-05-26 08:26:33 info: Người dùng đã ngắt kết nối: H_fJj544SvoPd9zCAAAP
+2025-05-26 08:26:34 info: Một người dùng đã kết nối: 7EC6-2E4C9sqQWcDAAAY
+2025-05-26 08:26:34 info: Một người dùng đã kết nối: DyA1TlP4oAx5g3J2AAAa
+2025-05-26 08:44:30 info: Người dùng đã ngắt kết nối: 7EC6-2E4C9sqQWcDAAAY
+2025-05-26 08:44:30 info: Người dùng đã ngắt kết nối: DyA1TlP4oAx5g3J2AAAa
+2025-05-26 08:44:31 info: Một người dùng đã kết nối: 1PccqE-eZW2sfngfAAAc
+2025-05-26 08:44:31 info: Một người dùng đã kết nối: yPP3pXVqCwvUOZMbAAAe
+2025-05-26 08:50:00 info: Batch update profile timeline result for estimator 6824441608ab772b765f4d88, year 2025:
+2025-05-26 09:05:58 info: [MarkViewedProcessed] User 68253af0ae2af2c31a6872a3: 1 thông báo "chỉ xem" đã được đánh dấu xử lý.
+2025-05-26 09:06:16 info: [MarkAllProcessed] User 68253af0ae2af2c31a6872a3: 1 thông báo đã được đánh dấu xử lý. 0 thông báo được giữ lại.
+2025-05-26 09:06:23 info: Người dùng đã ngắt kết nối: yPP3pXVqCwvUOZMbAAAe
+2025-05-26 09:06:23 info: Người dùng đã ngắt kết nối: 1PccqE-eZW2sfngfAAAc
+2025-05-26 09:06:24 info: Một người dùng đã kết nối: SWhxt85Vb_3F_waiAAAg
+2025-05-26 09:06:24 info: Một người dùng đã kết nối: WiMho0f2wYJ2RToMAAAi
+2025-05-26 09:21:26 info: Người dùng đã ngắt kết nối: MJUqflUu-iq4KlNEAAAD
+2025-05-26 09:21:26 info: Người dùng đã ngắt kết nối: WV_zX3D2WGTtvb13AAAJ
+2025-05-26 09:21:26 info: Người dùng đã ngắt kết nối: 0xFXPCyNDEYAIbR7AAAC
+2025-05-26 09:21:26 info: Người dùng đã ngắt kết nối: SRIAjh6czDoxJ3hqAAAH
+2025-05-26 09:21:28 info: Một người dùng đã kết nối: QvRPybGE2_KHuiKcAAAk
+2025-05-26 09:21:29 info: Một người dùng đã kết nối: TIasTD4NqiAbyzW7AAAm
+2025-05-26 09:28:22 info: Batch update profile timeline result for estimator 6824441608ab772b765f4d88, year 2025:

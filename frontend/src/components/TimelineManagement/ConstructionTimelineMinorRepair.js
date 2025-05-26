@@ -146,6 +146,7 @@ const ConstructionTimelineMinorRepair = ({ user, addMessage }) => {
             timelineType="construction"
             holidays={holidaysForModal} // Pass holidays
             isUpdatingTimelineTask={isUpdatingTimelineTask}
+            user={user} // Truyền user xuống
             onSaveActualProgress={handleSaveActualProgress} // Truyền prop xuống GanttChart
           />
         </div>
